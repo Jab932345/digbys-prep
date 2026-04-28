@@ -165,6 +165,8 @@ td.muted{color:var(--text3);font-size:12px;}
 .label-item-meta{font-size:11px;color:var(--text3);margin-top:2px;}
 .staff-card{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);}
 .staff-avatar{width:36px;height:36px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--text2);flex-shrink:0;}
+.task-note{font-size:11px;color:var(--text2);font-style:italic;margin-top:3px;line-height:1.45;padding:4px 8px;background:var(--amber-bg);border-left:2px solid var(--amber-bd);border-radius:0 3px 3px 0;}
+.task-card.done .task-note{opacity:.5;}
 </style>
 </head>
 <body>
@@ -263,33 +265,38 @@ td.muted{color:var(--text3);font-size:12px;}
 <!-- PREP LISTS -->
 <div id="page-prep" class="page">
   <div class="topbar">
-    <div><div class="topbar-title">Prep lists</div><div class="topbar-sub" id="prep-sub">Select an event to generate a prep list</div></div>
+    <div><div class="topbar-title">Prep</div><div class="topbar-sub" id="prep-sub">Select an event</div></div>
     <div class="topbar-actions">
       <select class="form-select" id="prep-ev-sel" style="width:220px;font-size:12px;padding:6px 10px;" onchange="generatePrepList()"><option value="">— Select event —</option></select>
       <div style="display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
-        <button class="btn btn-ghost btn-sm" id="vt-tl" onclick="setPrepView('tl',this)" style="border:none;border-radius:0;border-right:1px solid var(--border);">Timeline</button>
-        <button class="btn btn-ghost btn-sm" id="vt-st" onclick="setPrepView('st',this)" style="border:none;border-radius:0;border-right:1px solid var(--border);">Station</button>
-        <button class="btn btn-ghost btn-sm" id="vt-pr" onclick="setPrepView('pr',this)" style="border:none;border-radius:0;">Production</button>
+        <button class="btn btn-ghost btn-sm" id="vt-bucket" onclick="setPrepView('bucket')" style="border:none;border-radius:0;border-right:1px solid var(--border);">Overview</button>
+        <button class="btn btn-ghost btn-sm" id="vt-dish" onclick="setPrepView('dish')" style="border:none;border-radius:0;border-right:1px solid var(--border);">By dish</button>
+        <button class="btn btn-ghost btn-sm" id="vt-station" onclick="setPrepView('station')" style="border:none;border-radius:0;">By station</button>
       </div>
+      <button class="btn btn-sm" onclick="window.print()">Print</button>
     </div>
   </div>
   <div class="content">
-    <div id="prep-empty"><div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">✓</div><div class="empty-title">No event selected</div><div class="empty-sub">Choose an event from the dropdown above</div></div></div></div></div>
+    <div id="prep-empty"><div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">✓</div><div class="empty-title">No event selected</div><div class="empty-sub">Choose an event above to generate its prep list</div></div></div></div></div>
     <div id="prep-content" style="display:none;">
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-label">Covers</div><div class="stat-val" id="ps-covers">—</div><div class="stat-sub" id="ps-type">—</div></div>
-        <div class="stat-card"><div class="stat-label">Total tasks</div><div class="stat-val" id="ps-tasks">—</div><div class="stat-sub">All dishes</div></div>
-        <div class="stat-card"><div class="stat-label">Freezable</div><div class="stat-val" id="ps-freeze">—</div><div class="stat-sub">Components</div></div>
-        <div class="stat-card"><div class="stat-label">Progress</div><div class="stat-val" id="ps-pct">0%</div><div class="stat-sub" id="ps-done">0 of 0 done</div></div>
+      <div id="prep-header-strip" style="background:var(--text1);border-radius:var(--radius-lg);padding:16px 22px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;" id="ph-title">—</div>
+          <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;" id="ph-sub">—</div>
+        </div>
+        <div style="display:flex;gap:24px;">
+          <div style="text-align:center;"><div style="font-size:22px;font-weight:300;color:#fff;font-family:'Playfair Display',serif;" id="ph-covers">—</div><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;">covers</div></div>
+          <div style="text-align:center;"><div style="font-size:22px;font-weight:300;color:#fff;font-family:'Playfair Display',serif;" id="ph-tasks">—</div><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;">tasks</div></div>
+          <div style="text-align:center;"><div style="font-size:22px;font-weight:300;color:#5ECAA0;font-family:'Playfair Display',serif;" id="ph-done">0</div><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;">done</div></div>
+        </div>
+        <div style="flex:1;min-width:140px;max-width:200px;">
+          <div style="height:4px;background:rgba(255,255,255,.12);border-radius:2px;"><div style="height:100%;background:#5ECAA0;border-radius:2px;transition:width .3s;" id="ph-prog"></div></div>
+          <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:5px;text-align:right;font-family:'DM Mono',monospace;" id="ph-pct">0%</div>
+        </div>
       </div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-        <div class="progress-wrap"><div class="progress-fill" id="prep-prog" style="width:0%"></div></div>
-        <span style="font-size:11px;color:var(--text3);white-space:nowrap;" id="prep-prog-label">0 / 0</span>
-        <button class="btn btn-sm" onclick="window.print()">Print list</button>
-      </div>
-      <div id="prep-tl"></div>
-      <div id="prep-st" style="display:none;"></div>
-      <div id="prep-pr" style="display:none;"></div>
+      <div id="prep-bucket-view"></div>
+      <div id="prep-dish-view" style="display:none;"></div>
+      <div id="prep-station-view" style="display:none;"></div>
     </div>
   </div>
 </div>
@@ -645,80 +652,241 @@ function populatePrepSel(){
   if(cur)sel.value=cur;
 }
 
-function getPhase(comp){
-  if(comp.freeze_flag)return'3_days';
-  if(comp.fridge_flag&&(comp.lead_time_days||0)>=2)return'2_days';
-  if(comp.fridge_flag||(comp.lead_time_days||0)===1)return'1_day';
+// Categorise a component into one of three flexible buckets
+// "advance" = can be done well ahead (freeze/par-cook/stock/base)
+// "close"   = needs doing day-before or thereabouts (fridge/assembled)
+// "service" = day-of or pass only
+function getBucket(comp){
+  if(comp.freeze_flag)return'advance';
+  if(comp.fridge_flag)return'close';
   const n=(comp.name||'').toLowerCase();
-  if(n.includes('order')||n.includes('fillet')||n.includes('sear')||n.includes('pan fry')||n.includes('garnish')||n.includes('amaranth'))return'service';
-  return'day_of';
+  const serviceWords=['to order','fillet','sear','pan fry','pan-fry','garnish','amaranth','finish','plate','dress','carve','slice'];
+  if(serviceWords.some(w=>n.includes(w)))return'service';
+  return'close';
 }
+
+const BUCKETS={
+  advance:{
+    label:'Advance prep',
+    sub:'Components that can be made ahead — freeze batches, stocks, bases, par-cooks. Do these whenever suits.',
+    color:'var(--blue)',
+    bg:'var(--blue-bg)',
+    border:'var(--blue-bd)',
+    icon:'❄'
+  },
+  close:{
+    label:'Close prep',
+    sub:'Things to pull together nearer the day — fridge items, assembled elements, finishing sauces. Chef\'s call on timing.',
+    color:'var(--amber)',
+    bg:'var(--amber-bg)',
+    border:'var(--amber-bd)',
+    icon:'🧊'
+  },
+  service:{
+    label:'Service',
+    sub:'Day-of, pass items and to-order work. These stay where they are.',
+    color:'var(--green)',
+    bg:'var(--green-bg)',
+    border:'var(--green-bd)',
+    icon:'🔥'
+  }
+};
 
 function generatePrepList(){
   const eid=document.getElementById('prep-ev-sel').value;
   if(!eid){document.getElementById('prep-empty').style.display='';document.getElementById('prep-content').style.display='none';return;}
   const ev=events.find(e=>e.id===eid);if(!ev)return;
   const buf=1+(settings.buffer||14)/100;const covers=Math.round(ev.covers*buf);
-  document.getElementById('prep-empty').style.display='none';document.getElementById('prep-content').style.display='';
-  document.getElementById('ps-covers').textContent=ev.covers;document.getElementById('ps-type').textContent=EV_TYPES[ev.event_type]||ev.event_type;
-  document.getElementById('prep-sub').textContent=`${ev.job_code} — ${ev.client_name} · ${new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`;
+
+  document.getElementById('prep-empty').style.display='none';
+  document.getElementById('prep-content').style.display='';
+  document.getElementById('prep-sub').textContent=`${ev.job_code} — ${ev.client_name}`;
+  document.getElementById('ph-title').textContent=`${ev.client_name} — ${EV_TYPES[ev.event_type]||ev.event_type}`;
+  document.getElementById('ph-sub').textContent=`${ev.job_code} · ${new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})} · ${ev.covers} covers (${settings.buffer||14}% buffer = ${covers} to prep)`;
+  document.getElementById('ph-covers').textContent=ev.covers;
+
   const evDishIds=(ev.event_dishes||[]).map(d=>d.dish_id);
   const evDishes=dishes.filter(d=>evDishIds.includes(d.id));
+
   prepTasks=[];prepDone=new Set();
   evDishes.forEach(dish=>{
     (dish.components||[]).sort((a,b)=>a.sort_order-b.sort_order).forEach(comp=>{
-      const qty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*covers)+(comp.unit?` ${comp.unit}`:''):covers+' portions';
-      prepTasks.push({id:comp.id+'_'+dish.id,dishName:dish.name,comp,phase:getPhase(comp),qty,jobCode:ev.job_code,al:getDishAl(dish),evDate:ev.event_date});
+      const rawQty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*covers):null;
+      const qtyStr=rawQty?(rawQty+(comp.unit?' '+comp.unit:'')):(covers+' portions');
+      prepTasks.push({
+        id:comp.id+'_'+dish.id,
+        dishName:dish.name,
+        comp,
+        bucket:getBucket(comp),
+        qty:qtyStr,
+        covers,
+        jobCode:ev.job_code,
+        al:getDishAl(dish),
+        evDate:ev.event_date,
+        note:comp.chef_note||'' // editable per-task note
+      });
     });
   });
-  document.getElementById('ps-tasks').textContent=prepTasks.length;document.getElementById('ps-freeze').textContent=prepTasks.filter(t=>t.comp.freeze_flag).length;
-  updatePrepProg();renderPrepTL();renderPrepST();renderPrepPR(ev,covers);
-  setPrepView('tl',document.getElementById('vt-tl'));
+
+  document.getElementById('ph-tasks').textContent=prepTasks.length;
+  updatePrepProg();
+  renderPrepBucket();
+  renderPrepDish();
+  renderPrepStation();
+  setPrepView('bucket');
 }
 
 function updatePrepProg(){
   const done=prepDone.size,total=prepTasks.length,pct=total?Math.round(done/total*100):0;
-  document.getElementById('ps-pct').textContent=pct+'%';document.getElementById('ps-done').textContent=done+' of '+total+' done';document.getElementById('prep-prog').style.width=pct+'%';document.getElementById('prep-prog-label').textContent=done+' / '+total;
+  document.getElementById('ph-done').textContent=done;
+  document.getElementById('ph-prog').style.width=pct+'%';
+  document.getElementById('ph-pct').textContent=pct+'%';
 }
 
-function taskHtml(t){
+// ── TASK CARD ─────────────────────────────────────────────────────────────────
+// The core unit — a single component ready to tick off
+function taskCard(t,opts={}){
   const done=prepDone.has(t.id);
-  const stB=t.comp.freeze_flag?'badge-blue':t.comp.fridge_flag?'badge-green':'badge-gray';
-  const stL=t.comp.freeze_flag?'❄ Freeze':t.comp.fridge_flag?'🧊 Fridge':'Fresh';
+  const b=BUCKETS[t.bucket];
   const alHtml=t.al.map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('');
-  const pB=t.comp.freeze_flag?'freeze':'';
-  return`<div class="task-card ${done?'done':''}" id="tc-${t.id}" onclick="toggleTask('${t.id}')"><div class="task-check"><span class="tick-mark">✓</span></div><div><div class="task-name">${h(t.comp.name)}</div><div class="task-dish">${h(t.dishName)}</div>${t.comp.method_notes?`<div class="task-method">${h(t.comp.method_notes)}</div>`:''}<div class="task-meta">${t.comp.station?`<span class="badge badge-gray">${t.comp.station}</span>`:''}<span class="badge ${stB}">${stL}</span><span class="badge badge-gray">${t.qty}</span>${alHtml}</div></div><div class="task-right"><button class="print-btn ${pB}" onclick="event.stopPropagation();printCompLabel('${t.id}')">Print label</button></div></div>`;
+  const stLabel=t.comp.station?`<span class="badge badge-gray" style="font-size:10px">${t.comp.station}</span>`:'';
+  const noteHtml=t.note?`<div class="task-note">${h(t.note)}</div>`:'';
+  const freezeBtn=(t.comp.freeze_flag||t.comp.fridge_flag)?`<button class="print-btn${t.comp.freeze_flag?' freeze':''}" onclick="event.stopPropagation();printCompLabel('${t.id}')">Print label</button>`:'';
+  const dishLabel=opts.hideDish?'':` <span style="color:var(--text3)">·</span> <span style="font-size:11px;color:var(--text2)">${h(t.dishName)}</span>`;
+
+  return`<div class="task-card ${done?'done':''}" id="tc-${t.id}" onclick="toggleTask('${t.id}')">
+    <div class="task-check"><span class="tick-mark">✓</span></div>
+    <div style="flex:1;min-width:0;">
+      <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;">
+        <span class="task-name">${h(t.comp.name)}</span>${dishLabel}
+      </div>
+      ${noteHtml}
+      <div class="task-meta" style="margin-top:5px;">${stLabel}<span class="badge" style="background:${b.bg};color:${b.color};border:1px solid ${b.border};font-size:10px;">${b.icon} ${b.label}</span><span class="badge badge-gray" style="font-size:10px;">${t.qty}</span>${alHtml}</div>
+    </div>
+    <div class="task-right">${freezeBtn}</div>
+  </div>`;
 }
 
-function renderPrepTL(){
-  const phColors={'3_days':'background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd)','2_days':'background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd)','1_day':'background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd)','day_of':'background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd)','service':'background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd)'};
-  const phLabels={'3_days':'3 days out','2_days':'2 days out','1_day':'Day before','day_of':'Day of','service':'Service'};
+// ── BUCKET VIEW ───────────────────────────────────────────────────────────────
+// The default — three loose groups, no schedule imposed
+function renderPrepBucket(){
+  const el=document.getElementById('prep-bucket-view');
+  if(!prepTasks.length){el.innerHTML='<div class="empty-state"><div class="empty-title">No tasks — assign dishes to this event first</div></div>';return;}
+
   let html='';
-  PHASES.forEach(ph=>{const tasks=prepTasks.filter(t=>t.phase===ph.k);if(!tasks.length)return;html+=`<div class="phase-block"><div class="phase-header"><span class="badge" style="${phColors[ph.k]}">${phLabels[ph.k]}</span><div class="phase-line"></div></div>${tasks.map(t=>taskHtml(t)).join('')}</div>`;});
-  document.getElementById('prep-tl').innerHTML=html||'<div class="empty-state"><div class="empty-title">No tasks — add dishes to this event first</div></div>';
+  ['advance','close','service'].forEach(bk=>{
+    const tasks=prepTasks.filter(t=>t.bucket===bk);
+    if(!tasks.length)return;
+    const b=BUCKETS[bk];
+    const doneCt=tasks.filter(t=>prepDone.has(t.id)).length;
+    html+=`
+      <div class="prep-bucket" style="margin-bottom:28px;">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px;">
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:16px;">${b.icon}</span>
+              <span style="font-size:15px;font-weight:500;color:var(--text1);">${b.label}</span>
+              <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);">${doneCt}/${tasks.length}</span>
+            </div>
+            <div style="font-size:12px;color:var(--text3);margin-top:4px;max-width:520px;">${b.sub}</div>
+          </div>
+          ${bk==='advance'?`<button class="btn btn-sm" style="white-space:nowrap;" onclick="printBucketLabels('advance')">Print all freeze labels</button>`:''}
+        </div>
+        ${tasks.map(t=>taskCard(t)).join('')}
+      </div>`;
+  });
+  el.innerHTML=html;
 }
 
-function renderPrepST(){
-  const sts=['Hot','Cold','Pastry','Butchery','Pass',''];let html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">';
-  const phLabels={'3_days':'3 days out','2_days':'2 days out','1_day':'Day before','day_of':'Day of','service':'Service'};
-  sts.forEach(st=>{const tasks=prepTasks.filter(t=>(t.comp.station||'')===st);if(!tasks.length)return;html+=`<div class="card" style="margin-bottom:0;"><div class="card-header"><div class="card-title">${st||'Unassigned'} station</div><span class="badge badge-gray">${tasks.length}</span></div><div class="card-body" style="padding:12px;">${PHASES.map(ph=>{const pt=tasks.filter(t=>t.phase===ph.k);if(!pt.length)return'';return`<div style="font-size:10px;font-weight:500;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px;font-family:'DM Mono',monospace;">${phLabels[ph.k]}</div>`+pt.map(t=>`<div style="font-size:12px;padding:5px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span style="${prepDone.has(t.id)?'text-decoration:line-through;color:var(--text3)':'font-weight:500'}">${h(t.comp.name)}</span><span style="font-size:11px;color:var(--text3)">${t.qty}</span></div>`).join('');}).join('')}</div></div>`;});
-  html+='</div>';document.getElementById('prep-st').innerHTML=html;
+// ── DISH VIEW ─────────────────────────────────────────────────────────────────
+// All tasks grouped by dish — useful for checking a single dish is fully prepped
+function renderPrepDish(){
+  const el=document.getElementById('prep-dish-view');
+  const evDishIds=prepTasks.map(t=>t.dishName);
+  const dishNames=[...new Set(evDishIds)];
+  if(!dishNames.length){el.innerHTML='<div class="empty-state"><div class="empty-title">No tasks</div></div>';return;}
+
+  let html='';
+  dishNames.forEach(dishName=>{
+    const tasks=prepTasks.filter(t=>t.dishName===dishName);
+    const doneCt=tasks.filter(t=>prepDone.has(t.id)).length;
+    const al=tasks[0]?tasks[0].al:[];
+    html+=`
+      <div class="card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <div>
+            <div class="card-title">${h(dishName)}</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;">${tasks.length} components${al.length?' · Allergens: '+al.map(a=>a.allergen).join(', '):''}</div>
+          </div>
+          <span style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">${doneCt}/${tasks.length} done</span>
+        </div>
+        <div class="card-body" style="padding:12px 14px;">
+          ${tasks.map(t=>taskCard(t,{hideDish:true})).join('')}
+        </div>
+      </div>`;
+  });
+  el.innerHTML=html;
 }
 
-function renderPrepPR(ev,covers){
-  const frz=prepTasks.filter(t=>t.comp.freeze_flag);const fri=prepTasks.filter(t=>t.comp.fridge_flag);const evDate=new Date(ev.event_date);let html='';
-  if(frz.length){html+=`<div class="card"><div class="card-header"><div><div class="card-title">Freeze batch — ${ev.job_code}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${frz.length} components · Run 3 days out · ${settings.buffer||14}% buffer applied</div></div><button class="btn btn-blue btn-sm" onclick="printAllFrz()">Print all labels</button></div><div class="card-body"><table><thead><tr><th>Component</th><th>Dish</th><th>Qty</th><th>Use-by (frozen)</th><th>Station</th><th>Allergens</th></tr></thead><tbody>${frz.map(t=>{const ub=new Date(evDate);ub.setHours(ub.getHours()+(t.comp.use_by_hours||2160));return`<tr><td style="font-weight:500">${h(t.comp.name)}</td><td class="muted">${h(t.dishName)}</td><td class="muted">${t.qty}</td><td class="muted">${ub.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td><td class="muted">${t.comp.station||'—'}</td><td>${t.al.map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('')||'<span style="color:var(--text3);font-size:11px">None</span>'}</td></tr>`;}).join('')}</tbody></table></div></div>`;}
-  if(fri.length){html+=`<div class="card"><div class="card-header"><div><div class="card-title">Fridge prep — ${ev.job_code}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${fri.length} components · Day before · Use within 48hr</div></div><button class="btn btn-sm" onclick="printAllFri()">Print all labels</button></div><div class="card-body"><table><thead><tr><th>Component</th><th>Dish</th><th>Qty</th><th>Use-by</th><th>Station</th><th>Allergens</th></tr></thead><tbody>${fri.map(t=>{const ub=new Date(evDate);ub.setDate(ub.getDate()+2);return`<tr><td style="font-weight:500">${h(t.comp.name)}</td><td class="muted">${h(t.dishName)}</td><td class="muted">${t.qty}</td><td class="muted">${ub.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</td><td class="muted">${t.comp.station||'—'}</td><td>${t.al.map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('')||'<span style="color:var(--text3);font-size:11px">None</span>'}</td></tr>`;}).join('')}</tbody></table></div></div>`;}
-  if(!html)html='<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-title">No production items for this event</div></div></div></div>';
-  document.getElementById('prep-pr').innerHTML=html;
+// ── STATION VIEW ──────────────────────────────────────────────────────────────
+// All tasks grouped by station — useful for briefing individual sections
+function renderPrepStation(){
+  const el=document.getElementById('prep-station-view');
+  const stationNames=[...new Set(prepTasks.map(t=>t.comp.station||'Unassigned'))];
+  if(!stationNames.length){el.innerHTML='<div class="empty-state"><div class="empty-title">No tasks</div></div>';return;}
+
+  let html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;">';
+  stationNames.forEach(station=>{
+    const tasks=prepTasks.filter(t=>(t.comp.station||'Unassigned')===station);
+    const doneCt=tasks.filter(t=>prepDone.has(t.id)).length;
+    html+=`
+      <div class="card" style="margin-bottom:0;">
+        <div class="card-header">
+          <div class="card-title">${station}</div>
+          <span style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">${doneCt}/${tasks.length}</span>
+        </div>
+        <div class="card-body" style="padding:12px 14px;">
+          ${['advance','close','service'].map(bk=>{
+            const bt=tasks.filter(t=>t.bucket===bk);
+            if(!bt.length)return'';
+            const b=BUCKETS[bk];
+            return`<div style="font-size:10px;font-weight:500;color:${b.color};text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px;font-family:'DM Mono',monospace;">${b.icon} ${b.label}</div>`
+              +bt.map(t=>taskCard(t)).join('');
+          }).join('')}
+        </div>
+      </div>`;
+  });
+  html+='</div>';
+  el.innerHTML=html;
 }
 
-function toggleTask(id){const card=document.getElementById('tc-'+id);if(!card)return;if(prepDone.has(id))prepDone.delete(id);else prepDone.add(id);card.classList.toggle('done',prepDone.has(id));updatePrepProg();}
+function toggleTask(id){
+  const card=document.getElementById('tc-'+id);
+  if(!card)return;
+  if(prepDone.has(id))prepDone.delete(id);else prepDone.add(id);
+  card.classList.toggle('done',prepDone.has(id));
+  updatePrepProg();
+  // refresh current view so counter updates
+  const v=document.getElementById('prep-bucket-view').style.display!=='none'?'bucket':document.getElementById('prep-dish-view').style.display!=='none'?'dish':'station';
+  if(v==='bucket')renderPrepBucket();
+  else if(v==='dish')renderPrepDish();
+  else renderPrepStation();
+  setPrepView(v);
+}
 
-function setPrepView(v,btn){['tl','st','pr'].forEach(x=>{document.getElementById('prep-'+x).style.display=x===v?'':'none';const b=document.getElementById('vt-'+x);if(b){b.style.background=x===v?'var(--bg2)':'';b.style.fontWeight=x===v?'500':'';}});}
+function setPrepView(v){
+  ['bucket','dish','station'].forEach(x=>{
+    document.getElementById('prep-'+x+'-view').style.display=x===v?'':'none';
+    const b=document.getElementById('vt-'+x);
+    if(b){b.style.background=x===v?'var(--bg2)':'';b.style.fontWeight=x===v?'500':'';}
+  });
+}
 
-function printAllFrz(){prepTasks.filter(t=>t.comp.freeze_flag).forEach((t,i)=>setTimeout(()=>printCompLabel(t.id),i*400));showToast('Sending freeze labels...','success');}
-function printAllFri(){prepTasks.filter(t=>t.comp.fridge_flag).forEach((t,i)=>setTimeout(()=>printCompLabel(t.id),i*400));showToast('Sending fridge labels...','success');}
+function printBucketLabels(bucket){
+  const tasks=prepTasks.filter(t=>t.bucket===bucket);
+  tasks.forEach((t,i)=>setTimeout(()=>printCompLabel(t.id),i*400));
+  showToast(`Sending ${tasks.length} labels to printer...`,'success');
+}
 
 // PRODUCTION RUNS
 function buildMonthSel(){
