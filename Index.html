@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digby's — Kitchen Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg:       #F5F3EE;
+  --bg2:      #EDEAE3;
+  --bg3:      #E4E0D7;
+  --surface:  #FFFFFF;
+  --border:   #D6D2C9;
+  --border2:  #C5C0B5;
+  --text1:    #1C1A16;
+  --text2:    #5C5849;
+  --text3:    #8C8779;
+  --green:    #1D6B4E;
+  --green-bg: #E8F5EE;
+  --green-bd: #8ECAAA;
+  --amber:    #92510A;
+  --amber-bg: #FBF0E0;
+  --amber-bd: #E8B96A;
+  --red:      #8C2020;
+  --red-bg:   #FAEAEA;
+  --red-bd:   #DBA0A0;
+  --blue:     #1A4F7A;
+  --blue-bg:  #E6EFF8;
+  --blue-bd:  #7AAED6;
+  --radius:   6px;
+  --radius-lg: 10px;
+  --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text1);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ── LAYOUT ─────────────────────────────── */
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 220px; min-width: 220px;
+  background: var(--text1);
+  display: flex; flex-direction: column;
+  padding: 0; position: fixed;
+  top: 0; left: 0; bottom: 0; z-index: 50;
+}
+
+.sidebar-brand {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.brand-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 17px; font-weight: 600;
+  color: #fff; letter-spacing: 0.01em;
+}
+.brand-sub {
+  font-size: 10px; color: rgba(255,255,255,0.4);
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-top: 3px; font-family: 'DM Mono', monospace;
+}
+
+.nav-section { padding: 12px 0 4px; }
+.nav-label {
+  font-size: 9px; color: rgba(255,255,255,0.3);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 0 18px 6px; font-family: 'DM Mono', monospace;
+}
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 8px 18px; font-size: 13px;
+  color: rgba(255,255,255,0.55); cursor: pointer;
+  border-left: 2px solid transparent;
+  transition: all 0.15s; font-weight: 400;
+}
+.nav-item:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.05); }
+.nav-item.active {
+  color: #fff; border-left-color: #5ECAA0;
+  background: rgba(255,255,255,0.07);
+}
+.nav-icon { font-size: 13px; width: 16px; text-align: center; opacity: 0.7; }
+.nav-item.active .nav-icon { opacity: 1; }
+
+.sidebar-footer {
+  margin-top: auto; padding: 14px 18px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 11px; color: rgba(255,255,255,0.3);
+  font-family: 'DM Mono', monospace;
+}
+
+.main { margin-left: 220px; flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+/* ── TOPBAR ─────────────────────────────── */
+.topbar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 14px 24px; display: flex; align-items: center;
+  justify-content: space-between; position: sticky; top: 0; z-index: 40;
+  box-shadow: var(--shadow);
+}
+.topbar-left { display: flex; align-items: center; gap: 12px; }
+.topbar-title { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 500; }
+.topbar-sub { font-size: 12px; color: var(--text3); }
+.topbar-actions { display: flex; gap: 8px; }
+
+/* ── BUTTONS ────────────────────────────── */
+.btn {
+  font-size: 12px; font-weight: 500; padding: 7px 14px;
+  border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); color: var(--text2);
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s; display: inline-flex; align-items: center; gap: 6px;
+}
+.btn:hover { background: var(--bg2); border-color: var(--border2); color: var(--text1); }
+.btn-primary {
+  background: var(--green); border-color: var(--green); color: #fff;
+}
+.btn-primary:hover { background: #155438; border-color: #155438; }
+.btn-sm { font-size: 11px; padding: 5px 10px; }
+.btn-ghost { border-color: transparent; background: transparent; }
+.btn-ghost:hover { background: var(--bg2); border-color: transparent; }
+.btn-danger { color: var(--red); border-color: var(--red-bd); }
+.btn-danger:hover { background: var(--red-bg); }
+
+/* ── CONTENT ────────────────────────────── */
+.content { padding: 24px; flex: 1; }
+
+/* ── STATS ──────────────────────────────── */
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+.stat-label { font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; font-family: 'DM Mono', monospace; }
+.stat-val { font-size: 28px; font-weight: 300; color: var(--text1); margin: 4px 0 2px; font-family: 'Playfair Display', serif; }
+.stat-sub { font-size: 11px; color: var(--text3); }
+
+/* ── CARDS ──────────────────────────────── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); box-shadow: var(--shadow);
+  margin-bottom: 16px; overflow: hidden;
+}
+.card-header {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--bg);
+}
+.card-title { font-size: 13px; font-weight: 500; color: var(--text1); }
+.card-body { padding: 0; }
+
+/* ── TABLES ─────────────────────────────── */
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead th {
+  padding: 9px 16px; text-align: left; font-size: 10px;
+  font-weight: 500; color: var(--text3); letter-spacing: 0.07em;
+  text-transform: uppercase; background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-family: 'DM Mono', monospace;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg); }
+tbody td { padding: 11px 16px; vertical-align: middle; }
+td.muted { color: var(--text3); font-size: 12px; }
+
+/* ── BADGES ─────────────────────────────── */
+.badge {
+  display: inline-block; font-size: 10px; padding: 2px 8px;
+  border-radius: 20px; font-weight: 500; white-space: nowrap;
+  font-family: 'DM Mono', monospace;
+}
+.badge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
+.badge-red   { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd); }
+.badge-blue  { background: var(--blue-bg);  color: var(--blue);  border: 1px solid var(--blue-bd); }
+.badge-gray  { background: var(--bg2);      color: var(--text2); border: 1px solid var(--border); }
+.badge-dark  { background: var(--text1);    color: #fff;         border: 1px solid var(--text1); }
+
+.allergen-tag {
+  display: inline-block; font-size: 10px; padding: 1px 6px;
+  border-radius: 3px; margin: 1px;
+  background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bd);
+  font-family: 'DM Mono', monospace;
+}
+.allergen-tag.may { background: var(--amber-bg); color: var(--amber); border-color: var(--amber-bd); }
+
+/* ── MODAL ──────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0; background: rgba(28,26,22,0.5);
+  display: none; align-items: center; justify-content: center;
+  z-index: 100; backdrop-filter: blur(2px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border-radius: var(--radius-lg);
+  border: 1px solid var(--border); width: 620px; max-width: 95vw;
+  max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-md);
+}
+.modal-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; background: var(--surface); z-index: 1;
+}
+.modal-title { font-family: 'Playfair Display', serif; font-size: 16px; font-weight: 500; }
+.modal-body { padding: 20px; }
+.modal-footer {
+  padding: 14px 20px; border-top: 1px solid var(--border);
+  display: flex; justify-content: flex-end; gap: 8px;
+  position: sticky; bottom: 0; background: var(--surface);
+}
+
+/* ── FORMS ──────────────────────────────── */
+.form-row { margin-bottom: 16px; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.form-label {
+  display: block; font-size: 11px; font-weight: 500;
+  color: var(--text2); margin-bottom: 5px;
+  text-transform: uppercase; letter-spacing: 0.05em;
+  font-family: 'DM Mono', monospace;
+}
+.form-input, .form-select, .form-textarea {
+  width: 100%; font-size: 13px; padding: 8px 11px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text1);
+  font-family: 'DM Sans', sans-serif; transition: border-color 0.15s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none; border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(29,107,78,0.08);
+}
+.form-textarea { resize: vertical; min-height: 72px; }
+.form-hint { font-size: 11px; color: var(--text3); margin-top: 4px; }
+
+/* ── COMPONENT EDITOR ───────────────────── */
+.component-list { display: flex; flex-direction: column; gap: 6px; }
+.component-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; background: var(--bg);
+  border: 1px solid var(--border); border-radius: var(--radius);
+}
+.component-item input, .component-item select {
+  font-size: 12px; padding: 4px 8px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text1);
+  font-family: 'DM Sans', sans-serif;
+}
+.component-item input:focus, .component-item select:focus {
+  outline: none; border-color: var(--green);
+}
+.comp-name { flex: 1; }
+.comp-qty  { width: 64px; }
+.comp-unit { width: 72px; }
+.comp-station { width: 80px; }
+.freeze-btn {
+  font-size: 10px; padding: 3px 8px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text3); cursor: pointer; white-space: nowrap;
+  font-family: 'DM Mono', monospace; transition: all 0.15s;
+}
+.freeze-btn.active-freeze { background: var(--blue-bg); border-color: var(--blue-bd); color: var(--blue); }
+.freeze-btn.active-fridge { background: var(--green-bg); border-color: var(--green-bd); color: var(--green); }
+.comp-remove { background: none; border: none; color: var(--text3); cursor: pointer; font-size: 16px; line-height: 1; padding: 0 2px; }
+.comp-remove:hover { color: var(--red); }
+
+/* ── ALLERGEN GRID ──────────────────────── */
+.allergen-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 5px; }
+.allergen-toggle {
+  font-size: 10px; padding: 5px 4px; text-align: center;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  cursor: pointer; background: var(--surface); color: var(--text3);
+  transition: all 0.15s; font-family: 'DM Mono', monospace;
+  user-select: none;
+}
+.allergen-toggle.contains { background: var(--red-bg); border-color: var(--red-bd); color: var(--red); }
+.allergen-toggle.may { background: var(--amber-bg); border-color: var(--amber-bd); color: var(--amber); }
+
+/* ── PAGES ──────────────────────────────── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── EMPTY STATE ────────────────────────── */
+.empty-state {
+  text-align: center; padding: 48px 24px;
+  color: var(--text3);
+}
+.empty-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+.empty-title { font-size: 14px; font-weight: 500; color: var(--text2); margin-bottom: 6px; }
+.empty-sub { font-size: 12px; }
+
+/* ── TOAST ──────────────────────────────── */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--text1); color: #fff; font-size: 13px;
+  padding: 12px 18px; border-radius: var(--radius);
+  box-shadow: var(--shadow-md); z-index: 200;
+  transform: translateY(60px); opacity: 0;
+  transition: all 0.25s ease; pointer-events: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-left: 3px solid #5ECAA0; }
+.toast.error { border-left: 3px solid #E06060; }
+
+/* ── LOADING ────────────────────────────── */
+.loading-row td {
+  text-align: center; padding: 32px;
+  color: var(--text3); font-size: 12px;
+  font-family: 'DM Mono', monospace;
+}
+.spinner {
+  display: inline-block; width: 16px; height: 16px;
+  border: 2px solid var(--border); border-top-color: var(--green);
+  border-radius: 50%; animation: spin 0.6s linear infinite;
+  margin-right: 8px; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── SECTION HEADER ─────────────────────── */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-title { font-size: 13px; font-weight: 500; color: var(--text1); }
+
+/* ── DIVIDER ────────────────────────────── */
+.divider { height: 1px; background: var(--border); margin: 18px 0; }
+
+/* ── FILTER BAR ─────────────────────────── */
+.filter-bar {
+  display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap;
+  align-items: center;
+}
+.filter-chip {
+  font-size: 11px; padding: 5px 12px; border-radius: 20px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text2); cursor: pointer; font-family: 'DM Mono', monospace;
+  transition: all 0.15s;
+}
+.filter-chip:hover { border-color: var(--border2); }
+.filter-chip.active { background: var(--text1); border-color: var(--text1); color: #fff; }
+
+.search-input {
+  font-size: 12px; padding: 6px 12px;
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text1);
+  font-family: 'DM Sans', sans-serif; width: 200px;
+}
+.search-input:focus { outline: none; border-color: var(--green); }
+
+/* ── CONNECTION STATUS ──────────────────── */
+.conn-status {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  color: var(--text3);
+}
+.conn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border2); }
+.conn-dot.live { background: #5ECAA0; }
+.conn-dot.error { background: #E06060; }
+
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-title">Digby's</div>
+      <div class="brand-sub">Kitchen Operations</div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" onclick="nav('dashboard',this)">
+        <span class="nav-icon">◈</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="nav('events',this)">
+        <span class="nav-icon">◷</span> Events
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Kitchen</div>
+      <div class="nav-item" onclick="nav('menu',this)">
+        <span class="nav-icon">≡</span> Menu builder
+      </div>
+      <div class="nav-item" onclick="nav('prep',this)">
+        <span class="nav-icon">✓</span> Prep lists
+      </div>
+      <div class="nav-item" onclick="nav('production',this)">
+        <span class="nav-icon">❄</span> Production runs
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Output</div>
+      <div class="nav-item" onclick="nav('allergens',this)">
+        <span class="nav-icon">⚠</span> Allergens
+      </div>
+      <div class="nav-item" onclick="nav('labels',this)">
+        <span class="nav-icon">▤</span> Label queue
+      </div>
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">System</div>
+      <div class="nav-item" onclick="nav('admin',this)">
+        <span class="nav-icon">⚙</span> Admin
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="conn-status">
+        <div class="conn-dot" id="conn-dot"></div>
+        <span id="conn-label">Connecting...</span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ══ DASHBOARD ══════════════════════ -->
+    <div id="page-dashboard" class="page active">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div>
+            <div class="topbar-title">Dashboard</div>
+            <div class="topbar-sub" id="dashboard-date">—</div>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('event-modal')">+ New event</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-label">Dishes on menu</div>
+            <div class="stat-val" id="stat-dishes">—</div>
+            <div class="stat-sub" id="stat-dishes-sub">Loading...</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Upcoming events</div>
+            <div class="stat-val" id="stat-events">—</div>
+            <div class="stat-sub">Next 30 days</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total covers</div>
+            <div class="stat-val" id="stat-covers">—</div>
+            <div class="stat-sub">Upcoming events</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Components</div>
+            <div class="stat-val" id="stat-components">—</div>
+            <div class="stat-sub" id="stat-comp-sub">Loading...</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Upcoming events</div>
+            <button class="btn btn-sm" onclick="nav('events', document.querySelector('.nav-item:nth-child(2)'))">View all</button>
+          </div>
+          <div class="card-body">
+            <table>
+              <thead><tr>
+                <th>Date</th><th>Event</th><th>Type</th>
+                <th>Covers</th><th>Status</th><th></th>
+              </tr></thead>
+              <tbody id="dash-events-body">
+                <tr class="loading-row"><td colspan="6"><span class="spinner"></span>Loading events...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Menu — recent dishes</div>
+            <button class="btn btn-sm" onclick="nav('menu', document.querySelectorAll('.nav-item')[3])">View all</button>
+          </div>
+          <div class="card-body">
+            <table>
+              <thead><tr>
+                <th>Dish</th><th>Category</th><th>Allergens</th><th>Status</th><th></th>
+              </tr></thead>
+              <tbody id="dash-dishes-body">
+                <tr class="loading-row"><td colspan="5"><span class="spinner"></span>Loading dishes...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MENU BUILDER ════════════════════ -->
+    <div id="page-menu" class="page">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="topbar-title">Menu builder</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="openDishModal()">+ Add dish</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="filter-bar">
+          <input type="text" class="search-input" placeholder="Search dishes..." id="dish-search" oninput="filterDishes()">
+          <div class="filter-chip active" onclick="setDishFilter('All',this)">All</div>
+          <div class="filter-chip" onclick="setDishFilter('Canapés',this)">Canapés</div>
+          <div class="filter-chip" onclick="setDishFilter('Starters',this)">Starters</div>
+          <div class="filter-chip" onclick="setDishFilter('Mains',this)">Mains</div>
+          <div class="filter-chip" onclick="setDishFilter('Desserts',this)">Desserts</div>
+          <div class="filter-chip" onclick="setDishFilter('Tasting Menu',this)">Tasting Menu</div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <table>
+              <thead><tr>
+                <th>Dish</th><th>Category</th><th>Components</th>
+                <th>Freezable</th><th>Allergens</th><th>Status</th><th></th>
+              </tr></thead>
+              <tbody id="menu-body">
+                <tr class="loading-row"><td colspan="7"><span class="spinner"></span>Loading menu...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ EVENTS ══════════════════════════ -->
+    <div id="page-events" class="page">
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="topbar-title">Events</div>
+        </div>
+        <div class="topbar-actions">
+          <button class="btn btn-primary btn-sm" onclick="openModal('event-modal')">+ New event</button>
+        </div>
+      </div>
+      <div class="content">
+        <div class="filter-bar">
+          <div class="filter-chip active" onclick="setEventFilter('All',this)">All</div>
+          <div class="filter-chip" onclick="setEventFilter('WED',this)">Weddings</div>
+          <div class="filter-chip" onclick="setEventFilter('PRIV',this)">Private dining</div>
+          <div class="filter-chip" onclick="setEventFilter('TM',this)">Tasting menus</div>
+          <div class="filter-chip" onclick="setEventFilter('CAN',this)">Canapés</div>
+          <div class="filter-chip" onclick="setEventFilter('Confirmed',this)">Confirmed</div>
+          <div class="filter-chip" onclick="setEventFilter('Provisional',this)">Provisional</div>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <table>
+              <thead><tr>
+                <th>Job code</th><th>Event</th><th>Date</th>
+                <th>Type</th><th>Covers</th><th>Status</th><th></th>
+              </tr></thead>
+              <tbody id="events-body">
+                <tr class="loading-row"><td colspan="7"><span class="spinner"></span>Loading events...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ PREP / PRODUCTION / ALLERGENS / LABELS / ADMIN (placeholders) ══ -->
+    <div id="page-prep" class="page">
+      <div class="topbar"><div class="topbar-left"><div class="topbar-title">Prep lists</div></div></div>
+      <div class="content">
+        <div class="card"><div class="card-body"><div class="empty-state">
+          <div class="empty-icon">✓</div>
+          <div class="empty-title">Prep list engine</div>
+          <div class="empty-sub">Select an event from the Events tab to generate a prep list</div>
+        </div></div></div>
+      </div>
+    </div>
+    <div id="page-production" class="page">
+      <div class="topbar"><div class="topbar-left"><div class="topbar-title">Production runs</div></div></div>
+      <div class="content">
+        <div class="card"><div class="card-body"><div class="empty-state">
+          <div class="empty-icon">❄</div>
+          <div class="empty-title">Production runs</div>
+          <div class="empty-sub">Batch production across events — coming next build</div>
+        </div></div></div>
+      </div>
+    </div>
+    <div id="page-allergens" class="page">
+      <div class="topbar"><div class="topbar-left"><div class="topbar-title">Allergen matrix</div></div></div>
+      <div class="content">
+        <div class="card"><div class="card-body"><div class="empty-state">
+          <div class="empty-icon">⚠</div>
+          <div class="empty-title">Allergen matrix</div>
+          <div class="empty-sub">Auto-generated from dish database — coming next build</div>
+        </div></div></div>
+      </div>
+    </div>
+    <div id="page-labels" class="page">
+      <div class="topbar"><div class="topbar-left"><div class="topbar-title">Label queue</div></div></div>
+      <div class="content">
+        <div class="card"><div class="card-body"><div class="empty-state">
+          <div class="empty-icon">▤</div>
+          <div class="empty-title">Label queue</div>
+          <div class="empty-sub">CPS label integration — coming next build</div>
+        </div></div></div>
+      </div>
+    </div>
+    <div id="page-admin" class="page">
+      <div class="topbar"><div class="topbar-left"><div class="topbar-title">Admin</div></div></div>
+      <div class="content">
+        <div class="card"><div class="card-body"><div class="empty-state">
+          <div class="empty-icon">⚙</div>
+          <div class="empty-title">Admin panel</div>
+          <div class="empty-sub">Staff, settings, CPS sync — coming next build</div>
+        </div></div></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /layout -->
+
+<!-- ══ DISH MODAL ══════════════════════════════════ -->
+<div class="modal-overlay" id="dish-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="dish-modal-title">Add dish</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('dish-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="dish-id">
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label class="form-label">Dish name *</label>
+          <input class="form-input" id="dish-name" type="text" placeholder="e.g. Smoked salmon blini">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Category *</label>
+          <select class="form-select" id="dish-category">
+            <option>Canapés</option>
+            <option>Starters</option>
+            <option>Mains</option>
+            <option>Desserts</option>
+            <option>Evening Grazing</option>
+            <option>Tasting Menu</option>
+            <option>Sides</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label class="form-label">Station</label>
+          <select class="form-select" id="dish-station">
+            <option value="">— select —</option>
+            <option>Hot</option>
+            <option>Cold</option>
+            <option>Pastry</option>
+            <option>Butchery</option>
+            <option>Pass</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Menu type(s)</label>
+          <select class="form-select" id="dish-menu-type" multiple style="height:70px;">
+            <option value="Weddings">Weddings</option>
+            <option value="Tasting Menu">Tasting Menu</option>
+            <option value="Bespoke">Bespoke</option>
+            <option value="Wakes">Wakes</option>
+            <option value="Private Dining">Private Dining</option>
+          </select>
+          <div class="form-hint">Hold Ctrl/Cmd to select multiple</div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Description</label>
+        <textarea class="form-textarea" id="dish-description" placeholder="Brief description for team reference..."></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- COMPONENTS -->
+      <div class="section-header">
+        <div class="section-title">Components</div>
+        <button class="btn btn-sm" onclick="addComponentRow()">+ Add component</button>
+      </div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;">
+        NAME · QTY PER COVER · UNIT · STATION · STORAGE
+      </div>
+      <div class="component-list" id="component-list"></div>
+
+      <div class="divider"></div>
+
+      <!-- ALLERGENS -->
+      <div class="form-row">
+        <label class="form-label">Dish allergens (14 UK mandatory)</label>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Click once = Contains (red) · Click twice = May contain (amber) · Click again = clear</div>
+        <div class="allergen-grid" id="allergen-grid">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="dish-notes" placeholder="Chef notes, TBC items, testing required..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="dish-delete-btn" onclick="deleteDish()" style="display:none;margin-right:auto;">Delete dish</button>
+      <button class="btn" onclick="closeModal('dish-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveDish()">Save dish</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ EVENT MODAL ══════════════════════════════════ -->
+<div class="modal-overlay" id="event-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="event-modal-title">Add event</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('event-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="event-id">
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label class="form-label">Client name *</label>
+          <input class="form-input" id="event-client" type="text" placeholder="e.g. Henderson" oninput="buildJobCode()">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Event date *</label>
+          <input class="form-input" id="event-date" type="date" oninput="buildJobCode()">
+        </div>
+      </div>
+
+      <div class="form-grid-3">
+        <div class="form-row">
+          <label class="form-label">Event type *</label>
+          <select class="form-select" id="event-type" onchange="buildJobCode()">
+            <option value="WED">Wedding</option>
+            <option value="PRIV">Private Dining</option>
+            <option value="TM">Tasting Menu</option>
+            <option value="CAN">Canapés</option>
+            <option value="BUF">Buffet</option>
+            <option value="CORP">Corporate</option>
+            <option value="GAL">Gala Dinner</option>
+            <option value="GRZ">Grazing</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Covers *</label>
+          <input class="form-input" id="event-covers" type="number" min="1" placeholder="80">
+        </div>
+        <div class="form-row">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="event-status">
+            <option>Provisional</option>
+            <option>Confirmed</option>
+            <option>Enquiry</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Job code (auto-generated)</label>
+        <input class="form-input" id="event-jobcode" type="text" placeholder="Will auto-fill..." style="font-family:'DM Mono',monospace;font-size:13px;">
+        <div class="form-hint">Format: initials + DDMMYY + type — e.g. DF100626TM. Edit manually if needed.</div>
+      </div>
+
+      <div class="form-row">
+        <label class="form-label">Notes</label>
+        <textarea class="form-textarea" id="event-notes" placeholder="Any special requirements, dietary needs..."></textarea>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section-header">
+        <div class="section-title">Dishes for this event</div>
+        <div style="font-size:11px;color:var(--text3);">Select from menu</div>
+      </div>
+      <div id="event-dishes-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div style="font-size:12px;color:var(--text3);">Loading dishes...</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="event-delete-btn" onclick="deleteEvent()" style="display:none;margin-right:auto;">Delete event</button>
+      <button class="btn" onclick="closeModal('event-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEvent()">Save event</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG — Supabase connection
+// ══════════════════════════════════════════
+const SUPABASE_URL  = 'https://qfnwyooipwtfzikukztz.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbnd5b29pcHd0Znppa3VrenR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODY0MTcsImV4cCI6MjA5Mjk2MjQxN30.qzq30fT8L2bhX7kx46HZdco3rt7bN2zRGSKETCNgQqw';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+const ALLERGENS = ['Gluten','Dairy','Egg','Fish','Shellfish','Nuts','Peanuts','Soya','Celery','Mustard','Sesame','Sulphites','Lupin','Molluscs'];
+const EVENT_TYPES = { WED:'Wedding', PRIV:'Private Dining', TM:'Tasting Menu', CAN:'Canapés', BUF:'Buffet', CORP:'Corporate', GAL:'Gala Dinner', GRZ:'Grazing' };
+const STATUS_BADGE = { Confirmed:'badge-green', Provisional:'badge-amber', Enquiry:'badge-gray', Completed:'badge-dark', Cancelled:'badge-red' };
+
+let allDishes = [];
+let allEvents = [];
+let dishFilter = 'All';
+let eventFilter = 'All';
+let allergenState = {}; // key: allergen, val: 'contains'|'may'|null
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+async function init() {
+  document.getElementById('dashboard-date').textContent = new Date().toLocaleDateString('en-GB', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+  await checkConnection();
+  await loadDishes();
+  await loadEvents();
+  buildAllergenGrid();
+}
+
+async function checkConnection() {
+  try {
+    const { error } = await sb.from('dishes').select('id').limit(1);
+    const dot = document.getElementById('conn-dot');
+    const lbl = document.getElementById('conn-label');
+    if (error) { dot.className = 'conn-dot error'; lbl.textContent = 'DB error'; }
+    else        { dot.className = 'conn-dot live';  lbl.textContent = 'Connected'; }
+  } catch(e) {
+    document.getElementById('conn-dot').className = 'conn-dot error';
+    document.getElementById('conn-label').textContent = 'Offline';
+  }
+}
+
+// ══════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════
+function nav(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+//  DISHES — load & render
+// ══════════════════════════════════════════
+async function loadDishes() {
+  const { data, error } = await sb
+    .from('dishes')
+    .select('*, components(*), component_allergens(allergen, status, component_id)')
+    .order('category').order('name');
+
+  if (error) { showToast('Error loading dishes: ' + error.message, 'error'); return; }
+  allDishes = data || [];
+
+  const freezeCount = allDishes.reduce((acc, d) => acc + (d.components || []).filter(c => c.freeze_flag).length, 0);
+  document.getElementById('stat-dishes').textContent = allDishes.length;
+  document.getElementById('stat-dishes-sub').textContent = allDishes.filter(d => d.locked).length + ' locked';
+  document.getElementById('stat-components').textContent = allDishes.reduce((a, d) => a + (d.components || []).length, 0);
+  document.getElementById('stat-comp-sub').textContent = freezeCount + ' freezable';
+
+  renderMenuTable();
+  renderDashDishes();
+  renderEventDishesGrid();
+}
+
+function getDishAllergens(dish) {
+  const all = [];
+  (dish.component_allergens || []).forEach(a => {
+    if (!all.find(x => x.allergen === a.allergen)) all.push(a);
+  });
+  return all;
+}
+
+function renderMenuTable() {
+  const body = document.getElementById('menu-body');
+  const search = document.getElementById('dish-search').value.toLowerCase();
+  const filtered = allDishes.filter(d => {
+    const matchCat = dishFilter === 'All' || d.category === dishFilter;
+    const matchSearch = !search || d.name.toLowerCase().includes(search) || (d.description||'').toLowerCase().includes(search);
+    return matchCat && matchSearch;
+  });
+
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">≡</div><div class="empty-title">No dishes found</div><div class="empty-sub">Add your first dish using the button above</div></div></td></tr>`;
+    return;
+  }
+
+  body.innerHTML = filtered.map(d => {
+    const comps = d.components || [];
+    const freezable = comps.filter(c => c.freeze_flag).length;
+    const allergens = getDishAllergens(d);
+    const allergenHtml = allergens.length
+      ? allergens.map(a => `<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${a.allergen}</span>`).join('')
+      : '<span style="font-size:11px;color:var(--text3);">None declared</span>';
+
+    return `<tr>
+      <td>
+        <div style="font-weight:500">${d.name}</div>
+        ${d.description ? `<div style="font-size:11px;color:var(--text3);margin-top:2px;">${d.description.substring(0,60)}${d.description.length>60?'...':''}</div>` : ''}
+      </td>
+      <td><span class="badge badge-gray">${d.category}</span></td>
+      <td class="muted">${comps.length} component${comps.length!==1?'s':''}</td>
+      <td class="muted">${freezable ? `<span class="badge badge-blue">❄ ${freezable}</span>` : '<span style="color:var(--text3);font-size:11px;">—</span>'}</td>
+      <td>${allergenHtml}</td>
+      <td>${d.locked ? '<span class="badge badge-green">Locked</span>' : '<span class="badge badge-amber">Draft</span>'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="editDish('${d.id}')">Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function renderDashDishes() {
+  const body = document.getElementById('dash-dishes-body');
+  const recent = allDishes.slice(0, 5);
+  if (!recent.length) {
+    body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3);font-size:12px;">No dishes yet — add from Menu builder</td></tr>`;
+    return;
+  }
+  body.innerHTML = recent.map(d => {
+    const allergens = getDishAllergens(d);
+    const allergenHtml = allergens.slice(0,3).map(a => `<span class="allergen-tag">${a.allergen}</span>`).join('') + (allergens.length > 3 ? `<span style="font-size:10px;color:var(--text3);"> +${allergens.length-3}</span>` : '');
+    return `<tr>
+      <td><div style="font-weight:500">${d.name}</div></td>
+      <td><span class="badge badge-gray">${d.category}</span></td>
+      <td>${allergenHtml || '<span style="font-size:11px;color:var(--text3);">None</span>'}</td>
+      <td>${d.locked ? '<span class="badge badge-green">Locked</span>' : '<span class="badge badge-amber">Draft</span>'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="editDish('${d.id}');nav('menu',document.querySelectorAll('.nav-item')[3])">Edit</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterDishes() { renderMenuTable(); }
+function setDishFilter(f, el) {
+  dishFilter = f;
+  document.querySelectorAll('#page-menu .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderMenuTable();
+}
+
+// ══════════════════════════════════════════
+//  DISH MODAL
+// ══════════════════════════════════════════
+function buildAllergenGrid() {
+  const grid = document.getElementById('allergen-grid');
+  grid.innerHTML = ALLERGENS.map(a => `
+    <div class="allergen-toggle" id="atog-${a}" onclick="cycleAllergen('${a}')">${a}</div>
+  `).join('');
+}
+
+function cycleAllergen(name) {
+  const el = document.getElementById('atog-' + name);
+  const cur = allergenState[name] || null;
+  if (!cur) { allergenState[name] = 'contains'; el.className = 'allergen-toggle contains'; }
+  else if (cur === 'contains') { allergenState[name] = 'may'; el.className = 'allergen-toggle may'; }
+  else { allergenState[name] = null; el.className = 'allergen-toggle'; }
+}
+
+function resetAllergens() {
+  allergenState = {};
+  ALLERGENS.forEach(a => {
+    const el = document.getElementById('atog-' + a);
+    if (el) el.className = 'allergen-toggle';
+  });
+}
+
+function openDishModal() {
+  document.getElementById('dish-id').value = '';
+  document.getElementById('dish-modal-title').textContent = 'Add dish';
+  document.getElementById('dish-name').value = '';
+  document.getElementById('dish-category').value = 'Canapés';
+  document.getElementById('dish-station').value = '';
+  document.getElementById('dish-description').value = '';
+  document.getElementById('dish-notes').value = '';
+  document.getElementById('dish-delete-btn').style.display = 'none';
+  document.getElementById('component-list').innerHTML = '';
+  resetAllergens();
+  // Reset menu type select
+  Array.from(document.getElementById('dish-menu-type').options).forEach(o => o.selected = false);
+  openModal('dish-modal');
+}
+
+async function editDish(id) {
+  const dish = allDishes.find(d => d.id === id);
+  if (!dish) return;
+  document.getElementById('dish-id').value = dish.id;
+  document.getElementById('dish-modal-title').textContent = 'Edit dish';
+  document.getElementById('dish-name').value = dish.name;
+  document.getElementById('dish-category').value = dish.category;
+  document.getElementById('dish-station').value = dish.station || '';
+  document.getElementById('dish-description').value = dish.description || '';
+  document.getElementById('dish-notes').value = dish.notes || '';
+  document.getElementById('dish-delete-btn').style.display = 'inline-flex';
+
+  // Menu types
+  const sel = document.getElementById('dish-menu-type');
+  Array.from(sel.options).forEach(o => o.selected = (dish.menu_type || []).includes(o.value));
+
+  // Components
+  const list = document.getElementById('component-list');
+  list.innerHTML = '';
+  (dish.components || []).sort((a,b) => a.sort_order - b.sort_order).forEach(c => addComponentRow(c));
+
+  // Allergens — gather from component_allergens
+  resetAllergens();
+  const allergens = getDishAllergens(dish);
+  allergens.forEach(a => {
+    allergenState[a.allergen] = a.status === 'May Contain' ? 'may' : 'contains';
+    const el = document.getElementById('atog-' + a.allergen);
+    if (el) el.className = 'allergen-toggle ' + (a.status === 'May Contain' ? 'may' : 'contains');
+  });
+
+  openModal('dish-modal');
+}
+
+function addComponentRow(comp = null) {
+  const list = document.getElementById('component-list');
+  const id = 'comp-' + Date.now() + Math.random().toString(36).substr(2,5);
+  const div = document.createElement('div');
+  div.className = 'component-item';
+  div.dataset.compId = comp ? comp.id : '';
+  div.innerHTML = `
+    <input class="comp-name" type="text" placeholder="Component name" value="${comp ? comp.name : ''}">
+    <input class="comp-qty" type="number" placeholder="Qty/cover" min="0" step="0.01" value="${comp && comp.qty_per_cover != null ? comp.qty_per_cover : ''}">
+    <input class="comp-unit" type="text" placeholder="unit" value="${comp ? (comp.unit||'') : ''}">
+    <select class="comp-station">
+      <option value="">Station</option>
+      ${['Hot','Cold','Pastry','Butchery','Pass'].map(s => `<option ${comp && comp.station===s?'selected':''}>${s}</option>`).join('')}
+    </select>
+    <button class="freeze-btn ${comp && comp.freeze_flag ? 'active-freeze' : comp && comp.fridge_flag ? 'active-fridge' : ''}" 
+      data-state="${comp && comp.freeze_flag ? 'freeze' : comp && comp.fridge_flag ? 'fridge' : 'none'}"
+      onclick="cycleStorage(this)">
+      ${comp && comp.freeze_flag ? '❄ Freeze' : comp && comp.fridge_flag ? '🧊 Fridge' : '○ Fresh'}
+    </button>
+    <button class="comp-remove" onclick="this.closest('.component-item').remove()">×</button>
+  `;
+  list.appendChild(div);
+}
+
+function cycleStorage(btn) {
+  const states = ['none','freeze','fridge'];
+  const labels = ['○ Fresh','❄ Freeze','🧊 Fridge'];
+  const classes = ['','active-freeze','active-fridge'];
+  const cur = states.indexOf(btn.dataset.state);
+  const next = (cur + 1) % 3;
+  btn.dataset.state = states[next];
+  btn.textContent = labels[next];
+  btn.className = 'freeze-btn ' + classes[next];
+}
+
+async function saveDish() {
+  const name = document.getElementById('dish-name').value.trim();
+  if (!name) { showToast('Dish name is required', 'error'); return; }
+  const id = document.getElementById('dish-id').value;
+
+  const menuTypeEl = document.getElementById('dish-menu-type');
+  const menuTypes = Array.from(menuTypeEl.selectedOptions).map(o => o.value);
+
+  const dishData = {
+    name,
+    category: document.getElementById('dish-category').value,
+    station: document.getElementById('dish-station').value || null,
+    description: document.getElementById('dish-description').value.trim() || null,
+    notes: document.getElementById('dish-notes').value.trim() || null,
+    menu_type: menuTypes,
+    updated_at: new Date().toISOString()
+  };
+
+  let dishId = id;
+  try {
+    if (id) {
+      const { error } = await sb.from('dishes').update(dishData).eq('id', id);
+      if (error) throw error;
+    } else {
+      const { data, error } = await sb.from('dishes').insert(dishData).select().single();
+      if (error) throw error;
+      dishId = data.id;
+    }
+
+    // Save components
+    const compItems = document.querySelectorAll('#component-list .component-item');
+    if (id) await sb.from('components').delete().eq('dish_id', dishId);
+
+    const components = [];
+    compItems.forEach((item, i) => {
+      const name = item.querySelector('.comp-name').value.trim();
+      if (!name) return;
+      const state = item.querySelector('.freeze-btn').dataset.state;
+      components.push({
+        dish_id: dishId,
+        name,
+        qty_per_cover: parseFloat(item.querySelector('.comp-qty').value) || null,
+        unit: item.querySelector('.comp-unit').value.trim() || null,
+        station: item.querySelector('.comp-station').value || null,
+        freeze_flag: state === 'freeze',
+        fridge_flag: state === 'fridge',
+        sort_order: i
+      });
+    });
+    if (components.length) {
+      const { error } = await sb.from('components').insert(components);
+      if (error) throw error;
+    }
+
+    // Save allergens (delete all component allergens for this dish's components, then re-insert)
+    // We store dish-level allergens on a synthetic "dish" component approach — 
+    // actually we store them directly by inserting one record per allergen on the dish
+    // For simplicity: delete all component_allergens for this dish, get new component ids, insert
+    const { data: newComps } = await sb.from('components').select('id').eq('dish_id', dishId);
+    if (newComps && newComps.length) {
+      const compIds = newComps.map(c => c.id);
+      await sb.from('component_allergens').delete().in('component_id', compIds);
+      const allergenRows = [];
+      Object.entries(allergenState).forEach(([allergen, status]) => {
+        if (status && newComps[0]) {
+          allergenRows.push({ component_id: newComps[0].id, allergen, status: status === 'may' ? 'May Contain' : 'Contains' });
+        }
+      });
+      if (allergenRows.length) await sb.from('component_allergens').insert(allergenRows);
+    }
+
+    showToast(id ? 'Dish updated' : 'Dish added', 'success');
+    closeModal('dish-modal');
+    await loadDishes();
+  } catch(e) {
+    showToast('Error saving dish: ' + e.message, 'error');
+  }
+}
+
+async function deleteDish() {
+  const id = document.getElementById('dish-id').value;
+  if (!id || !confirm('Delete this dish? This cannot be undone.')) return;
+  const { error } = await sb.from('dishes').delete().eq('id', id);
+  if (error) { showToast('Error deleting dish: ' + error.message, 'error'); return; }
+  showToast('Dish deleted', 'success');
+  closeModal('dish-modal');
+  await loadDishes();
+}
+
+// ══════════════════════════════════════════
+//  EVENTS — load & render
+// ══════════════════════════════════════════
+async function loadEvents() {
+  const { data, error } = await sb.from('events').select('*').order('event_date');
+  if (error) { showToast('Error loading events: ' + error.message, 'error'); return; }
+  allEvents = data || [];
+
+  const upcoming = allEvents.filter(e => new Date(e.event_date) >= new Date());
+  const totalCovers = upcoming.reduce((a, e) => a + (e.covers || 0), 0);
+  document.getElementById('stat-events').textContent = upcoming.length;
+  document.getElementById('stat-covers').textContent = totalCovers || '—';
+
+  renderEventsTable();
+  renderDashEvents();
+}
+
+function renderDashEvents() {
+  const body = document.getElementById('dash-events-body');
+  const upcoming = allEvents.filter(e => new Date(e.event_date) >= new Date()).slice(0, 5);
+  if (!upcoming.length) {
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text3);font-size:12px;">No upcoming events — add one above</td></tr>`;
+    return;
+  }
+  body.innerHTML = upcoming.map(e => eventRow(e)).join('');
+}
+
+function renderEventsTable() {
+  const body = document.getElementById('events-body');
+  let filtered = allEvents;
+  if (eventFilter !== 'All') {
+    if (['Confirmed','Provisional','Enquiry'].includes(eventFilter)) {
+      filtered = allEvents.filter(e => e.status === eventFilter);
+    } else {
+      filtered = allEvents.filter(e => e.event_type === eventFilter);
+    }
+  }
+  if (!filtered.length) {
+    body.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◷</div><div class="empty-title">No events found</div><div class="empty-sub">Add your first event using the button above</div></div></td></tr>`;
+    return;
+  }
+  body.innerHTML = filtered.map(e => eventRow(e, true)).join('');
+}
+
+function eventRow(e, showJobCode = false) {
+  const d = new Date(e.event_date);
+  const dateStr = d.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+  const badge = STATUS_BADGE[e.status] || 'badge-gray';
+  return `<tr>
+    ${showJobCode ? `<td><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)">${e.job_code}</span></td>` : ''}
+    <td>
+      <div style="font-weight:500">${e.client_name}</div>
+      ${e.notes ? `<div style="font-size:11px;color:var(--text3)">${e.notes.substring(0,40)}...</div>` : ''}
+    </td>
+    <td class="muted">${dateStr}</td>
+    <td><span class="badge badge-gray">${EVENT_TYPES[e.event_type] || e.event_type}</span></td>
+    <td class="muted">${e.covers}</td>
+    <td><span class="badge ${badge}">${e.status}</span></td>
+    <td><button class="btn btn-ghost btn-sm" onclick="editEvent('${e.id}')">Edit</button></td>
+  </tr>`;
+}
+
+function setEventFilter(f, el) {
+  eventFilter = f;
+  document.querySelectorAll('#page-events .filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderEventsTable();
+}
+
+// ══════════════════════════════════════════
+//  EVENT MODAL
+// ══════════════════════════════════════════
+function renderEventDishesGrid() {
+  const grid = document.getElementById('event-dishes-grid');
+  if (!allDishes.length) {
+    grid.innerHTML = `<div style="font-size:12px;color:var(--text3);grid-column:1/-1;">No dishes in menu yet — add dishes first</div>`;
+    return;
+  }
+  grid.innerHTML = allDishes.map(d => `
+    <div class="event-dish-item" data-dish-id="${d.id}" onclick="toggleEventDish(this)"
+      style="padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all 0.15s;">
+      <div style="font-size:12px;font-weight:500;color:var(--text1)">${d.name}</div>
+      <div style="font-size:10px;color:var(--text3);margin-top:2px">${d.category}</div>
+    </div>
+  `).join('');
+}
+
+function toggleEventDish(el) {
+  el.classList.toggle('selected');
+  if (el.classList.contains('selected')) {
+    el.style.borderColor = 'var(--green-bd)';
+    el.style.background = 'var(--green-bg)';
+  } else {
+    el.style.borderColor = 'var(--border)';
+    el.style.background = '';
+  }
+}
+
+function buildJobCode() {
+  const client = document.getElementById('event-client').value.trim();
+  const date = document.getElementById('event-date').value;
+  const type = document.getElementById('event-type').value;
+  if (!client || !date) return;
+
+  // Get initials: up to 2 chars from first letters of words
+  const words = client.split(/\s+/);
+  let initials = words.length >= 2
+    ? (words[0][0] + words[1][0]).toUpperCase()
+    : client.substring(0, 2).toUpperCase();
+
+  const d = new Date(date);
+  const dd = String(d.getDate()).padStart(2,'0');
+  const mm = String(d.getMonth()+1).padStart(2,'0');
+  const yy = String(d.getFullYear()).slice(-2);
+
+  document.getElementById('event-jobcode').value = `${initials}${dd}${mm}${yy}${type}`;
+}
+
+function openEventModal() {
+  document.getElementById('event-id').value = '';
+  document.getElementById('event-modal-title').textContent = 'Add event';
+  document.getElementById('event-client').value = '';
+  document.getElementById('event-date').value = '';
+  document.getElementById('event-type').value = 'WED';
+  document.getElementById('event-covers').value = '';
+  document.getElementById('event-status').value = 'Provisional';
+  document.getElementById('event-jobcode').value = '';
+  document.getElementById('event-notes').value = '';
+  document.getElementById('event-delete-btn').style.display = 'none';
+  document.querySelectorAll('.event-dish-item').forEach(el => {
+    el.classList.remove('selected');
+    el.style.borderColor = 'var(--border)';
+    el.style.background = '';
+  });
+  openModal('event-modal');
+}
+
+async function editEvent(id) {
+  const e = allEvents.find(ev => ev.id === id);
+  if (!e) return;
+  document.getElementById('event-id').value = e.id;
+  document.getElementById('event-modal-title').textContent = 'Edit event';
+  document.getElementById('event-client').value = e.client_name;
+  document.getElementById('event-date').value = e.event_date;
+  document.getElementById('event-type').value = e.event_type;
+  document.getElementById('event-covers').value = e.covers;
+  document.getElementById('event-status').value = e.status;
+  document.getElementById('event-jobcode').value = e.job_code;
+  document.getElementById('event-notes').value = e.notes || '';
+  document.getElementById('event-delete-btn').style.display = 'inline-flex';
+
+  // Load event dishes
+  const { data: evDishes } = await sb.from('event_dishes').select('dish_id').eq('event_id', id);
+  const selectedIds = (evDishes || []).map(d => d.dish_id);
+  document.querySelectorAll('.event-dish-item').forEach(el => {
+    const selected = selectedIds.includes(el.dataset.dishId);
+    el.classList.toggle('selected', selected);
+    el.style.borderColor = selected ? 'var(--green-bd)' : 'var(--border)';
+    el.style.background = selected ? 'var(--green-bg)' : '';
+  });
+
+  openModal('event-modal');
+}
+
+async function saveEvent() {
+  const client = document.getElementById('event-client').value.trim();
+  const date = document.getElementById('event-date').value;
+  const covers = parseInt(document.getElementById('event-covers').value);
+  const jobCode = document.getElementById('event-jobcode').value.trim();
+
+  if (!client || !date || !covers || !jobCode) {
+    showToast('Please fill all required fields', 'error'); return;
+  }
+
+  const id = document.getElementById('event-id').value;
+  const eventData = {
+    client_name: client,
+    event_date: date,
+    event_type: document.getElementById('event-type').value,
+    covers,
+    status: document.getElementById('event-status').value,
+    job_code: jobCode,
+    notes: document.getElementById('event-notes').value.trim() || null,
+  };
+
+  try {
+    let eventId = id;
+    if (id) {
+      const { error } = await sb.from('events').update(eventData).eq('id', id);
+      if (error) throw error;
+    } else {
+      const { data, error } = await sb.from('events').insert(eventData).select().single();
+      if (error) throw error;
+      eventId = data.id;
+    }
+
+    // Save event dishes
+    await sb.from('event_dishes').delete().eq('event_id', eventId);
+    const selected = Array.from(document.querySelectorAll('.event-dish-item.selected'));
+    if (selected.length) {
+      const rows = selected.map(el => ({ event_id: eventId, dish_id: el.dataset.dishId }));
+      await sb.from('event_dishes').insert(rows);
+    }
+
+    showToast(id ? 'Event updated' : 'Event added', 'success');
+    closeModal('event-modal');
+    await loadEvents();
+  } catch(e) {
+    showToast('Error saving event: ' + (e.message.includes('duplicate') ? 'Job code already exists' : e.message), 'error');
+  }
+}
+
+async function deleteEvent() {
+  const id = document.getElementById('event-id').value;
+  if (!id || !confirm('Delete this event? This cannot be undone.')) return;
+  const { error } = await sb.from('events').delete().eq('id', id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('Event deleted', 'success');
+  closeModal('event-modal');
+  await loadEvents();
+}
+
+// ══════════════════════════════════════════
+//  MODAL HELPERS
+// ══════════════════════════════════════════
+function openModal(id) {
+  if (id === 'event-modal') { openEventModal(); return; }
+  if (id === 'dish-modal') { openDishModal(); return; }
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type + ' show';
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ══════════════════════════════════════════
+//  BOOT
+// ══════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
