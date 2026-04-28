@@ -872,7 +872,7 @@ function nav(page, el) {
 async function loadDishes() {
   const { data, error } = await sb
     .from('dishes')
-    .select('*, components(*), component_allergens(allergen, status, component_id)')
+    .select('*, components(*, component_allergens(allergen, status))')
     .order('category').order('name');
 
   if (error) { showToast('Error loading dishes: ' + error.message, 'error'); return; }
@@ -891,8 +891,10 @@ async function loadDishes() {
 
 function getDishAllergens(dish) {
   const all = [];
-  (dish.component_allergens || []).forEach(a => {
-    if (!all.find(x => x.allergen === a.allergen)) all.push(a);
+  (dish.components || []).forEach(comp => {
+    (comp.component_allergens || []).forEach(a => {
+      if (!all.find(x => x.allergen === a.allergen)) all.push(a);
+    });
   });
   return all;
 }
@@ -1025,7 +1027,7 @@ async function editDish(id) {
   list.innerHTML = '';
   (dish.components || []).sort((a,b) => a.sort_order - b.sort_order).forEach(c => addComponentRow(c));
 
-  // Allergens — gather from component_allergens
+  // Allergens — gather from nested component_allergens
   resetAllergens();
   const allergens = getDishAllergens(dish);
   allergens.forEach(a => {
