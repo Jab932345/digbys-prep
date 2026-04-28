@@ -1001,9 +1001,8 @@ function openDishModal() {
   document.getElementById('dish-delete-btn').style.display = 'none';
   document.getElementById('component-list').innerHTML = '';
   resetAllergens();
-  // Reset menu type select
   Array.from(document.getElementById('dish-menu-type').options).forEach(o => o.selected = false);
-  openModal('dish-modal');
+  document.getElementById('dish-modal').classList.add('open');
 }
 
 async function editDish(id) {
@@ -1036,7 +1035,7 @@ async function editDish(id) {
     if (el) el.className = 'allergen-toggle ' + (a.status === 'May Contain' ? 'may' : 'contains');
   });
 
-  openModal('dish-modal');
+  document.getElementById('dish-modal').classList.add('open');
 }
 
 function addComponentRow(comp = null) {
@@ -1297,7 +1296,7 @@ function openEventModal() {
     el.style.borderColor = 'var(--border)';
     el.style.background = '';
   });
-  openModal('event-modal');
+  document.getElementById('event-modal').classList.add('open');
 }
 
 async function editEvent(id) {
@@ -1324,7 +1323,7 @@ async function editEvent(id) {
     el.style.background = selected ? 'var(--green-bg)' : '';
   });
 
-  openModal('event-modal');
+  document.getElementById('event-modal').classList.add('open');
 }
 
 async function saveEvent() {
@@ -1389,8 +1388,6 @@ async function deleteEvent() {
 //  MODAL HELPERS
 // ══════════════════════════════════════════
 function openModal(id) {
-  if (id === 'event-modal') { openEventModal(); return; }
-  if (id === 'dish-modal') { openDishModal(); return; }
   document.getElementById(id).classList.add('open');
 }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
