@@ -167,6 +167,269 @@ td.muted{color:var(--text3);font-size:12px;}
 .staff-avatar{width:36px;height:36px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--text2);flex-shrink:0;}
 .task-note{font-size:11px;color:var(--text2);font-style:italic;margin-top:3px;line-height:1.45;padding:4px 8px;background:var(--amber-bg);border-left:2px solid var(--amber-bd);border-radius:0 3px 3px 0;}
 .task-card.done .task-note{opacity:.5;}
+
+/* ── PRINT STYLES ──────────────────────────────────────────────── */
+@media print {
+  body { background: #fff !important; font-size: 11pt; color: #000; }
+  .sidebar, .topbar, .topbar-actions, .print-btn, .btn, .filter-bar,
+  #prep-empty, #prep-header-strip .task-right,
+  .nav-item, .nav-section, .sidebar-footer { display: none !important; }
+  .main { margin-left: 0 !important; }
+  .content { padding: 0 !important; }
+  .page { display: block !important; }
+  #page-dashboard, #page-events, #page-menu, #page-production,
+  #page-labels, #page-admin { display: none !important; }
+
+  /* PREP LIST PRINT */
+  #prep-header-strip {
+    background: #1C1A16 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    color-adjust: exact;
+    border-radius: 0 !important;
+    margin-bottom: 16pt !important;
+    padding: 12pt 16pt !important;
+  }
+  #prep-header-strip * { color: #fff !important; }
+  #ph-done { color: #5ECAA0 !important; }
+  .task-card {
+    border: 1px solid #ccc !important;
+    padding: 8pt 10pt !important;
+    margin-bottom: 5pt !important;
+    page-break-inside: avoid;
+    display: flex !important;
+    gap: 8pt;
+  }
+  .task-check {
+    width: 16pt !important; height: 16pt !important;
+    border: 1.5pt solid #666 !important;
+    border-radius: 3pt !important;
+    flex-shrink: 0 !important;
+    background: #fff !important;
+  }
+  .task-card.done { opacity: 1 !important; }
+  .task-card.done .task-check { background: #000 !important; }
+  .task-card.done .task-name { text-decoration: none !important; }
+  .task-name { font-size: 11pt !important; font-weight: 600 !important; }
+  .task-note {
+    font-size: 9pt !important;
+    background: #fff8e7 !important;
+    border-left: 2pt solid #e8a000 !important;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  .badge { border: 1pt solid #999 !important; font-size: 8pt !important; }
+  .allergen-tag { border: 1pt solid #c00 !important; color: #c00 !important; background: #fff !important; font-size: 8pt !important; }
+  .prep-bucket { margin-bottom: 20pt !important; }
+  .prep-bucket > div:first-child { margin-bottom: 8pt !important; }
+  .card { box-shadow: none !important; border: 1pt solid #ccc !important; }
+
+  /* ALLERGEN SHEET PRINT */
+  #al-print-sheet { display: block !important; }
+  .al-matrix-wrap { overflow: visible !important; }
+  .al-matrix-table { font-size: 8pt !important; }
+  .al-matrix-table th { font-size: 7pt !important; padding: 4pt 3pt !important; }
+  .al-matrix-table td { padding: 5pt 3pt !important; }
+}
+
+/* FSA-STYLE ALLERGEN SHEET — screen only shows in card, print shows full page */
+#al-print-sheet {
+  font-family: 'DM Sans', sans-serif;
+}
+.fsa-header {
+  background: #1C1A16;
+  color: #fff;
+  padding: 14px 20px 12px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.fsa-title-block {}
+.fsa-title {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  text-transform: uppercase;
+  line-height: 1;
+}
+.fsa-subtitle {
+  font-size: 11px;
+  color: rgba(255,255,255,.5);
+  margin-top: 4px;
+  font-family: 'DM Mono', monospace;
+}
+.fsa-biz {
+  font-size: 13px;
+  font-weight: 500;
+  text-align: right;
+  color: rgba(255,255,255,.85);
+}
+.fsa-biz-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,.4);
+  text-align: right;
+  margin-top: 2px;
+  font-family: 'DM Mono', monospace;
+}
+.fsa-legend {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 16px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.fsa-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text2);
+  font-family: 'DM Mono', monospace;
+}
+.legend-contains {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  background: #1C1A16;
+  color: #fff;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.legend-may {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  background: var(--amber);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 700;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.legend-none {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  font-size: 11px;
+  color: var(--text3);
+}
+.al-matrix-wrap { overflow-x: auto; }
+.al-matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.al-matrix-table th {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 7px 5px;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text2);
+  line-height: 1.2;
+  vertical-align: bottom;
+  white-space: normal;
+  max-width: 52px;
+  min-width: 44px;
+  font-family: 'DM Sans', sans-serif;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.al-matrix-table th.dish-col {
+  text-align: left;
+  min-width: 160px;
+  max-width: none;
+  background: var(--text1);
+  color: #fff;
+  padding-left: 14px;
+  font-size: 11px;
+}
+.al-matrix-table td {
+  border: 1px solid var(--border);
+  padding: 7px 4px;
+  text-align: center;
+  vertical-align: middle;
+}
+.al-matrix-table td.dish-name {
+  text-align: left;
+  padding-left: 14px;
+  font-weight: 600;
+  font-size: 12px;
+  background: var(--bg);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.al-matrix-table tr.dish-row td.dish-name {
+  background: var(--bg);
+}
+.al-matrix-table tr.comp-row td.dish-name {
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--text2);
+  padding-left: 28px;
+  background: #fff;
+}
+.al-cell-contains {
+  background: #1C1A16;
+  color: #fff;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.al-cell-may {
+  background: var(--amber);
+  color: #fff;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 10px;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.fsa-footer {
+  padding: 10px 16px;
+  font-size: 10px;
+  color: var(--text3);
+  border-top: 2px solid var(--text1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  background: var(--bg);
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.fsa-footer-note {
+  font-family: 'DM Mono', monospace;
+}
+/* Alternating row tint */
+.al-matrix-table tr.dish-row:nth-child(odd) td { background: var(--bg); }
+.al-matrix-table tr.dish-row:nth-child(even) td { background: #fff; }
+.al-matrix-table tr.dish-row:nth-child(odd) td.dish-name { background: var(--bg2); }
+.al-matrix-table tr.dish-row:nth-child(even) td.dish-name { background: var(--bg); }
 </style>
 </head>
 <body>
@@ -316,13 +579,53 @@ td.muted{color:var(--text3);font-size:12px;}
 <!-- ALLERGENS -->
 <div id="page-allergens" class="page">
   <div class="topbar">
-    <div class="topbar-title">Allergen matrix</div>
+    <div><div class="topbar-title">Allergen information</div><div class="topbar-sub">Dishes &amp; their allergen content — UK FSA standard format</div></div>
     <div class="topbar-actions">
       <select class="form-select" id="al-ev-sel" style="width:220px;font-size:12px;padding:6px 10px;" onchange="renderAllergenMatrix()"><option value="">— All dishes —</option></select>
-      <button class="btn btn-sm" onclick="window.print()">Print sheet</button>
+      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
+        <input type="checkbox" id="al-show-comps" onchange="renderAllergenMatrix()" style="cursor:pointer;"> Show components
+      </label>
+      <button class="btn btn-sm btn-primary" onclick="window.print()">Print allergen sheet</button>
     </div>
   </div>
-  <div class="content"><div class="card"><div class="card-body" id="al-matrix"></div></div></div>
+  <div class="content">
+    <div class="card" id="al-print-sheet">
+      <!-- FSA header -->
+      <div class="fsa-header">
+        <div class="fsa-title-block">
+          <div class="fsa-title">Dishes and their allergen content</div>
+          <div class="fsa-subtitle">Prepared under Food Information Regulations 2014 &amp; UK Food Standards Agency guidance</div>
+        </div>
+        <div>
+          <div class="fsa-biz">Digby's Catering</div>
+          <div class="fsa-biz-sub" id="al-ev-label">All dishes</div>
+        </div>
+      </div>
+      <!-- Legend -->
+      <div class="fsa-legend">
+        <div class="fsa-legend-item"><span class="legend-contains">✓</span> Contains allergen</div>
+        <div class="fsa-legend-item"><span class="legend-may">M</span> May contain (cross-contamination risk)</div>
+        <div class="fsa-legend-item"><span class="legend-none">—</span> Not present</div>
+        <div style="margin-left:auto;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;" id="al-date-stamp"></div>
+      </div>
+      <!-- Matrix -->
+      <div class="al-matrix-wrap">
+        <table class="al-matrix-table" id="al-matrix-table">
+          <thead id="al-matrix-head"></thead>
+          <tbody id="al-matrix-body"></tbody>
+        </table>
+      </div>
+      <!-- FSA footer -->
+      <div class="fsa-footer">
+        <div class="fsa-footer-note">
+          Always inform staff of your allergy or intolerance before ordering. Menu items may be subject to change — ask your server for the most current information.
+        </div>
+        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">
+          Food Standards Agency · food.gov.uk/allergies
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- LABEL QUEUE -->
@@ -909,23 +1212,115 @@ function generateProdRuns(){
 }
 
 // ALLERGENS
+// FSA standard column headers — official UK names
+const AL_LABELS = {
+  Gluten:    'Cereals containing gluten',
+  Dairy:     'Milk',
+  Egg:       'Eggs',
+  Fish:      'Fish',
+  Shellfish: 'Crustaceans',
+  Nuts:      'Tree nuts',
+  Peanuts:   'Peanuts',
+  Soya:      'Soybeans',
+  Celery:    'Celery',
+  Mustard:   'Mustard',
+  Sesame:    'Sesame',
+  Sulphites: 'Sulphur dioxide & sulphites',
+  Lupin:     'Lupin',
+  Molluscs:  'Molluscs'
+};
+
+// Short labels for the column header (space is tight)
+const AL_SHORT = {
+  Gluten:    'Cereals / Gluten',
+  Dairy:     'Milk',
+  Egg:       'Eggs',
+  Fish:      'Fish',
+  Shellfish: 'Crustaceans',
+  Nuts:      'Tree nuts',
+  Peanuts:   'Peanuts',
+  Soya:      'Soybeans',
+  Celery:    'Celery',
+  Mustard:   'Mustard',
+  Sesame:    'Sesame',
+  Sulphites: 'Sulphites',
+  Lupin:     'Lupin',
+  Molluscs:  'Molluscs'
+};
+
 function populateAlEvSel(){
-  const sel=document.getElementById('al-ev-sel');sel.innerHTML='<option value="">— All dishes —</option>'+events.map(e=>`<option value="${e.id}">${e.job_code} — ${h(e.client_name)}</option>`).join('');
+  const sel=document.getElementById('al-ev-sel');
+  sel.innerHTML='<option value="">— All dishes —</option>'+events.map(e=>`<option value="${e.id}">${e.job_code} — ${h(e.client_name)}</option>`).join('');
 }
 
 function renderAllergenMatrix(){
-  const eid=document.getElementById('al-ev-sel').value;let disp=dishes;
-  if(eid){const ev=events.find(e=>e.id===eid);if(ev){const ids=(ev.event_dishes||[]).map(d=>d.dish_id);disp=dishes.filter(d=>ids.includes(d.id));}}
-  const el=document.getElementById('al-matrix');
-  if(!disp.length){el.innerHTML='<div class="empty-state"><div class="empty-title">No dishes to display</div></div>';return;}
-  let html=`<div style="overflow-x:auto;"><table class="matrix-table"><thead><tr><th style="text-align:left;min-width:160px">Dish</th>${ALLERGENS.map(a=>`<th style="min-width:52px;white-space:nowrap;">${a}</th>`).join('')}</tr></thead><tbody>`;
-  disp.forEach(dish=>{
+  const eid=document.getElementById('al-ev-sel').value;
+  const showComps=document.getElementById('al-show-comps').checked;
+  let disp=dishes;
+  let evLabel='All dishes';
+  if(eid){
+    const ev=events.find(e=>e.id===eid);
+    if(ev){
+      const ids=(ev.event_dishes||[]).map(d=>d.dish_id);
+      disp=dishes.filter(d=>ids.includes(d.id));
+      evLabel=`${ev.job_code} — ${ev.client_name} · ${new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`;
+    }
+  }
+
+  document.getElementById('al-ev-label').textContent=evLabel;
+  document.getElementById('al-date-stamp').textContent=`Printed: ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`;
+
+  const head=document.getElementById('al-matrix-head');
+  const body=document.getElementById('al-matrix-body');
+
+  if(!disp.length){
+    head.innerHTML='';
+    body.innerHTML=`<tr><td colspan="${ALLERGENS.length+1}" style="text-align:center;padding:32px;color:var(--text3);">No dishes to display</td></tr>`;
+    return;
+  }
+
+  // Build header row
+  head.innerHTML=`<tr>
+    <th class="dish-col">Dish</th>
+    ${ALLERGENS.map(a=>`<th title="${AL_LABELS[a]||a}">${AL_SHORT[a]||a}</th>`).join('')}
+  </tr>`;
+
+  // Build body
+  let html='';
+  disp.forEach((dish,idx)=>{
     const al=getDishAl(dish);
-    html+=`<tr style="background:var(--bg);"><td style="font-weight:500;font-size:13px;text-align:left;">${h(dish.name)}</td>${ALLERGENS.map(a=>{const f=al.find(x=>x.allergen===a);return f?`<td class="tick-red">${f.status==='May Contain'?'M':'✓'}</td>`:'<td class="dash-cell">—</td>';}).join('')}</tr>`;
-    (dish.components||[]).forEach(comp=>{const cal=comp.component_allergens||[];if(!cal.length)return;html+=`<tr><td style="font-size:11px;color:var(--text3);text-align:left;padding-left:24px;">↳ ${h(comp.name)}</td>${ALLERGENS.map(a=>{const f=cal.find(x=>x.allergen===a);return f?`<td class="tick-red" style="font-size:10px">${f.status==='May Contain'?'M':'✓'}</td>`:'<td class="dash-cell">—</td>';}).join('')}</tr>`;});
+    const rowClass=idx%2===0?'dish-row':'dish-row';
+
+    // Dish row
+    html+=`<tr class="${rowClass}">
+      <td class="dish-name">${h(dish.name)}</td>
+      ${ALLERGENS.map(a=>{
+        const f=al.find(x=>x.allergen===a);
+        if(!f)return'<td></td>';
+        if(f.status==='May Contain')return`<td><span class="al-cell-may">M</span></td>`;
+        return`<td><span class="al-cell-contains">✓</span></td>`;
+      }).join('')}
+    </tr>`;
+
+    // Component rows (optional)
+    if(showComps){
+      (dish.components||[]).forEach(comp=>{
+        const cal=comp.component_allergens||[];
+        if(!cal.length)return;
+        html+=`<tr class="comp-row">
+          <td class="dish-name">↳ ${h(comp.name)}</td>
+          ${ALLERGENS.map(a=>{
+            const f=cal.find(x=>x.allergen===a);
+            if(!f)return'<td></td>';
+            if(f.status==='May Contain')return`<td><span class="al-cell-may" style="width:18px;height:18px;font-size:9px;">M</span></td>`;
+            return`<td><span class="al-cell-contains" style="width:18px;height:18px;font-size:10px;">✓</span></td>`;
+          }).join('')}
+        </tr>`;
+      });
+    }
   });
-  html+=`</tbody></table></div><div style="padding:12px 16px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);">✓ = Contains &nbsp;·&nbsp; M = May contain &nbsp;·&nbsp; — = Not present</div>`;
-  el.innerHTML=html;
+
+  body.innerHTML=html;
 }
 
 // LABEL QUEUE
