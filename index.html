@@ -788,15 +788,26 @@ let settings={buffer:14,ngrok:'https://palatable-shack-scallion.ngrok-free.dev',
 async function init(){
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   buildAlGrid();buildMonthSel();loadSettings();
+  const dot=document.getElementById('conn-dot'),lbl=document.getElementById('conn-label');
   try{
-    const{error}=await sb.from('dishes').select('id').limit(1);
-    const dot=document.getElementById('conn-dot'),lbl=document.getElementById('conn-label');
-    if(error){dot.className='conn-dot error';lbl.textContent='DB error';}
-    else{dot.className='conn-dot live';lbl.textContent='Connected';}
-  }catch(e){document.getElementById('conn-dot').className='conn-dot error';document.getElementById('conn-label').textContent='Offline';}
-  await loadDishes();
-  await loadEvents();
-  await loadStaff();
+    const{data,error}=await sb.from('dishes').select('id').limit(1);
+    if(error){
+      console.error('[Digbys] Connection test failed:',error.message,error);
+      dot.className='conn-dot error';lbl.textContent='DB error';
+      showToast('DB error: '+error.message,'error');
+      return;
+    }
+    dot.className='conn-dot live';lbl.textContent='Connected';
+    console.log('[Digbys] Connected to Supabase OK');
+  }catch(e){
+    console.error('[Digbys] Connection exception:',e);
+    dot.className='conn-dot error';lbl.textContent='Offline';
+    showToast('Cannot reach database','error');
+    return;
+  }
+  try{await loadDishes();}catch(e){console.error('[Digbys] loadDishes failed:',e);showToast('Error loading dishes: '+e.message,'error');}
+  try{await loadEvents();}catch(e){console.error('[Digbys] loadEvents failed:',e);showToast('Error loading events: '+e.message,'error');}
+  try{await loadStaff();}catch(e){console.error('[Digbys] loadStaff failed:',e);}
 }
 
 function loadSettings(){
@@ -826,8 +837,10 @@ function nav(page,el){
 // DISHES
 // ══════════════════════════════════════════════════════
 async function loadDishes(){
+  console.log('[Digbys] Loading dishes...');
   const{data,error}=await sb.from('dishes').select('*, components(*, component_allergens(allergen,status))').order('name');
-  if(error){showToast('Error loading dishes: '+error.message,'error');return;}
+  if(error){console.error('[Digbys] loadDishes error:',error.message,error);showToast('Error loading dishes: '+error.message,'error');return;}
+  console.log('[Digbys] Loaded',data?.length,'dishes');
   dishes=data||[];
   const frz=dishes.reduce((a,d)=>a+(d.components||[]).filter(c=>c.freeze_flag).length,0);
   document.getElementById('s-dishes').textContent=dishes.length;
@@ -966,8 +979,10 @@ async function deleteDish(){const id=document.getElementById('dish-id').value;if
 // FUNCTION SHEET (EVENTS)
 // ══════════════════════════════════════════════════════
 async function loadEvents(){
+  console.log('[Digbys] Loading events...');
   const{data,error}=await sb.from('events').select('*, event_dishes(dish_id)').order('event_date');
-  if(error){showToast('Error loading events: '+error.message,'error');return;}
+  if(error){console.error('[Digbys] loadEvents error:',error.message,error);showToast('Error loading events: '+error.message,'error');return;}
+  console.log('[Digbys] Loaded',data?.length,'events');
   events=data||[];
   const up=events.filter(e=>new Date(e.event_date)>=new Date()&&e.status==='Confirmed');
   document.getElementById('s-events').textContent=events.filter(e=>new Date(e.event_date)>=new Date()).length;
@@ -1574,7 +1589,7 @@ function printAllLabels(){
 // ══════════════════════════════════════════════════════
 // STAFF
 // ══════════════════════════════════════════════════════
-async function loadStaff(){const{data}=await sb.from('staff').select('*').order('name');staff=data||[];renderStaff();}
+async function loadStaff(){console.log('[Digbys] Loading staff...');const{data,error}=await sb.from('staff').select('*').order('name');if(error){console.error('[Digbys] loadStaff error:',error.message,error);return;}staff=data||[];console.log('[Digbys] Loaded',staff.length,'staff');renderStaff();}
 function renderStaff(){
   const el=document.getElementById('staff-body');
   if(!staff.length){el.innerHTML='<div class="empty-state" style="padding:20px;"><div class="empty-sub">No staff yet</div></div>';return;}
