@@ -1140,9 +1140,9 @@ function addGuestAllergyRow(data=null){
   div.id=id;
   div.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center;';
   div.innerHTML=`
-    <input type="text" placeholder="Guest name" value="${data?h(data.name||'):''}}" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
-    <input type="text" placeholder="Allergen / requirement" value="${data?h(data.allergen||'):''}}" style="flex:1.5;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
-    <input type="text" placeholder="Notes" value="${data?h(data.notes||'):''}}" style="flex:1.5;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
+    <input type="text" placeholder="Guest name" value="${data?h(data.name||''):''}" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
+    <input type="text" placeholder="Allergen / requirement" value="${data?h(data.allergen||''):''}" style="flex:1.5;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
+    <input type="text" placeholder="Notes" value="${data?h(data.notes||''):''}" style="flex:1.5;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
     <button onclick="document.getElementById('${id}').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;">×</button>`;
   document.getElementById('guest-allergy-list').appendChild(div);
 }
