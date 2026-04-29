@@ -5,566 +5,499 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Digby's — Kitchen Operations</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--bg:#F5F3EE;--bg2:#EDEAE3;--bg3:#E4E0D7;--surface:#FFFFFF;--border:#D6D2C9;--border2:#C5C0B5;--text1:#1C1A16;--text2:#5C5849;--text3:#8C8779;--green:#1D6B4E;--green-bg:#E8F5EE;--green-bd:#8ECAAA;--amber:#92510A;--amber-bg:#FBF0E0;--amber-bd:#E8B96A;--red:#8C2020;--red-bg:#FAEAEA;--red-bd:#DBA0A0;--blue:#1A4F7A;--blue-bg:#E6EFF8;--blue-bd:#7AAED6;--purple:#4A3D8F;--purple-bg:#EEEDFE;--purple-bd:#AFA9EC;--radius:6px;--radius-lg:10px;--shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);--shadow-md:0 4px 12px rgba(0,0,0,0.1),0 2px 4px rgba(0,0,0,0.06);}
+:root{
+  --bg:#F5F3EE;--bg2:#EDEAE3;--bg3:#E4E0D7;
+  --surface:#FFFFFF;--border:#D6D2C9;--border2:#C5C0B5;
+  --text1:#1C1A16;--text2:#5C5849;--text3:#8C8779;
+  --green:#1D6B4E;--green-bg:#E8F5EE;--green-bd:#8ECAAA;
+  --amber:#92510A;--amber-bg:#FBF0E0;--amber-bd:#E8B96A;
+  --red:#8C2020;--red-bg:#FAEAEA;--red-bd:#DBA0A0;
+  --blue:#1A4F7A;--blue-bg:#E6EFF8;--blue-bd:#7AAED6;
+  --purple:#4A3D8F;--purple-bg:#EEEDFE;--purple-bd:#AFA9EC;
+  --radius:6px;--radius-lg:10px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.1),0 2px 4px rgba(0,0,0,0.06);
+}
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text1);font-size:14px;line-height:1.5;min-height:100vh;}
+
+/* LAYOUT */
 .layout{display:flex;min-height:100vh;}
 .sidebar{width:220px;min-width:220px;background:var(--text1);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:50;}
 .sidebar-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.08);}
 .brand-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:600;color:#fff;}
 .brand-sub{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:.08em;text-transform:uppercase;margin-top:3px;font-family:'DM Mono',monospace;}
-.nav-section{padding:12px 0 4px;}
-.nav-label{font-size:9px;color:rgba(255,255,255,0.3);letter-spacing:.1em;text-transform:uppercase;padding:0 18px 6px;font-family:'DM Mono',monospace;}
-.nav-item{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:13px;color:rgba(255,255,255,0.55);cursor:pointer;border-left:2px solid transparent;transition:all .15s;}
-.nav-item:hover{color:rgba(255,255,255,0.9);background:rgba(255,255,255,0.05);}
+.nav-section{padding:10px 0 2px;}
+.nav-label{font-size:9px;color:rgba(255,255,255,0.28);letter-spacing:.1em;text-transform:uppercase;padding:0 18px 5px;font-family:'DM Mono',monospace;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:13px;color:rgba(255,255,255,0.5);cursor:pointer;border-left:2px solid transparent;transition:all .15s;}
+.nav-item:hover{color:rgba(255,255,255,0.85);background:rgba(255,255,255,0.04);}
 .nav-item.active{color:#fff;border-left-color:#5ECAA0;background:rgba(255,255,255,0.07);}
-.nav-icon{font-size:13px;width:16px;text-align:center;opacity:.7;}
-.nav-item.active .nav-icon{opacity:1;}
-.sidebar-footer{margin-top:auto;padding:14px 18px;border-top:1px solid rgba(255,255,255,0.08);font-size:11px;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;}
+.nav-icon{font-size:12px;width:16px;text-align:center;}
+.sidebar-footer{margin-top:auto;padding:12px 18px;border-top:1px solid rgba(255,255,255,0.06);font-size:11px;}
+.conn-status{display:flex;align-items:center;gap:5px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;}
+.conn-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);}
+.conn-dot.live{background:#5ECAA0;}
+.conn-dot.error{background:#E06060;}
 .main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh;}
-.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;box-shadow:var(--shadow);}
+
+/* TOPBAR */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40;box-shadow:var(--shadow);gap:12px;flex-wrap:wrap;}
+.topbar-left{min-width:0;}
 .topbar-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;}
-.topbar-sub{font-size:12px;color:var(--text3);}
-.topbar-actions{display:flex;gap:8px;align-items:center;}
-.btn{font-size:12px;font-weight:500;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.topbar-sub{font-size:12px;color:var(--text3);margin-top:1px;}
+.topbar-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* BUTTONS */
+.btn{font-size:12px;font-weight:500;padding:7px 14px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
 .btn:hover{background:var(--bg2);border-color:var(--border2);color:var(--text1);}
 .btn-primary{background:var(--green);border-color:var(--green);color:#fff;}
 .btn-primary:hover{background:#155438;}
 .btn-sm{font-size:11px;padding:5px 10px;}
-.btn-ghost{border-color:transparent;background:transparent;}
+.btn-ghost{border-color:transparent;background:transparent;padding:5px 8px;}
 .btn-ghost:hover{background:var(--bg2);border-color:transparent;}
 .btn-danger{color:var(--red);border-color:var(--red-bd);}
 .btn-danger:hover{background:var(--red-bg);}
 .btn-blue{background:var(--blue);border-color:var(--blue);color:#fff;}
 .btn-blue:hover{background:#133d60;}
+.btn-amber{background:var(--amber);border-color:var(--amber);color:#fff;}
+
+/* CONTENT */
 .content{padding:24px;flex:1;}
-.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow);}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;box-shadow:var(--shadow);}
 .stat-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-family:'DM Mono',monospace;}
-.stat-val{font-size:28px;font-weight:300;color:var(--text1);margin:4px 0 2px;font-family:'Playfair Display',serif;}
+.stat-val{font-size:26px;font-weight:300;color:var(--text1);margin:3px 0 1px;font-family:'Playfair Display',serif;}
 .stat-sub{font-size:11px;color:var(--text3);}
+
+/* CARDS */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden;}
-.card-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);}
+.card-header{padding:13px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);gap:8px;}
 .card-title{font-size:13px;font-weight:500;}
 .card-body{padding:0;}
+
+/* TABLES */
 table{width:100%;border-collapse:collapse;font-size:13px;}
-thead th{padding:9px 16px;text-align:left;font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;background:var(--bg);border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;}
+thead th{padding:9px 14px;text-align:left;font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;background:var(--bg);border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;white-space:nowrap;}
 tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
 tbody tr:last-child{border-bottom:none;}
 tbody tr:hover{background:var(--bg);}
-tbody td{padding:11px 16px;vertical-align:middle;}
+tbody td{padding:10px 14px;vertical-align:middle;}
 td.muted{color:var(--text3);font-size:12px;}
-.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;white-space:nowrap;font-family:'DM Mono',monospace;}
+
+/* BADGES */
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;white-space:nowrap;font-family:'DM Mono',monospace;}
 .badge-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);}
 .badge-amber{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd);}
 .badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);}
 .badge-blue{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-bd);}
 .badge-gray{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
-.badge-dark{background:var(--text1);color:#fff;border:1px solid var(--text1);}
+.badge-dark{background:var(--text1);color:#fff;}
 .badge-purple{background:var(--purple-bg);color:var(--purple);border:1px solid var(--purple-bd);}
 .allergen-tag{display:inline-block;font-size:10px;padding:1px 6px;border-radius:3px;margin:1px;background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);font-family:'DM Mono',monospace;}
 .allergen-tag.may{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-bd);}
-.modal-overlay{position:fixed;inset:0;background:rgba(28,26,22,0.5);display:none;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(2px);}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(28,26,22,0.55);display:none;align-items:flex-start;justify-content:center;z-index:100;backdrop-filter:blur(2px);padding:24px 16px;overflow-y:auto;}
 .modal-overlay.open{display:flex;}
-.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:640px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md);}
-.modal-lg{width:780px;}
-.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;}
+.modal{background:var(--surface);border-radius:var(--radius-lg);border:1px solid var(--border);width:640px;max-width:100%;box-shadow:var(--shadow-md);position:relative;margin:auto;}
+.modal-xl{width:960px;}
+.modal-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);border-radius:var(--radius-lg) var(--radius-lg) 0 0;}
 .modal-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:500;}
-.modal-body{padding:20px;}
-.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;position:sticky;bottom:0;background:var(--surface);}
-.form-row{margin-bottom:16px;}
-.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
-.form-label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em;font-family:'DM Mono',monospace;}
-.form-input,.form-select,.form-textarea{width:100%;font-size:13px;padding:8px 11px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text1);font-family:'DM Sans',sans-serif;transition:border-color .15s;}
+.modal-body{padding:22px;}
+.modal-footer{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;background:var(--bg);border-radius:0 0 var(--radius-lg) var(--radius-lg);}
+
+/* FORMS */
+.form-row{margin-bottom:14px;}
+.form-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+.form-label{display:block;font-size:10px;font-weight:600;color:var(--text2);margin-bottom:4px;text-transform:uppercase;letter-spacing:.06em;font-family:'DM Mono',monospace;}
+.form-input,.form-select,.form-textarea{width:100%;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text1);font-family:'DM Sans',sans-serif;transition:border-color .15s;}
 .form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(29,107,78,0.08);}
-.form-textarea{resize:vertical;min-height:72px;}
-.form-hint{font-size:11px;color:var(--text3);margin-top:4px;}
-.component-list{display:flex;flex-direction:column;gap:6px;}
-.component-item{display:flex;align-items:center;gap:8px;padding:9px 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);}
-.component-item input,.component-item select{font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text1);font-family:'DM Sans',sans-serif;}
+.form-textarea{resize:vertical;min-height:64px;}
+.form-hint{font-size:11px;color:var(--text3);margin-top:3px;}
+.form-section{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;padding:14px 0 8px;border-top:1px solid var(--border);margin-top:6px;}
+
+/* COMPONENTS IN DISH MODAL */
+.component-list{display:flex;flex-direction:column;gap:5px;}
+.component-item{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);}
+.component-item input,.component-item select{font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text1);font-family:'DM Sans',sans-serif;}
 .component-item input:focus,.component-item select:focus{outline:none;border-color:var(--green);}
-.comp-name{flex:1;min-width:120px;}
-.comp-qty{width:64px;}
-.comp-unit{width:64px;}
-.comp-station{width:80px;}
-.freeze-btn{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;white-space:nowrap;font-family:'DM Mono',monospace;transition:all .15s;}
-.freeze-btn.active-freeze{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
-.freeze-btn.active-fridge{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}
-.comp-remove{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:0 2px;}
+.comp-name{flex:2;min-width:100px;}
+.comp-qty{width:58px;}
+.comp-unit{width:58px;}
+.comp-station{width:96px;}
+.storage-btn{font-size:10px;padding:3px 8px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;white-space:nowrap;font-family:'DM Mono',monospace;transition:all .15s;}
+.storage-btn.freeze{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
+.storage-btn.fridge{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}
+.comp-remove{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:0 3px;flex-shrink:0;}
 .comp-remove:hover{color:var(--red);}
-.allergen-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;}
-.allergen-toggle{font-size:10px;padding:5px 4px;text-align:center;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;background:var(--surface);color:var(--text3);transition:all .15s;font-family:'DM Mono',monospace;user-select:none;}
+
+/* ALLERGEN TOGGLES */
+.allergen-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.allergen-toggle{font-size:10px;padding:5px 3px;text-align:center;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;background:var(--surface);color:var(--text3);transition:all .15s;font-family:'DM Mono',monospace;user-select:none;line-height:1.2;}
 .allergen-toggle.contains{background:var(--red-bg);border-color:var(--red-bd);color:var(--red);}
 .allergen-toggle.may{background:var(--amber-bg);border-color:var(--amber-bd);color:var(--amber);}
+
+/* PAGES */
 .page{display:none;}
 .page.active{display:block;}
+
+/* EMPTY STATE */
 .empty-state{text-align:center;padding:48px 24px;color:var(--text3);}
-.empty-icon{font-size:36px;margin-bottom:12px;opacity:.4;}
-.empty-title{font-size:14px;font-weight:500;color:var(--text2);margin-bottom:6px;}
+.empty-icon{font-size:32px;margin-bottom:10px;opacity:.35;}
+.empty-title{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:5px;}
 .empty-sub{font-size:12px;}
-.toast{position:fixed;bottom:24px;right:24px;background:var(--text1);color:#fff;font-size:13px;padding:12px 18px;border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:200;transform:translateY(60px);opacity:0;transition:all .25s ease;pointer-events:none;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text1);color:#fff;font-size:13px;padding:11px 16px;border-radius:var(--radius);box-shadow:var(--shadow-md);z-index:200;transform:translateY(60px);opacity:0;transition:all .25s;pointer-events:none;max-width:300px;}
 .toast.show{transform:translateY(0);opacity:1;}
 .toast.success{border-left:3px solid #5ECAA0;}
 .toast.error{border-left:3px solid #E06060;}
-.loading-row td{text-align:center;padding:32px;color:var(--text3);font-size:12px;font-family:'DM Mono',monospace;}
-.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite;margin-right:8px;vertical-align:middle;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.section-title{font-size:13px;font-weight:500;}
-.divider{height:1px;background:var(--border);margin:18px 0;}
-.filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;}
-.filter-chip{font-size:11px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
+
+/* MISC */
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.filter-bar{display:flex;gap:7px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.filter-chip{font-size:11px;padding:4px 11px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;}
 .filter-chip.active{background:var(--text1);border-color:var(--text1);color:#fff;}
-.search-input{font-size:12px;padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text1);font-family:'DM Sans',sans-serif;width:200px;}
+.search-input{font-size:12px;padding:6px 11px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text1);font-family:'DM Sans',sans-serif;width:180px;}
 .search-input:focus{outline:none;border-color:var(--green);}
-.conn-status{display:flex;align-items:center;gap:5px;font-size:10px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.3);}
-.conn-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.2);}
-.conn-dot.live{background:#5ECAA0;}
-.conn-dot.error{background:#E06060;}
-.phase-block{margin-bottom:20px;}
-.phase-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
-.phase-line{flex:1;height:1px;background:var(--border);}
-.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:6px;display:grid;grid-template-columns:20px 1fr auto;gap:10px;align-items:start;cursor:pointer;transition:background .1s;}
-.task-card:hover{background:var(--bg);}
-.task-card.done{opacity:.45;}
-.task-card.done .task-name{text-decoration:line-through;}
-.task-check{width:18px;height:18px;border-radius:4px;border:1px solid var(--border2);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s;}
-.task-card.done .task-check{background:var(--green);border-color:var(--green);}
-.tick-mark{display:none;color:#fff;font-size:11px;font-weight:700;}
-.task-card.done .tick-mark{display:block;}
-.task-name{font-size:13px;font-weight:500;color:var(--text1);margin-bottom:2px;}
-.task-dish{font-size:11px;color:var(--text2);margin-bottom:4px;}
-.task-method{font-size:11px;color:var(--text3);font-style:italic;line-height:1.4;}
-.task-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
-.task-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
-.print-btn{font-size:10px;padding:3px 9px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;font-family:'DM Mono',monospace;white-space:nowrap;}
-.print-btn:hover{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
-.print-btn.freeze{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
-.progress-wrap{height:4px;background:var(--border);border-radius:2px;flex:1;}
-.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
-.matrix-table{font-size:11px;}
-.matrix-table th{font-size:9px;padding:6px 8px;}
-.matrix-table td{padding:7px 8px;text-align:center;}
-.tick-red{color:var(--red);font-size:13px;font-weight:700;}
-.dash-cell{color:var(--border2);}
-.dish-pick-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
-.dish-pick-item{padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .15s;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite;margin-right:6px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-row td{text-align:center;padding:32px;color:var(--text3);font-size:12px;}
+
+/* DISH PICK GRID */
+.dish-pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:8px;}
+.dish-pick-item{padding:9px 11px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:all .15s;}
 .dish-pick-item:hover{border-color:var(--border2);background:var(--bg);}
 .dish-pick-item.selected{border-color:var(--green-bd);background:var(--green-bg);}
 .dish-pick-item.selected .dpname{color:var(--green);}
 .dpname{font-size:12px;font-weight:500;margin-bottom:2px;}
 .dpcat{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
+
+/* STAFF */
+.staff-row{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--border);}
+.staff-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:var(--text2);flex-shrink:0;font-family:'DM Mono',monospace;}
+
+/* LABEL ITEM */
 .label-item{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);}
 .label-item:last-child{border-bottom:none;}
 .label-item-info{flex:1;}
 .label-item-name{font-size:13px;font-weight:500;}
 .label-item-meta{font-size:11px;color:var(--text3);margin-top:2px;}
-.staff-card{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);}
-.staff-avatar{width:36px;height:36px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--text2);flex-shrink:0;}
-.task-note{font-size:11px;color:var(--text2);font-style:italic;margin-top:3px;line-height:1.45;padding:4px 8px;background:var(--amber-bg);border-left:2px solid var(--amber-bd);border-radius:0 3px 3px 0;}
-.task-card.done .task-note{opacity:.5;}
 
-/* ── PRINT STYLES ──────────────────────────────────────────────── */
+/* ─────────────────────────────────────────
+   FUNCTION SHEET STYLES
+───────────────────────────────────────── */
+.fs-page{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md);overflow:hidden;margin-bottom:16px;}
+.fs-header{background:var(--text1);padding:22px 28px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;}
+.fs-header-left{}
+.fs-job-code{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.1em;margin-bottom:6px;}
+.fs-client{font-family:'Playfair Display',serif;font-size:26px;font-weight:600;color:#fff;line-height:1.1;}
+.fs-type-badge{display:inline-block;font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);margin-top:8px;font-family:'DM Mono',monospace;letter-spacing:.06em;}
+.fs-header-right{text-align:right;}
+.fs-date{font-size:22px;font-weight:300;color:#fff;font-family:'Playfair Display',serif;}
+.fs-covers{font-size:13px;color:rgba(255,255,255,.5);margin-top:4px;}
+.fs-status{margin-top:8px;}
+.fs-body{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+.fs-col{padding:20px 24px;border-right:1px solid var(--border);}
+.fs-col:last-child{border-right:none;}
+.fs-section-title{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;font-family:'DM Mono',monospace;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.fs-field{margin-bottom:10px;}
+.fs-field-label{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.fs-field-val{font-size:13px;color:var(--text1);font-weight:500;}
+.fs-field-val.muted{font-weight:400;color:var(--text2);}
+.fs-full-row{padding:16px 24px;border-top:1px solid var(--border);}
+/* Dish breakdown in function sheet */
+.fs-dish-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin-top:10px;}
+.fs-dish-card{border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;background:var(--bg);}
+.fs-dish-name{font-size:13px;font-weight:600;margin-bottom:4px;}
+.fs-dish-cat{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-bottom:8px;}
+.fs-dish-comps{font-size:11px;color:var(--text2);line-height:1.6;}
+.fs-dish-comp-row{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px dotted var(--border);padding:2px 0;}
+.fs-dish-comp-row:last-child{border-bottom:none;}
+.fs-dish-allergens{margin-top:8px;padding-top:7px;border-top:1px solid var(--border);}
+/* Guest allergies table */
+.guest-allergy-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+.guest-allergy-table td,.guest-allergy-table th{padding:7px 10px;border:1px solid var(--border);vertical-align:middle;}
+.guest-allergy-table th{background:var(--bg2);font-size:10px;font-family:'DM Mono',monospace;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--text3);}
+.guest-allergy-table tr:nth-child(even) td{background:var(--bg);}
+/* Notes section */
+.fs-notes{font-size:12px;color:var(--text2);line-height:1.65;white-space:pre-wrap;}
+.fs-notes.empty{color:var(--text3);font-style:italic;}
+
+/* ─────────────────────────────────────────
+   PREP LIST PRINT STYLES
+───────────────────────────────────────── */
+.prep-sheet{font-family:'DM Sans',sans-serif;}
+.prep-sheet-header{background:var(--text1);padding:18px 24px;display:flex;justify-content:space-between;align-items:flex-start;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.prep-sheet-title{font-family:'Playfair Display',serif;font-size:22px;color:#fff;font-weight:600;}
+.prep-sheet-sub{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px;font-family:'DM Mono',monospace;}
+.prep-sheet-meta{text-align:right;}
+.prep-sheet-jobcode{font-family:'DM Mono',monospace;font-size:13px;color:rgba(255,255,255,.5);margin-bottom:4px;}
+.prep-sheet-date{font-size:20px;color:#fff;font-family:'Playfair Display',serif;}
+.prep-sheet-covers{font-size:11px;color:rgba(255,255,255,.45);margin-top:3px;}
+.prep-prog-bar{height:3px;background:rgba(255,255,255,.12);position:relative;}
+.prep-prog-fill{height:100%;background:#5ECAA0;transition:width .3s;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+/* Bucket grouping */
+.prep-bucket{margin-bottom:0;}
+.prep-bucket-header{display:flex;align-items:center;gap:10px;padding:11px 24px;background:var(--bg2);border-bottom:1px solid var(--border);border-top:2px solid var(--border2);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.prep-bucket-header.advance{border-top-color:#1A4F7A;background:#EDF4FA;}
+.prep-bucket-header.close{border-top-color:#92510A;background:#FBF4E8;}
+.prep-bucket-header.service{border-top-color:#1D6B4E;background:#EBF5F0;}
+.prep-bucket-icon{font-size:15px;}
+.prep-bucket-label{font-size:13px;font-weight:600;color:var(--text1);}
+.prep-bucket-sub{font-size:11px;color:var(--text3);margin-left:auto;}
+.prep-bucket-count{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;}
+/* Task rows — this is the key print format */
+.prep-task-row{display:grid;grid-template-columns:32px 1fr auto;gap:0;border-bottom:1px solid var(--border);background:var(--surface);transition:background .1s;}
+.prep-task-row:hover{background:var(--bg);}
+.prep-task-row.done{background:var(--bg2);}
+.prep-checkbox-col{display:flex;align-items:flex-start;justify-content:center;padding:14px 0 14px 14px;}
+.prep-checkbox{width:22px;height:22px;border:1.5px solid var(--border2);border-radius:4px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;background:var(--surface);}
+.prep-task-row.done .prep-checkbox{background:var(--green);border-color:var(--green);}
+.prep-tick{display:none;color:#fff;font-size:12px;font-weight:700;}
+.prep-task-row.done .prep-tick{display:block;}
+.prep-task-row.done .prep-task-name{text-decoration:line-through;color:var(--text3);}
+.prep-main-col{padding:13px 14px 13px 10px;}
+.prep-task-name{font-size:14px;font-weight:600;color:var(--text1);line-height:1.2;margin-bottom:3px;}
+.prep-task-dish{font-size:11px;color:var(--text3);margin-bottom:5px;font-family:'DM Mono',monospace;}
+.prep-task-note{font-size:12px;color:var(--amber);background:var(--amber-bg);border-left:2px solid var(--amber-bd);padding:4px 8px;border-radius:0 3px 3px 0;margin-top:5px;font-style:italic;line-height:1.4;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.prep-task-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.prep-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.prep-tag.freeze{background:#E6EFF8;color:#1A4F7A;border:1px solid #7AAED6;}
+.prep-tag.fridge{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);}
+.prep-tag.fresh{background:var(--bg2);color:var(--text2);border:1px solid var(--border);}
+.prep-tag.qty{background:var(--surface);color:var(--text1);border:1px solid var(--border);font-weight:500;}
+.prep-tag.al{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);}
+.prep-action-col{padding:13px 14px 13px 0;display:flex;flex-direction:column;align-items:flex-end;gap:5px;}
+.prep-print-btn{font-size:10px;padding:3px 9px;border-radius:var(--radius);border:1px solid var(--blue-bd);background:var(--blue-bg);color:var(--blue);cursor:pointer;font-family:'DM Mono',monospace;white-space:nowrap;transition:all .15s;}
+.prep-print-btn:hover{background:var(--blue);color:#fff;}
+/* Dish grouping in by-dish view */
+.prep-dish-section{margin-bottom:16px;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);}
+.prep-dish-header{padding:12px 16px;background:var(--text1);display:flex;align-items:center;justify-content:space-between;gap:8px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.prep-dish-header-name{font-size:14px;font-weight:600;color:#fff;font-family:'Playfair Display',serif;}
+.prep-dish-header-al{font-size:10px;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace;}
+/* Station view */
+.prep-station-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;}
+.prep-station-card{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);}
+.prep-station-header{padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.prep-station-name{font-size:13px;font-weight:600;}
+
+/* ─────────────────────────────────────────
+   FSA ALLERGEN SHEET
+───────────────────────────────────────── */
+.fsa-wrap{font-family:'DM Sans',sans-serif;}
+.fsa-header{background:#1C1A16;padding:16px 22px;display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.fsa-title{font-size:17px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.02em;line-height:1.1;}
+.fsa-subtitle{font-size:10px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;margin-top:4px;letter-spacing:.04em;}
+.fsa-biz{text-align:right;}
+.fsa-biz-name{font-size:14px;font-weight:500;color:#fff;}
+.fsa-biz-ev{font-size:11px;color:rgba(255,255,255,.45);font-family:'DM Mono',monospace;margin-top:2px;}
+.fsa-legend{display:flex;gap:18px;align-items:center;padding:9px 18px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.fsa-legend-item{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);}
+.fsa-sym-c{width:22px;height:22px;border-radius:50%;background:#1C1A16;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.fsa-sym-m{width:22px;height:22px;border-radius:50%;background:#92510A;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.fsa-sym-n{width:22px;height:22px;border-radius:50%;border:1px solid var(--border);display:inline-flex;align-items:center;justify-content:center;font-size:11px;color:var(--text3);flex-shrink:0;}
+.fsa-date-stamp{margin-left:auto;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;}
+/* The matrix */
+.fsa-matrix-scroll{overflow-x:auto;}
+.fsa-matrix{width:100%;border-collapse:collapse;}
+.fsa-matrix th{border:1px solid var(--border);padding:5px 4px;text-align:center;font-size:9px;font-weight:600;color:var(--text2);background:var(--bg2);vertical-align:bottom;line-height:1.2;min-width:46px;max-width:60px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.fsa-matrix th.dish-col{text-align:left;min-width:160px;max-width:none;background:var(--text1);color:#fff;font-size:10px;padding-left:14px;}
+.fsa-matrix td{border:1px solid var(--border);padding:7px 4px;text-align:center;vertical-align:middle;}
+.fsa-matrix td.dish-name{text-align:left;padding-left:14px;font-weight:600;font-size:12px;background:var(--bg);-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.fsa-matrix td.comp-name{text-align:left;padding-left:26px;font-size:11px;color:var(--text2);background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.fsa-matrix tr:nth-child(even) td.dish-name{background:var(--bg2);}
+.al-icon-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;}
+.al-icon-img{width:28px;height:28px;object-fit:contain;opacity:.25;filter:grayscale(1);}
+.al-cell-c .al-icon-img{opacity:1;filter:none;}
+.al-cell-m .al-icon-img{opacity:.7;filter:sepia(1) saturate(3) hue-rotate(5deg);}
+.al-sym-c{width:20px;height:20px;border-radius:50%;background:#1C1A16;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.al-sym-m{width:20px;height:20px;border-radius:50%;background:#92510A;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+.fsa-footer{padding:10px 18px;border-top:2px solid var(--text1);background:var(--bg);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+
+/* ─────────────────────────────────────────
+   PRINT MEDIA
+───────────────────────────────────────── */
 @media print {
-  body { background: #fff !important; font-size: 11pt; color: #000; }
-  .sidebar, .topbar, .topbar-actions, .print-btn, .btn, .filter-bar,
-  #prep-empty, #prep-header-strip .task-right,
-  .nav-item, .nav-section, .sidebar-footer { display: none !important; }
-  .main { margin-left: 0 !important; }
-  .content { padding: 0 !important; }
-  .page { display: block !important; }
-  #page-dashboard, #page-events, #page-menu, #page-production,
-  #page-labels, #page-admin { display: none !important; }
+  .sidebar,.topbar,.topbar-actions,.filter-bar,
+  .btn,.prep-print-btn,.prep-action-col { display:none !important; }
+  body { background:#fff !important; font-size:11pt; }
+  .main { margin-left:0 !important; }
+  .content { padding:0 !important; }
+  .page { display:block !important; }
+  #page-dashboard,#page-events,#page-menu,
+  #page-production,#page-labels,#page-admin { display:none !important; }
 
-  /* PREP LIST PRINT */
-  #prep-header-strip {
-    background: #1C1A16 !important;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
-    color-adjust: exact;
-    border-radius: 0 !important;
-    margin-bottom: 16pt !important;
-    padding: 12pt 16pt !important;
-  }
-  #prep-header-strip * { color: #fff !important; }
-  #ph-done { color: #5ECAA0 !important; }
-  .task-card {
-    border: 1px solid #ccc !important;
-    padding: 8pt 10pt !important;
-    margin-bottom: 5pt !important;
-    page-break-inside: avoid;
-    display: flex !important;
-    gap: 8pt;
-  }
-  .task-check {
-    width: 16pt !important; height: 16pt !important;
-    border: 1.5pt solid #666 !important;
-    border-radius: 3pt !important;
-    flex-shrink: 0 !important;
-    background: #fff !important;
-  }
-  .task-card.done { opacity: 1 !important; }
-  .task-card.done .task-check { background: #000 !important; }
-  .task-card.done .task-name { text-decoration: none !important; }
-  .task-name { font-size: 11pt !important; font-weight: 600 !important; }
-  .task-note {
-    font-size: 9pt !important;
-    background: #fff8e7 !important;
-    border-left: 2pt solid #e8a000 !important;
-    -webkit-print-color-adjust: exact; print-color-adjust: exact;
-  }
-  .badge { border: 1pt solid #999 !important; font-size: 8pt !important; }
-  .allergen-tag { border: 1pt solid #c00 !important; color: #c00 !important; background: #fff !important; font-size: 8pt !important; }
-  .prep-bucket { margin-bottom: 20pt !important; }
-  .prep-bucket > div:first-child { margin-bottom: 8pt !important; }
-  .card { box-shadow: none !important; border: 1pt solid #ccc !important; }
+  /* prep print */
+  .prep-sheet-header,.prep-bucket-header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .prep-task-row { page-break-inside:avoid; }
+  .prep-dish-section { page-break-inside:avoid; margin-bottom:12pt; }
+  .prep-checkbox { border:1.5pt solid #666 !important; width:20pt !important; height:20pt !important; }
+  .prep-task-name { font-size:11pt !important; }
 
-  /* ALLERGEN SHEET PRINT */
-  #al-print-sheet { display: block !important; }
-  .al-matrix-wrap { overflow: visible !important; }
-  .al-matrix-table { font-size: 8pt !important; }
-  .al-matrix-table th { font-size: 7pt !important; padding: 4pt 3pt !important; }
-  .al-matrix-table td { padding: 5pt 3pt !important; }
+  /* allergen sheet print */
+  .fsa-header,.fsa-legend,.fsa-footer { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .fsa-matrix th,.fsa-matrix td { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .fsa-sym-c,.fsa-sym-m,.al-sym-c,.al-sym-m { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+  .al-icon-img { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
 }
-
-/* FSA-STYLE ALLERGEN SHEET — screen only shows in card, print shows full page */
-#al-print-sheet {
-  font-family: 'DM Sans', sans-serif;
-}
-.fsa-header {
-  background: #1C1A16;
-  color: #fff;
-  padding: 14px 20px 12px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-.fsa-title-block {}
-.fsa-title {
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: -.01em;
-  text-transform: uppercase;
-  line-height: 1;
-}
-.fsa-subtitle {
-  font-size: 11px;
-  color: rgba(255,255,255,.5);
-  margin-top: 4px;
-  font-family: 'DM Mono', monospace;
-}
-.fsa-biz {
-  font-size: 13px;
-  font-weight: 500;
-  text-align: right;
-  color: rgba(255,255,255,.85);
-}
-.fsa-biz-sub {
-  font-size: 11px;
-  color: rgba(255,255,255,.4);
-  text-align: right;
-  margin-top: 2px;
-  font-family: 'DM Mono', monospace;
-}
-.fsa-legend {
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
-  padding: 8px 16px;
-  display: flex;
-  gap: 20px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-.fsa-legend-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: var(--text2);
-  font-family: 'DM Mono', monospace;
-}
-.legend-contains {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px; height: 20px;
-  background: #1C1A16;
-  color: #fff;
-  border-radius: 50%;
-  font-size: 11px;
-  font-weight: 700;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-.legend-may {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px; height: 20px;
-  background: var(--amber);
-  color: #fff;
-  border-radius: 50%;
-  font-size: 10px;
-  font-weight: 700;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-.legend-none {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px; height: 20px;
-  border: 1px solid var(--border);
-  border-radius: 50%;
-  font-size: 11px;
-  color: var(--text3);
-}
-.al-matrix-wrap { overflow-x: auto; }
-.al-matrix-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-.al-matrix-table th {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  padding: 7px 5px;
-  text-align: center;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--text2);
-  line-height: 1.2;
-  vertical-align: bottom;
-  white-space: normal;
-  max-width: 52px;
-  min-width: 44px;
-  font-family: 'DM Sans', sans-serif;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-.al-matrix-table th.dish-col {
-  text-align: left;
-  min-width: 160px;
-  max-width: none;
-  background: var(--text1);
-  color: #fff;
-  padding-left: 14px;
-  font-size: 11px;
-}
-.al-matrix-table td {
-  border: 1px solid var(--border);
-  padding: 7px 4px;
-  text-align: center;
-  vertical-align: middle;
-}
-.al-matrix-table td.dish-name {
-  text-align: left;
-  padding-left: 14px;
-  font-weight: 600;
-  font-size: 12px;
-  background: var(--bg);
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-.al-matrix-table tr.dish-row td.dish-name {
-  background: var(--bg);
-}
-.al-matrix-table tr.comp-row td.dish-name {
-  font-weight: 400;
-  font-size: 11px;
-  color: var(--text2);
-  padding-left: 28px;
-  background: #fff;
-}
-.al-cell-contains {
-  background: #1C1A16;
-  color: #fff;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 12px;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-.al-cell-may {
-  background: var(--amber);
-  color: #fff;
-  width: 22px; height: 22px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: 10px;
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-.fsa-footer {
-  padding: 10px 16px;
-  font-size: 10px;
-  color: var(--text3);
-  border-top: 2px solid var(--text1);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 8px;
-  background: var(--bg);
-  -webkit-print-color-adjust: exact;
-  print-color-adjust: exact;
-}
-.fsa-footer-note {
-  font-family: 'DM Mono', monospace;
-}
-/* Alternating row tint */
-.al-matrix-table tr.dish-row:nth-child(odd) td { background: var(--bg); }
-.al-matrix-table tr.dish-row:nth-child(even) td { background: #fff; }
-.al-matrix-table tr.dish-row:nth-child(odd) td.dish-name { background: var(--bg2); }
-.al-matrix-table tr.dish-row:nth-child(even) td.dish-name { background: var(--bg); }
 </style>
 </head>
 <body>
 <div class="layout">
+
+<!-- SIDEBAR -->
 <nav class="sidebar">
   <div class="sidebar-brand"><div class="brand-title">Digby's</div><div class="brand-sub">Kitchen Operations</div></div>
   <div class="nav-section">
     <div class="nav-label">Overview</div>
-    <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">◈</span>Dashboard</div>
-    <div class="nav-item" onclick="nav('events',this)"><span class="nav-icon">◷</span>Events</div>
+    <div class="nav-item active" onclick="nav('dashboard',this)"><span class="nav-icon">◈</span> Dashboard</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Events</div>
+    <div class="nav-item" onclick="nav('events',this)"><span class="nav-icon">◷</span> Function sheets</div>
+    <div class="nav-item" onclick="nav('prep',this)"><span class="nav-icon">✓</span> Prep lists</div>
   </div>
   <div class="nav-section">
     <div class="nav-label">Kitchen</div>
-    <div class="nav-item" onclick="nav('menu',this)"><span class="nav-icon">≡</span>Menu builder</div>
-    <div class="nav-item" onclick="nav('prep',this)"><span class="nav-icon">✓</span>Prep lists</div>
-    <div class="nav-item" onclick="nav('production',this)"><span class="nav-icon">❄</span>Production runs</div>
+    <div class="nav-item" onclick="nav('menu',this)"><span class="nav-icon">≡</span> Menu builder</div>
+    <div class="nav-item" onclick="nav('production',this)"><span class="nav-icon">❄</span> Production runs</div>
   </div>
   <div class="nav-section">
-    <div class="nav-label">Output</div>
-    <div class="nav-item" onclick="nav('allergens',this)"><span class="nav-icon">⚠</span>Allergens</div>
-    <div class="nav-item" onclick="nav('labels',this)"><span class="nav-icon">▤</span>Label queue</div>
+    <div class="nav-label">Compliance</div>
+    <div class="nav-item" onclick="nav('allergens',this)"><span class="nav-icon">⚠</span> Allergen sheet</div>
+    <div class="nav-item" onclick="nav('labels',this)"><span class="nav-icon">▤</span> Label queue</div>
   </div>
   <div class="nav-section">
     <div class="nav-label">System</div>
-    <div class="nav-item" onclick="nav('admin',this)"><span class="nav-icon">⚙</span>Admin</div>
+    <div class="nav-item" onclick="nav('admin',this)"><span class="nav-icon">⚙</span> Admin</div>
   </div>
   <div class="sidebar-footer"><div class="conn-status"><div class="conn-dot" id="conn-dot"></div><span id="conn-label">Connecting...</span></div></div>
 </nav>
 
 <div class="main">
 
-<!-- DASHBOARD -->
+<!-- ══ DASHBOARD ══ -->
 <div id="page-dashboard" class="page active">
   <div class="topbar">
-    <div><div class="topbar-title">Dashboard</div><div class="topbar-sub" id="dash-date"></div></div>
-    <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="openEventModal()">+ New event</button></div>
+    <div class="topbar-left"><div class="topbar-title">Dashboard</div><div class="topbar-sub" id="dash-date"></div></div>
+    <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="openFunctionSheet()">+ New event</button></div>
   </div>
   <div class="content">
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-label">Dishes on menu</div><div class="stat-val" id="s-dishes">—</div><div class="stat-sub" id="s-dishes-sub">—</div></div>
-      <div class="stat-card"><div class="stat-label">Upcoming events</div><div class="stat-val" id="s-events">—</div><div class="stat-sub">Next 30 days</div></div>
+      <div class="stat-card"><div class="stat-label">Upcoming events</div><div class="stat-val" id="s-events">—</div><div class="stat-sub">Next 90 days</div></div>
       <div class="stat-card"><div class="stat-label">Total covers</div><div class="stat-val" id="s-covers">—</div><div class="stat-sub">Confirmed upcoming</div></div>
       <div class="stat-card"><div class="stat-label">Components</div><div class="stat-val" id="s-comps">—</div><div class="stat-sub" id="s-comps-sub">—</div></div>
     </div>
     <div class="card">
-      <div class="card-header"><div class="card-title">Upcoming events</div><button class="btn btn-sm" onclick="nav('events',document.querySelectorAll('.nav-item')[1])">View all</button></div>
-      <div class="card-body"><table><thead><tr><th>Date</th><th>Event</th><th>Type</th><th>Covers</th><th>Status</th><th></th></tr></thead><tbody id="dash-ev-body"><tr class="loading-row"><td colspan="6"><span class="spinner"></span>Loading...</td></tr></tbody></table></div>
+      <div class="card-header"><div class="card-title">Upcoming events</div><button class="btn btn-sm btn-ghost" onclick="nav('events',document.querySelectorAll('.nav-item')[1])">View all →</button></div>
+      <div class="card-body"><table><thead><tr><th>Date</th><th>Client</th><th>Type</th><th>Location</th><th>Covers</th><th>Status</th><th></th></tr></thead><tbody id="dash-ev-body"><tr><td colspan="7"><div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;"><span class="spinner"></span>Loading...</div></td></tr></tbody></table></div>
     </div>
     <div class="card">
-      <div class="card-header"><div class="card-title">Menu — recent dishes</div><button class="btn btn-sm" onclick="nav('menu',document.querySelectorAll('.nav-item')[2])">View all</button></div>
-      <div class="card-body"><table><thead><tr><th>Dish</th><th>Category</th><th>Allergens</th><th>Status</th><th></th></tr></thead><tbody id="dash-dish-body"><tr class="loading-row"><td colspan="5"><span class="spinner"></span>Loading...</td></tr></tbody></table></div>
+      <div class="card-header"><div class="card-title">Recent dishes</div><button class="btn btn-sm btn-ghost" onclick="nav('menu',document.querySelectorAll('.nav-item')[3])">View all →</button></div>
+      <div class="card-body"><table><thead><tr><th>Dish</th><th>Category</th><th>Allergens</th><th>Status</th><th></th></tr></thead><tbody id="dash-dish-body"><tr><td colspan="5"><div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;"><span class="spinner"></span>Loading...</div></td></tr></tbody></table></div>
     </div>
   </div>
 </div>
 
-<!-- EVENTS -->
+<!-- ══ FUNCTION SHEETS (EVENTS LIST) ══ -->
 <div id="page-events" class="page">
   <div class="topbar">
-    <div class="topbar-title">Events</div>
-    <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="openEventModal()">+ New event</button></div>
-  </div>
-  <div class="content">
-    <div class="filter-bar">
-      <div class="filter-chip active" onclick="setEvFilter('All',this)">All</div>
-      <div class="filter-chip" onclick="setEvFilter('WED',this)">Weddings</div>
-      <div class="filter-chip" onclick="setEvFilter('PRIV',this)">Private dining</div>
-      <div class="filter-chip" onclick="setEvFilter('TM',this)">Tasting menu</div>
-      <div class="filter-chip" onclick="setEvFilter('CAN',this)">Canapés</div>
-      <div class="filter-chip" onclick="setEvFilter('Confirmed',this)">Confirmed</div>
-      <div class="filter-chip" onclick="setEvFilter('Provisional',this)">Provisional</div>
+    <div class="topbar-left"><div class="topbar-title">Function sheets</div><div class="topbar-sub">Master document for each event</div></div>
+    <div class="topbar-actions">
+      <div class="filter-bar" style="margin:0;">
+        <div class="filter-chip active" onclick="setEvFilter('All',this)">All</div>
+        <div class="filter-chip" onclick="setEvFilter('Confirmed',this)">Confirmed</div>
+        <div class="filter-chip" onclick="setEvFilter('Provisional',this)">Provisional</div>
+        <div class="filter-chip" onclick="setEvFilter('WED',this)">Weddings</div>
+        <div class="filter-chip" onclick="setEvFilter('PRIV',this)">Private dining</div>
+        <div class="filter-chip" onclick="setEvFilter('TM',this)">Tasting menu</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openFunctionSheet()">+ New event</button>
     </div>
-    <div class="card"><div class="card-body"><table><thead><tr><th>Job code</th><th>Client</th><th>Date</th><th>Type</th><th>Covers</th><th>Status</th><th></th></tr></thead><tbody id="ev-body"><tr class="loading-row"><td colspan="7"><span class="spinner"></span>Loading...</td></tr></tbody></table></div></div>
+  </div>
+  <div class="content" id="events-list-content">
+    <div style="text-align:center;padding:40px;color:var(--text3);font-size:12px;"><span class="spinner"></span>Loading...</div>
   </div>
 </div>
 
-<!-- MENU BUILDER -->
-<div id="page-menu" class="page">
-  <div class="topbar">
-    <div class="topbar-title">Menu builder</div>
-    <div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="openDishModal()">+ Add dish</button></div>
-  </div>
-  <div class="content">
-    <div class="filter-bar">
-      <input type="text" class="search-input" placeholder="Search dishes..." id="dish-search" oninput="renderMenu()">
-      <div class="filter-chip active" onclick="setDishFilter('All',this)">All</div>
-      <div class="filter-chip" onclick="setDishFilter('Canapés',this)">Canapés</div>
-      <div class="filter-chip" onclick="setDishFilter('Starters',this)">Starters</div>
-      <div class="filter-chip" onclick="setDishFilter('Mains',this)">Mains</div>
-      <div class="filter-chip" onclick="setDishFilter('Desserts',this)">Desserts</div>
-      <div class="filter-chip" onclick="setDishFilter('Tasting Menu',this)">Tasting Menu</div>
-    </div>
-    <div class="card"><div class="card-body"><table><thead><tr><th>Dish</th><th>Category</th><th>Components</th><th>Freezable</th><th>Allergens</th><th>Status</th><th></th></tr></thead><tbody id="menu-body"><tr class="loading-row"><td colspan="7"><span class="spinner"></span>Loading...</td></tr></tbody></table></div></div>
-  </div>
-</div>
-
-<!-- PREP LISTS -->
+<!-- ══ PREP LISTS ══ -->
 <div id="page-prep" class="page">
   <div class="topbar">
-    <div><div class="topbar-title">Prep</div><div class="topbar-sub" id="prep-sub">Select an event</div></div>
+    <div class="topbar-left"><div class="topbar-title">Prep list</div><div class="topbar-sub" id="prep-sub">Select an event</div></div>
     <div class="topbar-actions">
-      <select class="form-select" id="prep-ev-sel" style="width:220px;font-size:12px;padding:6px 10px;" onchange="generatePrepList()"><option value="">— Select event —</option></select>
+      <select class="form-select" id="prep-ev-sel" style="width:230px;font-size:12px;padding:6px 10px;" onchange="generatePrepList()"><option value="">— Select event —</option></select>
       <div style="display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
         <button class="btn btn-ghost btn-sm" id="vt-bucket" onclick="setPrepView('bucket')" style="border:none;border-radius:0;border-right:1px solid var(--border);">Overview</button>
         <button class="btn btn-ghost btn-sm" id="vt-dish" onclick="setPrepView('dish')" style="border:none;border-radius:0;border-right:1px solid var(--border);">By dish</button>
         <button class="btn btn-ghost btn-sm" id="vt-station" onclick="setPrepView('station')" style="border:none;border-radius:0;">By station</button>
       </div>
-      <button class="btn btn-sm" onclick="window.print()">Print</button>
+      <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
     </div>
   </div>
   <div class="content">
     <div id="prep-empty"><div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">✓</div><div class="empty-title">No event selected</div><div class="empty-sub">Choose an event above to generate its prep list</div></div></div></div></div>
     <div id="prep-content" style="display:none;">
-      <div id="prep-header-strip" style="background:var(--text1);border-radius:var(--radius-lg);padding:16px 22px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <div>
-          <div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;" id="ph-title">—</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;" id="ph-sub">—</div>
-        </div>
-        <div style="display:flex;gap:24px;">
-          <div style="text-align:center;"><div style="font-size:22px;font-weight:300;color:#fff;font-family:'Playfair Display',serif;" id="ph-covers">—</div><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;">covers</div></div>
-          <div style="text-align:center;"><div style="font-size:22px;font-weight:300;color:#fff;font-family:'Playfair Display',serif;" id="ph-tasks">—</div><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;">tasks</div></div>
-          <div style="text-align:center;"><div style="font-size:22px;font-weight:300;color:#5ECAA0;font-family:'Playfair Display',serif;" id="ph-done">0</div><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.07em;margin-top:2px;">done</div></div>
-        </div>
-        <div style="flex:1;min-width:140px;max-width:200px;">
-          <div style="height:4px;background:rgba(255,255,255,.12);border-radius:2px;"><div style="height:100%;background:#5ECAA0;border-radius:2px;transition:width .3s;" id="ph-prog"></div></div>
-          <div style="font-size:10px;color:rgba(255,255,255,.3);margin-top:5px;text-align:right;font-family:'DM Mono',monospace;" id="ph-pct">0%</div>
+      <div id="prep-sheet-wrap">
+        <div class="prep-sheet card">
+          <div class="prep-sheet-header">
+            <div class="prep-sheet-left">
+              <div class="prep-sheet-title" id="ps-client">—</div>
+              <div class="prep-sheet-sub" id="ps-type-loc">—</div>
+            </div>
+            <div class="prep-sheet-meta">
+              <div class="prep-sheet-jobcode" id="ps-jobcode">—</div>
+              <div class="prep-sheet-date" id="ps-date">—</div>
+              <div class="prep-sheet-covers" id="ps-covers-str">—</div>
+            </div>
+          </div>
+          <div class="prep-prog-bar"><div class="prep-prog-fill" id="prep-prog" style="width:0%"></div></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 20px;background:var(--bg);border-bottom:1px solid var(--border);">
+            <span style="font-size:12px;color:var(--text2);font-weight:500;" id="ps-done-str">0 of 0 tasks done</span>
+            <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;" id="ps-pct">0%</span>
+            <span style="font-size:11px;color:var(--text3);margin-left:auto;">Buffer: <strong id="ps-buffer">14%</strong> applied · Prepping for <strong id="ps-buffered-covers">—</strong> covers</span>
+          </div>
+          <div id="prep-bucket-view"></div>
+          <div id="prep-dish-view" style="display:none;"></div>
+          <div id="prep-station-view" style="display:none;"></div>
         </div>
       </div>
-      <div id="prep-bucket-view"></div>
-      <div id="prep-dish-view" style="display:none;"></div>
-      <div id="prep-station-view" style="display:none;"></div>
     </div>
   </div>
 </div>
 
-<!-- PRODUCTION RUNS -->
+<!-- ══ MENU BUILDER ══ -->
+<div id="page-menu" class="page">
+  <div class="topbar">
+    <div class="topbar-title">Menu builder</div>
+    <div class="topbar-actions">
+      <input type="text" class="search-input" placeholder="Search dishes..." id="dish-search" oninput="renderMenu()">
+      <button class="btn btn-primary btn-sm" onclick="openDishModal()">+ Add dish</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="filter-bar">
+      <div class="filter-chip active" onclick="setDishFilter('All',this)">All</div>
+      <div class="filter-chip" onclick="setDishFilter('Canapés',this)">Canapés</div>
+      <div class="filter-chip" onclick="setDishFilter('Starters',this)">Starters</div>
+      <div class="filter-chip" onclick="setDishFilter('Mains',this)">Mains</div>
+      <div class="filter-chip" onclick="setDishFilter('Desserts',this)">Desserts</div>
+      <div class="filter-chip" onclick="setDishFilter('Evening Grazing',this)">Evening Grazing</div>
+      <div class="filter-chip" onclick="setDishFilter('Stock',this)">Stock</div>
+    </div>
+    <div class="card"><div class="card-body"><table><thead><tr><th>Dish</th><th>Category</th><th>Components</th><th>Freezable</th><th>Allergens</th><th>Status</th><th></th></tr></thead><tbody id="menu-body"><tr><td colspan="7"><div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;"><span class="spinner"></span>Loading...</div></td></tr></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ══ PRODUCTION RUNS ══ -->
 <div id="page-production" class="page">
   <div class="topbar">
     <div class="topbar-title">Production runs</div>
@@ -576,82 +509,71 @@ td.muted{color:var(--text3);font-size:12px;}
   <div class="content"><div id="prod-body"><div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">❄</div><div class="empty-title">Select a month above</div><div class="empty-sub">Consolidates all freezable components across a month's events</div></div></div></div></div></div>
 </div>
 
-<!-- ALLERGENS -->
+<!-- ══ ALLERGEN SHEET ══ -->
 <div id="page-allergens" class="page">
   <div class="topbar">
-    <div><div class="topbar-title">Allergen information</div><div class="topbar-sub">Dishes &amp; their allergen content — UK FSA standard format</div></div>
+    <div class="topbar-left"><div class="topbar-title">Allergen information sheet</div><div class="topbar-sub">UK Food Standards Agency standard format · Food Information Regulations 2014</div></div>
     <div class="topbar-actions">
       <select class="form-select" id="al-ev-sel" style="width:220px;font-size:12px;padding:6px 10px;" onchange="renderAllergenMatrix()"><option value="">— All dishes —</option></select>
-      <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);cursor:pointer;">
-        <input type="checkbox" id="al-show-comps" onchange="renderAllergenMatrix()" style="cursor:pointer;"> Show components
+      <label style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2);cursor:pointer;white-space:nowrap;">
+        <input type="checkbox" id="al-show-comps" onchange="renderAllergenMatrix()"> Components
       </label>
-      <button class="btn btn-sm btn-primary" onclick="window.print()">Print allergen sheet</button>
+      <button class="btn btn-sm btn-primary" onclick="window.print()">🖨 Print allergen sheet</button>
     </div>
   </div>
   <div class="content">
-    <div class="card" id="al-print-sheet">
-      <!-- FSA header -->
+    <div class="card fsa-wrap" id="fsa-sheet">
       <div class="fsa-header">
-        <div class="fsa-title-block">
-          <div class="fsa-title">Dishes and their allergen content</div>
-          <div class="fsa-subtitle">Prepared under Food Information Regulations 2014 &amp; UK Food Standards Agency guidance</div>
-        </div>
         <div>
-          <div class="fsa-biz">Digby's Catering</div>
-          <div class="fsa-biz-sub" id="al-ev-label">All dishes</div>
+          <div class="fsa-title">Dishes and their allergen content</div>
+          <div class="fsa-subtitle">Prepared under Food Information Regulations 2014 &amp; UK Food Standards Agency guidance · food.gov.uk/allergies</div>
+        </div>
+        <div class="fsa-biz">
+          <div class="fsa-biz-name">Digby's Catering</div>
+          <div class="fsa-biz-ev" id="al-ev-label">All dishes</div>
         </div>
       </div>
-      <!-- Legend -->
       <div class="fsa-legend">
-        <div class="fsa-legend-item"><span class="legend-contains">✓</span> Contains allergen</div>
-        <div class="fsa-legend-item"><span class="legend-may">M</span> May contain (cross-contamination risk)</div>
-        <div class="fsa-legend-item"><span class="legend-none">—</span> Not present</div>
-        <div style="margin-left:auto;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;" id="al-date-stamp"></div>
+        <div class="fsa-legend-item"><span class="fsa-sym-c">✓</span> Contains this allergen</div>
+        <div class="fsa-legend-item"><span class="fsa-sym-m">M</span> May contain (cross-contamination risk)</div>
+        <div class="fsa-legend-item"><span class="fsa-sym-n">—</span> Not present</div>
+        <div class="fsa-date-stamp" id="al-date-stamp"></div>
       </div>
-      <!-- Matrix -->
-      <div class="al-matrix-wrap">
-        <table class="al-matrix-table" id="al-matrix-table">
-          <thead id="al-matrix-head"></thead>
-          <tbody id="al-matrix-body"></tbody>
-        </table>
+      <div class="fsa-matrix-scroll">
+        <table class="fsa-matrix" id="fsa-table"></table>
       </div>
-      <!-- FSA footer -->
       <div class="fsa-footer">
-        <div class="fsa-footer-note">
-          Always inform staff of your allergy or intolerance before ordering. Menu items may be subject to change — ask your server for the most current information.
-        </div>
-        <div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">
-          Food Standards Agency · food.gov.uk/allergies
-        </div>
+        <span>Always inform staff of any allergy or intolerance before ordering. Information may change — please ask if you are unsure.</span>
+        <span>Food Standards Agency · food.gov.uk/allergies</span>
       </div>
     </div>
   </div>
 </div>
 
-<!-- LABEL QUEUE -->
+<!-- ══ LABEL QUEUE ══ -->
 <div id="page-labels" class="page">
   <div class="topbar">
-    <div><div class="topbar-title">Label queue</div><div class="topbar-sub">Components ready to print via CPS</div></div>
+    <div class="topbar-left"><div class="topbar-title">Label queue</div><div class="topbar-sub">All freeze &amp; fridge components ready to print</div></div>
     <div class="topbar-actions">
       <input type="text" class="search-input" id="label-filter" placeholder="Filter by job code..." oninput="renderLabelQueue()">
       <button class="btn btn-primary btn-sm" onclick="printAllLabels()">Print all</button>
     </div>
   </div>
-  <div class="content"><div class="card"><div class="card-body" id="label-body"></div></div></div>
+  <div class="content"><div class="card"><div class="card-body" id="label-body"><div class="empty-state"><div class="empty-icon">▤</div><div class="empty-title">Loading...</div></div></div></div></div>
 </div>
 
-<!-- ADMIN -->
+<!-- ══ ADMIN ══ -->
 <div id="page-admin" class="page">
   <div class="topbar"><div class="topbar-title">Admin</div><div class="topbar-actions"><button class="btn btn-primary btn-sm" onclick="openStaffModal()">+ Add staff</button></div></div>
   <div class="content">
     <div class="form-grid-2" style="gap:16px;align-items:start;">
       <div>
-        <div class="card"><div class="card-header"><div class="card-title">Staff</div></div><div class="card-body" id="staff-body"></div></div>
+        <div class="card"><div class="card-header"><div class="card-title">Staff</div></div><div class="card-body" id="staff-body"><div class="empty-state" style="padding:24px;"><div class="empty-sub">No staff added yet</div></div></div></div>
         <div class="card">
           <div class="card-header"><div class="card-title">CPS sync</div></div>
           <div class="card-body" style="padding:16px;">
-            <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Push all dishes to your CPS label system or pull from CPS into this database.</p>
-            <div style="display:flex;gap:8px;"><button class="btn btn-sm btn-primary" onclick="syncToCPS()">Push to CPS →</button><button class="btn btn-sm" onclick="showToast('Pull from CPS coming soon','error')">← Pull from CPS</button></div>
+            <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Push all dishes to your CPS label system.</p>
+            <div style="display:flex;gap:8px;"><button class="btn btn-sm btn-primary" onclick="syncToCPS()">Push to CPS →</button></div>
             <div id="sync-log" style="margin-top:10px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;"></div>
           </div>
         </div>
@@ -660,18 +582,17 @@ td.muted{color:var(--text3);font-size:12px;}
         <div class="card">
           <div class="card-header"><div class="card-title">Settings</div></div>
           <div class="card-body" style="padding:16px;">
-            <div class="form-row"><label class="form-label">Default buffer %</label><input class="form-input" type="number" id="set-buffer" value="14" min="0" max="50"><div class="form-hint">Added to all component quantities</div></div>
-            <div class="form-row"><label class="form-label">CPS ngrok URL</label><input class="form-input" type="text" id="set-ngrok" placeholder="https://...ngrok-free.dev"><div class="form-hint">Your Pi print server tunnel</div></div>
-            <div class="form-row"><label class="form-label">CPS Supabase URL</label><input class="form-input" type="text" id="set-cps-url" placeholder="https://jaajrllkozknilvmdezt.supabase.co"></div>
-            <div class="form-row"><label class="form-label">CPS Anon key</label><input class="form-input" type="text" id="set-cps-key" placeholder="eyJ..."></div>
+            <div class="form-row"><label class="form-label">Buffer %</label><input class="form-input" type="number" id="set-buffer" value="14" min="0" max="50"><div class="form-hint">Added to all quantities on prep lists</div></div>
+            <div class="form-row"><label class="form-label">CPS ngrok URL</label><input class="form-input" type="text" id="set-ngrok" placeholder="https://...ngrok-free.dev"></div>
+            <div class="form-row"><label class="form-label">CPS Supabase URL</label><input class="form-input" type="text" id="set-cps-url"></div>
+            <div class="form-row"><label class="form-label">CPS Anon key</label><input class="form-input" type="text" id="set-cps-key"></div>
             <button class="btn btn-primary btn-sm" onclick="saveSettings()">Save settings</button>
           </div>
         </div>
         <div class="card">
-          <div class="card-header"><div class="card-title">Backup &amp; export</div></div>
+          <div class="card-header"><div class="card-title">Backup</div></div>
           <div class="card-body" style="padding:16px;">
-            <p style="font-size:12px;color:var(--text2);margin-bottom:12px;">Export all data as a JSON backup file for offline storage.</p>
-            <button class="btn btn-sm" onclick="exportBackup()">Export all data</button>
+            <button class="btn btn-sm" onclick="exportBackup()">Export JSON backup</button>
           </div>
         </div>
       </div>
@@ -679,9 +600,85 @@ td.muted{color:var(--text3);font-size:12px;}
   </div>
 </div>
 
-</div></div><!-- /main /layout -->
+</div><!-- /main -->
+</div><!-- /layout -->
 
-<!-- DISH MODAL -->
+<!-- ══ FUNCTION SHEET MODAL ══ -->
+<div class="modal-overlay" id="fs-modal">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <div class="modal-title" id="fs-modal-title">New function sheet</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('fs-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="fs-id">
+
+      <div class="form-section" style="border-top:none;padding-top:0;">Event details</div>
+      <div class="form-grid-3">
+        <div class="form-row"><label class="form-label">Client name *</label><input class="form-input" id="fs-client" type="text" placeholder="e.g. Henderson" oninput="buildJobCode()"></div>
+        <div class="form-row"><label class="form-label">Event date *</label><input class="form-input" id="fs-date" type="date" oninput="buildJobCode()"></div>
+        <div class="form-row"><label class="form-label">Event type *</label><select class="form-select" id="fs-type" onchange="buildJobCode()"><option value="WED">Wedding</option><option value="PRIV">Private Dining</option><option value="TM">Tasting Menu</option><option value="CAN">Canapés</option><option value="BUF">Buffet</option><option value="CORP">Corporate</option><option value="GAL">Gala Dinner</option><option value="GRZ">Evening Grazing</option><option value="WAKE">Wake</option></select></div>
+      </div>
+      <div class="form-grid-4">
+        <div class="form-row"><label class="form-label">Covers *</label><input class="form-input" id="fs-covers" type="number" min="1" placeholder="80" oninput="updateCoverCalc()"></div>
+        <div class="form-row"><label class="form-label">Status</label><select class="form-select" id="fs-status"><option>Provisional</option><option>Confirmed</option><option>Enquiry</option><option>Completed</option><option>Cancelled</option></select></div>
+        <div class="form-row"><label class="form-label">Start time</label><input class="form-input" id="fs-start-time" type="time" value="18:00"></div>
+        <div class="form-row"><label class="form-label">End time</label><input class="form-input" id="fs-end-time" type="time" value="23:00"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Job code</label><input class="form-input" id="fs-jobcode" type="text" placeholder="Auto-generates..." style="font-family:'DM Mono',monospace;"><div class="form-hint">initials + DDMMYY + type — e.g. DF100626TM · Edit manually if needed</div></div>
+
+      <div class="form-section">Venue &amp; location</div>
+      <div class="form-grid-2">
+        <div class="form-row"><label class="form-label">Venue name</label><input class="form-input" id="fs-venue" type="text" placeholder="e.g. Elmore Court, The Old Barn"></div>
+        <div class="form-row"><label class="form-label">Town / area</label><input class="form-input" id="fs-location" type="text" placeholder="e.g. Cirencester, Cheltenham"></div>
+      </div>
+      <div class="form-row"><label class="form-label">Full address</label><textarea class="form-textarea" id="fs-address" placeholder="Full venue address for logistics..." style="min-height:52px;"></textarea></div>
+      <div class="form-grid-2">
+        <div class="form-row"><label class="form-label">Kitchen notes</label><textarea class="form-textarea" id="fs-kitchen-notes" placeholder="Kitchen access, equipment on-site, restrictions..."></textarea></div>
+        <div class="form-row"><label class="form-label">Service notes</label><textarea class="form-textarea" id="fs-service-notes" placeholder="Timings, service style, FOH contact..."></textarea></div>
+      </div>
+
+      <div class="form-section">Client contact</div>
+      <div class="form-grid-3">
+        <div class="form-row"><label class="form-label">Contact name</label><input class="form-input" id="fs-contact-name" type="text" placeholder="Primary contact"></div>
+        <div class="form-row"><label class="form-label">Phone</label><input class="form-input" id="fs-contact-phone" type="tel" placeholder="07xxx xxxxxx"></div>
+        <div class="form-row"><label class="form-label">Email</label><input class="form-input" id="fs-contact-email" type="email" placeholder="email@example.com"></div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-row"><label class="form-label">Secondary contact</label><input class="form-input" id="fs-contact-2" type="text" placeholder="Planner / co-ordinator name"></div>
+        <div class="form-row"><label class="form-label">Secondary phone / email</label><input class="form-input" id="fs-contact-2-detail" type="text" placeholder=""></div>
+      </div>
+
+      <div class="form-section">Guest allergen requirements</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Record individual guests with dietary requirements. This populates the allergen sheet and prep notes.</div>
+      <div id="guest-allergy-list"></div>
+      <button class="btn btn-sm" onclick="addGuestAllergyRow()" style="margin-top:6px;">+ Add guest</button>
+
+      <div class="form-section">Dishes &amp; menu</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Select dishes being served at this event. Quantities auto-calculate from covers.</div>
+      <div class="dish-pick-grid" id="fs-dish-grid"></div>
+      <div style="margin-top:10px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;" id="fs-cover-calc"></div>
+
+      <div class="form-section">Additional notes</div>
+      <div class="form-grid-2">
+        <div class="form-row"><label class="form-label">Chef's notes</label><textarea class="form-textarea" id="fs-chef-notes" placeholder="Prep notes, timing concerns, special requests..."></textarea></div>
+        <div class="form-row"><label class="form-label">Client notes</label><textarea class="form-textarea" id="fs-client-notes" placeholder="Client requests, VIPs, theme, dress code..."></textarea></div>
+      </div>
+      <div class="form-grid-3">
+        <div class="form-row"><label class="form-label">Budget / price agreed</label><input class="form-input" id="fs-budget" type="text" placeholder="£0.00 pp / total"></div>
+        <div class="form-row"><label class="form-label">Deposit taken</label><select class="form-select" id="fs-deposit"><option value="">Not yet</option><option value="Yes">Yes</option><option value="Invoice sent">Invoice sent</option></select></div>
+        <div class="form-row"><label class="form-label">Staffing</label><input class="form-input" id="fs-staffing" type="text" placeholder="e.g. 2 chefs + 1 junior"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="fs-del-btn" onclick="deleteFunctionSheet()" style="display:none;margin-right:auto;">Delete event</button>
+      <button class="btn" onclick="closeModal('fs-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveFunctionSheet()">Save function sheet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ DISH MODAL ══ -->
 <div class="modal-overlay" id="dish-modal">
   <div class="modal">
     <div class="modal-header"><div class="modal-title" id="dish-modal-title">Add dish</div><button class="btn btn-ghost btn-sm" onclick="closeModal('dish-modal')">✕</button></div>
@@ -689,20 +686,29 @@ td.muted{color:var(--text3);font-size:12px;}
       <input type="hidden" id="dish-id">
       <div class="form-grid-2">
         <div class="form-row"><label class="form-label">Dish name *</label><input class="form-input" id="dish-name" type="text" placeholder="e.g. Smoked salmon blini"></div>
-        <div class="form-row"><label class="form-label">Category *</label><select class="form-select" id="dish-cat"><option>Canapés</option><option>Starters</option><option>Mains</option><option>Desserts</option><option>Evening Grazing</option><option>Tasting Menu</option><option>Sides</option><option>Other</option></select></div>
+        <div class="form-row"><label class="form-label">Category *</label>
+          <select class="form-select" id="dish-cat">
+            <option>Canapés</option>
+            <option>Starters</option>
+            <option>Mains</option>
+            <option>Desserts</option>
+            <option>Evening Grazing</option>
+            <option>Stock</option>
+          </select>
+        </div>
       </div>
       <div class="form-grid-2">
-        <div class="form-row"><label class="form-label">Station</label><select class="form-select" id="dish-station"><option value="">— select —</option><option>Hot</option><option>Cold</option><option>Pastry</option><option>Butchery</option><option>Pass</option></select></div>
-        <div class="form-row"><label class="form-label">Menu type(s)</label><select class="form-select" id="dish-menu" multiple style="height:72px;"><option value="Weddings">Weddings</option><option value="Tasting Menu">Tasting Menu</option><option value="Bespoke">Bespoke</option><option value="Wakes">Wakes</option><option value="Private Dining">Private Dining</option></select><div class="form-hint">Hold Ctrl/Cmd for multiple</div></div>
+        <div class="form-row"><label class="form-label">Chef's note / sub-category</label><input class="form-input" id="dish-station" type="text" placeholder="e.g. Fish, Cold, Pastry, Base stock..."></div>
+        <div class="form-row"><label class="form-label">Menu type(s)</label><select class="form-select" id="dish-menu" multiple style="height:68px;"><option value="Weddings">Weddings</option><option value="Tasting Menu">Tasting Menu</option><option value="Bespoke">Bespoke</option><option value="Wakes">Wakes</option><option value="Private Dining">Private Dining</option><option value="Corporate">Corporate</option></select><div class="form-hint">Ctrl/Cmd to select multiple</div></div>
       </div>
       <div class="form-row"><label class="form-label">Description</label><textarea class="form-textarea" id="dish-desc" placeholder="Brief description..."></textarea></div>
       <div class="divider"></div>
-      <div class="section-header"><div class="section-title">Components</div><button class="btn btn-sm" onclick="addComp()">+ Add</button></div>
-      <div style="font-size:10px;color:var(--text3);margin-bottom:8px;font-family:'DM Mono',monospace;">NAME · QTY/COVER · UNIT · STATION · STORAGE</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:12px;font-weight:500;">Components</span><button class="btn btn-sm" onclick="addComp()">+ Add</button></div>
+      <div style="font-size:10px;color:var(--text3);margin-bottom:7px;font-family:'DM Mono',monospace;">NAME · QTY/COVER · UNIT · SUB-CATEGORY · STORAGE</div>
       <div class="component-list" id="comp-list"></div>
       <div class="divider"></div>
-      <div class="form-row"><label class="form-label">Allergens</label><div style="font-size:11px;color:var(--text3);margin-bottom:8px;">Once = Contains · Twice = May contain · Three times = clear</div><div class="allergen-grid" id="al-grid"></div></div>
-      <div class="form-row"><label class="form-label">Chef notes</label><textarea class="form-textarea" id="dish-notes" placeholder="TBC items, testing required..."></textarea></div>
+      <div class="form-row"><label class="form-label">Allergens</label><div style="font-size:11px;color:var(--text3);margin-bottom:7px;">Click once = Contains · Twice = May contain · Three times = clear</div><div class="allergen-grid" id="al-grid"></div></div>
+      <div class="form-row"><label class="form-label">Chef notes / TBCs</label><textarea class="form-textarea" id="dish-notes" placeholder="TBC items, testing required, prep guidance..."></textarea></div>
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="dish-del-btn" onclick="deleteDish()" style="display:none;margin-right:auto;">Delete</button>
@@ -712,44 +718,15 @@ td.muted{color:var(--text3);font-size:12px;}
   </div>
 </div>
 
-<!-- EVENT MODAL -->
-<div class="modal-overlay" id="event-modal">
-  <div class="modal modal-lg">
-    <div class="modal-header"><div class="modal-title" id="ev-modal-title">Add event</div><button class="btn btn-ghost btn-sm" onclick="closeModal('event-modal')">✕</button></div>
-    <div class="modal-body">
-      <input type="hidden" id="ev-id">
-      <div class="form-grid-2">
-        <div class="form-row"><label class="form-label">Client name *</label><input class="form-input" id="ev-client" type="text" placeholder="e.g. Henderson" oninput="buildJobCode()"></div>
-        <div class="form-row"><label class="form-label">Event date *</label><input class="form-input" id="ev-date" type="date" oninput="buildJobCode()"></div>
-      </div>
-      <div class="form-grid-3">
-        <div class="form-row"><label class="form-label">Event type *</label><select class="form-select" id="ev-type" onchange="buildJobCode()"><option value="WED">Wedding</option><option value="PRIV">Private Dining</option><option value="TM">Tasting Menu</option><option value="CAN">Canapés</option><option value="BUF">Buffet</option><option value="CORP">Corporate</option><option value="GAL">Gala Dinner</option><option value="GRZ">Grazing</option></select></div>
-        <div class="form-row"><label class="form-label">Covers *</label><input class="form-input" id="ev-covers" type="number" min="1" placeholder="80"></div>
-        <div class="form-row"><label class="form-label">Status</label><select class="form-select" id="ev-status"><option>Provisional</option><option>Confirmed</option><option>Enquiry</option><option>Completed</option><option>Cancelled</option></select></div>
-      </div>
-      <div class="form-row"><label class="form-label">Job code</label><input class="form-input" id="ev-jobcode" type="text" placeholder="Auto-generates..." style="font-family:'DM Mono',monospace;"><div class="form-hint">Format: initials + DDMMYY + type — e.g. DF100626TM</div></div>
-      <div class="form-row"><label class="form-label">Notes</label><textarea class="form-textarea" id="ev-notes" placeholder="Special requirements..."></textarea></div>
-      <div class="divider"></div>
-      <div class="section-header"><div class="section-title">Dishes for this event</div><span style="font-size:11px;color:var(--text3);">Select from fixed menu</span></div>
-      <div class="dish-pick-grid" id="ev-dish-grid"><div style="font-size:12px;color:var(--text3);">Loading dishes...</div></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-danger btn-sm" id="ev-del-btn" onclick="deleteEvent()" style="display:none;margin-right:auto;">Delete</button>
-      <button class="btn" onclick="closeModal('event-modal')">Cancel</button>
-      <button class="btn btn-primary" onclick="saveEvent()">Save event</button>
-    </div>
-  </div>
-</div>
-
-<!-- STAFF MODAL -->
+<!-- ══ STAFF MODAL ══ -->
 <div class="modal-overlay" id="staff-modal">
-  <div class="modal" style="width:420px;">
+  <div class="modal" style="width:400px;">
     <div class="modal-header"><div class="modal-title" id="staff-modal-title">Add staff</div><button class="btn btn-ghost btn-sm" onclick="closeModal('staff-modal')">✕</button></div>
     <div class="modal-body">
       <input type="hidden" id="staff-id">
-      <div class="form-row"><label class="form-label">Name *</label><input class="form-input" id="staff-name" type="text" placeholder="e.g. James Brierley"></div>
+      <div class="form-row"><label class="form-label">Name *</label><input class="form-input" id="staff-name" type="text"></div>
       <div class="form-grid-2">
-        <div class="form-row"><label class="form-label">4-digit PIN *</label><input class="form-input" id="staff-pin" type="text" maxlength="4" placeholder="1234"></div>
+        <div class="form-row"><label class="form-label">4-digit PIN</label><input class="form-input" id="staff-pin" type="text" maxlength="4" placeholder="1234"></div>
         <div class="form-row"><label class="form-label">Role</label><select class="form-select" id="staff-role"><option>Chef</option><option>Junior</option><option>Manager</option></select></div>
       </div>
     </div>
@@ -764,31 +741,92 @@ td.muted{color:var(--text3);font-size:12px;}
 <div class="toast" id="toast"></div>
 
 <script>
+// ══════════════════════════════════════════════════════
+// CONFIG & GLOBALS
+// ══════════════════════════════════════════════════════
 const SUPA_URL='https://qfnwyooipwtfzikukztz.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbnd5b29pcHd0Znppa3VrenR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODY0MTcsImV4cCI6MjA5Mjk2MjQxN30.qzq30fT8L2bhX7kx46HZdco3rt7bN2zRGSKETCNgQqw';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+
 const ALLERGENS=['Gluten','Dairy','Egg','Fish','Shellfish','Nuts','Peanuts','Soya','Celery','Mustard','Sesame','Sulphites','Lupin','Molluscs'];
-const EV_TYPES={WED:'Wedding',PRIV:'Private Dining',TM:'Tasting Menu',CAN:'Canapés',BUF:'Buffet',CORP:'Corporate',GAL:'Gala Dinner',GRZ:'Grazing'};
+// FSA official names
+const AL_FSA={Gluten:'Cereals containing gluten',Dairy:'Milk',Egg:'Eggs',Fish:'Fish',Shellfish:'Crustaceans',Nuts:'Tree nuts',Peanuts:'Peanuts',Soya:'Soybeans',Celery:'Celery',Mustard:'Mustard',Sesame:'Sesame',Sulphites:'Sulphites',Lupin:'Lupin',Molluscs:'Molluscs'};
+const AL_SHORT={Gluten:'Cereals / Gluten',Dairy:'Milk',Egg:'Eggs',Fish:'Fish',Shellfish:'Crustaceans',Nuts:'Tree nuts',Peanuts:'Peanuts',Soya:'Soybeans',Celery:'Celery',Mustard:'Mustard',Sesame:'Sesame',Sulphites:'Sulphites',Lupin:'Lupin',Molluscs:'Molluscs'};
+// FSA official PNG icons from food.gov.uk CDN
+const AL_ICON={
+  Gluten:'https://www.food.gov.uk/sites/default/files/media/image/cereal-contains-gluten-colour.png',
+  Dairy:'https://www.food.gov.uk/sites/default/files/media/image/milk-colour.png',
+  Egg:'https://www.food.gov.uk/sites/default/files/media/image/eggs-colour.png',
+  Fish:'https://www.food.gov.uk/sites/default/files/media/image/fish-colour.png',
+  Shellfish:'https://www.food.gov.uk/sites/default/files/media/image/crustaceans-colour.png',
+  Nuts:'https://www.food.gov.uk/sites/default/files/media/image/tree-nuts-colour.png',
+  Peanuts:'https://www.food.gov.uk/sites/default/files/media/image/peanuts-colour.png',
+  Soya:'https://www.food.gov.uk/sites/default/files/media/image/soybeans-colour.png',
+  Celery:'https://www.food.gov.uk/sites/default/files/media/image/celery-colour.png',
+  Mustard:'https://www.food.gov.uk/sites/default/files/media/image/mustard-colour.png',
+  Sesame:'https://www.food.gov.uk/sites/default/files/media/image/sesame-seeds-colour.png',
+  Sulphites:'https://www.food.gov.uk/sites/default/files/media/image/sulphur-dioxide-sulphites-colour.png',
+  Lupin:'https://www.food.gov.uk/sites/default/files/media/image/lupin-colour.png',
+  Molluscs:'https://www.food.gov.uk/sites/default/files/media/image/molluscs-colour.png'
+};
+const EV_TYPES={WED:'Wedding',PRIV:'Private Dining',TM:'Tasting Menu',CAN:'Canapés',BUF:'Buffet',CORP:'Corporate',GAL:'Gala Dinner',GRZ:'Evening Grazing',WAKE:'Wake'};
 const ST_BADGE={Confirmed:'badge-green',Provisional:'badge-amber',Enquiry:'badge-gray',Completed:'badge-dark',Cancelled:'badge-red'};
-const PHASES=[{k:'3_days',l:'3 days out',c:'badge-purple'},{k:'2_days',l:'2 days out',c:'badge-blue'},{k:'1_day',l:'Day before',c:'badge-amber'},{k:'day_of',l:'Day of',c:'badge-red'},{k:'service',l:'Service',c:'badge-green'}];
-let dishes=[],events=[],staff=[],allergenState={},prepTasks=[],prepDone=new Set(),dishFilter='All',evFilter='All';
+const BUCKETS={
+  advance:{label:'Advance prep',sub:'Freeze batches, stocks, bases, par-cooks — whenever suits',icon:'❄',cls:'advance'},
+  close:{label:'Close prep',sub:'Fridge items, assembled elements — chef\'s call on timing',icon:'🧊',cls:'close'},
+  service:{label:'Service',sub:'Day-of, pass items, to order',icon:'🔥',cls:'service'}
+};
+const CAT_ORDER=['Canapés','Starters','Mains','Desserts','Evening Grazing','Stock'];
+
+let dishes=[],events=[],staff=[],allergenState={},prepTasks=[],prepDone=new Set();
+let dishFilter='All',evFilter='All';
 let settings={buffer:14,ngrok:'https://palatable-shack-scallion.ngrok-free.dev',cpsUrl:'',cpsKey:''};
 
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
 async function init(){
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   buildAlGrid();buildMonthSel();loadSettings();
-  try{const{error}=await sb.from('dishes').select('id').limit(1);const dot=document.getElementById('conn-dot'),lbl=document.getElementById('conn-label');if(error){dot.className='conn-dot error';lbl.textContent='DB error';}else{dot.className='conn-dot live';lbl.textContent='Connected';}}catch(e){document.getElementById('conn-dot').className='conn-dot error';document.getElementById('conn-label').textContent='Offline';}
-  await loadDishes();await loadEvents();await loadStaff();
+  try{
+    const{error}=await sb.from('dishes').select('id').limit(1);
+    const dot=document.getElementById('conn-dot'),lbl=document.getElementById('conn-label');
+    if(error){dot.className='conn-dot error';lbl.textContent='DB error';}
+    else{dot.className='conn-dot live';lbl.textContent='Connected';}
+  }catch(e){document.getElementById('conn-dot').className='conn-dot error';document.getElementById('conn-label').textContent='Offline';}
+  await loadDishes();
+  await loadEvents();
+  await loadStaff();
 }
 
-function loadSettings(){const s=localStorage.getItem('digbys-s');if(s){settings=JSON.parse(s);}document.getElementById('set-buffer').value=settings.buffer||14;document.getElementById('set-ngrok').value=settings.ngrok||'';document.getElementById('set-cps-url').value=settings.cpsUrl||'';document.getElementById('set-cps-key').value=settings.cpsKey||'';}
-function saveSettings(){settings.buffer=parseInt(document.getElementById('set-buffer').value)||14;settings.ngrok=document.getElementById('set-ngrok').value.trim();settings.cpsUrl=document.getElementById('set-cps-url').value.trim();settings.cpsKey=document.getElementById('set-cps-key').value.trim();localStorage.setItem('digbys-s',JSON.stringify(settings));showToast('Settings saved','success');}
+function loadSettings(){
+  const s=localStorage.getItem('digbys-s');if(s)settings=JSON.parse(s);
+  document.getElementById('set-buffer').value=settings.buffer||14;
+  document.getElementById('set-ngrok').value=settings.ngrok||'';
+  document.getElementById('set-cps-url').value=settings.cpsUrl||'';
+  document.getElementById('set-cps-key').value=settings.cpsKey||'';
+}
+function saveSettings(){
+  settings.buffer=parseInt(document.getElementById('set-buffer').value)||14;
+  settings.ngrok=document.getElementById('set-ngrok').value.trim();
+  settings.cpsUrl=document.getElementById('set-cps-url').value.trim();
+  settings.cpsKey=document.getElementById('set-cps-key').value.trim();
+  localStorage.setItem('digbys-s',JSON.stringify(settings));
+  showToast('Settings saved','success');
+}
 
-function nav(page,el){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');if(el)el.classList.add('active');}
+function nav(page,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  if(el)el.classList.add('active');
+}
 
+// ══════════════════════════════════════════════════════
 // DISHES
+// ══════════════════════════════════════════════════════
 async function loadDishes(){
-  const{data,error}=await sb.from('dishes').select('*, components(*, component_allergens(allergen,status))').order('category').order('name');
+  const{data,error}=await sb.from('dishes').select('*, components(*, component_allergens(allergen,status))').order('name');
   if(error){showToast('Error loading dishes: '+error.message,'error');return;}
   dishes=data||[];
   const frz=dishes.reduce((a,d)=>a+(d.components||[]).filter(c=>c.freeze_flag).length,0);
@@ -796,82 +834,137 @@ async function loadDishes(){
   document.getElementById('s-dishes-sub').textContent=dishes.filter(d=>d.locked).length+' locked';
   document.getElementById('s-comps').textContent=dishes.reduce((a,d)=>a+(d.components||[]).length,0);
   document.getElementById('s-comps-sub').textContent=frz+' freezable';
-  renderMenu();renderDashDishes();renderEventDishGrid();populateAlEvSel();renderAllergenMatrix();renderLabelQueue();populatePrepSel();
+  renderMenu();renderDashDishes();renderFsDishGrid();populatePrepSel();populateAlEvSel();renderAllergenMatrix();renderLabelQueue();
 }
 
-function getDishAl(dish){const all=[];(dish.components||[]).forEach(c=>(c.component_allergens||[]).forEach(a=>{if(!all.find(x=>x.allergen===a.allergen))all.push(a);}));return all;}
+function getDishAl(dish){
+  const all=[];
+  (dish.components||[]).forEach(c=>(c.component_allergens||[]).forEach(a=>{if(!all.find(x=>x.allergen===a.allergen))all.push(a);}));
+  return all;
+}
 
 function renderMenu(){
   const body=document.getElementById('menu-body');
   const q=(document.getElementById('dish-search').value||'').toLowerCase();
-  const f=dishes.filter(d=>(dishFilter==='All'||d.category===dishFilter)&&(!q||d.name.toLowerCase().includes(q)));
+  let f=dishes.filter(d=>(dishFilter==='All'||d.category===dishFilter)&&(!q||d.name.toLowerCase().includes(q)));
+  // sort by category order then name
+  f.sort((a,b)=>{const oa=CAT_ORDER.indexOf(a.category),ob=CAT_ORDER.indexOf(b.category);return oa!==ob?oa-ob:a.name.localeCompare(b.name);});
   if(!f.length){body.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">≡</div><div class="empty-title">No dishes found</div></div></td></tr>`;return;}
-  body.innerHTML=f.map(d=>{const comps=d.components||[];const frz=comps.filter(c=>c.freeze_flag).length;const al=getDishAl(d);
-    return`<tr><td><div style="font-weight:500">${h(d.name)}</div>${d.description?`<div style="font-size:11px;color:var(--text3)">${h(d.description.substring(0,60))}${d.description.length>60?'...':''}</div>`:''}</td><td><span class="badge badge-gray">${d.category}</span></td><td class="muted">${comps.length} comp${comps.length!==1?'s':''}</td><td>${frz?`<span class="badge badge-blue">❄ ${frz}</span>`:'<span style="color:var(--text3);font-size:11px">—</span>'}</td><td>${al.length?al.map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${a.allergen}</span>`).join(''):'<span style="font-size:11px;color:var(--text3)">None</span>'}</td><td>${d.locked?'<span class="badge badge-green">Locked</span>':'<span class="badge badge-amber">Draft</span>'}</td><td><button class="btn btn-ghost btn-sm" onclick="editDish('${d.id}')">Edit</button></td></tr>`;
+  body.innerHTML=f.map(d=>{
+    const comps=d.components||[];const frz=comps.filter(c=>c.freeze_flag).length;const al=getDishAl(d);
+    return`<tr>
+      <td><div style="font-weight:500;">${h(d.name)}</div>${d.station?`<div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px;">${h(d.station)}</div>`:''}</td>
+      <td><span class="badge badge-gray">${d.category}</span></td>
+      <td class="muted">${comps.length}</td>
+      <td>${frz?`<span class="badge badge-blue">❄ ${frz}</span>`:'<span style="color:var(--text3);font-size:11px;">—</span>'}</td>
+      <td>${al.map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${a.allergen}</span>`).join('')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td>
+      <td>${d.locked?'<span class="badge badge-green">Locked</span>':'<span class="badge badge-amber">Draft</span>'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="editDish('${d.id}')">Edit</button></td>
+    </tr>`;
   }).join('');
 }
 
 function renderDashDishes(){
   const body=document.getElementById('dash-dish-body');const r=dishes.slice(0,5);
-  if(!r.length){body.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:24px;color:var(--text3);font-size:12px">No dishes yet</td></tr>`;return;}
-  body.innerHTML=r.map(d=>{const al=getDishAl(d);return`<tr><td><div style="font-weight:500">${h(d.name)}</div></td><td><span class="badge badge-gray">${d.category}</span></td><td>${al.slice(0,3).map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('')+(al.length>3?`<span style="font-size:10px;color:var(--text3)"> +${al.length-3}</span>`:'')}</td><td>${d.locked?'<span class="badge badge-green">Locked</span>':'<span class="badge badge-amber">Draft</span>'}</td><td><button class="btn btn-ghost btn-sm" onclick="editDish('${d.id}')">Edit</button></td></tr>`;}).join('');
+  if(!r.length){body.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No dishes yet</td></tr>`;return;}
+  body.innerHTML=r.map(d=>{const al=getDishAl(d);return`<tr>
+    <td><div style="font-weight:500;">${h(d.name)}</div></td>
+    <td><span class="badge badge-gray">${d.category}</span></td>
+    <td>${al.slice(0,4).map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('')+(al.length>4?`<span style="font-size:10px;color:var(--text3);"> +${al.length-4}</span>`:'')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td>
+    <td>${d.locked?'<span class="badge badge-green">Locked</span>':'<span class="badge badge-amber">Draft</span>'}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="editDish('${d.id}')">Edit</button></td>
+  </tr>`;}).join('');
 }
 
 function setDishFilter(f,el){dishFilter=f;document.querySelectorAll('#page-menu .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderMenu();}
 
+// ══════════════════════════════════════════════════════
 // DISH MODAL
+// ══════════════════════════════════════════════════════
 function buildAlGrid(){document.getElementById('al-grid').innerHTML=ALLERGENS.map(a=>`<div class="allergen-toggle" id="at-${a}" onclick="cycleAl('${a}')">${a}</div>`).join('');}
-function cycleAl(name){const el=document.getElementById('at-'+name);const cur=allergenState[name]||null;if(!cur){allergenState[name]='contains';el.className='allergen-toggle contains';}else if(cur==='contains'){allergenState[name]='may';el.className='allergen-toggle may';}else{allergenState[name]=null;el.className='allergen-toggle';}}
+function cycleAl(n){const el=document.getElementById('at-'+n);const c=allergenState[n]||null;if(!c){allergenState[n]='contains';el.className='allergen-toggle contains';}else if(c==='contains'){allergenState[n]='may';el.className='allergen-toggle may';}else{allergenState[n]=null;el.className='allergen-toggle';}}
 function resetAl(){allergenState={};ALLERGENS.forEach(a=>{const el=document.getElementById('at-'+a);if(el)el.className='allergen-toggle';});}
 
 function openDishModal(){
-  document.getElementById('dish-id').value='';document.getElementById('dish-modal-title').textContent='Add dish';document.getElementById('dish-name').value='';document.getElementById('dish-cat').value='Canapés';document.getElementById('dish-station').value='';document.getElementById('dish-desc').value='';document.getElementById('dish-notes').value='';document.getElementById('dish-del-btn').style.display='none';document.getElementById('comp-list').innerHTML='';resetAl();
+  document.getElementById('dish-id').value='';document.getElementById('dish-modal-title').textContent='Add dish';
+  document.getElementById('dish-name').value='';document.getElementById('dish-cat').value='Canapés';
+  document.getElementById('dish-station').value='';document.getElementById('dish-desc').value='';
+  document.getElementById('dish-notes').value='';document.getElementById('dish-del-btn').style.display='none';
+  document.getElementById('comp-list').innerHTML='';resetAl();
   Array.from(document.getElementById('dish-menu').options).forEach(o=>o.selected=false);
   document.getElementById('dish-modal').classList.add('open');
 }
 
 async function editDish(id){
   const d=dishes.find(x=>x.id===id);if(!d)return;
-  document.getElementById('dish-id').value=d.id;document.getElementById('dish-modal-title').textContent='Edit dish';document.getElementById('dish-name').value=d.name;document.getElementById('dish-cat').value=d.category;document.getElementById('dish-station').value=d.station||'';document.getElementById('dish-desc').value=d.description||'';document.getElementById('dish-notes').value=d.notes||'';document.getElementById('dish-del-btn').style.display='inline-flex';
+  document.getElementById('dish-id').value=d.id;document.getElementById('dish-modal-title').textContent='Edit dish';
+  document.getElementById('dish-name').value=d.name;document.getElementById('dish-cat').value=d.category;
+  document.getElementById('dish-station').value=d.station||'';document.getElementById('dish-desc').value=d.description||'';
+  document.getElementById('dish-notes').value=d.notes||'';document.getElementById('dish-del-btn').style.display='inline-flex';
   Array.from(document.getElementById('dish-menu').options).forEach(o=>o.selected=(d.menu_type||[]).includes(o.value));
-  document.getElementById('comp-list').innerHTML='';(d.components||[]).sort((a,b)=>a.sort_order-b.sort_order).forEach(c=>addComp(c));
+  document.getElementById('comp-list').innerHTML='';
+  (d.components||[]).sort((a,b)=>a.sort_order-b.sort_order).forEach(c=>addComp(c));
   resetAl();getDishAl(d).forEach(a=>{allergenState[a.allergen]=a.status==='May Contain'?'may':'contains';const el=document.getElementById('at-'+a.allergen);if(el)el.className='allergen-toggle '+(a.status==='May Contain'?'may':'contains');});
   document.getElementById('dish-modal').classList.add('open');
 }
 
 function addComp(c=null){
-  const div=document.createElement('div');div.className='component-item';div.dataset.compId=c?c.id:'';
+  const div=document.createElement('div');div.className='component-item';
   const st=c?(c.freeze_flag?'freeze':c.fridge_flag?'fridge':'none'):'none';
   const sl=st==='freeze'?'❄ Freeze':st==='fridge'?'🧊 Fridge':'○ Fresh';
-  const sc=st==='freeze'?'active-freeze':st==='fridge'?'active-fridge':'';
-  div.innerHTML=`<input class="comp-name" type="text" placeholder="Component name" value="${c?h(c.name):''}"><input class="comp-qty" type="number" placeholder="Qty" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}"><input class="comp-unit" type="text" placeholder="unit" value="${c?(c.unit||''):''}"><select class="comp-station"><option value="">Station</option>${['Hot','Cold','Pastry','Butchery','Pass'].map(s=>`<option ${c&&c.station===s?'selected':''}>${s}</option>`).join('')}</select><button class="freeze-btn ${sc}" data-state="${st}" onclick="cycleStore(this)">${sl}</button><button class="comp-remove" onclick="this.closest('.component-item').remove()">×</button>`;
+  const sc=st==='freeze'?'freeze':st==='fridge'?'fridge':'';
+  div.innerHTML=`
+    <input class="comp-name" type="text" placeholder="Component name" value="${c?h(c.name):''}">
+    <input class="comp-qty" type="number" placeholder="Qty" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}">
+    <input class="comp-unit" type="text" placeholder="unit" value="${c?h(c.unit||''):''}">
+    <input class="comp-station" type="text" placeholder="sub-cat" value="${c?h(c.station||''):''}">
+    <button class="storage-btn ${sc}" data-state="${st}" onclick="cycleStore(this)">${sl}</button>
+    <input type="text" placeholder="Chef note" style="flex:1;min-width:80px;font-size:11px;padding:4px 7px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;" value="${c?h(c.chef_note||''):''}">
+    <button class="comp-remove" onclick="this.closest('.component-item').remove()">×</button>`;
   document.getElementById('comp-list').appendChild(div);
 }
 
-function cycleStore(btn){const s=['none','freeze','fridge'],l=['○ Fresh','❄ Freeze','🧊 Fridge'],c=['','active-freeze','active-fridge'];const n=(s.indexOf(btn.dataset.state)+1)%3;btn.dataset.state=s[n];btn.textContent=l[n];btn.className='freeze-btn '+c[n];}
+function cycleStore(btn){
+  const s=['none','freeze','fridge'],l=['○ Fresh','❄ Freeze','🧊 Fridge'],c=['','freeze','fridge'];
+  const n=(s.indexOf(btn.dataset.state)+1)%3;
+  btn.dataset.state=s[n];btn.textContent=l[n];btn.className='storage-btn '+c[n];
+}
 
 async function saveDish(){
   const name=document.getElementById('dish-name').value.trim();if(!name){showToast('Dish name required','error');return;}
   const id=document.getElementById('dish-id').value;
   const menuTypes=Array.from(document.getElementById('dish-menu').selectedOptions).map(o=>o.value);
-  const data={name,category:document.getElementById('dish-cat').value,station:document.getElementById('dish-station').value||null,description:document.getElementById('dish-desc').value.trim()||null,notes:document.getElementById('dish-notes').value.trim()||null,menu_type:menuTypes,updated_at:new Date().toISOString()};
+  const data={name,category:document.getElementById('dish-cat').value,station:document.getElementById('dish-station').value.trim()||null,description:document.getElementById('dish-desc').value.trim()||null,notes:document.getElementById('dish-notes').value.trim()||null,menu_type:menuTypes,updated_at:new Date().toISOString()};
   try{
     let did=id;
     if(id){const{error}=await sb.from('dishes').update(data).eq('id',id);if(error)throw error;}
     else{const{data:nd,error}=await sb.from('dishes').insert(data).select().single();if(error)throw error;did=nd.id;}
     const items=document.querySelectorAll('#comp-list .component-item');
     await sb.from('components').delete().eq('dish_id',did);
-    const comps=[];items.forEach((item,i)=>{const n=item.querySelector('.comp-name').value.trim();if(!n)return;const s=item.querySelector('.freeze-btn').dataset.state;comps.push({dish_id:did,name:n,qty_per_cover:parseFloat(item.querySelector('.comp-qty').value)||null,unit:item.querySelector('.comp-unit').value.trim()||null,station:item.querySelector('.comp-station').value||null,freeze_flag:s==='freeze',fridge_flag:s==='fridge',sort_order:i});});
+    const comps=[];
+    items.forEach((item,i)=>{
+      const n=item.querySelector('.comp-name').value.trim();if(!n)return;
+      const st=item.querySelector('.storage-btn').dataset.state;
+      const noteInput=item.querySelectorAll('input[type="text"]')[3];
+      comps.push({dish_id:did,name:n,qty_per_cover:parseFloat(item.querySelector('.comp-qty').value)||null,unit:item.querySelector('.comp-unit').value.trim()||null,station:item.querySelector('.comp-station').value.trim()||null,chef_note:noteInput?noteInput.value.trim()||null:null,freeze_flag:st==='freeze',fridge_flag:st==='fridge',sort_order:i});
+    });
     if(comps.length){const{error}=await sb.from('components').insert(comps);if(error)throw error;}
     const{data:nc}=await sb.from('components').select('id').eq('dish_id',did);
-    if(nc&&nc.length){await sb.from('component_allergens').delete().in('component_id',nc.map(c=>c.id));const alR=[];Object.entries(allergenState).forEach(([al,st])=>{if(st&&nc[0])alR.push({component_id:nc[0].id,allergen:al,status:st==='may'?'May Contain':'Contains'});});if(alR.length)await sb.from('component_allergens').insert(alR);}
+    if(nc&&nc.length){
+      await sb.from('component_allergens').delete().in('component_id',nc.map(c=>c.id));
+      const alR=[];
+      Object.entries(allergenState).forEach(([al,st])=>{if(st&&nc[0])alR.push({component_id:nc[0].id,allergen:al,status:st==='may'?'May Contain':'Contains'});});
+      if(alR.length)await sb.from('component_allergens').insert(alR);
+    }
     showToast(id?'Dish updated':'Dish added','success');closeModal('dish-modal');await loadDishes();
   }catch(e){showToast('Error: '+e.message,'error');}
 }
 
 async function deleteDish(){const id=document.getElementById('dish-id').value;if(!id||!confirm('Delete this dish?'))return;await sb.from('dishes').delete().eq('id',id);showToast('Dish deleted','success');closeModal('dish-modal');await loadDishes();}
 
-// EVENTS
+// ══════════════════════════════════════════════════════
+// FUNCTION SHEET (EVENTS)
+// ══════════════════════════════════════════════════════
 async function loadEvents(){
   const{data,error}=await sb.from('events').select('*, event_dishes(dish_id)').order('event_date');
   if(error){showToast('Error loading events: '+error.message,'error');return;}
@@ -879,62 +972,274 @@ async function loadEvents(){
   const up=events.filter(e=>new Date(e.event_date)>=new Date()&&e.status==='Confirmed');
   document.getElementById('s-events').textContent=events.filter(e=>new Date(e.event_date)>=new Date()).length;
   document.getElementById('s-covers').textContent=up.reduce((a,e)=>a+(e.covers||0),0)||'—';
-  renderEvents();renderDashEvents();populatePrepSel();populateAlEvSel();renderLabelQueue();
+  renderEventsList();renderDashEvents();populatePrepSel();populateAlEvSel();renderLabelQueue();
 }
 
-function renderEvents(){
-  const body=document.getElementById('ev-body');let f=events;
-  if(evFilter!=='All'){if(['Confirmed','Provisional','Enquiry','Completed','Cancelled'].includes(evFilter))f=events.filter(e=>e.status===evFilter);else f=events.filter(e=>e.event_type===evFilter);}
-  if(!f.length){body.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">◷</div><div class="empty-title">No events found</div></div></td></tr>`;return;}
-  body.innerHTML=f.map(e=>evRow(e,true)).join('');
+function renderEventsList(){
+  const el=document.getElementById('events-list-content');
+  let f=events;
+  if(evFilter!=='All'){
+    if(['Confirmed','Provisional','Enquiry','Completed','Cancelled'].includes(evFilter))f=events.filter(e=>e.status===evFilter);
+    else f=events.filter(e=>e.event_type===evFilter);
+  }
+  if(!f.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">◷</div><div class="empty-title">No events yet</div><div class="empty-sub">Create your first function sheet to get started</div></div>';return;}
+  el.innerHTML=f.map(ev=>renderFunctionSheetCard(ev)).join('');
+}
+
+function renderFunctionSheetCard(ev){
+  const evDate=new Date(ev.event_date);
+  const dateStr=evDate.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  const badge=ST_BADGE[ev.status]||'badge-gray';
+  const evDishes=dishes.filter(d=>(ev.event_dishes||[]).map(x=>x.dish_id).includes(d.id));
+  const guestAl=(ev.guest_allergens||[]);
+
+  // Gather all allergens from dishes
+  const allDishAl=[...new Set(evDishes.flatMap(d=>getDishAl(d).map(a=>a.allergen)))];
+
+  return`<div class="fs-page">
+    <div class="fs-header">
+      <div class="fs-header-left">
+        <div class="fs-job-code">${ev.job_code}</div>
+        <div class="fs-client">${h(ev.client_name)}</div>
+        <div class="fs-type-badge">${EV_TYPES[ev.event_type]||ev.event_type}</div>
+      </div>
+      <div class="fs-header-right">
+        <div class="fs-date">${dateStr}</div>
+        <div class="fs-covers">${ev.covers} covers${ev.start_time?` · ${ev.start_time}${ev.end_time?'–'+ev.end_time:''}`:''}</div>
+        <div class="fs-status" style="margin-top:8px;"><span class="badge ${badge}">${ev.status}</span></div>
+      </div>
+    </div>
+    <div class="fs-body">
+      <div class="fs-col">
+        <div class="fs-section-title">Client contact</div>
+        ${ev.contact_name?`<div class="fs-field"><div class="fs-field-label">Contact</div><div class="fs-field-val">${h(ev.contact_name)}</div></div>`:''}
+        ${ev.contact_phone?`<div class="fs-field"><div class="fs-field-label">Phone</div><div class="fs-field-val"><a href="tel:${ev.contact_phone}" style="color:var(--blue)">${h(ev.contact_phone)}</a></div></div>`:''}
+        ${ev.contact_email?`<div class="fs-field"><div class="fs-field-label">Email</div><div class="fs-field-val"><a href="mailto:${ev.contact_email}" style="color:var(--blue)">${h(ev.contact_email)}</a></div></div>`:''}
+        ${ev.contact_2?`<div class="fs-field"><div class="fs-field-label">Secondary</div><div class="fs-field-val muted">${h(ev.contact_2)}${ev.contact_2_detail?' · '+h(ev.contact_2_detail):''}</div></div>`:''}
+        ${ev.budget?`<div class="fs-field"><div class="fs-field-label">Price agreed</div><div class="fs-field-val">${h(ev.budget)}</div></div>`:''}
+        ${ev.deposit_status?`<div class="fs-field"><div class="fs-field-label">Deposit</div><div class="fs-field-val muted">${h(ev.deposit_status)}</div></div>`:''}
+      </div>
+      <div class="fs-col">
+        <div class="fs-section-title">Venue</div>
+        ${ev.venue_name?`<div class="fs-field"><div class="fs-field-label">Venue</div><div class="fs-field-val">${h(ev.venue_name)}</div></div>`:''}
+        ${ev.location?`<div class="fs-field"><div class="fs-field-label">Location</div><div class="fs-field-val">${h(ev.location)}</div></div>`:''}
+        ${ev.address?`<div class="fs-field"><div class="fs-field-label">Address</div><div class="fs-field-val muted" style="white-space:pre-line;">${h(ev.address)}</div></div>`:''}
+        ${ev.staffing?`<div class="fs-field"><div class="fs-field-label">Staffing</div><div class="fs-field-val muted">${h(ev.staffing)}</div></div>`:''}
+        ${allDishAl.length?`<div class="fs-field"><div class="fs-field-label">Dish allergens</div><div class="fs-field-val">${allDishAl.map(a=>`<span class="allergen-tag">${a}</span>`).join('')}</div></div>`:''}
+      </div>
+    </div>
+    ${(ev.kitchen_notes||ev.service_notes)?`<div class="fs-full-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      ${ev.kitchen_notes?`<div><div class="fs-section-title">Kitchen notes</div><div class="fs-notes">${h(ev.kitchen_notes)}</div></div>`:'<div></div>'}
+      ${ev.service_notes?`<div><div class="fs-section-title">Service notes</div><div class="fs-notes">${h(ev.service_notes)}</div></div>`:''}
+    </div>`:''}
+    ${guestAl.length?`<div class="fs-full-row">
+      <div class="fs-section-title">Individual guest allergen requirements</div>
+      <table class="guest-allergy-table">
+        <thead><tr><th>Guest</th><th>Requirement / Allergen</th><th>Notes</th></tr></thead>
+        <tbody>${guestAl.map(g=>`<tr><td>${h(g.name||'Guest')}</td><td>${h(g.allergen)}</td><td>${h(g.notes||'')}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`:''}
+    ${evDishes.length?`<div class="fs-full-row">
+      <div class="fs-section-title">Menu — ${evDishes.length} dish${evDishes.length!==1?'es':''}</div>
+      <div class="fs-dish-grid">
+        ${evDishes.map(d=>{
+          const buf=1+(settings.buffer||14)/100;const covers=Math.round(ev.covers*buf);
+          const al=getDishAl(d);
+          return`<div class="fs-dish-card">
+            <div class="fs-dish-name">${h(d.name)}</div>
+            <div class="fs-dish-cat">${d.category}${d.station?' · '+d.station:''}</div>
+            <div class="fs-dish-comps">
+              ${(d.components||[]).map(c=>{
+                const qty=c.qty_per_cover?Math.ceil(c.qty_per_cover*covers):covers;
+                return`<div class="fs-dish-comp-row"><span>${h(c.name)}</span><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:10px;">${qty}${c.unit?' '+c.unit:''}</span></div>`;
+              }).join('')}
+            </div>
+            ${al.length?`<div class="fs-dish-allergens">${al.map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${a.allergen}</span>`).join('')}</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`:''}
+    ${(ev.chef_notes||ev.client_notes)?`<div class="fs-full-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      ${ev.chef_notes?`<div><div class="fs-section-title">Chef's notes</div><div class="fs-notes">${h(ev.chef_notes)}</div></div>`:'<div></div>'}
+      ${ev.client_notes?`<div><div class="fs-section-title">Client notes</div><div class="fs-notes">${h(ev.client_notes)}</div></div>`:''}
+    </div>`:''}
+    <div class="fs-full-row" style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-sm btn-primary" onclick="editFunctionSheet('${ev.id}')">Edit function sheet</button>
+      <button class="btn btn-sm" onclick="goToPrepList('${ev.id}')">→ Prep list</button>
+      <button class="btn btn-sm" onclick="goToAllergens('${ev.id}')">→ Allergen sheet</button>
+      <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>`;
 }
 
 function renderDashEvents(){
-  const body=document.getElementById('dash-ev-body');const up=events.filter(e=>new Date(e.event_date)>=new Date()).slice(0,5);
-  if(!up.length){body.innerHTML=`<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--text3);font-size:12px">No upcoming events</td></tr>`;return;}
-  body.innerHTML=up.map(e=>evRow(e,false)).join('');
+  const body=document.getElementById('dash-ev-body');
+  const up=events.filter(e=>new Date(e.event_date)>=new Date()).slice(0,5);
+  if(!up.length){body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No upcoming events</td></tr>`;return;}
+  body.innerHTML=up.map(ev=>{
+    const badge=ST_BADGE[ev.status]||'badge-gray';
+    const ds=new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+    return`<tr>
+      <td class="muted">${ds}</td>
+      <td><div style="font-weight:500;">${h(ev.client_name)}</div></td>
+      <td><span class="badge badge-gray">${EV_TYPES[ev.event_type]||ev.event_type}</span></td>
+      <td class="muted">${ev.venue_name?h(ev.venue_name):(ev.location?h(ev.location):'—')}</td>
+      <td class="muted">${ev.covers}</td>
+      <td><span class="badge ${badge}">${ev.status}</span></td>
+      <td><button class="btn btn-ghost btn-sm" onclick="editFunctionSheet('${ev.id}')">Edit</button></td>
+    </tr>`;
+  }).join('');
 }
 
-function evRow(e,showCode){
-  const ds=new Date(e.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-  const badge=ST_BADGE[e.status]||'badge-gray';
-  return`<tr>${showCode?`<td><span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2)">${e.job_code}</span></td>`:''}<td><div style="font-weight:500">${h(e.client_name)}</div></td><td class="muted">${ds}</td><td><span class="badge badge-gray">${EV_TYPES[e.event_type]||e.event_type}</span></td><td class="muted">${e.covers}</td><td><span class="badge ${badge}">${e.status}</span></td><td style="display:flex;gap:4px;"><button class="btn btn-ghost btn-sm" onclick="editEvent('${e.id}')">Edit</button><button class="btn btn-ghost btn-sm" onclick="goPrepList('${e.id}')">Prep ↗</button></td></tr>`;
+function setEvFilter(f,el){evFilter=f;document.querySelectorAll('#page-events .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderEventsList();}
+function goToPrepList(id){document.getElementById('prep-ev-sel').value=id;nav('prep',document.querySelectorAll('.nav-item')[2]);generatePrepList();}
+function goToAllergens(id){document.getElementById('al-ev-sel').value=id;nav('allergens',document.querySelectorAll('.nav-item')[5]);renderAllergenMatrix();}
+
+// ── FUNCTION SHEET MODAL ─────────────────────────────
+let guestAllergyRows=[];
+
+function renderFsDishGrid(selIds=[]){
+  const grid=document.getElementById('fs-dish-grid');
+  if(!dishes.length){grid.innerHTML='<div style="font-size:12px;color:var(--text3);">No dishes yet — add dishes in Menu Builder first.</div>';return;}
+  // group by category
+  let html='';
+  CAT_ORDER.forEach(cat=>{
+    const catDishes=dishes.filter(d=>d.category===cat);
+    if(!catDishes.length)return;
+    html+=`<div style="grid-column:1/-1;font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;padding:8px 0 4px;border-top:1px solid var(--border);margin-top:4px;">${cat}</div>`;
+    html+=catDishes.map(d=>`<div class="dish-pick-item ${selIds.includes(d.id)?'selected':''}" data-dish-id="${d.id}" onclick="this.classList.toggle('selected');updateCoverCalc()"><div class="dpname">${h(d.name)}</div><div class="dpcat">${d.category}${d.station?' · '+d.station:''}</div></div>`).join('');
+  });
+  grid.innerHTML=html;
 }
 
-function setEvFilter(f,el){evFilter=f;document.querySelectorAll('#page-events .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderEvents();}
-function goPrepList(id){document.getElementById('prep-ev-sel').value=id;nav('prep',document.querySelectorAll('.nav-item')[3]);generatePrepList();}
+function updateCoverCalc(){
+  const covers=parseInt(document.getElementById('fs-covers').value)||0;
+  const buf=1+(settings.buffer||14)/100;const buffered=Math.round(covers*buf);
+  const selCount=document.querySelectorAll('.dish-pick-item.selected').length;
+  document.getElementById('fs-cover-calc').textContent=covers?`${covers} covers · ${settings.buffer||14}% buffer = prep for ${buffered} · ${selCount} dish${selCount!==1?'es':''} selected`:'Enter covers to see quantities';
+}
 
-// EVENT MODAL
-function renderEventDishGrid(selIds=[]){
-  const grid=document.getElementById('ev-dish-grid');
-  if(!dishes.length){grid.innerHTML='<div style="font-size:12px;color:var(--text3)">No dishes in menu yet</div>';return;}
-  grid.innerHTML=dishes.map(d=>`<div class="dish-pick-item ${selIds.includes(d.id)?'selected':''}" data-dish-id="${d.id}" onclick="this.classList.toggle('selected')"><div class="dpname">${h(d.name)}</div><div class="dpcat">${d.category}</div></div>`).join('');
+function addGuestAllergyRow(data=null){
+  const id='gar-'+Date.now();
+  const div=document.createElement('div');
+  div.id=id;
+  div.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center;';
+  div.innerHTML=`
+    <input type="text" placeholder="Guest name" value="${data?h(data.name||'):''}}" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
+    <input type="text" placeholder="Allergen / requirement" value="${data?h(data.allergen||'):''}}" style="flex:1.5;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
+    <input type="text" placeholder="Notes" value="${data?h(data.notes||'):''}}" style="flex:1.5;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
+    <button onclick="document.getElementById('${id}').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;">×</button>`;
+  document.getElementById('guest-allergy-list').appendChild(div);
+}
+
+function getGuestAllergyRows(){
+  return Array.from(document.getElementById('guest-allergy-list').children).map(row=>{
+    const inputs=row.querySelectorAll('input');
+    return{name:inputs[0].value.trim(),allergen:inputs[1].value.trim(),notes:inputs[2].value.trim()};
+  }).filter(r=>r.allergen||r.name);
 }
 
 function buildJobCode(){
-  const client=document.getElementById('ev-client').value.trim();const date=document.getElementById('ev-date').value;const type=document.getElementById('ev-type').value;
+  const client=document.getElementById('fs-client').value.trim();
+  const date=document.getElementById('fs-date').value;
+  const type=document.getElementById('fs-type').value;
   if(!client||!date)return;
-  const words=client.split(/\s+/);const init=words.length>=2?(words[0][0]+words[1][0]).toUpperCase():client.substring(0,2).toUpperCase();
-  const d=new Date(date);const dd=String(d.getDate()).padStart(2,'0');const mm=String(d.getMonth()+1).padStart(2,'0');const yy=String(d.getFullYear()).slice(-2);
-  document.getElementById('ev-jobcode').value=`${init}${dd}${mm}${yy}${type}`;
+  const words=client.split(/\s+/);
+  const init=words.length>=2?(words[0][0]+words[1][0]).toUpperCase():client.substring(0,2).toUpperCase();
+  const d=new Date(date);
+  const dd=String(d.getDate()).padStart(2,'0');
+  const mm=String(d.getMonth()+1).padStart(2,'0');
+  const yy=String(d.getFullYear()).slice(-2);
+  document.getElementById('fs-jobcode').value=`${init}${dd}${mm}${yy}${type}`;
 }
 
-function openEventModal(){
-  document.getElementById('ev-id').value='';document.getElementById('ev-modal-title').textContent='Add event';document.getElementById('ev-client').value='';document.getElementById('ev-date').value='';document.getElementById('ev-type').value='WED';document.getElementById('ev-covers').value='';document.getElementById('ev-status').value='Provisional';document.getElementById('ev-jobcode').value='';document.getElementById('ev-notes').value='';document.getElementById('ev-del-btn').style.display='none';
-  renderEventDishGrid([]);document.getElementById('event-modal').classList.add('open');
+function openFunctionSheet(){
+  document.getElementById('fs-id').value='';
+  document.getElementById('fs-modal-title').textContent='New function sheet';
+  ['fs-client','fs-venue','fs-location','fs-address','fs-kitchen-notes','fs-service-notes',
+   'fs-contact-name','fs-contact-phone','fs-contact-email','fs-contact-2','fs-contact-2-detail',
+   'fs-chef-notes','fs-client-notes','fs-budget','fs-staffing','fs-jobcode'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('fs-date').value='';
+  document.getElementById('fs-type').value='WED';
+  document.getElementById('fs-covers').value='';
+  document.getElementById('fs-status').value='Provisional';
+  document.getElementById('fs-start-time').value='18:00';
+  document.getElementById('fs-end-time').value='23:00';
+  document.getElementById('fs-deposit').value='';
+  document.getElementById('fs-del-btn').style.display='none';
+  document.getElementById('guest-allergy-list').innerHTML='';
+  document.getElementById('fs-cover-calc').textContent='';
+  renderFsDishGrid([]);
+  document.getElementById('fs-modal').classList.add('open');
 }
 
-async function editEvent(id){
-  const e=events.find(x=>x.id===id);if(!e)return;
-  document.getElementById('ev-id').value=e.id;document.getElementById('ev-modal-title').textContent='Edit event';document.getElementById('ev-client').value=e.client_name;document.getElementById('ev-date').value=e.event_date;document.getElementById('ev-type').value=e.event_type;document.getElementById('ev-covers').value=e.covers;document.getElementById('ev-status').value=e.status;document.getElementById('ev-jobcode').value=e.job_code;document.getElementById('ev-notes').value=e.notes||'';document.getElementById('ev-del-btn').style.display='inline-flex';
-  renderEventDishGrid((e.event_dishes||[]).map(d=>d.dish_id));document.getElementById('event-modal').classList.add('open');
+async function editFunctionSheet(id){
+  const ev=events.find(e=>e.id===id);if(!ev)return;
+  document.getElementById('fs-id').value=ev.id;
+  document.getElementById('fs-modal-title').textContent='Edit function sheet';
+  document.getElementById('fs-client').value=ev.client_name||'';
+  document.getElementById('fs-date').value=ev.event_date||'';
+  document.getElementById('fs-type').value=ev.event_type||'WED';
+  document.getElementById('fs-covers').value=ev.covers||'';
+  document.getElementById('fs-status').value=ev.status||'Provisional';
+  document.getElementById('fs-start-time').value=ev.start_time||'18:00';
+  document.getElementById('fs-end-time').value=ev.end_time||'23:00';
+  document.getElementById('fs-jobcode').value=ev.job_code||'';
+  document.getElementById('fs-venue').value=ev.venue_name||'';
+  document.getElementById('fs-location').value=ev.location||'';
+  document.getElementById('fs-address').value=ev.address||'';
+  document.getElementById('fs-kitchen-notes').value=ev.kitchen_notes||'';
+  document.getElementById('fs-service-notes').value=ev.service_notes||'';
+  document.getElementById('fs-contact-name').value=ev.contact_name||'';
+  document.getElementById('fs-contact-phone').value=ev.contact_phone||'';
+  document.getElementById('fs-contact-email').value=ev.contact_email||'';
+  document.getElementById('fs-contact-2').value=ev.contact_2||'';
+  document.getElementById('fs-contact-2-detail').value=ev.contact_2_detail||'';
+  document.getElementById('fs-chef-notes').value=ev.chef_notes||'';
+  document.getElementById('fs-client-notes').value=ev.client_notes||'';
+  document.getElementById('fs-budget').value=ev.budget||'';
+  document.getElementById('fs-deposit').value=ev.deposit_status||'';
+  document.getElementById('fs-staffing').value=ev.staffing||'';
+  document.getElementById('fs-del-btn').style.display='inline-flex';
+  document.getElementById('guest-allergy-list').innerHTML='';
+  (ev.guest_allergens||[]).forEach(g=>addGuestAllergyRow(g));
+  renderFsDishGrid((ev.event_dishes||[]).map(d=>d.dish_id));
+  updateCoverCalc();
+  document.getElementById('fs-modal').classList.add('open');
 }
 
-async function saveEvent(){
-  const client=document.getElementById('ev-client').value.trim();const date=document.getElementById('ev-date').value;const covers=parseInt(document.getElementById('ev-covers').value);const jobCode=document.getElementById('ev-jobcode').value.trim();
-  if(!client||!date||!covers||!jobCode){showToast('Fill all required fields','error');return;}
-  const id=document.getElementById('ev-id').value;
-  const data={client_name:client,event_date:date,event_type:document.getElementById('ev-type').value,covers,status:document.getElementById('ev-status').value,job_code:jobCode,notes:document.getElementById('ev-notes').value.trim()||null};
+async function saveFunctionSheet(){
+  const client=document.getElementById('fs-client').value.trim();
+  const date=document.getElementById('fs-date').value;
+  const covers=parseInt(document.getElementById('fs-covers').value);
+  const jobCode=document.getElementById('fs-jobcode').value.trim();
+  if(!client||!date||!covers||!jobCode){showToast('Fill in client, date, covers and job code','error');return;}
+  const id=document.getElementById('fs-id').value;
+  const data={
+    client_name:client,event_date:date,event_type:document.getElementById('fs-type').value,
+    covers,status:document.getElementById('fs-status').value,
+    start_time:document.getElementById('fs-start-time').value||null,
+    end_time:document.getElementById('fs-end-time').value||null,
+    job_code:jobCode,
+    venue_name:document.getElementById('fs-venue').value.trim()||null,
+    location:document.getElementById('fs-location').value.trim()||null,
+    address:document.getElementById('fs-address').value.trim()||null,
+    kitchen_notes:document.getElementById('fs-kitchen-notes').value.trim()||null,
+    service_notes:document.getElementById('fs-service-notes').value.trim()||null,
+    contact_name:document.getElementById('fs-contact-name').value.trim()||null,
+    contact_phone:document.getElementById('fs-contact-phone').value.trim()||null,
+    contact_email:document.getElementById('fs-contact-email').value.trim()||null,
+    contact_2:document.getElementById('fs-contact-2').value.trim()||null,
+    contact_2_detail:document.getElementById('fs-contact-2-detail').value.trim()||null,
+    chef_notes:document.getElementById('fs-chef-notes').value.trim()||null,
+    client_notes:document.getElementById('fs-client-notes').value.trim()||null,
+    budget:document.getElementById('fs-budget').value.trim()||null,
+    deposit_status:document.getElementById('fs-deposit').value||null,
+    staffing:document.getElementById('fs-staffing').value.trim()||null,
+    guest_allergens:getGuestAllergyRows()
+  };
   try{
     let eid=id;
     if(id){const{error}=await sb.from('events').update(data).eq('id',id);if(error)throw error;}
@@ -942,71 +1247,50 @@ async function saveEvent(){
     await sb.from('event_dishes').delete().eq('event_id',eid);
     const sel=Array.from(document.querySelectorAll('.dish-pick-item.selected'));
     if(sel.length)await sb.from('event_dishes').insert(sel.map(el=>({event_id:eid,dish_id:el.dataset.dishId})));
-    showToast(id?'Event updated':'Event added','success');closeModal('event-modal');await loadEvents();
-  }catch(e){showToast('Error: '+(e.message.includes('duplicate')?'Job code already exists':e.message),'error');}
+    showToast(id?'Function sheet updated':'Function sheet created','success');
+    closeModal('fs-modal');await loadEvents();
+  }catch(e){showToast('Error: '+(e.message.includes('duplicate')?'Job code already exists — edit manually':e.message),'error');}
 }
 
-async function deleteEvent(){const id=document.getElementById('ev-id').value;if(!id||!confirm('Delete this event?'))return;await sb.from('events').delete().eq('id',id);showToast('Event deleted','success');closeModal('event-modal');await loadEvents();}
+async function deleteFunctionSheet(){
+  const id=document.getElementById('fs-id').value;
+  if(!id||!confirm('Delete this function sheet? Cannot be undone.'))return;
+  await sb.from('events').delete().eq('id',id);
+  showToast('Function sheet deleted','success');closeModal('fs-modal');await loadEvents();
+}
 
-// PREP LIST
+// ══════════════════════════════════════════════════════
+// PREP LIST ENGINE
+// ══════════════════════════════════════════════════════
 function populatePrepSel(){
   const sel=document.getElementById('prep-ev-sel');const cur=sel.value;
   sel.innerHTML='<option value="">— Select event —</option>'+events.map(e=>`<option value="${e.id}">${e.job_code} — ${h(e.client_name)} (${new Date(e.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})})</option>`).join('');
   if(cur)sel.value=cur;
 }
 
-// Categorise a component into one of three flexible buckets
-// "advance" = can be done well ahead (freeze/par-cook/stock/base)
-// "close"   = needs doing day-before or thereabouts (fridge/assembled)
-// "service" = day-of or pass only
 function getBucket(comp){
   if(comp.freeze_flag)return'advance';
   if(comp.fridge_flag)return'close';
   const n=(comp.name||'').toLowerCase();
-  const serviceWords=['to order','fillet','sear','pan fry','pan-fry','garnish','amaranth','finish','plate','dress','carve','slice'];
-  if(serviceWords.some(w=>n.includes(w)))return'service';
+  if(['to order','fillet','sear','pan fry','pan-fry','garnish','amaranth','finish','plate','dress','pass'].some(w=>n.includes(w)))return'service';
   return'close';
 }
-
-const BUCKETS={
-  advance:{
-    label:'Advance prep',
-    sub:'Components that can be made ahead — freeze batches, stocks, bases, par-cooks. Do these whenever suits.',
-    color:'var(--blue)',
-    bg:'var(--blue-bg)',
-    border:'var(--blue-bd)',
-    icon:'❄'
-  },
-  close:{
-    label:'Close prep',
-    sub:'Things to pull together nearer the day — fridge items, assembled elements, finishing sauces. Chef\'s call on timing.',
-    color:'var(--amber)',
-    bg:'var(--amber-bg)',
-    border:'var(--amber-bd)',
-    icon:'🧊'
-  },
-  service:{
-    label:'Service',
-    sub:'Day-of, pass items and to-order work. These stay where they are.',
-    color:'var(--green)',
-    bg:'var(--green-bg)',
-    border:'var(--green-bd)',
-    icon:'🔥'
-  }
-};
 
 function generatePrepList(){
   const eid=document.getElementById('prep-ev-sel').value;
   if(!eid){document.getElementById('prep-empty').style.display='';document.getElementById('prep-content').style.display='none';return;}
   const ev=events.find(e=>e.id===eid);if(!ev)return;
-  const buf=1+(settings.buffer||14)/100;const covers=Math.round(ev.covers*buf);
+  const buf=1+(settings.buffer||14)/100;const buffered=Math.round(ev.covers*buf);
 
-  document.getElementById('prep-empty').style.display='none';
-  document.getElementById('prep-content').style.display='';
+  document.getElementById('prep-empty').style.display='none';document.getElementById('prep-content').style.display='';
   document.getElementById('prep-sub').textContent=`${ev.job_code} — ${ev.client_name}`;
-  document.getElementById('ph-title').textContent=`${ev.client_name} — ${EV_TYPES[ev.event_type]||ev.event_type}`;
-  document.getElementById('ph-sub').textContent=`${ev.job_code} · ${new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})} · ${ev.covers} covers (${settings.buffer||14}% buffer = ${covers} to prep)`;
-  document.getElementById('ph-covers').textContent=ev.covers;
+  document.getElementById('ps-client').textContent=ev.client_name;
+  document.getElementById('ps-type-loc').textContent=`${EV_TYPES[ev.event_type]||ev.event_type}${ev.venue_name?' · '+ev.venue_name:''}${ev.location?' · '+ev.location:''}`;
+  document.getElementById('ps-jobcode').textContent=ev.job_code;
+  document.getElementById('ps-date').textContent=new Date(ev.event_date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('ps-covers-str').textContent=`${ev.covers} covers${ev.start_time?' · '+ev.start_time:''}`;
+  document.getElementById('ps-buffer').textContent=(settings.buffer||14)+'%';
+  document.getElementById('ps-buffered-covers').textContent=buffered;
 
   const evDishIds=(ev.event_dishes||[]).map(d=>d.dish_id);
   const evDishes=dishes.filter(d=>evDishIds.includes(d.id));
@@ -1014,166 +1298,112 @@ function generatePrepList(){
   prepTasks=[];prepDone=new Set();
   evDishes.forEach(dish=>{
     (dish.components||[]).sort((a,b)=>a.sort_order-b.sort_order).forEach(comp=>{
-      const rawQty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*covers):null;
-      const qtyStr=rawQty?(rawQty+(comp.unit?' '+comp.unit:'')):(covers+' portions');
-      prepTasks.push({
-        id:comp.id+'_'+dish.id,
-        dishName:dish.name,
-        comp,
-        bucket:getBucket(comp),
-        qty:qtyStr,
-        covers,
-        jobCode:ev.job_code,
-        al:getDishAl(dish),
-        evDate:ev.event_date,
-        note:comp.chef_note||'' // editable per-task note
-      });
+      const rawQty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*buffered):null;
+      const qtyStr=rawQty?(rawQty+(comp.unit?' '+comp.unit:'')):(buffered+' portions');
+      prepTasks.push({id:comp.id+'_'+dish.id,dishName:dish.name,dishCat:dish.category,comp,bucket:getBucket(comp),qty:qtyStr,jobCode:ev.job_code,al:getDishAl(dish),evDate:ev.event_date,note:comp.chef_note||''});
     });
   });
 
-  document.getElementById('ph-tasks').textContent=prepTasks.length;
   updatePrepProg();
-  renderPrepBucket();
-  renderPrepDish();
-  renderPrepStation();
+  renderPrepBucket();renderPrepDish();renderPrepStation();
   setPrepView('bucket');
 }
 
 function updatePrepProg(){
   const done=prepDone.size,total=prepTasks.length,pct=total?Math.round(done/total*100):0;
-  document.getElementById('ph-done').textContent=done;
-  document.getElementById('ph-prog').style.width=pct+'%';
-  document.getElementById('ph-pct').textContent=pct+'%';
+  document.getElementById('prep-prog').style.width=pct+'%';
+  document.getElementById('ps-pct').textContent=pct+'%';
+  document.getElementById('ps-done-str').textContent=`${done} of ${total} tasks done`;
 }
 
-// ── TASK CARD ─────────────────────────────────────────────────────────────────
-// The core unit — a single component ready to tick off
-function taskCard(t,opts={}){
+// The actual task row — clean, readable, printable
+function taskRow(t,opts={}){
   const done=prepDone.has(t.id);
   const b=BUCKETS[t.bucket];
-  const alHtml=t.al.map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('');
-  const stLabel=t.comp.station?`<span class="badge badge-gray" style="font-size:10px">${t.comp.station}</span>`:'';
-  const noteHtml=t.note?`<div class="task-note">${h(t.note)}</div>`:'';
-  const freezeBtn=(t.comp.freeze_flag||t.comp.fridge_flag)?`<button class="print-btn${t.comp.freeze_flag?' freeze':''}" onclick="event.stopPropagation();printCompLabel('${t.id}')">Print label</button>`:'';
-  const dishLabel=opts.hideDish?'':` <span style="color:var(--text3)">·</span> <span style="font-size:11px;color:var(--text2)">${h(t.dishName)}</span>`;
-
-  return`<div class="task-card ${done?'done':''}" id="tc-${t.id}" onclick="toggleTask('${t.id}')">
-    <div class="task-check"><span class="tick-mark">✓</span></div>
-    <div style="flex:1;min-width:0;">
-      <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap;">
-        <span class="task-name">${h(t.comp.name)}</span>${dishLabel}
-      </div>
-      ${noteHtml}
-      <div class="task-meta" style="margin-top:5px;">${stLabel}<span class="badge" style="background:${b.bg};color:${b.color};border:1px solid ${b.border};font-size:10px;">${b.icon} ${b.label}</span><span class="badge badge-gray" style="font-size:10px;">${t.qty}</span>${alHtml}</div>
+  const stTag=t.comp.freeze_flag?`<span class="prep-tag freeze">❄ Freeze</span>`:t.comp.fridge_flag?`<span class="prep-tag fridge">🧊 Fridge</span>`:`<span class="prep-tag fresh">○ Fresh</span>`;
+  const alTags=t.al.slice(0,5).map(a=>`<span class="prep-tag al">${a.allergen}</span>`).join('');
+  const dishLabel=opts.hideDish?'':`<div class="prep-task-dish">${h(t.dishName)}</div>`;
+  const printBtn=t.comp.freeze_flag||t.comp.fridge_flag?`<button class="prep-print-btn" onclick="event.stopPropagation();printCompLabel('${t.id}')">Print label</button>`:'';
+  return`<div class="prep-task-row ${done?'done':''}" id="tc-${t.id}" onclick="toggleTask('${t.id}')">
+    <div class="prep-checkbox-col"><div class="prep-checkbox"><span class="prep-tick">✓</span></div></div>
+    <div class="prep-main-col">
+      <div class="prep-task-name">${h(t.comp.name)}</div>
+      ${dishLabel}
+      ${t.note?`<div class="prep-task-note">${h(t.note)}</div>`:''}
+      <div class="prep-task-tags"><span class="prep-tag qty">${t.qty}</span>${stTag}${alTags}</div>
     </div>
-    <div class="task-right">${freezeBtn}</div>
+    <div class="prep-action-col">${printBtn}</div>
   </div>`;
 }
 
-// ── BUCKET VIEW ───────────────────────────────────────────────────────────────
-// The default — three loose groups, no schedule imposed
 function renderPrepBucket(){
   const el=document.getElementById('prep-bucket-view');
   if(!prepTasks.length){el.innerHTML='<div class="empty-state"><div class="empty-title">No tasks — assign dishes to this event first</div></div>';return;}
-
   let html='';
   ['advance','close','service'].forEach(bk=>{
-    const tasks=prepTasks.filter(t=>t.bucket===bk);
-    if(!tasks.length)return;
-    const b=BUCKETS[bk];
-    const doneCt=tasks.filter(t=>prepDone.has(t.id)).length;
-    html+=`
-      <div class="prep-bucket" style="margin-bottom:28px;">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;gap:12px;">
-          <div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span style="font-size:16px;">${b.icon}</span>
-              <span style="font-size:15px;font-weight:500;color:var(--text1);">${b.label}</span>
-              <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);">${doneCt}/${tasks.length}</span>
-            </div>
-            <div style="font-size:12px;color:var(--text3);margin-top:4px;max-width:520px;">${b.sub}</div>
-          </div>
-          ${bk==='advance'?`<button class="btn btn-sm" style="white-space:nowrap;" onclick="printBucketLabels('advance')">Print all freeze labels</button>`:''}
-        </div>
-        ${tasks.map(t=>taskCard(t)).join('')}
-      </div>`;
+    const tasks=prepTasks.filter(t=>t.bucket===bk);if(!tasks.length)return;
+    const b=BUCKETS[bk];const done=tasks.filter(t=>prepDone.has(t.id)).length;
+    html+=`<div class="prep-bucket">
+      <div class="prep-bucket-header ${bk}">
+        <span class="prep-bucket-icon">${b.icon}</span>
+        <span class="prep-bucket-label">${b.label}</span>
+        <span class="prep-bucket-sub">${b.sub}</span>
+        <span class="prep-bucket-count">${done}/${tasks.length}</span>
+      </div>
+      ${tasks.map(t=>taskRow(t)).join('')}
+    </div>`;
   });
   el.innerHTML=html;
 }
 
-// ── DISH VIEW ─────────────────────────────────────────────────────────────────
-// All tasks grouped by dish — useful for checking a single dish is fully prepped
 function renderPrepDish(){
   const el=document.getElementById('prep-dish-view');
-  const evDishIds=prepTasks.map(t=>t.dishName);
-  const dishNames=[...new Set(evDishIds)];
+  const dishNames=[...new Set(prepTasks.map(t=>t.dishName))];
   if(!dishNames.length){el.innerHTML='<div class="empty-state"><div class="empty-title">No tasks</div></div>';return;}
-
-  let html='';
-  dishNames.forEach(dishName=>{
-    const tasks=prepTasks.filter(t=>t.dishName===dishName);
-    const doneCt=tasks.filter(t=>prepDone.has(t.id)).length;
+  el.innerHTML=dishNames.map(name=>{
+    const tasks=prepTasks.filter(t=>t.dishName===name);
+    const done=tasks.filter(t=>prepDone.has(t.id)).length;
     const al=tasks[0]?tasks[0].al:[];
-    html+=`
-      <div class="card" style="margin-bottom:16px;">
-        <div class="card-header">
-          <div>
-            <div class="card-title">${h(dishName)}</div>
-            <div style="font-size:11px;color:var(--text3);margin-top:2px;">${tasks.length} components${al.length?' · Allergens: '+al.map(a=>a.allergen).join(', '):''}</div>
-          </div>
-          <span style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">${doneCt}/${tasks.length} done</span>
+    return`<div class="prep-dish-section">
+      <div class="prep-dish-header">
+        <div class="prep-dish-header-name">${h(name)}</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${al.map(a=>`<span style="font-size:10px;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace;">${a.allergen}</span>`).join('')}
+          <span style="font-size:11px;color:rgba(255,255,255,.4);font-family:'DM Mono',monospace;">${done}/${tasks.length}</span>
         </div>
-        <div class="card-body" style="padding:12px 14px;">
-          ${tasks.map(t=>taskCard(t,{hideDish:true})).join('')}
-        </div>
-      </div>`;
-  });
-  el.innerHTML=html;
+      </div>
+      ${tasks.map(t=>taskRow(t,{hideDish:true})).join('')}
+    </div>`;
+  }).join('');
 }
 
-// ── STATION VIEW ──────────────────────────────────────────────────────────────
-// All tasks grouped by station — useful for briefing individual sections
 function renderPrepStation(){
   const el=document.getElementById('prep-station-view');
-  const stationNames=[...new Set(prepTasks.map(t=>t.comp.station||'Unassigned'))];
-  if(!stationNames.length){el.innerHTML='<div class="empty-state"><div class="empty-title">No tasks</div></div>';return;}
-
-  let html='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;">';
-  stationNames.forEach(station=>{
-    const tasks=prepTasks.filter(t=>(t.comp.station||'Unassigned')===station);
-    const doneCt=tasks.filter(t=>prepDone.has(t.id)).length;
-    html+=`
-      <div class="card" style="margin-bottom:0;">
-        <div class="card-header">
-          <div class="card-title">${station}</div>
-          <span style="font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;">${doneCt}/${tasks.length}</span>
-        </div>
-        <div class="card-body" style="padding:12px 14px;">
-          ${['advance','close','service'].map(bk=>{
-            const bt=tasks.filter(t=>t.bucket===bk);
-            if(!bt.length)return'';
-            const b=BUCKETS[bk];
-            return`<div style="font-size:10px;font-weight:500;color:${b.color};text-transform:uppercase;letter-spacing:.06em;margin:10px 0 6px;font-family:'DM Mono',monospace;">${b.icon} ${b.label}</div>`
-              +bt.map(t=>taskCard(t)).join('');
-          }).join('')}
-        </div>
-      </div>`;
-  });
-  html+='</div>';
-  el.innerHTML=html;
+  // For station view, group by the component's station/sub-category field, fallback to dish category
+  const stationNames=[...new Set(prepTasks.map(t=>t.comp.station||t.dishCat||'Other'))];
+  if(!stationNames.length){el.innerHTML='';return;}
+  el.innerHTML=`<div class="prep-station-grid">${stationNames.map(st=>{
+    const tasks=prepTasks.filter(t=>(t.comp.station||t.dishCat||'Other')===st);
+    const done=tasks.filter(t=>prepDone.has(t.id)).length;
+    return`<div class="prep-station-card">
+      <div class="prep-station-header"><div class="prep-station-name">${st}</div><span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;">${done}/${tasks.length}</span></div>
+      ${['advance','close','service'].map(bk=>{
+        const bt=tasks.filter(t=>t.bucket===bk);if(!bt.length)return'';
+        const b=BUCKETS[bk];
+        return`<div style="padding:8px 14px;font-size:10px;font-weight:600;color:var(--text2);font-family:'DM Mono',monospace;border-bottom:1px solid var(--border);background:var(--bg2);">${b.icon} ${b.label}</div>`+bt.map(t=>taskRow(t)).join('');
+      }).join('')}
+    </div>`;
+  }).join('')}</div>`;
 }
 
 function toggleTask(id){
-  const card=document.getElementById('tc-'+id);
-  if(!card)return;
+  const card=document.getElementById('tc-'+id);if(!card)return;
   if(prepDone.has(id))prepDone.delete(id);else prepDone.add(id);
   card.classList.toggle('done',prepDone.has(id));
   updatePrepProg();
-  // refresh current view so counter updates
+  // Refresh active view
   const v=document.getElementById('prep-bucket-view').style.display!=='none'?'bucket':document.getElementById('prep-dish-view').style.display!=='none'?'dish':'station';
-  if(v==='bucket')renderPrepBucket();
-  else if(v==='dish')renderPrepDish();
-  else renderPrepStation();
+  if(v==='bucket')renderPrepBucket();else if(v==='dish')renderPrepDish();else renderPrepStation();
   setPrepView(v);
 }
 
@@ -1181,20 +1411,16 @@ function setPrepView(v){
   ['bucket','dish','station'].forEach(x=>{
     document.getElementById('prep-'+x+'-view').style.display=x===v?'':'none';
     const b=document.getElementById('vt-'+x);
-    if(b){b.style.background=x===v?'var(--bg2)':'';b.style.fontWeight=x===v?'500':'';}
+    if(b){b.style.background=x===v?'var(--bg2)':'';b.style.fontWeight=x===v?'600':'';}
   });
 }
 
-function printBucketLabels(bucket){
-  const tasks=prepTasks.filter(t=>t.bucket===bucket);
-  tasks.forEach((t,i)=>setTimeout(()=>printCompLabel(t.id),i*400));
-  showToast(`Sending ${tasks.length} labels to printer...`,'success');
-}
-
+// ══════════════════════════════════════════════════════
 // PRODUCTION RUNS
+// ══════════════════════════════════════════════════════
 function buildMonthSel(){
-  const sel=document.getElementById('prod-month');const now=new Date();
-  const months=[];for(let i=-1;i<=11;i++){const d=new Date(now.getFullYear(),now.getMonth()+i,1);months.push({v:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,l:d.toLocaleDateString('en-GB',{month:'long',year:'numeric'})});}
+  const sel=document.getElementById('prod-month');const now=new Date();const months=[];
+  for(let i=-1;i<=11;i++){const d=new Date(now.getFullYear(),now.getMonth()+i,1);months.push({v:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`,l:d.toLocaleDateString('en-GB',{month:'long',year:'numeric'})});}
   const cur=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
   sel.innerHTML=months.map(m=>`<option value="${m.v}" ${m.v===cur?'selected':''}>${m.l}</option>`).join('');
 }
@@ -1204,50 +1430,36 @@ function generateProdRuns(){
   const[yr,mo]=month.split('-').map(Number);
   const mEvs=events.filter(e=>{const d=new Date(e.event_date);return d.getFullYear()===yr&&d.getMonth()+1===mo;});
   const buf=1+(settings.buffer||14)/100;const compMap={};
-  mEvs.forEach(ev=>{const eids=(ev.event_dishes||[]).map(d=>d.dish_id);dishes.filter(d=>eids.includes(d.id)).forEach(dish=>{(dish.components||[]).filter(c=>c.freeze_flag).forEach(comp=>{const k=comp.name;if(!compMap[k])compMap[k]={comp,dish,events:[],total:0};const qty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*ev.covers*buf):Math.ceil(ev.covers*buf);compMap[k].events.push({ev,qty});compMap[k].total+=qty;});});});
+  mEvs.forEach(ev=>{
+    const eids=(ev.event_dishes||[]).map(d=>d.dish_id);
+    dishes.filter(d=>eids.includes(d.id)).forEach(dish=>{
+      (dish.components||[]).filter(c=>c.freeze_flag).forEach(comp=>{
+        const k=comp.name;if(!compMap[k])compMap[k]={comp,dish,events:[],total:0};
+        const qty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*ev.covers*buf):Math.ceil(ev.covers*buf);
+        compMap[k].events.push({ev,qty});compMap[k].total+=qty;
+      });
+    });
+  });
   const items=Object.values(compMap);const el=document.getElementById('prod-body');
-  const monthLabel=document.getElementById('prod-month').options[document.getElementById('prod-month').selectedIndex].text;
-  if(!items.length){el.innerHTML=`<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">❄</div><div class="empty-title">No freezable components in ${monthLabel}</div><div class="empty-sub">Add events with dishes for this month first</div></div></div></div>`;return;}
-  el.innerHTML=`<div class="card"><div class="card-header"><div><div class="card-title">Freeze batch — ${monthLabel}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${items.length} components · ${mEvs.length} event${mEvs.length!==1?'s':''} · ${settings.buffer||14}% buffer</div></div><button class="btn btn-blue btn-sm" onclick="showToast('Printing all month labels...','success')">Print all labels</button></div><div class="card-body"><table><thead><tr><th>Component</th><th>Dish</th><th>Total qty</th><th>Events</th><th>Station</th><th>Allergens</th><th></th></tr></thead><tbody>${items.map(item=>`<tr><td style="font-weight:500">${h(item.comp.name)}</td><td class="muted">${h(item.dish.name)}</td><td><span class="badge badge-blue">${item.total} ${item.comp.unit||'portions'}</span></td><td class="muted" style="font-size:11px">${item.events.map(e=>`${e.ev.job_code} ×${e.qty}`).join(', ')}</td><td class="muted">${item.comp.station||'—'}</td><td>${getDishAl(item.dish).map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('')||'<span style="color:var(--text3);font-size:11px">None</span>'}</td><td><button class="btn btn-ghost btn-sm" onclick="showToast('Printing: ${h(item.comp.name)}','success')">Print</button></td></tr>`).join('')}</tbody></table></div></div>`;
+  const mLabel=document.getElementById('prod-month').options[document.getElementById('prod-month').selectedIndex].text;
+  if(!items.length){el.innerHTML=`<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">❄</div><div class="empty-title">No freezable components in ${mLabel}</div></div></div></div>`;return;}
+  el.innerHTML=`<div class="card">
+    <div class="card-header"><div><div class="card-title">Freeze batch — ${mLabel}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${items.length} components · ${mEvs.length} event${mEvs.length!==1?'s':''} · ${settings.buffer||14}% buffer</div></div><button class="btn btn-blue btn-sm" onclick="showToast('Printing all...','success')">Print all labels</button></div>
+    <div class="card-body"><table><thead><tr><th>Component</th><th>Dish</th><th>Total qty</th><th>Events</th><th>Allergens</th><th></th></tr></thead>
+    <tbody>${items.map(item=>`<tr>
+      <td style="font-weight:500;">${h(item.comp.name)}</td>
+      <td class="muted">${h(item.dish.name)}</td>
+      <td><span class="badge badge-blue">${item.total} ${item.comp.unit||'portions'}</span></td>
+      <td class="muted" style="font-size:11px;">${item.events.map(e=>`${e.ev.job_code} ×${e.qty}`).join(', ')}</td>
+      <td>${getDishAl(item.dish).map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="showToast('Printing: ${h(item.comp.name)}','success')">Print</button></td>
+    </tr>`).join('')}</tbody></table></div>
+  </div>`;
 }
 
-// ALLERGENS
-// FSA standard column headers — official UK names
-const AL_LABELS = {
-  Gluten:    'Cereals containing gluten',
-  Dairy:     'Milk',
-  Egg:       'Eggs',
-  Fish:      'Fish',
-  Shellfish: 'Crustaceans',
-  Nuts:      'Tree nuts',
-  Peanuts:   'Peanuts',
-  Soya:      'Soybeans',
-  Celery:    'Celery',
-  Mustard:   'Mustard',
-  Sesame:    'Sesame',
-  Sulphites: 'Sulphur dioxide & sulphites',
-  Lupin:     'Lupin',
-  Molluscs:  'Molluscs'
-};
-
-// Short labels for the column header (space is tight)
-const AL_SHORT = {
-  Gluten:    'Cereals / Gluten',
-  Dairy:     'Milk',
-  Egg:       'Eggs',
-  Fish:      'Fish',
-  Shellfish: 'Crustaceans',
-  Nuts:      'Tree nuts',
-  Peanuts:   'Peanuts',
-  Soya:      'Soybeans',
-  Celery:    'Celery',
-  Mustard:   'Mustard',
-  Sesame:    'Sesame',
-  Sulphites: 'Sulphites',
-  Lupin:     'Lupin',
-  Molluscs:  'Molluscs'
-};
-
+// ══════════════════════════════════════════════════════
+// ALLERGEN MATRIX — FSA FORMAT WITH OFFICIAL ICONS
+// ══════════════════════════════════════════════════════
 function populateAlEvSel(){
   const sel=document.getElementById('al-ev-sel');
   sel.innerHTML='<option value="">— All dishes —</option>'+events.map(e=>`<option value="${e.id}">${e.job_code} — ${h(e.client_name)}</option>`).join('');
@@ -1256,128 +1468,157 @@ function populateAlEvSel(){
 function renderAllergenMatrix(){
   const eid=document.getElementById('al-ev-sel').value;
   const showComps=document.getElementById('al-show-comps').checked;
-  let disp=dishes;
-  let evLabel='All dishes';
-  if(eid){
-    const ev=events.find(e=>e.id===eid);
-    if(ev){
-      const ids=(ev.event_dishes||[]).map(d=>d.dish_id);
-      disp=dishes.filter(d=>ids.includes(d.id));
-      evLabel=`${ev.job_code} — ${ev.client_name} · ${new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`;
-    }
-  }
-
+  let disp=dishes;let evLabel='All dishes';
+  if(eid){const ev=events.find(e=>e.id===eid);if(ev){const ids=(ev.event_dishes||[]).map(d=>d.dish_id);disp=dishes.filter(d=>ids.includes(d.id));evLabel=`${ev.job_code} — ${ev.client_name} · ${new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`;}}
   document.getElementById('al-ev-label').textContent=evLabel;
   document.getElementById('al-date-stamp').textContent=`Printed: ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`;
 
-  const head=document.getElementById('al-matrix-head');
-  const body=document.getElementById('al-matrix-body');
+  const tbl=document.getElementById('fsa-table');
+  if(!disp.length){tbl.innerHTML=`<tbody><tr><td colspan="${ALLERGENS.length+1}" style="text-align:center;padding:32px;color:var(--text3);">No dishes to display</td></tr></tbody>`;return;}
 
-  if(!disp.length){
-    head.innerHTML='';
-    body.innerHTML=`<tr><td colspan="${ALLERGENS.length+1}" style="text-align:center;padding:32px;color:var(--text3);">No dishes to display</td></tr>`;
-    return;
-  }
-
-  // Build header row
-  head.innerHTML=`<tr>
+  // Header with icon + short name
+  const thead=`<thead><tr>
     <th class="dish-col">Dish</th>
-    ${ALLERGENS.map(a=>`<th title="${AL_LABELS[a]||a}">${AL_SHORT[a]||a}</th>`).join('')}
-  </tr>`;
+    ${ALLERGENS.map(a=>`<th title="${AL_FSA[a]||a}">
+      <div class="al-icon-wrap">
+        <img class="al-icon-img" src="${AL_ICON[a]||''}" alt="${a}" onerror="this.style.display='none'">
+        <span style="font-size:8px;line-height:1.2;">${AL_SHORT[a]||a}</span>
+      </div>
+    </th>`).join('')}
+  </tr></thead>`;
 
-  // Build body
-  let html='';
+  // Body
+  let rows='';
   disp.forEach((dish,idx)=>{
     const al=getDishAl(dish);
-    const rowClass=idx%2===0?'dish-row':'dish-row';
-
-    // Dish row
-    html+=`<tr class="${rowClass}">
-      <td class="dish-name">${h(dish.name)}</td>
+    const rowStyle=idx%2===0?'background:var(--bg);':'';
+    rows+=`<tr>
+      <td class="dish-name" style="${rowStyle}">${h(dish.name)}<span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-left:6px;">${dish.category}</span></td>
       ${ALLERGENS.map(a=>{
         const f=al.find(x=>x.allergen===a);
         if(!f)return'<td></td>';
-        if(f.status==='May Contain')return`<td><span class="al-cell-may">M</span></td>`;
-        return`<td><span class="al-cell-contains">✓</span></td>`;
+        if(f.status==='May Contain')return`<td><span class="al-sym-m">M</span></td>`;
+        return`<td><span class="al-sym-c">✓</span></td>`;
       }).join('')}
     </tr>`;
-
-    // Component rows (optional)
     if(showComps){
       (dish.components||[]).forEach(comp=>{
-        const cal=comp.component_allergens||[];
-        if(!cal.length)return;
-        html+=`<tr class="comp-row">
-          <td class="dish-name">↳ ${h(comp.name)}</td>
+        const cal=comp.component_allergens||[];if(!cal.length)return;
+        rows+=`<tr>
+          <td class="comp-name">↳ ${h(comp.name)}</td>
           ${ALLERGENS.map(a=>{
             const f=cal.find(x=>x.allergen===a);
             if(!f)return'<td></td>';
-            if(f.status==='May Contain')return`<td><span class="al-cell-may" style="width:18px;height:18px;font-size:9px;">M</span></td>`;
-            return`<td><span class="al-cell-contains" style="width:18px;height:18px;font-size:10px;">✓</span></td>`;
+            if(f.status==='May Contain')return`<td><span class="al-sym-m" style="width:17px;height:17px;font-size:8px;">M</span></td>`;
+            return`<td><span class="al-sym-c" style="width:17px;height:17px;font-size:10px;">✓</span></td>`;
           }).join('')}
         </tr>`;
       });
     }
   });
 
-  body.innerHTML=html;
+  tbl.innerHTML=thead+`<tbody>${rows}</tbody>`;
 }
 
+// ══════════════════════════════════════════════════════
 // LABEL QUEUE
+// ══════════════════════════════════════════════════════
 function renderLabelQueue(){
-  const filter=(document.getElementById('label-filter').value||'').toUpperCase();const el=document.getElementById('label-body');
-  const items=[];
-  events.forEach(ev=>{if(filter&&!ev.job_code.toUpperCase().includes(filter))return;const eids=(ev.event_dishes||[]).map(d=>d.dish_id);dishes.filter(d=>eids.includes(d.id)).forEach(dish=>{(dish.components||[]).filter(c=>c.freeze_flag||c.fridge_flag).forEach(comp=>{items.push({ev,dish,comp,al:getDishAl(dish)});});});});
+  const filter=(document.getElementById('label-filter').value||'').toUpperCase();
+  const el=document.getElementById('label-body');const items=[];
+  events.forEach(ev=>{
+    if(filter&&!ev.job_code.toUpperCase().includes(filter))return;
+    const eids=(ev.event_dishes||[]).map(d=>d.dish_id);
+    dishes.filter(d=>eids.includes(d.id)).forEach(dish=>{
+      (dish.components||[]).filter(c=>c.freeze_flag||c.fridge_flag).forEach(comp=>{items.push({ev,dish,comp,al:getDishAl(dish)});});
+    });
+  });
   if(!items.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">▤</div><div class="empty-title">No labels in queue</div><div class="empty-sub">Labels appear here for all freezable and fridge components across events</div></div>';return;}
-  el.innerHTML=items.map(item=>`<div class="label-item"><div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);width:120px;">${item.ev.job_code}</div><div class="label-item-info"><div class="label-item-name">${h(item.comp.name)}</div><div class="label-item-meta">${h(item.dish.name)} · ${h(item.ev.client_name)} · ${new Date(item.ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})} · ${item.comp.freeze_flag?'❄ Freeze':'🧊 Fridge'}</div>${item.al.length?`<div style="margin-top:4px">${item.al.map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('')}</div>`:''}</div><button class="btn btn-blue btn-sm" onclick="sendLabel('${item.ev.job_code}','${h(item.comp.name)}','${h(item.dish.name)}','${item.ev.event_date}','${item.al.map(a=>a.allergen).join(',')}')">Print</button></div>`).join('');
+  el.innerHTML=items.map(item=>`<div class="label-item">
+    <div style="font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);width:110px;">${item.ev.job_code}</div>
+    <div class="label-item-info">
+      <div class="label-item-name">${h(item.comp.name)}</div>
+      <div class="label-item-meta">${h(item.dish.name)} · ${h(item.ev.client_name)} · ${new Date(item.ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})} · ${item.comp.freeze_flag?'❄ Freeze':'🧊 Fridge'}</div>
+      ${item.al.length?`<div style="margin-top:3px;">${item.al.map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('')}</div>`:''}
+    </div>
+    <button class="btn btn-blue btn-sm" onclick="sendLabel('${item.ev.job_code}','${h(item.comp.name)}','${h(item.dish.name)}','${item.ev.event_date}','${item.al.map(a=>a.allergen).join(',')}')">Print</button>
+  </div>`).join('');
 }
 
 async function sendLabel(jobCode,compName,dishName,eventDate,allergens){
-  const ngrok=settings.ngrok||'https://palatable-shack-scallion.ngrok-free.dev';
+  const ngrok=settings.ngrok||'';if(!ngrok){showToast('Set ngrok URL in Admin > Settings','error');return;}
   const ub=new Date(new Date(eventDate).getTime()+90*24*60*60*1000);
   const payload={job_code:jobCode,product_name:`${dishName} — ${compName}`,section:'Kitchen Prep',prep_date:new Date().toISOString().split('T')[0],use_by:ub.toISOString().split('T')[0],allergens:allergens?allergens.split(',').filter(Boolean):[],notes:`Component: ${compName}`,prepared_by:'Kitchen'};
-  try{const r=await fetch(`${ngrok}/print`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});if(r.ok)showToast('Label sent to printer','success');else showToast('Printer error — check Pi connection','error');}catch(e){showToast('Cannot reach printer — check ngrok tunnel','error');}
+  try{
+    const r=await fetch(`${ngrok}/print`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    if(r.ok)showToast('Label sent to printer','success');else showToast('Printer error — check Pi connection','error');
+  }catch(e){showToast('Cannot reach printer — check ngrok tunnel','error');}
 }
 
 function printCompLabel(tid){const t=prepTasks.find(x=>x.id===tid);if(!t)return;sendLabel(t.jobCode,t.comp.name,t.dishName,t.evDate,t.al.map(a=>a.allergen).join(','));}
+
 function printAllLabels(){
   const filter=(document.getElementById('label-filter').value||'').toUpperCase();const items=[];
-  events.forEach(ev=>{if(filter&&!ev.job_code.toUpperCase().includes(filter))return;const eids=(ev.event_dishes||[]).map(d=>d.dish_id);dishes.filter(d=>eids.includes(d.id)).forEach(dish=>{(dish.components||[]).filter(c=>c.freeze_flag||c.fridge_flag).forEach(comp=>{items.push({ev,dish,comp,al:getDishAl(dish)});});});});
+  events.forEach(ev=>{
+    if(filter&&!ev.job_code.toUpperCase().includes(filter))return;
+    const eids=(ev.event_dishes||[]).map(d=>d.dish_id);
+    dishes.filter(d=>eids.includes(d.id)).forEach(dish=>{
+      (dish.components||[]).filter(c=>c.freeze_flag||c.fridge_flag).forEach(comp=>{items.push({ev,dish,comp,al:getDishAl(dish)});});
+    });
+  });
   if(!items.length){showToast('No labels to print','error');return;}
   items.forEach((item,i)=>setTimeout(()=>sendLabel(item.ev.job_code,item.comp.name,item.dish.name,item.ev.event_date,item.al.map(a=>a.allergen).join(',')),i*500));
   showToast(`Sending ${items.length} labels...`,'success');
 }
 
+// ══════════════════════════════════════════════════════
 // STAFF
+// ══════════════════════════════════════════════════════
 async function loadStaff(){const{data}=await sb.from('staff').select('*').order('name');staff=data||[];renderStaff();}
 function renderStaff(){
   const el=document.getElementById('staff-body');
-  if(!staff.length){el.innerHTML='<div class="empty-state" style="padding:24px"><div class="empty-sub">No staff added yet</div></div>';return;}
-  el.innerHTML=staff.map(s=>`<div class="staff-card"><div class="staff-avatar">${s.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${h(s.name)}</div><div style="font-size:11px;color:var(--text3)">${s.role} · PIN: ${s.pin}</div></div><span class="badge ${s.active?'badge-green':'badge-gray'}">${s.active?'Active':'Inactive'}</span><button class="btn btn-ghost btn-sm" onclick="editStaff('${s.id}')">Edit</button></div>`).join('');
+  if(!staff.length){el.innerHTML='<div class="empty-state" style="padding:20px;"><div class="empty-sub">No staff yet</div></div>';return;}
+  el.innerHTML=staff.map(s=>`<div class="staff-row">
+    <div class="staff-avatar">${s.name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase()}</div>
+    <div style="flex:1;"><div style="font-size:13px;font-weight:500;">${h(s.name)}</div><div style="font-size:11px;color:var(--text3);">${s.role} · PIN: ${s.pin}</div></div>
+    <span class="badge ${s.active?'badge-green':'badge-gray'}">${s.active?'Active':'Inactive'}</span>
+    <button class="btn btn-ghost btn-sm" onclick="editStaff('${s.id}')">Edit</button>
+  </div>`).join('');
 }
-
 function openStaffModal(){document.getElementById('staff-id').value='';document.getElementById('staff-modal-title').textContent='Add staff';document.getElementById('staff-name').value='';document.getElementById('staff-pin').value='';document.getElementById('staff-role').value='Chef';document.getElementById('staff-del-btn').style.display='none';document.getElementById('staff-modal').classList.add('open');}
 function editStaff(id){const s=staff.find(x=>x.id===id);if(!s)return;document.getElementById('staff-id').value=s.id;document.getElementById('staff-modal-title').textContent='Edit staff';document.getElementById('staff-name').value=s.name;document.getElementById('staff-pin').value=s.pin;document.getElementById('staff-role').value=s.role;document.getElementById('staff-del-btn').style.display='inline-flex';document.getElementById('staff-modal').classList.add('open');}
-async function saveStaff(){const name=document.getElementById('staff-name').value.trim();const pin=document.getElementById('staff-pin').value.trim();if(!name||!pin){showToast('Name and PIN required','error');return;}if(pin.length!==4||!/^\d+$/.test(pin)){showToast('PIN must be 4 digits','error');return;}const id=document.getElementById('staff-id').value;const data={name,pin,role:document.getElementById('staff-role').value,active:true};if(id)await sb.from('staff').update(data).eq('id',id);else await sb.from('staff').insert(data);showToast(id?'Staff updated':'Staff added','success');closeModal('staff-modal');await loadStaff();}
+async function saveStaff(){const name=document.getElementById('staff-name').value.trim();const pin=document.getElementById('staff-pin').value.trim();if(!name||!pin){showToast('Name and PIN required','error');return;}if(pin.length!==4||!/^\d+$/.test(pin)){showToast('PIN must be 4 digits','error');return;}const id=document.getElementById('staff-id').value;const data={name,pin,role:document.getElementById('staff-role').value,active:true};if(id)await sb.from('staff').update(data).eq('id',id);else await sb.from('staff').insert(data);showToast(id?'Updated':'Added','success');closeModal('staff-modal');await loadStaff();}
 async function deleteStaff(){const id=document.getElementById('staff-id').value;if(!id||!confirm('Delete?'))return;await sb.from('staff').delete().eq('id',id);showToast('Deleted','success');closeModal('staff-modal');await loadStaff();}
 
+// ══════════════════════════════════════════════════════
 // CPS SYNC
+// ══════════════════════════════════════════════════════
 async function syncToCPS(){
   const log=document.getElementById('sync-log');if(!settings.cpsUrl||!settings.cpsKey){showToast('Set CPS URL and key in settings first','error');return;}
-  log.textContent='Pushing to CPS...';let pushed=0,failed=0;
-  for(const dish of dishes){const payload={name:dish.name,food_category:dish.category,menu_type:(dish.menu_type||[])[0]||'Bespoke',shelf_life:48,allergens:getDishAl(dish).reduce((acc,a)=>{acc[a.allergen.toLowerCase()]=a.status==='Contains'?'contains':'may_contain';return acc;},{})};try{const r=await fetch(`${settings.cpsUrl}/rest/v1/products`,{method:'POST',headers:{'apikey':settings.cpsKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(payload)});if(r.ok||r.status===201)pushed++;else failed++;}catch(e){failed++;}}
+  log.textContent='Pushing...';let pushed=0,failed=0;
+  for(const dish of dishes){
+    const payload={name:dish.name,food_category:dish.category,menu_type:(dish.menu_type||[])[0]||'Bespoke',shelf_life:48,allergens:getDishAl(dish).reduce((acc,a)=>{acc[a.allergen.toLowerCase()]=a.status==='Contains'?'contains':'may_contain';return acc;},{})};
+    try{const r=await fetch(`${settings.cpsUrl}/rest/v1/products`,{method:'POST',headers:{'apikey':settings.cpsKey,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify(payload)});if(r.ok||r.status===201)pushed++;else failed++;}catch(e){failed++;}
+  }
   log.textContent=`Done: ${pushed} pushed, ${failed} failed.`;showToast(`CPS sync: ${pushed} dishes pushed`,'success');
 }
 
+// ══════════════════════════════════════════════════════
 // BACKUP
+// ══════════════════════════════════════════════════════
 function exportBackup(){const data={dishes,events,staff,exported:new Date().toISOString()};const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`digbys-backup-${new Date().toISOString().split('T')[0]}.json`;a.click();URL.revokeObjectURL(url);showToast('Backup exported','success');}
 
+// ══════════════════════════════════════════════════════
 // UTILS
+// ══════════════════════════════════════════════════════
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3200);}
 function h(str){return(str||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
+// ══════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════
 init();
 </script>
 </body>
