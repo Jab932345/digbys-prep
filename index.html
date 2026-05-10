@@ -1548,10 +1548,10 @@ async function loadDishes(){
   console.log('[Digbys] Loaded',data?.length,'dishes');
   dishes=data||[];
   const frz=dishes.reduce((a,d)=>a+(d.components||[]).filter(c=>c.freeze_flag).length,0);
-  document.getElementById('s-dishes').textContent=dishes.length;
-  document.getElementById('s-dishes-sub').textContent=dishes.filter(d=>d.locked).length+' locked';
-  document.getElementById('s-comps').textContent=dishes.reduce((a,d)=>a+(d.components||[]).length,0);
-  document.getElementById('s-comps-sub').textContent=frz+' freezable';
+  const _sd=document.getElementById('s-dishes');if(_sd)_sd.textContent=dishes.length;
+  const _sds=document.getElementById('s-dishes-sub');if(_sds)_sds.textContent=dishes.filter(d=>d.locked).length+' locked';
+  const _sc=document.getElementById('s-comps');if(_sc)_sc.textContent=dishes.reduce((a,d)=>a+(d.components||[]).length,0);
+  const _scs=document.getElementById('s-comps-sub');if(_scs)_scs.textContent=frz+' freezable';
   renderMenu();renderDashDishes();renderFsDishGrid();populatePrepSel();populateAlEvSel();renderAllergenMatrix();renderLabelQueue();
 }
 
@@ -1690,8 +1690,8 @@ async function loadEvents(){
   console.log('[Digbys] Loaded',data?.length,'events');
   events=data||[];
   const up=events.filter(e=>new Date(e.event_date)>=new Date()&&e.status==='Confirmed');
-  document.getElementById('s-events').textContent=events.filter(e=>new Date(e.event_date)>=new Date()).length;
-  const thisMonth=events.filter(e=>{const d=new Date(e.event_date);const n=new Date();return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&e.status==='Confirmed';});document.getElementById('s-covers').textContent=thisMonth.reduce((a,e)=>a+(e.covers||0),0)||'—';
+  const _sev=document.getElementById('s-events');if(_sev)_sev.textContent=events.filter(e=>new Date(e.event_date)>=new Date()).length;
+  const thisMonth=events.filter(e=>{const d=new Date(e.event_date);const n=new Date();return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&e.status==='Confirmed';});const _sc2=document.getElementById('s-covers');if(_sc2)_sc2.textContent=thisMonth.reduce((a,e)=>a+(e.covers||0),0)||'—';
   renderEventsList();populatePrepSel();populateAlEvSel();renderLabelQueue();
 }
 
@@ -2528,7 +2528,7 @@ let stockItems=[], stockFilter='all';
 async function loadStock(){
   const{data,error}=await sb.from('prepped_stock').select('*').order('created_at',{ascending:false});
   if(error){console.error('[Digbys] loadStock:',error.message);return;}
-  stockItems=data||[];renderStock();if(document.getElementById('s-stock'))document.getElementById('s-stock').textContent=stockItems.filter(s=>s.status==='available').length;renderDashBoard();document.getElementById('s-stock').textContent=stockItems.filter(s=>s.status==='available').length;renderDashBoard();
+  stockItems=data||[];renderStock();const _ss=document.getElementById('s-stock');if(_ss)_ss.textContent=stockItems.filter(s=>s.status==='available').length;renderDashBoard();
 }
 
 function renderStock(){
