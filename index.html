@@ -679,12 +679,14 @@ tbody td{padding:11px 14px;vertical-align:middle;}
 /* ══════════════════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════════════════ */
+.dash-grid{grid-template-columns:1fr 1fr;}
 @media (max-width: 900px) {
   .sidebar{display:none;}
   .bottom-nav{display:block;}
   .main{margin-left:0;padding-bottom:var(--bottombar-h);}
   .content{padding:14px 16px;}
   .stats-grid{grid-template-columns:repeat(2,1fr);gap:10px;}
+  .dash-grid{grid-template-columns:1fr !important;}
   .form-grid-2,.form-grid-3,.form-grid-4{grid-template-columns:1fr;}
   .fs-body{grid-template-columns:1fr;}
   .fs-col{border-right:none;border-bottom:1px solid var(--border);}
@@ -846,7 +848,7 @@ tbody td{padding:11px 14px;vertical-align:middle;}
       <div class="stat-card"><div class="stat-label">Stock items</div><div class="stat-val" id="s-stock">—</div><div class="stat-sub">In freezer / fridge</div></div>
     </div>
     <!-- Two columns -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;" class="dash-grid">
       <div>
         <div class="card">
           <div class="card-header">
@@ -871,7 +873,7 @@ tbody td{padding:11px 14px;vertical-align:middle;}
           <div class="card-header">
             <div><div class="card-title">Quick access</div></div>
           </div>
-          <div class="card-body" style="padding:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div class="card-body" style="padding:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
             <button class="btn" style="height:56px;flex-direction:column;gap:4px;font-size:12px;" onclick="nav('prep',null)"><span style="font-size:18px;">✓</span>Prep lists</button>
             <button class="btn" style="height:56px;flex-direction:column;gap:4px;font-size:12px;" onclick="nav('packup',null)"><span style="font-size:18px;">↗</span>Pack-up</button>
             <button class="btn" style="height:56px;flex-direction:column;gap:4px;font-size:12px;" onclick="nav('orders',null)"><span style="font-size:18px;">◎</span>Orders</button>
@@ -1581,7 +1583,7 @@ function renderMenu(){
 }
 
 function renderDashDishes(){
-  const body=document.getElementById('dash-dish-body');const r=dishes.slice(0,5);
+  const body=document.getElementById('dash-dish-body');if(!body)return;const r=dishes.slice(0,5);
   if(!r.length){body.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No dishes yet</td></tr>`;return;}
   body.innerHTML=r.map(d=>{const al=getDishAl(d);return`<tr>
     <td><div style="font-weight:500;">${h(d.name)}</div></td>
@@ -1690,7 +1692,7 @@ async function loadEvents(){
   const up=events.filter(e=>new Date(e.event_date)>=new Date()&&e.status==='Confirmed');
   document.getElementById('s-events').textContent=events.filter(e=>new Date(e.event_date)>=new Date()).length;
   const thisMonth=events.filter(e=>{const d=new Date(e.event_date);const n=new Date();return d.getFullYear()===n.getFullYear()&&d.getMonth()===n.getMonth()&&e.status==='Confirmed';});document.getElementById('s-covers').textContent=thisMonth.reduce((a,e)=>a+(e.covers||0),0)||'—';
-  renderEventsList();renderDashEvents();populatePrepSel();populateAlEvSel();renderLabelQueue();
+  renderEventsList();populatePrepSel();populateAlEvSel();renderLabelQueue();
 }
 
 function renderEventsList(){
@@ -1790,24 +1792,7 @@ function renderFunctionSheetCard(ev){
   </div>`;
 }
 
-function renderDashEvents(){
-  const body=document.getElementById('dash-ev-body');
-  const up=events.filter(e=>new Date(e.event_date)>=new Date()).slice(0,5);
-  if(!up.length){body.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No upcoming events</td></tr>`;return;}
-  body.innerHTML=up.map(ev=>{
-    const badge=ST_BADGE[ev.status]||'badge-gray';
-    const ds=new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
-    return`<tr>
-      <td class="muted">${ds}</td>
-      <td><div style="font-weight:500;">${h(ev.client_name)}</div></td>
-      <td><span class="badge badge-gray">${EV_TYPES[ev.event_type]||ev.event_type}</span></td>
-      <td class="muted">${ev.venue_name?h(ev.venue_name):(ev.location?h(ev.location):'—')}</td>
-      <td class="muted">${ev.covers}</td>
-      <td><span class="badge ${badge}">${ev.status}</span></td>
-      <td><button class="btn btn-ghost btn-sm" onclick="editFunctionSheet('${ev.id}')">Edit</button></td>
-    </tr>`;
-  }).join('');
-}
+function renderDashEvents(){renderDashBoard();}
 
 function setEvFilter(f,el){evFilter=f;document.querySelectorAll('#page-events .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderEventsList();}
 function goToPrepList(id){document.getElementById('prep-ev-sel').value=id;nav('prep',document.querySelectorAll('.nav-item')[2]);generatePrepList();}
