@@ -364,11 +364,16 @@ td.muted{color:var(--text3);font-size:12px;}
     <div class="nav-label">Events</div>
     <div class="nav-item" onclick="nav('events',this)"><span class="nav-icon">◷</span> Function sheets</div>
     <div class="nav-item" onclick="nav('prep',this)"><span class="nav-icon">✓</span> Prep lists</div>
+    <div class="nav-item" onclick="nav('packup',this)"><span class="nav-icon">📦</span> Pack-up lists</div>
   </div>
   <div class="nav-section">
     <div class="nav-label">Kitchen</div>
     <div class="nav-item" onclick="nav('menu',this)"><span class="nav-icon">≡</span> Menu builder</div>
+    <div class="nav-item" onclick="nav('recipes',this)"><span class="nav-icon">📋</span> Recipes</div>
+    <div class="nav-item" onclick="nav('ingredients',this)"><span class="nav-icon">🥩</span> Ingredients</div>
     <div class="nav-item" onclick="nav('production',this)"><span class="nav-icon">❄</span> Production runs</div>
+    <div class="nav-item" onclick="nav('stock',this)"><span class="nav-icon">📦</span> Stock</div>
+    <div class="nav-item" onclick="nav('orders',this)"><span class="nav-icon">🛒</span> Orders</div>
   </div>
   <div class="nav-section">
     <div class="nav-label">Compliance</div>
@@ -377,6 +382,7 @@ td.muted{color:var(--text3);font-size:12px;}
   </div>
   <div class="nav-section">
     <div class="nav-label">System</div>
+    <div class="nav-item" onclick="nav('scan',this)"><span class="nav-icon">⬡</span> QR scanner</div>
     <div class="nav-item" onclick="nav('admin',this)"><span class="nav-icon">⚙</span> Admin</div>
   </div>
   <div class="sidebar-footer"><div class="conn-status"><div class="conn-dot" id="conn-dot"></div><span id="conn-label">Connecting...</span></div></div>
@@ -494,6 +500,219 @@ td.muted{color:var(--text3);font-size:12px;}
       <div class="filter-chip" onclick="setDishFilter('Stock',this)">Stock</div>
     </div>
     <div class="card"><div class="card-body"><table><thead><tr><th>Dish</th><th>Category</th><th>Components</th><th>Freezable</th><th>Allergens</th><th>Status</th><th></th></tr></thead><tbody id="menu-body"><tr><td colspan="7"><div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;"><span class="spinner"></span>Loading...</div></td></tr></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ══ RECIPES ══ -->
+<div id="page-recipes" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="topbar-title">Recipes</div><div class="topbar-sub">Full recipes linked to dishes — ingredients, method, service</div></div>
+    <div class="topbar-actions">
+      <select class="form-select" id="recipe-dish-filter" style="width:200px;font-size:12px;padding:6px 10px;" onchange="renderRecipeList()"><option value="">All dishes</option></select>
+    </div>
+  </div>
+  <div class="content" id="recipe-list-content">
+    <div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">Loading recipes...</div></div>
+  </div>
+</div>
+
+<!-- ══ RECIPE DETAIL MODAL ══ -->
+<div class="modal-overlay" id="recipe-modal">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <div><div class="modal-title" id="recipe-modal-title">Recipe</div><div style="font-size:11px;color:var(--text3);margin-top:2px;" id="recipe-modal-sub"></div></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-primary" onclick="saveRecipe()">Save</button>
+        <button class="btn btn-ghost btn-sm" onclick="closeModal('recipe-modal')">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="recipe-id">
+      <input type="hidden" id="recipe-dish-id">
+      <div class="form-grid-3" style="margin-bottom:14px;">
+        <div class="form-row"><label class="form-label">Base portions *</label><input class="form-input" id="recipe-portions" type="number" min="1" value="10"><div class="form-hint">All quantities scale from this</div></div>
+        <div class="form-row"><label class="form-label">Chef notes</label><input class="form-input" id="recipe-chef-notes" type="text" placeholder="Key tips..."></div>
+        <div class="form-row"><label class="form-label">Service notes</label><input class="form-input" id="recipe-service-notes" type="text" placeholder="Plating, finishing..."></div>
+      </div>
+      <div id="recipe-sub-recipes-container"></div>
+      <button class="btn btn-sm" onclick="addSubRecipeBlock()" style="margin-top:10px;">+ Add section</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ INGREDIENTS ══ -->
+<div id="page-ingredients" class="page">
+  <div class="topbar">
+    <div class="topbar-title">Ingredients</div>
+    <div class="topbar-actions">
+      <div class="filter-bar" style="margin:0;">
+        <div class="filter-chip active" onclick="setIngFilter('all',this)">All</div>
+        <div class="filter-chip" onclick="setIngFilter('pantry',this)" style="background:#e8f5ee;color:#1d6b4e;border-color:#8ecaaa;">🏠 Pantry</div>
+        <div class="filter-chip" onclick="setIngFilter('bulk',this)" style="background:#e6eff8;color:#1a4f7a;border-color:#7aaed6;">📦 Bulk order</div>
+        <div class="filter-chip" onclick="setIngFilter('fresh',this)" style="background:#fbf0e0;color:#92510a;border-color:#e8b96a;">🌿 Fresh</div>
+        <div class="filter-chip" onclick="setIngFilter('day_fresh',this)" style="background:#faeaea;color:#8c2020;border-color:#dba0a0;">⚡ Day-fresh</div>
+      </div>
+      <input type="text" class="search-input" id="ing-search" placeholder="Search..." oninput="renderIngredients()">
+      <button class="btn btn-primary btn-sm" onclick="openIngModal()">+ Add ingredient</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card"><div class="card-body"><table><thead><tr><th>Ingredient</th><th>Type</th><th>Unit</th><th>Supplier</th><th>Pack size</th><th>Notes</th><th></th></tr></thead><tbody id="ing-body"><tr><td colspan="7"><div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;"><span class="spinner"></span>Loading...</div></td></tr></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ══ INGREDIENT MODAL ══ -->
+<div class="modal-overlay" id="ing-modal">
+  <div class="modal" style="width:520px;">
+    <div class="modal-header"><div class="modal-title" id="ing-modal-title">Add ingredient</div><button class="btn btn-ghost btn-sm" onclick="closeModal('ing-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="ing-id">
+      <div class="form-row"><label class="form-label">Name *</label><input class="form-input" id="ing-name" type="text" placeholder="e.g. Duck legs"></div>
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label class="form-label">Type *</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;">
+            <div class="ing-type-btn" data-type="pantry" onclick="selectIngType('pantry')" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;">
+              <div style="font-size:16px;">🏠</div><div style="font-size:11px;font-weight:600;margin-top:3px;">Pantry</div>
+              <div style="font-size:10px;color:var(--text3);">Always in stock</div>
+            </div>
+            <div class="ing-type-btn" data-type="bulk" onclick="selectIngType('bulk')" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;">
+              <div style="font-size:16px;">📦</div><div style="font-size:11px;font-weight:600;margin-top:3px;">Bulk order</div>
+              <div style="font-size:10px;color:var(--text3);">Weeks ahead</div>
+            </div>
+            <div class="ing-type-btn" data-type="fresh" onclick="selectIngType('fresh')" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;">
+              <div style="font-size:16px;">🌿</div><div style="font-size:11px;font-weight:600;margin-top:3px;">Fresh</div>
+              <div style="font-size:10px;color:var(--text3);">Production day</div>
+            </div>
+            <div class="ing-type-btn" data-type="day_fresh" onclick="selectIngType('day_fresh')" style="padding:10px;border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;text-align:center;">
+              <div style="font-size:16px;">⚡</div><div style="font-size:11px;font-weight:600;margin-top:3px;">Day-fresh</div>
+              <div style="font-size:10px;color:var(--text3);">Event day only</div>
+            </div>
+          </div>
+          <input type="hidden" id="ing-type" value="fresh">
+        </div>
+        <div>
+          <div class="form-row"><label class="form-label">Default unit</label><input class="form-input" id="ing-unit" type="text" placeholder="kg, g, litre, bunch, each"></div>
+          <div class="form-row"><label class="form-label">Supplier</label><input class="form-input" id="ing-supplier" type="text" placeholder="e.g. Bidfood, Total Produce"></div>
+          <div class="form-row"><label class="form-label">Pack size</label><input class="form-input" id="ing-pack" type="text" placeholder="e.g. 10kg bag, 24 pack"></div>
+        </div>
+      </div>
+      <div class="form-row"><label class="form-label">Notes</label><textarea class="form-textarea" id="ing-notes" placeholder="Storage notes, lead times, alternatives..." style="min-height:52px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="ing-del-btn" onclick="deleteIngredient()" style="display:none;margin-right:auto;">Delete</button>
+      <button class="btn" onclick="closeModal('ing-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveIngredient()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ STOCK ══ -->
+<div id="page-stock" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="topbar-title">Prepped stock</div><div class="topbar-sub">All prepped items in the freezer and fridge</div></div>
+    <div class="topbar-actions">
+      <div class="filter-bar" style="margin:0;">
+        <div class="filter-chip active" onclick="setStockFilter('all',this)">All</div>
+        <div class="filter-chip" onclick="setStockFilter('available',this)">Available</div>
+        <div class="filter-chip" onclick="setStockFilter('assigned',this)">Assigned</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openStockModal()">+ Log prepped item</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="card"><div class="card-body" id="stock-body"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">Loading stock...</div></div></div></div>
+  </div>
+</div>
+
+<!-- ══ STOCK MODAL ══ -->
+<div class="modal-overlay" id="stock-modal">
+  <div class="modal" style="width:520px;">
+    <div class="modal-header"><div class="modal-title" id="stock-modal-title">Log prepped item</div><button class="btn btn-ghost btn-sm" onclick="closeModal('stock-modal')">✕</button></div>
+    <div class="modal-body">
+      <input type="hidden" id="stock-id">
+      <div class="form-grid-2">
+        <div class="form-row"><label class="form-label">Component *</label><select class="form-select" id="stock-component"></select></div>
+        <div class="form-row"><label class="form-label">Dish</label><select class="form-select" id="stock-dish"></select></div>
+      </div>
+      <div class="form-grid-3">
+        <div class="form-row"><label class="form-label">Quantity *</label><input class="form-input" id="stock-qty" type="number" min="0" step="0.1" placeholder="0"></div>
+        <div class="form-row"><label class="form-label">Unit</label><input class="form-input" id="stock-unit" type="text" placeholder="portions, kg..."></div>
+        <div class="form-row"><label class="form-label">Prepped by</label><input class="form-input" id="stock-by" type="text" placeholder="Chef name"></div>
+      </div>
+      <div class="form-grid-2">
+        <div class="form-row"><label class="form-label">Use-by date</label><input class="form-input" id="stock-useby" type="date"></div>
+        <div class="form-row"><label class="form-label">Assign to event</label><select class="form-select" id="stock-event"><option value="">— Unassigned stock —</option></select></div>
+      </div>
+      <div class="form-row"><label class="form-label">Box code / label</label><input class="form-input" id="stock-box" type="text" placeholder="e.g. BOX-001 or auto-generated"><div class="form-hint">Used for QR scanning — leave blank to auto-generate</div></div>
+      <div class="form-row"><label class="form-label">Notes</label><textarea class="form-textarea" id="stock-notes" placeholder="Any notes..." style="min-height:48px;"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="stock-del-btn" onclick="deleteStock()" style="display:none;margin-right:auto;">Delete</button>
+      <button class="btn" onclick="closeModal('stock-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStock()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ORDERS ══ -->
+<div id="page-orders" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="topbar-title">Orders</div><div class="topbar-sub">Auto-generated from production runs — review and print</div></div>
+    <div class="topbar-actions">
+      <select class="form-select" id="order-ev-sel" style="width:220px;font-size:12px;padding:6px 10px;" onchange="generateOrderList()"><option value="">— Select event or run —</option></select>
+      <button class="btn btn-sm" onclick="window.print()">🖨 Print order</button>
+    </div>
+  </div>
+  <div class="content">
+    <div id="order-body"><div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Select an event above</div><div class="empty-sub">Generates a grouped order list from recipe ingredients</div></div></div></div></div>
+  </div>
+</div>
+
+<!-- ══ PACK-UP LISTS ══ -->
+<div id="page-packup" class="page">
+  <div class="topbar">
+    <div class="topbar-left"><div class="topbar-title">Pack-up list</div><div class="topbar-sub">Everything that needs to go in the van</div></div>
+    <div class="topbar-actions">
+      <select class="form-select" id="packup-ev-sel" style="width:220px;font-size:12px;padding:6px 10px;" onchange="generatePackupList()"><option value="">— Select event —</option></select>
+      <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
+    </div>
+  </div>
+  <div class="content">
+    <div id="packup-body"><div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">Select an event above</div><div class="empty-sub">Auto-generates from the function sheet and prepped stock</div></div></div></div></div>
+  </div>
+</div>
+
+<!-- ══ QR SCANNER ══ -->
+<div id="page-scan" class="page">
+  <div class="topbar"><div class="topbar-title">QR scanner</div></div>
+  <div class="content">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Scan a box</div></div>
+        <div class="card-body" style="padding:20px;">
+          <p style="font-size:12px;color:var(--text2);margin-bottom:14px;">Scan a QR code on a box or label to pull up the prepped stock entry — add or remove items from jobs without navigating menus.</p>
+          <div id="qr-reader" style="width:100%;max-width:400px;"></div>
+          <div id="qr-result" style="margin-top:16px;"></div>
+          <div style="margin-top:12px;">
+            <label class="form-label">Or enter box code manually</label>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <input class="form-input" id="qr-manual" type="text" placeholder="e.g. BOX-001 or job code">
+              <button class="btn btn-primary btn-sm" onclick="lookupBoxCode()">Look up</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Generate QR codes</div></div>
+        <div class="card-body" style="padding:20px;">
+          <p style="font-size:12px;color:var(--text2);margin-bottom:14px;">Generate a QR code for any box or job code to stick on a gastro box or print as a label.</p>
+          <div class="form-row"><label class="form-label">Job code or box code</label><input class="form-input" id="qr-gen-input" type="text" placeholder="e.g. DF100626WED or BOX-001"></div>
+          <button class="btn btn-primary btn-sm" onclick="generateQR()">Generate QR</button>
+          <div id="qr-output" style="margin-top:16px;text-align:center;"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -808,6 +1027,11 @@ async function init(){
   try{await loadDishes();}catch(e){console.error('[Digbys] loadDishes failed:',e);showToast('Error loading dishes: '+e.message,'error');}
   try{await loadEvents();}catch(e){console.error('[Digbys] loadEvents failed:',e);showToast('Error loading events: '+e.message,'error');}
   try{await loadStaff();}catch(e){console.error('[Digbys] loadStaff failed:',e);}
+  try{await loadIngredients();}catch(e){console.error('[Digbys] loadIngredients failed:',e);}
+  try{await loadStock();}catch(e){console.error('[Digbys] loadStock failed:',e);}
+  try{await loadRecipes();}catch(e){console.error('[Digbys] loadRecipes failed:',e);}
+  populateOrderEvSel();
+  populatePackupEvSel();
 }
 
 function loadSettings(){
@@ -1632,6 +1856,423 @@ function showToast(msg,type='success'){const t=document.getElementById('toast');
 function h(str){return(str||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // ══════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════
+// RECIPES
+// ══════════════════════════════════════════════════════
+let recipes_data=[], ingFilter='all', selectedIngType='fresh';
+
+async function loadRecipes(){
+  const{data,error}=await sb.from('recipes').select('*, recipe_sub_recipes(*, recipe_ingredients(*), recipe_steps(*))').order('created_at');
+  if(error){console.error('[Digbys] loadRecipes:',error.message);return;}
+  recipes_data=data||[];
+  renderRecipeList();
+  const sel=document.getElementById('recipe-dish-filter');
+  if(sel) sel.innerHTML='<option value="">All dishes</option>'+dishes.map(d=>`<option value="${d.id}">${h(d.name)}</option>`).join('');
+}
+
+function renderRecipeList(){
+  const el=document.getElementById('recipe-list-content');if(!el)return;
+  const filter=document.getElementById('recipe-dish-filter').value;
+  const sortedDishes=[...dishes].sort((a,b)=>{const ai=CAT_ORDER.indexOf(a.category),bi=CAT_ORDER.indexOf(b.category);return ai!==bi?ai-bi:a.name.localeCompare(b.name);}).filter(d=>!filter||d.id===filter);
+  if(!sortedDishes.length){el.innerHTML='<div class="empty-state"><div class="empty-title">No dishes yet</div></div>';return;}
+  el.innerHTML=sortedDishes.map(dish=>{
+    const recipe=recipes_data.find(r=>r.dish_id===dish.id);
+    const subs=recipe?(recipe.recipe_sub_recipes||[]).sort((a,b)=>a.sort_order-b.sort_order):[];
+    const ingCount=subs.reduce((a,s)=>a+(s.recipe_ingredients||[]).length,0);
+    const stepCount=subs.reduce((a,s)=>a+(s.recipe_steps||[]).length,0);
+    return`<div class="card" style="margin-bottom:12px;">
+      <div class="card-header">
+        <div><div class="card-title">${h(dish.name)}</div><div style="font-size:11px;color:var(--text3);margin-top:2px;">${dish.category}${dish.station?' · '+dish.station:''}</div></div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          ${recipe?`<span class="badge badge-green">Recipe added</span><span style="font-size:11px;color:var(--text3);">${subs.length} sections · ${ingCount} ings · ${stepCount} steps</span>`:'<span class="badge badge-amber">No recipe yet</span>'}
+          <button class="btn btn-sm btn-primary" onclick="openRecipeModal('${dish.id}')">${recipe?'Edit':'Add recipe'}</button>
+        </div>
+      </div>
+      ${recipe&&subs.length?`<div class="card-body" style="padding:14px 18px;"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;">
+        ${subs.map(s=>`<div style="padding:10px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border);">
+          <div style="font-size:12px;font-weight:600;margin-bottom:6px;">${h(s.name)}</div>
+          ${(s.recipe_ingredients||[]).map(i=>`<div style="font-size:11px;color:var(--text2);padding:2px 0;border-bottom:1px dotted var(--border);display:flex;justify-content:space-between;"><span>${h(i.ingredient_name||i.name||'')}</span><span style="color:var(--text3);font-family:'DM Mono',monospace;">${i.quantity||i.qty||''}${i.unit?' '+i.unit:''}</span></div>`).join('')}
+        </div>`).join('')}
+      </div></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function openRecipeModal(dishId){
+  const dish=dishes.find(d=>d.id===dishId);if(!dish)return;
+  document.getElementById('recipe-dish-id').value=dishId;
+  document.getElementById('recipe-modal-title').textContent=dish.name;
+  document.getElementById('recipe-modal-sub').textContent=dish.category+(dish.station?' · '+dish.station:'');
+  const recipe=recipes_data.find(r=>r.dish_id===dishId);
+  document.getElementById('recipe-id').value=recipe?recipe.id:'';
+  document.getElementById('recipe-portions').value=recipe?recipe.base_portions:10;
+  document.getElementById('recipe-chef-notes').value=recipe?recipe.chef_notes||'':'';
+  document.getElementById('recipe-service-notes').value=recipe?recipe.service_notes||'':'';
+  const container=document.getElementById('recipe-sub-recipes-container');
+  container.innerHTML='';
+  const subs=recipe?(recipe.recipe_sub_recipes||[]).sort((a,b)=>a.sort_order-b.sort_order):[];
+  if(subs.length){subs.forEach(s=>addSubRecipeBlock(s));}else{addSubRecipeBlock();}
+  document.getElementById('recipe-modal').classList.add('open');
+}
+
+function addSubRecipeBlock(sub=null){
+  const container=document.getElementById('recipe-sub-recipes-container');
+  const div=document.createElement('div');
+  div.className='recipe-sub-block';
+  div.style.cssText='border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:14px;overflow:hidden;';
+  div.dataset.subId=sub?sub.id:'';
+  const ings=sub?(sub.recipe_ingredients||[]).sort((a,b)=>a.sort_order-b.sort_order):[];
+  const steps=sub?(sub.recipe_steps||[]).sort((a,b)=>a.step_number-b.step_number):[];
+  div.innerHTML=`<div style="background:var(--bg2);padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);">
+      <input type="text" placeholder="Section name (e.g. Confit Duck Legs...)" value="${sub?h(sub.name):''}" style="flex:1;font-size:13px;font-weight:600;border:none;background:transparent;outline:none;font-family:'DM Sans',sans-serif;" class="sub-name">
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);cursor:pointer;"><input type="checkbox" class="sub-freeze" ${sub&&sub.freeze_flag?'checked':''}> Freeze</label>
+      <label style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);cursor:pointer;"><input type="checkbox" class="sub-fridge" ${sub&&sub.fridge_flag?'checked':''}> Fridge</label>
+      <button onclick="this.closest('.recipe-sub-block').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;">×</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+      <div style="padding:12px 14px;border-right:1px solid var(--border);">
+        <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-family:'DM Mono',monospace;margin-bottom:8px;">Ingredients</div>
+        <div class="sub-ing-list">${ings.map(i=>ingRowHTML(i)).join('')}</div>
+        <button onclick="this.closest('div').querySelector('.sub-ing-list').insertAdjacentHTML('beforeend',ingRowHTML())" style="font-size:11px;color:var(--green);background:none;border:none;cursor:pointer;margin-top:6px;">+ Add ingredient</button>
+      </div>
+      <div style="padding:12px 14px;">
+        <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-family:'DM Mono',monospace;margin-bottom:8px;">Method</div>
+        <div class="sub-step-list">${steps.map((s,i)=>stepRowHTML(s,i+1)).join('')}</div>
+        <button onclick="(function(btn){const list=btn.closest('div').querySelector('.sub-step-list');list.insertAdjacentHTML('beforeend',stepRowHTML(null,list.children.length+1));})(this)" style="font-size:11px;color:var(--green);background:none;border:none;cursor:pointer;margin-top:6px;">+ Add step</button>
+      </div>
+    </div>`;
+  container.appendChild(div);
+}
+
+function ingRowHTML(i=null){
+  return`<div class="ing-row" style="display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:4px;margin-bottom:5px;align-items:center;">
+    <input type="text" class="ir-name" placeholder="Ingredient" value="${i?h(i.ingredient_name||i.name||''):''}" style="font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
+    <input type="number" class="ir-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" style="font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:var(--radius);">
+    <input type="text" class="ir-unit" placeholder="unit" value="${i?h(i.unit||''):''}" style="font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:var(--radius);">
+    <button onclick="this.closest('.ing-row').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;">×</button>
+  </div>`;
+}
+
+function stepRowHTML(s=null,num=1){
+  return`<div class="step-row" style="display:flex;gap:6px;margin-bottom:6px;align-items:flex-start;">
+    <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:6px;min-width:16px;">${num}.</span>
+    <textarea class="sr-instruction" placeholder="Step instruction..." style="flex:1;font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);resize:vertical;min-height:40px;font-family:'DM Sans',sans-serif;">${s?h(s.instruction):''}</textarea>
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      <input type="text" class="sr-time" placeholder="Time" value="${s?h(s.time_note||''):''}" style="width:68px;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);">
+      <input type="text" class="sr-temp" placeholder="Temp" value="${s?h(s.temp_note||''):''}" style="width:68px;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);">
+    </div>
+    <button onclick="this.closest('.step-row').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;margin-top:4px;">×</button>
+  </div>`;
+}
+
+async function saveRecipe(){
+  const dishId=document.getElementById('recipe-dish-id').value;
+  const recipeId=document.getElementById('recipe-id').value;
+  const portions=parseInt(document.getElementById('recipe-portions').value)||10;
+  const chefNotes=document.getElementById('recipe-chef-notes').value.trim();
+  const serviceNotes=document.getElementById('recipe-service-notes').value.trim();
+  try{
+    let rid=recipeId;
+    if(recipeId){await sb.from('recipes').update({base_portions:portions,chef_notes:chefNotes||null,service_notes:serviceNotes||null,updated_at:new Date().toISOString()}).eq('id',recipeId);}
+    else{const{data:nr,error}=await sb.from('recipes').insert({dish_id:dishId,base_portions:portions,chef_notes:chefNotes||null,service_notes:serviceNotes||null}).select().single();if(error)throw error;rid=nr.id;}
+    await sb.from('recipe_sub_recipes').delete().eq('recipe_id',rid);
+    const blocks=document.querySelectorAll('.recipe-sub-block');
+    for(let i=0;i<blocks.length;i++){
+      const block=blocks[i];const name=block.querySelector('.sub-name').value.trim();if(!name)continue;
+      const{data:sub,error:se}=await sb.from('recipe_sub_recipes').insert({recipe_id:rid,name,sort_order:i,freeze_flag:block.querySelector('.sub-freeze').checked,fridge_flag:block.querySelector('.sub-fridge').checked}).select().single();
+      if(se)throw se;
+      const ings=[];block.querySelectorAll('.ing-row').forEach((row,j)=>{const n=row.querySelector('.ir-name').value.trim();if(!n)return;ings.push({sub_recipe_id:sub.id,ingredient_name:n,quantity:parseFloat(row.querySelector('.ir-qty').value)||null,unit:row.querySelector('.ir-unit').value.trim()||null,sort_order:j});});
+      if(ings.length)await sb.from('recipe_ingredients').insert(ings);
+      const steps=[];block.querySelectorAll('.step-row').forEach((row,j)=>{const inst=row.querySelector('.sr-instruction').value.trim();if(!inst)return;steps.push({sub_recipe_id:sub.id,step_number:j+1,instruction:inst,time_note:row.querySelector('.sr-time').value.trim()||null,temp_note:row.querySelector('.sr-temp').value.trim()||null});});
+      if(steps.length)await sb.from('recipe_steps').insert(steps);
+    }
+    showToast('Recipe saved','success');closeModal('recipe-modal');await loadRecipes();
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+
+// ══════════════════════════════════════════════════════
+// INGREDIENTS DB
+// ══════════════════════════════════════════════════════
+let ingredients_data=[];
+
+async function loadIngredients(){
+  const{data,error}=await sb.from('ingredients').select('*').order('name');
+  if(error){console.error('[Digbys] loadIngredients:',error.message);return;}
+  ingredients_data=data||[];
+  renderIngredients();
+}
+
+const ING_TYPE_CONFIG={
+  pantry:{label:'Pantry',icon:'🏠',bg:'#e8f5ee',color:'#1d6b4e',border:'#8ecaaa'},
+  bulk:{label:'Bulk order',icon:'📦',bg:'#e6eff8',color:'#1a4f7a',border:'#7aaed6'},
+  fresh:{label:'Fresh',icon:'🌿',bg:'#fbf0e0',color:'#92510a',border:'#e8b96a'},
+  day_fresh:{label:'Day-fresh',icon:'⚡',bg:'#faeaea',color:'#8c2020',border:'#dba0a0'}
+};
+
+function renderIngredients(){
+  const body=document.getElementById('ing-body');if(!body)return;
+  const q=(document.getElementById('ing-search').value||'').toLowerCase();
+  const f=ingredients_data.filter(i=>(ingFilter==='all'||i.type===ingFilter)&&(!q||i.name.toLowerCase().includes(q)));
+  if(!f.length){body.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-title">No ingredients found</div></div></td></tr>`;return;}
+  body.innerHTML=f.map(i=>{const tc=ING_TYPE_CONFIG[i.type]||ING_TYPE_CONFIG.fresh;return`<tr>
+    <td style="font-weight:500;">${h(i.name)}</td>
+    <td><span style="font-size:11px;padding:3px 9px;border-radius:20px;background:${tc.bg};color:${tc.color};border:1px solid ${tc.border};font-family:'DM Mono',monospace;">${tc.icon} ${tc.label}</span></td>
+    <td class="muted">${i.default_unit||'—'}</td><td class="muted">${i.supplier||'—'}</td>
+    <td class="muted">${i.pack_size||'—'}</td><td class="muted" style="font-size:11px;">${i.notes||'—'}</td>
+    <td><button class="btn btn-ghost btn-sm" onclick="editIngredient('${i.id}')">Edit</button></td>
+  </tr>`;}).join('');
+}
+
+function setIngFilter(f,el){ingFilter=f;document.querySelectorAll('#page-ingredients .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderIngredients();}
+
+function selectIngType(type){
+  selectedIngType=type;document.getElementById('ing-type').value=type;
+  document.querySelectorAll('.ing-type-btn').forEach(btn=>{const tc=ING_TYPE_CONFIG[btn.dataset.type];const sel=btn.dataset.type===type;btn.style.background=sel?tc.bg:'var(--surface)';btn.style.borderColor=sel?tc.border:'var(--border)';btn.style.color=sel?tc.color:'var(--text2)';});
+}
+
+function openIngModal(){
+  document.getElementById('ing-id').value='';document.getElementById('ing-modal-title').textContent='Add ingredient';
+  ['ing-name','ing-unit','ing-supplier','ing-pack','ing-notes'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('ing-del-btn').style.display='none';selectIngType('fresh');
+  document.getElementById('ing-modal').classList.add('open');
+}
+
+function editIngredient(id){
+  const i=ingredients_data.find(x=>x.id===id);if(!i)return;
+  document.getElementById('ing-id').value=i.id;document.getElementById('ing-modal-title').textContent='Edit ingredient';
+  document.getElementById('ing-name').value=i.name;document.getElementById('ing-unit').value=i.default_unit||'';
+  document.getElementById('ing-supplier').value=i.supplier||'';document.getElementById('ing-pack').value=i.pack_size||'';
+  document.getElementById('ing-notes').value=i.notes||'';document.getElementById('ing-del-btn').style.display='inline-flex';
+  selectIngType(i.type||'fresh');document.getElementById('ing-modal').classList.add('open');
+}
+
+async function saveIngredient(){
+  const name=document.getElementById('ing-name').value.trim();if(!name){showToast('Name required','error');return;}
+  const id=document.getElementById('ing-id').value;
+  const data={name,type:document.getElementById('ing-type').value,default_unit:document.getElementById('ing-unit').value.trim()||null,supplier:document.getElementById('ing-supplier').value.trim()||null,pack_size:document.getElementById('ing-pack').value.trim()||null,notes:document.getElementById('ing-notes').value.trim()||null,active:true};
+  if(id)await sb.from('ingredients').update(data).eq('id',id);else await sb.from('ingredients').insert(data);
+  showToast(id?'Updated':'Added','success');closeModal('ing-modal');await loadIngredients();
+}
+
+async function deleteIngredient(){const id=document.getElementById('ing-id').value;if(!id||!confirm('Delete?'))return;await sb.from('ingredients').delete().eq('id',id);showToast('Deleted','success');closeModal('ing-modal');await loadIngredients();}
+
+// ══════════════════════════════════════════════════════
+// STOCK
+// ══════════════════════════════════════════════════════
+let stockItems=[], stockFilter='all';
+
+async function loadStock(){
+  const{data,error}=await sb.from('prepped_stock').select('*').order('created_at',{ascending:false});
+  if(error){console.error('[Digbys] loadStock:',error.message);return;}
+  stockItems=data||[];renderStock();
+}
+
+function renderStock(){
+  const el=document.getElementById('stock-body');if(!el)return;
+  const f=stockItems.filter(s=>stockFilter==='all'||s.status===stockFilter);
+  if(!f.length){el.innerHTML='<div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">No stock logged yet</div><div class="empty-sub">Use Log prepped item when items come out of production</div></div>';return;}
+  const SC={available:'badge-green',assigned:'badge-blue',used:'badge-gray',written_off:'badge-red'};
+  el.innerHTML='<table><thead><tr><th>Component</th><th>Dish</th><th>Qty</th><th>Status</th><th>Job</th><th>Use-by</th><th>Box code</th><th>By</th><th></th></tr></thead><tbody>'+
+  f.map(s=>`<tr><td style="font-weight:500;">${h(s.component_name)}</td><td class="muted">${h(s.dish_name||'—')}</td><td><span class="badge badge-gray">${s.qty} ${s.unit||''}</span></td><td><span class="badge ${SC[s.status]||'badge-gray'}">${s.status}</span></td><td class="muted" style="font-family:'DM Mono',monospace;font-size:11px;">${s.job_code||'—'}</td><td class="muted">${s.use_by_date?new Date(s.use_by_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'—'}</td><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);">${s.box_code||'—'}</td><td class="muted">${s.prepped_by||'—'}</td><td><button class="btn btn-ghost btn-sm" onclick="editStock('${s.id}')">Edit</button></td></tr>`).join('')+
+  '</tbody></table>';
+}
+
+function setStockFilter(f,el){stockFilter=f;document.querySelectorAll('#page-stock .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderStock();}
+
+function openStockModal(){
+  document.getElementById('stock-id').value='';document.getElementById('stock-modal-title').textContent='Log prepped item';
+  ['stock-qty','stock-unit','stock-by','stock-notes','stock-box'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('stock-useby').value='';document.getElementById('stock-del-btn').style.display='none';
+  const allComps=dishes.flatMap(d=>(d.components||[]).map(c=>({...c,dishName:d.name,dishId:d.id})));
+  document.getElementById('stock-component').innerHTML='<option value="">— Select component —</option>'+allComps.map(c=>`<option value="${c.id}" data-dish="${c.dishId}" data-dish-name="${h(c.dishName)}">${h(c.name)} (${h(c.dishName)})</option>`).join('');
+  document.getElementById('stock-dish').innerHTML='<option value="">—</option>'+dishes.map(d=>`<option value="${d.id}">${h(d.name)}</option>`).join('');
+  document.getElementById('stock-event').innerHTML='<option value="">— Unassigned stock —</option>'+events.map(e=>`<option value="${e.id}">${e.job_code} — ${h(e.client_name)}</option>`).join('');
+  document.getElementById('stock-modal').classList.add('open');
+}
+
+function editStock(id){
+  const s=stockItems.find(x=>x.id===id);if(!s)return;
+  openStockModal();
+  document.getElementById('stock-id').value=s.id;document.getElementById('stock-modal-title').textContent='Edit stock';
+  document.getElementById('stock-qty').value=s.qty;document.getElementById('stock-unit').value=s.unit||'';
+  document.getElementById('stock-by').value=s.prepped_by||'';document.getElementById('stock-notes').value=s.notes||'';
+  document.getElementById('stock-box').value=s.box_code||'';
+  if(s.use_by_date)document.getElementById('stock-useby').value=s.use_by_date;
+  document.getElementById('stock-component').value=s.component_id||'';
+  document.getElementById('stock-dish').value=s.dish_id||'';
+  document.getElementById('stock-event').value=s.assigned_event||'';
+  document.getElementById('stock-del-btn').style.display='inline-flex';
+}
+
+async function saveStock(){
+  const qty=parseFloat(document.getElementById('stock-qty').value);if(!qty){showToast('Quantity required','error');return;}
+  const compSel=document.getElementById('stock-component');const compOpt=compSel.selectedOptions[0];const compId=compSel.value||null;
+  const compName=compOpt&&compId?compOpt.text.split(' (')[0]:'Unknown';
+  const evSel=document.getElementById('stock-event');const evId=evSel.value||null;
+  const jobCode=evId&&evSel.selectedOptions[0]?evSel.selectedOptions[0].text.split(' — ')[0]:'';
+  const dishSel=document.getElementById('stock-dish');
+  const boxCode=document.getElementById('stock-box').value.trim()||'BOX-'+Date.now().toString(36).toUpperCase().slice(-6);
+  const id=document.getElementById('stock-id').value;
+  const data={component_id:compId,component_name:compName,dish_id:dishSel.value||null,dish_name:dishSel.selectedOptions[0]?.text||null,qty,unit:document.getElementById('stock-unit').value.trim()||null,status:evId?'assigned':'available',assigned_event:evId,job_code:jobCode||null,box_code:boxCode,use_by_date:document.getElementById('stock-useby').value||null,prepped_by:document.getElementById('stock-by').value.trim()||null,notes:document.getElementById('stock-notes').value.trim()||null};
+  if(id)await sb.from('prepped_stock').update(data).eq('id',id);else await sb.from('prepped_stock').insert(data);
+  showToast(id?'Updated':'Stock logged','success');closeModal('stock-modal');await loadStock();
+}
+
+async function deleteStock(){const id=document.getElementById('stock-id').value;if(!id||!confirm('Delete?'))return;await sb.from('prepped_stock').delete().eq('id',id);showToast('Deleted','success');closeModal('stock-modal');await loadStock();}
+
+// ══════════════════════════════════════════════════════
+// ORDERS
+// ══════════════════════════════════════════════════════
+function populateOrderEvSel(){
+  const sel=document.getElementById('order-ev-sel');if(!sel)return;
+  sel.innerHTML='<option value="">— Select event —</option>'+events.map(e=>`<option value="${e.id}">${e.job_code} — ${h(e.client_name)} (${new Date(e.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})})</option>`).join('');
+}
+
+async function generateOrderList(){
+  const eid=document.getElementById('order-ev-sel').value;const el=document.getElementById('order-body');
+  if(!eid){el.innerHTML='<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">🛒</div><div class="empty-title">Select an event above</div></div></div></div>';return;}
+  const ev=events.find(e=>e.id===eid);if(!ev)return;
+  const buf=1+(settings.buffer||14)/100;const covers=Math.round(ev.covers*buf);
+  const evDishIds=(ev.event_dishes||[]).map(d=>d.dish_id);
+  const evDishes=dishes.filter(d=>evDishIds.includes(d.id));
+  if(!evDishes.length){el.innerHTML='<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-title">No dishes on this event</div></div></div></div>';return;}
+  const{data:recs}=await sb.from('recipes').select('*, recipe_sub_recipes(*, recipe_ingredients(*))').in('dish_id',evDishes.map(d=>d.id));
+  const recByDish={};(recs||[]).forEach(r=>recByDish[r.dish_id]=r);
+  const scaleMap={};
+  evDishes.forEach(dish=>{
+    const recipe=recByDish[dish.id];if(!recipe)return;
+    const scale=covers/recipe.base_portions;
+    (recipe.recipe_sub_recipes||[]).forEach(sub=>{
+      (sub.recipe_ingredients||[]).forEach(ing=>{
+        const name=(ing.ingredient_name||ing.name||'').trim();if(!name)return;
+        const ingObj=ingredients_data.find(i=>i.name.toLowerCase()===name.toLowerCase());
+        const type=ingObj?ingObj.type:'fresh';const qty=ing.quantity||ing.qty||0;
+        const scaled=qty?Math.round(qty*scale*100)/100:null;const key=name.toLowerCase();
+        if(!scaleMap[key])scaleMap[key]={name,qty:0,unit:ing.unit||'',type,dishes:[],ingObj};
+        if(scaled)scaleMap[key].qty+=scaled;
+        if(!scaleMap[key].dishes.includes(dish.name))scaleMap[key].dishes.push(dish.name);
+      });
+    });
+  });
+  const groups={bulk:[],fresh:[],day_fresh:[],pantry:[]};
+  Object.values(scaleMap).forEach(item=>{(groups[item.type]=groups[item.type]||[]).push(item);});
+  Object.keys(groups).forEach(k=>groups[k].sort((a,b)=>a.name.localeCompare(b.name)));
+  const TC={bulk:{label:'Bulk order',icon:'📦',sub:'Order weeks ahead',color:'#1a4f7a',bg:'#e6eff8',border:'#7aaed6'},fresh:{label:'Fresh — production day',icon:'🌿',sub:'Order for cooking day',color:'#92510a',bg:'#fbf0e0',border:'#e8b96a'},day_fresh:{label:'Day-fresh — event day',icon:'⚡',sub:'Order close to event',color:'#8c2020',bg:'#faeaea',border:'#dba0a0'},pantry:{label:'Pantry staples',icon:'🏠',sub:'Check stock levels only',color:'#1d6b4e',bg:'#e8f5ee',border:'#8ecaaa'}};
+  let html=`<div style="background:var(--text1);border-radius:var(--radius-lg);padding:16px 22px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+    <div><div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;">${h(ev.client_name)} — Order list</div>
+    <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;font-family:'DM Mono',monospace;">${ev.job_code} · ${new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})} · ${ev.covers} covers (${settings.buffer||14}% buffer = ${covers})</div></div>
+    <button class="btn btn-sm" onclick="window.print()" style="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;">🖨 Print</button>
+  </div>`;
+  ['bulk','fresh','day_fresh','pantry'].forEach(type=>{
+    const items=groups[type]||[];if(!items.length)return;const tc=TC[type];
+    html+=`<div class="card" style="margin-bottom:14px;"><div class="card-header" style="background:${tc.bg};border-top:2px solid ${tc.border};">
+      <div><div class="card-title" style="color:${tc.color};">${tc.icon} ${tc.label}</div><div style="font-size:11px;color:${tc.color};opacity:.7;margin-top:1px;">${tc.sub}</div></div>
+      <span style="font-size:11px;font-family:'DM Mono',monospace;color:${tc.color};">${items.length} item${items.length!==1?'s':''}</span></div>
+    <div class="card-body"><table><thead><tr><th>Ingredient</th><th>Qty needed</th><th>Unit</th><th>Supplier</th><th>Pack size</th><th>Used in</th></tr></thead><tbody>
+    ${items.map(item=>`<tr><td style="font-weight:500;">${h(item.name)}</td><td><span class="badge badge-gray">${item.qty||'—'}</span></td><td class="muted">${item.unit||'—'}</td><td class="muted">${item.ingObj?item.ingObj.supplier||'—':'—'}</td><td class="muted">${item.ingObj?item.ingObj.pack_size||'—':'—'}</td><td class="muted" style="font-size:11px;">${item.dishes.join(', ')}</td></tr>`).join('')}
+    </tbody></table></div></div>`;
+  });
+  if(!Object.values(groups).some(g=>g.length))html+='<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-title">No recipe ingredients found</div><div class="empty-sub">Add full recipes to dishes on this event to generate an order list</div></div></div></div>';
+  el.innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════
+// PACK-UP LISTS
+// ══════════════════════════════════════════════════════
+function populatePackupEvSel(){
+  const sel=document.getElementById('packup-ev-sel');if(!sel)return;
+  sel.innerHTML='<option value="">— Select event —</option>'+events.map(e=>`<option value="${e.id}">${e.job_code} — ${h(e.client_name)} (${new Date(e.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'short'})})</option>`).join('');
+}
+
+async function generatePackupList(){
+  const eid=document.getElementById('packup-ev-sel').value;const el=document.getElementById('packup-body');
+  if(!eid){el.innerHTML='<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-icon">📦</div><div class="empty-title">Select an event above</div></div></div></div>';return;}
+  const ev=events.find(e=>e.id===eid);if(!ev)return;
+  const buf=1+(settings.buffer||14)/100;const covers=Math.round(ev.covers*buf);
+  const evDishIds=(ev.event_dishes||[]).map(d=>d.dish_id);
+  const evDishes=dishes.filter(d=>evDishIds.includes(d.id));
+  const{data:asStock}=await sb.from('prepped_stock').select('*').eq('assigned_event',eid);
+  const stockByComp={};(asStock||[]).forEach(s=>{(stockByComp[s.component_name]=stockByComp[s.component_name]||[]).push(s);});
+  const packItems=[];
+  evDishes.forEach(dish=>{
+    (dish.components||[]).forEach(comp=>{
+      const qty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*covers):covers;
+      const assigned=stockByComp[comp.name]||[];
+      packItems.push({dishName:dish.name,dishCat:dish.category,compName:comp.name,qty:qty+(comp.unit?' '+comp.unit:''),freeze:comp.freeze_flag,fridge:comp.fridge_flag,confirmed:assigned.some(s=>s.status==='assigned'),stock:assigned,note:comp.chef_note||''});
+    });
+  });
+  const grouped={};packItems.forEach(item=>{(grouped[item.dishCat]=grouped[item.dishCat]||[]).push(item);});
+  const done=packItems.filter(i=>i.confirmed).length;const pct=packItems.length?Math.round(done/packItems.length*100):0;
+  let html=`<div style="background:var(--text1);border-radius:var(--radius-lg);padding:16px 22px;margin-bottom:16px;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;">
+      <div><div style="font-family:'Playfair Display',serif;font-size:18px;color:#fff;">${h(ev.client_name)} — Pack-up list</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.45);margin-top:3px;font-family:'DM Mono',monospace;">${ev.job_code} · ${new Date(ev.event_date).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'})}${ev.venue_name?' · '+ev.venue_name:''}</div></div>
+      <div style="text-align:right;"><div style="font-size:22px;color:#fff;font-family:'Playfair Display',serif;">${ev.covers}</div><div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;">covers</div></div>
+    </div>
+    <div style="height:3px;background:rgba(255,255,255,.12);border-radius:2px;margin-top:12px;"><div style="height:100%;background:#5ECAA0;border-radius:2px;width:${pct}%;"></div></div>
+    <div style="font-size:11px;color:rgba(255,255,255,.3);margin-top:4px;font-family:'DM Mono',monospace;">${done}/${packItems.length} confirmed</div>
+  </div>`;
+  CAT_ORDER.forEach(cat=>{
+    const items=(grouped[cat]||[]);if(!items.length)return;
+    html+=`<div class="card" style="margin-bottom:12px;"><div class="card-header"><div class="card-title">${cat}</div><span class="badge badge-gray">${items.length}</span></div><div class="card-body">
+    ${items.map(item=>{
+      const stockBadges=item.stock.length?item.stock.map(s=>`<span class="badge badge-gray" style="font-family:'DM Mono',monospace;">${s.box_code||'BOX'} · ${s.qty}${s.unit?' '+s.unit:''}</span>`).join(' '):'<span style="font-size:11px;color:var(--red);">⚠ No stock assigned</span>';
+      return`<div style="display:grid;grid-template-columns:28px 1fr;gap:10px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:start;">
+        <div style="width:22px;height:22px;border-radius:4px;border:1.5px solid ${item.confirmed?'var(--green)':'var(--border2)'};background:${item.confirmed?'var(--green)':'var(--surface)'};display:flex;align-items:center;justify-content:center;margin-top:1px;">
+          ${item.confirmed?'<span style="color:#fff;font-size:11px;font-weight:700;">✓</span>':''}
+        </div>
+        <div><div style="font-size:14px;font-weight:600;${item.confirmed?'text-decoration:line-through;color:var(--text3);':''}">${h(item.compName)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">${h(item.dishName)}</div>
+        ${item.note?`<div style="font-size:11px;color:var(--amber);font-style:italic;margin-bottom:4px;">${h(item.note)}</div>`:''}
+        <div style="display:flex;gap:5px;flex-wrap:wrap;"><span class="badge badge-gray">${item.qty}</span>
+        ${item.freeze?'<span class="badge badge-blue">❄ Freeze</span>':item.fridge?'<span class="badge badge-green">🧊 Fridge</span>':''}
+        ${stockBadges}</div></div>
+      </div>`;
+    }).join('')}
+    </div></div>`;
+  });
+  if(!packItems.length)html+='<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-title">No dishes on this event</div></div></div></div>';
+  el.innerHTML=html;
+}
+
+// ══════════════════════════════════════════════════════
+// QR
+// ══════════════════════════════════════════════════════
+function generateQR(){
+  const val=document.getElementById('qr-gen-input').value.trim();if(!val){showToast('Enter a code first','error');return;}
+  const qrUrl=`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(val)}`;
+  document.getElementById('qr-output').innerHTML=`<img src="${qrUrl}" alt="QR" style="border-radius:var(--radius);border:1px solid var(--border);margin-bottom:8px;"><div style="font-size:12px;font-family:'DM Mono',monospace;color:var(--text2);margin-bottom:10px;">${h(val)}</div><a href="${qrUrl}" download="qr-${h(val)}.png" class="btn btn-sm">Download QR</a>`;
+}
+
+async function lookupBoxCode(){
+  const val=document.getElementById('qr-manual').value.trim();if(!val){showToast('Enter a code','error');return;}
+  const el=document.getElementById('qr-result');el.innerHTML='<div style="color:var(--text3);font-size:12px;"><span class="spinner"></span>Looking up...</div>';
+  const{data:res}=await sb.from('prepped_stock').select('*').or(`box_code.eq.${val},job_code.eq.${val}`);
+  if(!res||!res.length){
+    const ev=events.find(e=>e.job_code.toUpperCase()===val.toUpperCase());
+    if(ev){
+      const assigned=stockItems.filter(s=>s.job_code===ev.job_code);
+      el.innerHTML=`<div style="background:var(--green-bg);border:1px solid var(--green-bd);border-radius:var(--radius);padding:14px;">
+        <div style="font-size:13px;font-weight:600;color:var(--green);margin-bottom:6px;">📋 ${ev.job_code} — ${h(ev.client_name)}</div>
+        <div style="font-size:12px;color:var(--text2);">${new Date(ev.event_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})} · ${ev.covers} covers</div>
+        <div style="margin-top:8px;font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;">Assigned stock (${assigned.length})</div>
+        ${assigned.map(s=>`<div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;"><span>${h(s.component_name)}</span><span style="color:var(--text3);">${s.qty} ${s.unit||''} · ${s.status}</span></div>`).join('')}
+        <button class="btn btn-sm btn-primary" onclick="goToPrepList('${ev.id}')" style="margin-top:8px;">→ Prep list</button>
+      </div>`;
+    }else{el.innerHTML=`<div style="color:var(--red);font-size:12px;">Nothing found for: ${h(val)}</div>`;}
+    return;
+  }
+  el.innerHTML=res.map(s=>`<div style="background:var(--blue-bg);border:1px solid var(--blue-bd);border-radius:var(--radius);padding:14px;margin-bottom:8px;">
+    <div style="font-size:13px;font-weight:600;color:var(--blue);">${h(s.component_name)}</div>
+    <div style="font-size:12px;color:var(--text2);margin-top:4px;">Qty: ${s.qty} ${s.unit||''} · <strong>${s.status}</strong></div>
+    ${s.job_code?`<div style="font-size:12px;color:var(--text2);">Assigned: ${h(s.job_code)}</div>`:'<div style="font-size:12px;color:var(--green);">Unassigned stock</div>'}
+    ${s.use_by_date?`<div style="font-size:11px;color:var(--text3);">Use by: ${new Date(s.use_by_date).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>`:''}
+    <button class="btn btn-sm" onclick="editStock('${s.id}')" style="margin-top:8px;">Edit</button>
+  </div>`).join('');
+}
+
+
 // BOOT
 // ══════════════════════════════════════════════════════
 init();
