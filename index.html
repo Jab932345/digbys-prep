@@ -1412,10 +1412,10 @@ tbody td{padding:11px 14px;vertical-align:middle;}
         <div class="form-row"><label class="form-label">Secondary phone / email</label><input class="form-input" id="fs-contact-2-detail" type="text" placeholder=""></div>
       </div>
 
-      <div class="form-section">Guest allergen requirements</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Record individual guests with dietary requirements. This populates the allergen sheet and prep notes.</div>
-      <div id="guest-allergy-list"></div>
-      <button class="btn btn-sm" onclick="addGuestAllergyRow()" style="margin-top:6px;">+ Add guest</button>
+      <div class="form-section">Guest dietary requirements</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">Record individual guests with allergies, intolerances or dietary preferences. Appears on the allergen sheet and prep notes.</div>
+      <div id="guest-allergy-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+      <button class="btn btn-sm" onclick="addGuestAllergyRow()" style="margin-top:8px;">+ Add guest</button>
 
       <div class="form-section">Dishes &amp; menu</div>
       <div style="font-size:12px;color:var(--text2);margin-bottom:6px;">Select dishes being served at this event. Quantities auto-calculate from covers.</div>
@@ -1861,10 +1861,24 @@ function renderFunctionSheetCard(ev){
 
     ${guestAl.length?`<div class="fs-full">
       <div class="fs-section-title">Guest allergen requirements</div>
-      <table class="guest-al-table" style="margin-top:6px;">
-        <thead><tr><th>Guest</th><th>Allergen / Requirement</th><th>Notes</th></tr></thead>
-        <tbody>${guestAl.map(g=>`<tr><td>${h(g.name||'Guest')}</td><td><strong>${h(g.allergen)}</strong></td><td style="color:var(--text2);">${h(g.notes||'')}</td></tr>`).join('')}</tbody>
-      </table>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        ${guestAl.map(g=>{
+          const sevColor={Allergy:'var(--red)',Intolerance:'var(--amber)',Dislike:'var(--text2)'}[g.severity]||'var(--red)';
+          const sevBg={Allergy:'var(--red-bg)',Intolerance:'var(--amber-bg)',Dislike:'var(--bg2)'}[g.severity]||'var(--red-bg)';
+          const sevBd={Allergy:'var(--red-bd)',Intolerance:'var(--amber-bd)',Dislike:'var(--border)'}[g.severity]||'var(--red-bd)';
+          const als=(g.allergens||[g.allergen]).filter(Boolean);
+          const diets=g.dietary||[];
+          return`<div style="padding:10px 12px;border:1px solid var(--border);border-left:3px solid ${sevColor};border-radius:var(--radius);background:var(--surface);">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+              <span style="font-size:13px;font-weight:600;">${h(g.name||'Guest')}</span>
+              <span style="font-size:10px;padding:2px 8px;border-radius:20px;background:${sevBg};color:${sevColor};border:1px solid ${sevBd};font-family:'DM Mono',monospace;">${g.severity||'Allergy'}</span>
+            </div>
+            ${als.length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">${als.map(a=>`<span class="allergen-tag">${a}</span>`).join('')}</div>`:''}
+            ${diets.length?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;">${diets.map(d=>`<span class="allergen-tag may">${d}</span>`).join('')}</div>`:''}
+            ${g.custom?`<div style="font-size:11px;color:var(--text2);margin-top:4px;font-style:italic;">${h(g.custom)}</div>`:''}
+          </div>`;
+        }).join('')}
+      </div>
     </div>`:''}
 
     ${evDishes.length?`<div class="fs-full">
@@ -1928,23 +1942,136 @@ function updateCoverCalc(){
 }
 
 function addGuestAllergyRow(data=null){
-  const id='gar-'+Date.now();
+  const FSA_14=[
+    'Celery','Cereals containing gluten','Crustaceans','Eggs','Fish',
+    'Lupin','Milk','Molluscs','Mustard','Nuts','Peanuts','Sesame','Soya','Sulphites'
+  ];
+  const DIETARY=['Vegetarian','Vegan','Halal','Kosher','Dairy-free','Gluten-free'];
+
+  const existing=data||{};
+  const selAllergens=existing.allergens||[];
+  const selDietary=existing.dietary||[];
+  const severity=existing.severity||'Allergy'; // 'Allergy' or 'Dislike'
+
+  const id='gar-'+Date.now()+Math.random().toString(36).slice(2,5);
   const div=document.createElement('div');
-  div.id=id;
-  div.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center;';
+  div.className='guest-row';
+  div.style.cssText='background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;position:relative;';
   div.innerHTML=`
-    <input type="text" placeholder="Guest name" value="${data?h(data.name||''):''}" style="flex:1;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
-    <input type="text" placeholder="Allergen / requirement" value="${data?h(data.allergen||''):''}" style="flex:1.5;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
-    <input type="text" placeholder="Notes" value="${data?h(data.notes||''):''}" style="flex:1.5;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
-    <button onclick="document.getElementById('${id}').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;">×</button>`;
+    <button onclick="this.closest('.guest-row').remove()" style="position:absolute;top:10px;right:10px;background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;">×</button>
+
+    <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin-bottom:12px;">
+      <div>
+        <label class="form-label">Guest name</label>
+        <input type="text" class="form-input gar-name" placeholder="e.g. Table 4 guest, Bride's mother..." value="${h(existing.name||'')}" style="font-size:13px;">
+      </div>
+      <div>
+        <label class="form-label">Severity</label>
+        <input type="hidden" class="gar-severity" value="${severity}">
+        <div style="display:flex;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;height:38px;">
+          <button class="sev-btn ${severity==='Allergy'?'sev-active-allergy':''}" data-sev="Allergy"
+            onclick="setSeverity(this,'Allergy')"
+            style="flex:1;border:none;padding:0 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;
+            background:${severity==='Allergy'?'var(--red-bg)':'var(--surface)'};
+            color:${severity==='Allergy'?'var(--red)':'var(--text3)'};">
+            ⚠ Allergy
+          </button>
+          <button class="sev-btn ${severity==='Intolerance'?'sev-active-intol':''}" data-sev="Intolerance"
+            onclick="setSeverity(this,'Intolerance')"
+            style="flex:1;border:none;border-left:1px solid var(--border);padding:0 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;
+            background:${severity==='Intolerance'?'var(--amber-bg)':'var(--surface)'};
+            color:${severity==='Intolerance'?'var(--amber)':'var(--text3)'};">
+            ◎ Intolerance
+          </button>
+          <button class="sev-btn ${severity==='Dislike'?'sev-active-dislike':''}" data-sev="Dislike"
+            onclick="setSeverity(this,'Dislike')"
+            style="flex:1;border:none;border-left:1px solid var(--border);padding:0 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;
+            background:${severity==='Dislike'?'var(--bg2)':'var(--surface)'};
+            color:${severity==='Dislike'?'var(--text2)':'var(--text3)'};">
+            ○ Dislike
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <label class="form-label" style="margin-bottom:8px;">FSA 14 allergens — tap to select</label>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+        ${FSA_14.map(a=>{
+          const sel=selAllergens.includes(a);
+          return`<button class="al-toggle-btn ${sel?'al-selected':''}" data-al="${a}"
+            onclick="toggleAllergenBtn(this)"
+            style="font-size:11px;padding:5px 10px;border-radius:20px;border:1px solid ${sel?'var(--red-bd)':'var(--border)'};
+            background:${sel?'var(--red-bg)':'var(--surface)'};color:${sel?'var(--red)':'var(--text2)'};
+            cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;">${a}</button>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div style="margin-bottom:10px;">
+      <label class="form-label" style="margin-bottom:8px;">Dietary preferences</label>
+      <div style="display:flex;flex-wrap:wrap;gap:5px;">
+        ${DIETARY.map(d=>{
+          const sel=selDietary.includes(d);
+          return`<button class="diet-toggle-btn ${sel?'diet-selected':''}" data-diet="${d}"
+            onclick="toggleDietBtn(this)"
+            style="font-size:11px;padding:5px 10px;border-radius:20px;border:1px solid ${sel?'var(--green-bd)':'var(--border)'};
+            background:${sel?'var(--green-bg)':'var(--surface)'};color:${sel?'var(--green)':'var(--text2)'};
+            cursor:pointer;font-family:'DM Mono',monospace;transition:all .15s;">${d}</button>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <div>
+      <label class="form-label">Custom requirement / notes</label>
+      <input type="text" class="form-input gar-custom" placeholder="e.g. No alliums (garlic, onion, leek), No preservatives, Texture issues with..." value="${h(existing.custom||'')}">
+    </div>
+  `;
   document.getElementById('guest-allergy-list').appendChild(div);
 }
 
+function setSeverity(btn, sev){
+  const row=btn.closest('.guest-row');
+  const inp=row.querySelector('.gar-severity');if(inp)inp.value=sev;
+  const colors={
+    Allergy:{bg:'var(--red-bg)',color:'var(--red)'},
+    Intolerance:{bg:'var(--amber-bg)',color:'var(--amber)'},
+    Dislike:{bg:'var(--bg2)',color:'var(--text2)'}
+  };
+  row.querySelectorAll('.sev-btn').forEach(b=>{
+    const isSel=b.dataset.sev===sev;
+    const c=colors[b.dataset.sev];
+    b.style.background=isSel?c.bg:'var(--surface)';
+    b.style.color=isSel?c.color:'var(--text3)';
+    b.style.fontWeight=isSel?'700':'500';
+  });
+}
+
+function toggleAllergenBtn(btn){
+  const sel=btn.classList.toggle('al-selected');
+  btn.style.background=sel?'var(--red-bg)':'var(--surface)';
+  btn.style.borderColor=sel?'var(--red-bd)':'var(--border)';
+  btn.style.color=sel?'var(--red)':'var(--text2)';
+}
+
+function toggleDietBtn(btn){
+  const sel=btn.classList.toggle('diet-selected');
+  btn.style.background=sel?'var(--green-bg)':'var(--surface)';
+  btn.style.borderColor=sel?'var(--green-bd)':'var(--border)';
+  btn.style.color=sel?'var(--green)':'var(--text2)';
+}
+
+
 function getGuestAllergyRows(){
   return Array.from(document.getElementById('guest-allergy-list').children).map(row=>{
-    const inputs=row.querySelectorAll('input');
-    return{name:inputs[0].value.trim(),allergen:inputs[1].value.trim(),notes:inputs[2].value.trim()};
-  }).filter(r=>r.allergen||r.name);
+    const name=row.querySelector('.gar-name').value.trim();
+    const allergens=Array.from(row.querySelectorAll('.al-toggle-btn.al-selected')).map(b=>b.dataset.al);
+    const dietary=Array.from(row.querySelectorAll('.diet-toggle-btn.diet-selected')).map(b=>b.dataset.diet);
+    const custom=row.querySelector('.gar-custom').value.trim();
+    const sevInput=row.querySelector('.gar-severity');
+    const severity=sevInput?sevInput.value:'Allergy';
+    return{name,allergens,dietary,custom,severity};
+  }).filter(r=>r.name||r.allergens.length||r.dietary.length||r.custom);
 }
 
 function buildJobCode(){
@@ -2429,7 +2556,7 @@ function exportBackup(){const data={dishes,events,staff,exported:new Date().toIS
 // UTILS
 // ══════════════════════════════════════════════════════
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+// overlay click handled by dirty-check listener below
 function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3200);}
 function h(str){return(str||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
@@ -2929,10 +3056,12 @@ let _formDirty = false;
 function markDirty(){_formDirty=true;}
 
 function checkDirtyBeforeClose(modalId){
-  if(!_formDirty){closeModal(modalId);return;}
-  if(confirm('You have unsaved changes. Leave without saving?')){
-    _formDirty=false;closeModal(modalId);
+  if(!_formDirty){_formDirty=false;closeModal(modalId);return;}
+  if(confirm('You have unsaved changes.\n\nLeave without saving?')){
+    _formDirty=false;
+    closeModal(modalId);
   }
+  // If they press Cancel on the confirm — do nothing, stay in modal
 }
 
 // Mark forms dirty on any input change inside modals
@@ -2943,20 +3072,23 @@ document.addEventListener('change', e=>{
   if(e.target.closest('.modal-overlay')) _formDirty=true;
 });
 
-// Intercept modal overlay click-outside
-document.querySelectorAll('.modal-overlay').forEach(o=>{
-  o.addEventListener('click',e=>{
-    if(e.target!==o)return;
-    const id=o.id;
-    if(_formDirty){
-      if(confirm('You have unsaved changes. Leave without saving?')){
-        _formDirty=false;o.classList.remove('open');
+// Intercept modal overlay click-outside — runs after DOM is ready
+function initOverlayListeners(){
+  document.querySelectorAll('.modal-overlay').forEach(o=>{
+    o.addEventListener('click',e=>{
+      if(e.target!==o)return; // only fire on backdrop click, not modal content
+      if(_formDirty){
+        if(confirm('You have unsaved changes.\n\nLeave without saving?')){
+          _formDirty=false;
+          o.classList.remove('open');
+        }
+        // else: do nothing — stay in modal
+      }else{
+        o.classList.remove('open');
       }
-    }else{
-      o.classList.remove('open');
-    }
+    });
   });
-});
+}
 
 // Reset dirty flag after successful save
 const _origSaveDish=saveDish;
@@ -3030,6 +3162,7 @@ function printFunctionSheet(evId){
 
 // BOOT
 // ══════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded',()=>initOverlayListeners());
 init();
 </script>
 </body>
