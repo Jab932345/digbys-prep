@@ -709,44 +709,108 @@ tbody td{padding:11px 14px;vertical-align:middle;}
    PRINT — A4, black and white ready
    ══════════════════════════════════════════════════════════ */
 @media print {
-  @page{size:A4;margin:15mm 14mm 15mm 14mm;}
-  body{background:#fff;font-size:10pt;color:#000;}
-  .sidebar,.bottom-nav,.topbar,.topbar-actions,
-  .filter-bar,.btn,.task-actions,.task-print-btn,
-  .fs-actions,.prep-status-bar button,.toast,
-  #prep-empty,.modal-overlay{display:none !important;}
+  @page{size:A4;margin:12mm 14mm 14mm 14mm;}
+  body{background:#fff;font-size:10pt;color:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+
+  /* Hide everything except active page */
+  .sidebar,.bottom-nav,.topbar,.topbar-actions,.filter-bar,
+  .fs-actions,.prep-status-bar button,.toast,.modal-overlay,
+  .task-actions,.task-print-btn,#prep-empty,
+  .btn:not(.print-visible){display:none !important;}
   .main{margin:0 !important;padding:0 !important;}
   .content{padding:0 !important;}
-  .page{display:flex !important;flex-direction:column;}
-  #page-dashboard,#page-events,#page-menu,#page-ingredients,
-  #page-recipes,#page-production,#page-stock,#page-orders,
-  #page-labels,#page-admin,#page-scan{display:none !important;}
 
-  /* Card print */
-  .card{box-shadow:none !important;border:0.5pt solid #ccc !important;margin-bottom:8pt;}
-  .card-header{background:#f5f5f5 !important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  /* Pages — only show active */
+  .page{display:none !important;}
+  .page.active{display:block !important;}
 
-  /* Prep list */
+  /* FUNCTION SHEET PRINT */
+  .fs-card{
+    page-break-inside:avoid;
+    border:none !important;
+    box-shadow:none !important;
+    margin-bottom:0;
+  }
+  .fs-header{
+    background:#1A1814 !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+    padding:14mm 14mm 10mm !important;
+  }
+  .fs-client{font-size:22pt !important;}
+  .fs-job{font-size:10pt !important;}
+  .fs-body{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    border:0.5pt solid #ccc;
+  }
+  .fs-col{padding:8mm !important;border-right:0.5pt solid #ccc;}
+  .fs-col:last-child{border-right:none;}
+  .fs-section-label{
+    font-size:8pt !important;
+    border-bottom:0.5pt solid #ccc;
+    padding-bottom:3pt;
+    margin-bottom:5pt;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .fs-field-label{font-size:7.5pt !important;color:#666 !important;}
+  .fs-field-val{font-size:10pt !important;}
+  .fs-full{
+    padding:6mm 8mm !important;
+    border:0.5pt solid #ccc;
+    border-top:none;
+    page-break-inside:avoid;
+  }
+  .fs-section-title{
+    font-size:8pt !important;
+    font-weight:700 !important;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+    color:#666 !important;
+    margin-bottom:4pt;
+    padding-bottom:3pt;
+    border-bottom:0.5pt solid #eee;
+  }
+  .fs-notes{font-size:10pt !important;line-height:1.5;}
+  .fs-dish-grid{
+    display:grid !important;
+    grid-template-columns:repeat(3,1fr) !important;
+    gap:4mm !important;
+  }
+  .fs-dish-card{
+    border:0.5pt solid #ccc !important;
+    padding:4mm !important;
+    page-break-inside:avoid;
+  }
+  .fs-dish-name{font-size:10pt !important;font-weight:700 !important;}
+  .fs-dish-cat{font-size:8pt !important;color:#666 !important;}
+  .fs-dish-comp-row{font-size:9pt !important;}
+  .allergen-tag{
+    font-size:7pt !important;
+    padding:1pt 4pt !important;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+  .guest-al-table td,.guest-al-table th{font-size:9pt !important;}
+  table{font-size:9pt !important;}
+  thead th{
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  /* PREP LIST PRINT */
   .prep-header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .task-row{page-break-inside:avoid;cursor:default;}
-  .task-checkbox{border:1.5pt solid #666 !important;background:#fff !important;width:22pt !important;height:22pt !important;}
+  .task-checkbox{border:1.5pt solid #666 !important;background:#fff !important;}
   .task-name{font-size:11pt !important;font-weight:700 !important;}
   .task-chef-note{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .prep-bucket-hdr{-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-after:avoid;}
 
-  /* Function sheet */
-  .fs-header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .fs-card{page-break-inside:avoid;border:0.5pt solid #ccc;}
-  .fs-dish-card{border:0.5pt solid #ccc;}
-
-  /* FSA allergen */
+  /* FSA ALLERGEN SHEET */
   .fsa-top,.fsa-legend,.fsa-footer{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .fsa-table th,.fsa-table td{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .fsa-sym-c,.fsa-sym-m,.al-sym-c,.al-sym-m{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .al-icon-img{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-
-  /* Pack-up / orders */
-  .prep-header{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
 </style>
 </head>
@@ -1358,6 +1422,16 @@ tbody td{padding:11px 14px;vertical-align:middle;}
       <div class="dish-pick-grid" id="fs-dish-grid"></div>
       <div style="margin-top:10px;font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;" id="fs-cover-calc"></div>
 
+      <div class="form-section">Run of day</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Add each part of the day in order — ceremony, drinks, breakfast, evening etc.</div>
+      <div id="rod-list"></div>
+      <button class="btn btn-sm" onclick="addRodRow()" style="margin-top:6px;">+ Add timing</button>
+
+      <div class="form-section">Extra services &amp; charges</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Any additional agreed services or charges specific to this event.</div>
+      <div id="charges-list"></div>
+      <button class="btn btn-sm" onclick="addChargeRow()" style="margin-top:6px;">+ Add charge</button>
+
       <div class="form-section">Additional notes</div>
       <div class="form-grid-2">
         <div class="form-row"><label class="form-label">Chef's notes</label><textarea class="form-textarea" id="fs-chef-notes" placeholder="Prep notes, timing concerns, special requests..."></textarea></div>
@@ -1371,7 +1445,7 @@ tbody td{padding:11px 14px;vertical-align:middle;}
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="fs-del-btn" onclick="deleteFunctionSheet()" style="display:none;margin-right:auto;">Delete event</button>
-      <button class="btn" onclick="closeModal('fs-modal')">Cancel</button>
+      <button class="btn" onclick="checkDirtyBeforeClose('fs-modal')">Cancel</button>
       <button class="btn btn-primary" onclick="saveFunctionSheet()">Save function sheet</button>
     </div>
   </div>
@@ -1411,7 +1485,7 @@ tbody td{padding:11px 14px;vertical-align:middle;}
     </div>
     <div class="modal-footer">
       <button class="btn btn-danger btn-sm" id="dish-del-btn" onclick="deleteDish()" style="display:none;margin-right:auto;">Delete</button>
-      <button class="btn" onclick="closeModal('dish-modal')">Cancel</button>
+      <button class="btn" onclick="checkDirtyBeforeClose('dish-modal')">Cancel</button>
       <button class="btn btn-primary" onclick="saveDish()">Save dish</button>
     </div>
   </div>
@@ -1708,89 +1782,120 @@ function renderEventsList(){
 
 function renderFunctionSheetCard(ev){
   const evDate=new Date(ev.event_date);
-  const dateStr=evDate.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'long',year:'numeric'});
+  const dateStr=evDate.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const badge=ST_BADGE[ev.status]||'badge-gray';
   const evDishes=dishes.filter(d=>(ev.event_dishes||[]).map(x=>x.dish_id).includes(d.id));
   const guestAl=(ev.guest_allergens||[]);
-
-  // Gather all allergens from dishes
+  const rod=(ev.run_of_day||[]).sort((a,b)=>a.time>b.time?1:-1);
+  const charges=(ev.extra_charges||[]);
   const allDishAl=[...new Set(evDishes.flatMap(d=>getDishAl(d).map(a=>a.allergen)))];
+  const buf=1+(settings.buffer||14)/100;
+  const bufferedCovers=Math.round(ev.covers*buf);
 
-  return`<div class="fs-page">
+  return`<div class="fs-card" id="fscard-${ev.id}">
     <div class="fs-header">
-      <div class="fs-header-left">
-        <div class="fs-job-code">${ev.job_code}</div>
+      <div>
+        <div class="fs-job">${ev.job_code}</div>
         <div class="fs-client">${h(ev.client_name)}</div>
-        <div class="fs-type-badge">${EV_TYPES[ev.event_type]||ev.event_type}</div>
+        <span class="fs-type">${EV_TYPES[ev.event_type]||ev.event_type}</span>
       </div>
-      <div class="fs-header-right">
-        <div class="fs-date">${dateStr}</div>
-        <div class="fs-covers">${ev.covers} covers${ev.start_time?` · ${ev.start_time}${ev.end_time?'–'+ev.end_time:''}`:''}</div>
-        <div class="fs-status" style="margin-top:8px;"><span class="badge ${badge}">${ev.status}</span></div>
+      <div class="fs-date-block">
+        <div class="fs-date">${evDate.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.4);margin-top:3px;font-family:'DM Mono',monospace;">${evDate.toLocaleDateString('en-GB',{weekday:'long'})}</div>
+        <div class="fs-covers-str">${ev.covers} covers${ev.start_time?` · ${ev.start_time}${ev.end_time?' – '+ev.end_time:''}`:''}</div>
+        <div style="margin-top:6px;"><span class="badge ${badge}">${ev.status}</span></div>
       </div>
     </div>
+
     <div class="fs-body">
       <div class="fs-col">
-        <div class="fs-section-title">Client contact</div>
+        <div class="fs-section-label">Client</div>
         ${ev.contact_name?`<div class="fs-field"><div class="fs-field-label">Contact</div><div class="fs-field-val">${h(ev.contact_name)}</div></div>`:''}
         ${ev.contact_phone?`<div class="fs-field"><div class="fs-field-label">Phone</div><div class="fs-field-val"><a href="tel:${ev.contact_phone}" style="color:var(--blue)">${h(ev.contact_phone)}</a></div></div>`:''}
-        ${ev.contact_email?`<div class="fs-field"><div class="fs-field-label">Email</div><div class="fs-field-val"><a href="mailto:${ev.contact_email}" style="color:var(--blue)">${h(ev.contact_email)}</a></div></div>`:''}
+        ${ev.contact_email?`<div class="fs-field"><div class="fs-field-label">Email</div><div class="fs-field-val"><a href="mailto:${ev.contact_email}" style="color:var(--blue);font-size:12px;">${h(ev.contact_email)}</a></div></div>`:''}
         ${ev.contact_2?`<div class="fs-field"><div class="fs-field-label">Secondary</div><div class="fs-field-val muted">${h(ev.contact_2)}${ev.contact_2_detail?' · '+h(ev.contact_2_detail):''}</div></div>`:''}
+        <div class="fs-section-label" style="margin-top:12px;">Finance</div>
         ${ev.budget?`<div class="fs-field"><div class="fs-field-label">Price agreed</div><div class="fs-field-val">${h(ev.budget)}</div></div>`:''}
         ${ev.deposit_status?`<div class="fs-field"><div class="fs-field-label">Deposit</div><div class="fs-field-val muted">${h(ev.deposit_status)}</div></div>`:''}
+        ${charges.length?`<div class="fs-field"><div class="fs-field-label">Extra charges</div><div>${charges.map(c=>`<div style="font-size:12px;padding:3px 0;border-bottom:1px dotted var(--border);display:flex;justify-content:space-between;gap:8px;"><span>${h(c.service)}${c.notes?`<span style="color:var(--text3);"> — ${h(c.notes)}</span>`:''}</span><span style="font-family:'DM Mono',monospace;font-weight:600;">${h(c.amount)}</span></div>`).join('')}</div></div>`:''}
       </div>
       <div class="fs-col">
-        <div class="fs-section-title">Venue</div>
+        <div class="fs-section-label">Venue</div>
         ${ev.venue_name?`<div class="fs-field"><div class="fs-field-label">Venue</div><div class="fs-field-val">${h(ev.venue_name)}</div></div>`:''}
         ${ev.location?`<div class="fs-field"><div class="fs-field-label">Location</div><div class="fs-field-val">${h(ev.location)}</div></div>`:''}
         ${ev.address?`<div class="fs-field"><div class="fs-field-label">Address</div><div class="fs-field-val muted" style="white-space:pre-line;">${h(ev.address)}</div></div>`:''}
+        <div class="fs-section-label" style="margin-top:12px;">Operations</div>
         ${ev.staffing?`<div class="fs-field"><div class="fs-field-label">Staffing</div><div class="fs-field-val muted">${h(ev.staffing)}</div></div>`:''}
-        ${allDishAl.length?`<div class="fs-field"><div class="fs-field-label">Dish allergens</div><div class="fs-field-val">${allDishAl.map(a=>`<span class="allergen-tag">${a}</span>`).join('')}</div></div>`:''}
+        ${allDishAl.length?`<div class="fs-field"><div class="fs-field-label">Dish allergens</div><div>${allDishAl.map(a=>`<span class="allergen-tag">${a}</span>`).join('')}</div></div>`:''}
       </div>
     </div>
-    ${(ev.kitchen_notes||ev.service_notes)?`<div class="fs-full-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      ${ev.kitchen_notes?`<div><div class="fs-section-title">Kitchen notes</div><div class="fs-notes">${h(ev.kitchen_notes)}</div></div>`:'<div></div>'}
-      ${ev.service_notes?`<div><div class="fs-section-title">Service notes</div><div class="fs-notes">${h(ev.service_notes)}</div></div>`:''}
-    </div>`:''}
-    ${guestAl.length?`<div class="fs-full-row">
-      <div class="fs-section-title">Individual guest allergen requirements</div>
-      <table class="guest-allergy-table">
-        <thead><tr><th>Guest</th><th>Requirement / Allergen</th><th>Notes</th></tr></thead>
-        <tbody>${guestAl.map(g=>`<tr><td>${h(g.name||'Guest')}</td><td>${h(g.allergen)}</td><td>${h(g.notes||'')}</td></tr>`).join('')}</tbody>
+
+    ${rod.length?`<div class="fs-full">
+      <div class="fs-section-title">Run of day</div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;">
+        <thead><tr>
+          <th style="padding:6px 10px;text-align:left;background:var(--bg2);border:1px solid var(--border);font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;width:80px;">Time</th>
+          <th style="padding:6px 10px;text-align:left;background:var(--bg2);border:1px solid var(--border);font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;">Event</th>
+          <th style="padding:6px 10px;text-align:left;background:var(--bg2);border:1px solid var(--border);font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;width:90px;">Duration</th>
+          <th style="padding:6px 10px;text-align:left;background:var(--bg2);border:1px solid var(--border);font-size:10px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;">Notes</th>
+        </tr></thead>
+        <tbody>${rod.map(r=>`<tr>
+          <td style="padding:8px 10px;border:1px solid var(--border);font-family:'DM Mono',monospace;font-weight:600;">${r.time||'—'}</td>
+          <td style="padding:8px 10px;border:1px solid var(--border);font-weight:600;">${h(r.event)}</td>
+          <td style="padding:8px 10px;border:1px solid var(--border);color:var(--text2);">${h(r.duration||'—')}</td>
+          <td style="padding:8px 10px;border:1px solid var(--border);color:var(--text2);font-size:11px;">${h(r.notes||'')}</td>
+        </tr>`).join('')}</tbody>
       </table>
     </div>`:''}
-    ${evDishes.length?`<div class="fs-full-row">
-      <div class="fs-section-title">Menu — ${evDishes.length} dish${evDishes.length!==1?'es':''}</div>
+
+    ${(ev.kitchen_notes||ev.service_notes||ev.chef_notes||ev.client_notes)?`<div class="fs-full" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        ${ev.kitchen_notes?`<div class="fs-section-title">Kitchen notes</div><div class="fs-notes" style="margin-bottom:10px;">${h(ev.kitchen_notes)}</div>`:''}
+        ${ev.chef_notes?`<div class="fs-section-title">Chef's notes</div><div class="fs-notes">${h(ev.chef_notes)}</div>`:''}
+      </div>
+      <div>
+        ${ev.service_notes?`<div class="fs-section-title">Service notes</div><div class="fs-notes" style="margin-bottom:10px;">${h(ev.service_notes)}</div>`:''}
+        ${ev.client_notes?`<div class="fs-section-title">Client notes</div><div class="fs-notes">${h(ev.client_notes)}</div>`:''}
+      </div>
+    </div>`:''}
+
+    ${guestAl.length?`<div class="fs-full">
+      <div class="fs-section-title">Guest allergen requirements</div>
+      <table class="guest-al-table" style="margin-top:6px;">
+        <thead><tr><th>Guest</th><th>Allergen / Requirement</th><th>Notes</th></tr></thead>
+        <tbody>${guestAl.map(g=>`<tr><td>${h(g.name||'Guest')}</td><td><strong>${h(g.allergen)}</strong></td><td style="color:var(--text2);">${h(g.notes||'')}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`:''}
+
+    ${evDishes.length?`<div class="fs-full">
+      <div class="fs-section-title">Menu — ${evDishes.length} dish${evDishes.length!==1?'es':''} · ${ev.covers} covers · ${bufferedCovers} prepping (${settings.buffer||14}% buffer)</div>
       <div class="fs-dish-grid">
         ${evDishes.map(d=>{
-          const buf=1+(settings.buffer||14)/100;const covers=Math.round(ev.covers*buf);
           const al=getDishAl(d);
           return`<div class="fs-dish-card">
             <div class="fs-dish-name">${h(d.name)}</div>
             <div class="fs-dish-cat">${d.category}${d.station?' · '+d.station:''}</div>
-            <div class="fs-dish-comps">
+            <div style="margin-top:6px;">
               ${(d.components||[]).map(c=>{
-                const qty=c.qty_per_cover?Math.ceil(c.qty_per_cover*covers):covers;
+                const qty=c.qty_per_cover?Math.ceil(c.qty_per_cover*bufferedCovers):bufferedCovers;
                 return`<div class="fs-dish-comp-row"><span>${h(c.name)}</span><span style="color:var(--text3);font-family:'DM Mono',monospace;font-size:10px;">${qty}${c.unit?' '+c.unit:''}</span></div>`;
               }).join('')}
             </div>
-            ${al.length?`<div class="fs-dish-allergens">${al.map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${a.allergen}</span>`).join('')}</div>`:''}
+            ${al.length?`<div class="fs-dish-al">${al.map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${a.allergen}</span>`).join('')}</div>`:''}
           </div>`;
         }).join('')}
       </div>
     </div>`:''}
-    ${(ev.chef_notes||ev.client_notes)?`<div class="fs-full-row" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-      ${ev.chef_notes?`<div><div class="fs-section-title">Chef's notes</div><div class="fs-notes">${h(ev.chef_notes)}</div></div>`:'<div></div>'}
-      ${ev.client_notes?`<div><div class="fs-section-title">Client notes</div><div class="fs-notes">${h(ev.client_notes)}</div></div>`:''}
-    </div>`:''}
-    <div class="fs-full-row" style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-sm btn-primary" onclick="editFunctionSheet('${ev.id}')">Edit function sheet</button>
+
+    <div class="fs-actions">
+      <button class="btn btn-sm btn-primary" onclick="editFunctionSheet('${ev.id}')">Edit</button>
       <button class="btn btn-sm" onclick="goToPrepList('${ev.id}')">→ Prep list</button>
-      <button class="btn btn-sm" onclick="goToAllergens('${ev.id}')">→ Allergen sheet</button>
-      <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
+      <button class="btn btn-sm" onclick="goToAllergens('${ev.id}')">→ Allergens</button>
+      <button class="btn btn-sm" onclick="printFunctionSheet('${ev.id}')">🖨 Print sheet</button>
     </div>
   </div>`;
 }
+
 
 function renderDashEvents(){renderDashBoard();}
 
@@ -1873,7 +1978,10 @@ function openFunctionSheet(){
   document.getElementById('fs-deposit').value='';
   document.getElementById('fs-del-btn').style.display='none';
   document.getElementById('guest-allergy-list').innerHTML='';
+  document.getElementById('rod-list').innerHTML='';
+  document.getElementById('charges-list').innerHTML='';
   document.getElementById('fs-cover-calc').textContent='';
+  _formDirty=false;
   renderFsDishGrid([]);
   document.getElementById('fs-modal').classList.add('open');
 }
@@ -1908,6 +2016,11 @@ async function editFunctionSheet(id){
   document.getElementById('fs-del-btn').style.display='inline-flex';
   document.getElementById('guest-allergy-list').innerHTML='';
   (ev.guest_allergens||[]).forEach(g=>addGuestAllergyRow(g));
+  document.getElementById('rod-list').innerHTML='';
+  (ev.run_of_day||[]).forEach(r=>addRodRow(r));
+  document.getElementById('charges-list').innerHTML='';
+  (ev.extra_charges||[]).forEach(c=>addChargeRow(c));
+  _formDirty=false;
   renderFsDishGrid((ev.event_dishes||[]).map(d=>d.dish_id));
   updateCoverCalc();
   document.getElementById('fs-modal').classList.add('open');
@@ -1941,7 +2054,9 @@ async function saveFunctionSheet(){
     budget:document.getElementById('fs-budget').value.trim()||null,
     deposit_status:document.getElementById('fs-deposit').value||null,
     staffing:document.getElementById('fs-staffing').value.trim()||null,
-    guest_allergens:getGuestAllergyRows()
+    guest_allergens:getGuestAllergyRows(),
+    run_of_day:getRodRows(),
+    extra_charges:getChargeRows()
   };
   try{
     let eid=id;
@@ -2804,6 +2919,114 @@ function renderDashActions(){
 }
 
 function renderDashBoard(){renderDashWeekEvents();renderDashMonthEvents();renderDashActions();}
+
+
+// ══════════════════════════════════════════════════════
+// UNSAVED CHANGES PROTECTION
+// ══════════════════════════════════════════════════════
+let _formDirty = false;
+
+function markDirty(){_formDirty=true;}
+
+function checkDirtyBeforeClose(modalId){
+  if(!_formDirty){closeModal(modalId);return;}
+  if(confirm('You have unsaved changes. Leave without saving?')){
+    _formDirty=false;closeModal(modalId);
+  }
+}
+
+// Mark forms dirty on any input change inside modals
+document.addEventListener('input', e=>{
+  if(e.target.closest('.modal-overlay')) _formDirty=true;
+});
+document.addEventListener('change', e=>{
+  if(e.target.closest('.modal-overlay')) _formDirty=true;
+});
+
+// Intercept modal overlay click-outside
+document.querySelectorAll('.modal-overlay').forEach(o=>{
+  o.addEventListener('click',e=>{
+    if(e.target!==o)return;
+    const id=o.id;
+    if(_formDirty){
+      if(confirm('You have unsaved changes. Leave without saving?')){
+        _formDirty=false;o.classList.remove('open');
+      }
+    }else{
+      o.classList.remove('open');
+    }
+  });
+});
+
+// Reset dirty flag after successful save
+const _origSaveDish=saveDish;
+saveDish=async function(){await _origSaveDish();_formDirty=false;};
+const _origSaveFS=saveFunctionSheet;
+saveFunctionSheet=async function(){await _origSaveFS();_formDirty=false;};
+
+// ══════════════════════════════════════════════════════
+// RUN OF DAY ROWS
+// ══════════════════════════════════════════════════════
+function addRodRow(data=null){
+  const div=document.createElement('div');
+  div.style.cssText='display:grid;grid-template-columns:80px 1fr 80px 1fr auto;gap:6px;margin-bottom:6px;align-items:center;';
+  div.innerHTML=`
+    <input type="time" value="${data?data.time||'':'18:00'}" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;" class="rod-time">
+    <input type="text" placeholder="e.g. Ceremony, Drinks reception, Wedding breakfast..." value="${data?h(data.event||''):''}" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;" class="rod-event">
+    <input type="text" placeholder="Duration" value="${data?h(data.duration||''):''}" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;" class="rod-duration">
+    <input type="text" placeholder="Notes" value="${data?h(data.notes||''):''}" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;" class="rod-notes">
+    <button onclick="this.closest('div').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;">×</button>`;
+  document.getElementById('rod-list').appendChild(div);
+}
+
+function getRodRows(){
+  return Array.from(document.getElementById('rod-list').children).map(row=>({
+    time:row.querySelector('.rod-time').value,
+    event:row.querySelector('.rod-event').value.trim(),
+    duration:row.querySelector('.rod-duration').value.trim(),
+    notes:row.querySelector('.rod-notes').value.trim()
+  })).filter(r=>r.event);
+}
+
+// ══════════════════════════════════════════════════════
+// EXTRA CHARGES ROWS
+// ══════════════════════════════════════════════════════
+function addChargeRow(data=null){
+  const div=document.createElement('div');
+  div.style.cssText='display:grid;grid-template-columns:1fr 2fr 100px auto;gap:6px;margin-bottom:6px;align-items:center;';
+  div.innerHTML=`
+    <input type="text" placeholder="Service / item" value="${data?h(data.service||''):''}" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;" class="charge-service">
+    <input type="text" placeholder="Notes / description" value="${data?h(data.notes||''):''}" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;" class="charge-notes">
+    <input type="text" placeholder="£" value="${data?h(data.amount||''):''}" style="font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;" class="charge-amount">
+    <button onclick="this.closest('div').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;">×</button>`;
+  document.getElementById('charges-list').appendChild(div);
+}
+
+function getChargeRows(){
+  return Array.from(document.getElementById('charges-list').children).map(row=>({
+    service:row.querySelector('.charge-service').value.trim(),
+    notes:row.querySelector('.charge-notes').value.trim(),
+    amount:row.querySelector('.charge-amount').value.trim()
+  })).filter(r=>r.service);
+}
+
+
+// ══════════════════════════════════════════════════════
+// FUNCTION SHEET PRINT
+// ══════════════════════════════════════════════════════
+function printFunctionSheet(evId){
+  // Show only this card, print, then restore
+  const allCards=document.querySelectorAll('.fs-card');
+  const allPages=document.querySelectorAll('.page');
+  allCards.forEach(c=>c.style.display=c.id==='fscard-'+evId?'':'none');
+  // Navigate to events page to ensure it's visible
+  allPages.forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-events').classList.add('active');
+  setTimeout(()=>{
+    window.print();
+    allCards.forEach(c=>c.style.display='');
+  },200);
+}
 
 // BOOT
 // ══════════════════════════════════════════════════════
