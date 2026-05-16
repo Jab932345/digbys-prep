@@ -345,8 +345,9 @@ tbody td{padding:11px 14px;vertical-align:middle;}
 .form-select-lg{font-size:16px;padding:14px;height:52px;border-radius:var(--radius-lg);}
 
 /* ── COMPONENT ROWS ──────────────────────────────────────── */
-.component-list{display:flex;flex-direction:column;gap:5px;}
-.component-item{
+.component-list,.component-list-new{display:flex;flex-direction:column;gap:6px;}
+.component-item{border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;background:var(--surface);}
+.component-item-old{
   display:flex;align-items:center;gap:6px;
   padding:8px 10px;background:var(--bg);
   border:1px solid var(--border);border-radius:var(--radius);
@@ -837,7 +838,6 @@ tbody td{padding:11px 14px;vertical-align:middle;}
     <div class="nav-group">
       <div class="nav-label">Kitchen</div>
       <div class="nav-item" onclick="nav('menu',this)" data-label="Menu builder"><span class="nav-icon">≡</span><span class="nav-text">Menu builder</span></div>
-      <div class="nav-item" onclick="nav('recipes',this)" data-label="Recipes"><span class="nav-icon">♜</span><span class="nav-text">Recipes</span></div>
       <div class="nav-item" onclick="nav('ingredients',this)" data-label="Ingredients"><span class="nav-icon">◉</span><span class="nav-text">Ingredients</span></div>
       <div class="nav-item" onclick="nav('production',this)" data-label="Production"><span class="nav-icon">❄</span><span class="nav-text">Production runs</span></div>
       <div class="nav-item" onclick="nav('stock',this)" data-label="Stock"><span class="nav-icon">▣</span><span class="nav-text">Stock</span></div>
@@ -882,8 +882,7 @@ tbody td{padding:11px 14px;vertical-align:middle;}
 <div class="bottom-more-menu" id="bottom-more-menu">
   <div class="more-item" onclick="nav('packup',null);toggleMoreMenu();setBottomActive('more')"><span class="more-item-icon">↗</span> Pack-up lists</div>
   <div class="more-item" onclick="nav('menu',null);toggleMoreMenu();setBottomActive('more')"><span class="more-item-icon">≡</span> Menu builder</div>
-  <div class="more-item" onclick="nav('recipes',null);toggleMoreMenu();setBottomActive('more')"><span class="more-item-icon">♜</span> Recipes</div>
-  <div class="more-item" onclick="nav('ingredients',null);toggleMoreMenu();setBottomActive('more')"><span class="more-item-icon">◉</span> Ingredients</div>
+    <div class="more-item" onclick="nav('ingredients',null);toggleMoreMenu();setBottomActive('more')"><span class="more-item-icon">◉</span> Ingredients</div>
   <div class="more-item" onclick="nav('production',null);toggleMoreMenu();setBottomActive('more')"><span class="more-item-icon">❄</span> Production runs</div>
   <div class="more-item" onclick="nav('stock',null);toggleMoreMenu();setBottomActive('more')"><span class="more-item-icon">▣</span> Stock</div>
   <div class="more-item" onclick="nav('orders',null);toggleMoreMenu();setBottomActive('more')"><span class="more-item-icon">◎</span> Orders</div>
@@ -1048,7 +1047,7 @@ tbody td{padding:11px 14px;vertical-align:middle;}
 </div>
 
 <!-- ══ RECIPES ══ -->
-<div id="page-recipes" class="page">
+<div id="page-recipes" class="page" style="display:none !important;">
   <div class="topbar">
     <div class="topbar-left"><div class="topbar-title">Recipes</div><div class="topbar-sub">Full recipes linked to dishes — ingredients, method, service</div></div>
     <div class="topbar-actions">
@@ -1476,9 +1475,10 @@ tbody td{padding:11px 14px;vertical-align:middle;}
       </div>
       <div class="form-row"><label class="form-label">Description</label><textarea class="form-textarea" id="dish-desc" placeholder="Brief description..."></textarea></div>
       <div class="divider"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;"><span style="font-size:12px;font-weight:500;">Components</span><button class="btn btn-sm" onclick="addComp()">+ Add</button></div>
-      <div style="font-size:10px;color:var(--text3);margin-bottom:7px;font-family:'DM Mono',monospace;">NAME · QTY/COVER · UNIT · SUB-CATEGORY · STORAGE</div>
-      <div class="component-list" id="comp-list"></div>
+      <div class="form-section">Components &amp; Recipes</div>
+      <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">Each component is one thing you physically make — it becomes a task on the prep list. Click <strong>📋 Add recipe</strong> to add ingredients and method steps, which power the order list automatically.</div>
+      <div id="comp-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+      <button class="btn btn-sm" onclick="addComp()" style="margin-top:10px;">+ Add component</button>
       <div class="divider"></div>
       <div class="form-row"><label class="form-label">Allergens</label><div style="font-size:11px;color:var(--text3);margin-bottom:7px;">Click once = Contains · Twice = May contain · Three times = clear</div><div class="allergen-grid" id="al-grid"></div></div>
       <div class="form-row"><label class="form-label">Chef notes / TBCs</label><textarea class="form-textarea" id="dish-notes" placeholder="TBC items, testing required, prep guidance..."></textarea></div>
@@ -1617,7 +1617,7 @@ function nav(page,el){
 // ══════════════════════════════════════════════════════
 async function loadDishes(){
   console.log('[Digbys] Loading dishes...');
-  const{data,error}=await sb.from('dishes').select('*, components(*, component_allergens(allergen,status))').order('name');
+  const{data,error}=await sb.from('dishes').select(`*, components(*, component_allergens(allergen,status), recipe_ingredients(*), recipe_steps(*))`).order('name');
   if(error){console.error('[Digbys] loadDishes error:',error.message,error);showToast('Error loading dishes: '+error.message,'error');return;}
   console.log('[Digbys] Loaded',data?.length,'dishes');
   dishes=data||[];
@@ -1689,32 +1689,118 @@ function openDishModal(){
 
 async function editDish(id){
   const d=dishes.find(x=>x.id===id);if(!d)return;
-  document.getElementById('dish-id').value=d.id;document.getElementById('dish-modal-title').textContent='Edit dish';
-  document.getElementById('dish-name').value=d.name;document.getElementById('dish-cat').value=d.category;
-  document.getElementById('dish-station').value=d.station||'';document.getElementById('dish-desc').value=d.description||'';
-  document.getElementById('dish-notes').value=d.notes||'';document.getElementById('dish-del-btn').style.display='inline-flex';
-  Array.from(document.getElementById('dish-menu').options).forEach(o=>o.selected=(d.menu_type||[]).includes(o.value));
+  document.getElementById('dish-id').value=d.id;
+  document.getElementById('dish-modal-title').textContent='Edit dish';
+  document.getElementById('dish-name').value=d.name;
+  document.getElementById('dish-cat').value=d.category;
+  document.getElementById('dish-station').value=d.station||'';
+  document.getElementById('dish-desc').value=d.description||'';
+  document.getElementById('dish-notes').value=d.notes||'';
+  document.getElementById('dish-del-btn').style.display='inline-flex';
   document.getElementById('comp-list').innerHTML='';
   (d.components||[]).sort((a,b)=>a.sort_order-b.sort_order).forEach(c=>addComp(c));
-  resetAl();getDishAl(d).forEach(a=>{allergenState[a.allergen]=a.status==='May Contain'?'may':'contains';const el=document.getElementById('at-'+a.allergen);if(el)el.className='allergen-toggle '+(a.status==='May Contain'?'may':'contains');});
+  resetAl();
+  allergenState={};
+  const al=getDishAl(d);
+  al.forEach(a=>{allergenState[a.allergen]=a.status==='May Contain'?'may':'contains';});
+  buildAlGrid();
+  Object.entries(allergenState).forEach(([a,s])=>{
+    const el=document.getElementById('at-'+a);
+    if(el)el.className='allergen-toggle '+(s==='may'?'may':'contains');
+  });
+  const menus=d.menu_type||[];
+  Array.from(document.getElementById('dish-menu').options).forEach(o=>o.selected=menus.includes(o.value));
+  _formDirty=false;
   document.getElementById('dish-modal').classList.add('open');
 }
 
+
 function addComp(c=null){
-  const div=document.createElement('div');div.className='component-item';
+  const div=document.createElement('div');
+  div.className='component-item';
+  div.dataset.compId=c?c.id:'';
   const st=c?(c.freeze_flag?'freeze':c.fridge_flag?'fridge':'none'):'none';
   const sl=st==='freeze'?'❄ Freeze':st==='fridge'?'🧊 Fridge':'○ Fresh';
   const sc=st==='freeze'?'freeze':st==='fridge'?'fridge':'';
+  const uid='comp-'+Date.now()+Math.random().toString(36).slice(2,5);
+  const ings=(c&&c.recipe_ingredients)||[];
+  const steps=(c&&c.recipe_steps)||[];
+
   div.innerHTML=`
-    <input class="comp-name" type="text" placeholder="Component name" value="${c?h(c.name):''}">
-    <input class="comp-qty" type="number" placeholder="Qty" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}">
-    <input class="comp-unit" type="text" placeholder="unit" value="${c?h(c.unit||''):''}">
-    <input class="comp-station" type="text" placeholder="sub-cat" value="${c?h(c.station||''):''}">
-    <button class="storage-btn ${sc}" data-state="${st}" onclick="cycleStore(this)">${sl}</button>
-    <input type="text" placeholder="Chef note" style="flex:1;min-width:80px;font-size:11px;padding:4px 7px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;" value="${c?h(c.chef_note||''):''}">
-    <button class="comp-remove" onclick="this.closest('.component-item').remove()">×</button>`;
+    <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--bg);border-bottom:1px solid var(--border);">
+      <input class="comp-name" type="text" placeholder="Component name e.g. Mint pea purée, Hake fillet, Green oil..." value="${c?h(c.name):''}"
+        style="flex:2;font-size:13px;font-weight:600;padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
+      <input class="comp-qty" type="number" placeholder="Qty/cover" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}"
+        style="width:80px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);" title="Quantity per cover">
+      <input class="comp-unit" type="text" placeholder="unit" value="${c?h(c.unit||''):''}"
+        style="width:60px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);">
+      <button class="storage-btn ${sc}" data-state="${st}" onclick="cycleStore(this)" style="white-space:nowrap;">${sl}</button>
+      <input class="comp-chef-note" type="text" placeholder="Chef note / instruction..." value="${c?h(c.chef_note||''):''}"
+        style="flex:1;min-width:80px;font-size:11px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;color:var(--amber);">
+      <button onclick="toggleRecipe('${uid}')" style="font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text2);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;" title="Add/edit recipe for this component">
+        ${ings.length||steps.length?'📋 Recipe ('+ings.length+' ings)':'📋 Add recipe'}
+      </button>
+      <button class="comp-remove" onclick="this.closest('.component-item').remove()" style="color:var(--text3);font-size:20px;background:none;border:none;cursor:pointer;padding:0 4px;flex-shrink:0;">×</button>
+    </div>
+    <div id="${uid}" class="comp-recipe" style="display:none;background:var(--surface);border-bottom:1px solid var(--border);">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+        <div style="padding:12px 14px;border-right:1px solid var(--border);">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:8px;">
+            Ingredients <span style="font-weight:400;">(scale from base portions below)</span>
+          </div>
+          <div class="comp-ing-list">${ings.sort((a,b)=>a.sort_order-b.sort_order).map(i=>compIngRow(i)).join('')}</div>
+          <button onclick="this.closest('.comp-recipe').querySelector('.comp-ing-list').insertAdjacentHTML('beforeend',compIngRow())"
+            style="font-size:11px;color:var(--green);background:none;border:none;cursor:pointer;margin-top:6px;padding:0;font-family:'DM Sans',sans-serif;">+ Add ingredient</button>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:8px;">Method steps</div>
+          <div class="comp-step-list">${steps.sort((a,b)=>a.step_number-b.step_number).map((s,i)=>compStepRow(s,i+1)).join('')}</div>
+          <button onclick="(function(btn){const list=btn.closest('.comp-recipe').querySelector('.comp-step-list');list.insertAdjacentHTML('beforeend',compStepRow(null,list.children.length+1));})(this)"
+            style="font-size:11px;color:var(--green);background:none;border:none;cursor:pointer;margin-top:6px;padding:0;font-family:'DM Sans',sans-serif;">+ Add step</button>
+        </div>
+      </div>
+      <div style="padding:8px 14px;background:var(--bg);border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">BASE PORTIONS</span>
+        <input type="number" class="comp-base-portions" value="${c&&c.base_portions?c.base_portions:10}" min="1"
+          style="width:70px;font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);">
+        <span style="font-size:11px;color:var(--text3);">All quantities above are for this many covers — scales automatically for each event</span>
+      </div>
+    </div>`;
+
   document.getElementById('comp-list').appendChild(div);
 }
+
+function toggleRecipe(uid){
+  const el=document.getElementById(uid);
+  if(!el)return;
+  const open=el.style.display==='block';
+  el.style.display=open?'none':'block';
+}
+
+function compIngRow(i=null){
+  return`<div class="comp-ing-row" style="display:grid;grid-template-columns:2fr 70px 60px auto;gap:4px;margin-bottom:4px;align-items:center;">
+    <input type="text" class="ci-name" placeholder="Ingredient name" value="${i?h(i.ingredient_name||i.name||''):''}"
+      style="font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
+    <input type="number" class="ci-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01"
+      style="font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);">
+    <input type="text" class="ci-unit" placeholder="unit" value="${i?h(i.unit||''):''}"
+      style="font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);">
+    <button onclick="this.closest('.comp-ing-row').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0 3px;">×</button>
+  </div>`;
+}
+
+function compStepRow(s=null,num=1){
+  return`<div class="comp-step-row" style="display:flex;gap:6px;margin-bottom:6px;align-items:flex-start;">
+    <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:6px;min-width:18px;flex-shrink:0;">${num}.</span>
+    <textarea class="cs-instruction" placeholder="Step instruction..." style="flex:1;font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);resize:vertical;min-height:38px;font-family:'DM Sans',sans-serif;">${s?h(s.instruction):''}</textarea>
+    <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
+      <input type="text" class="cs-time" placeholder="Time" value="${s?h(s.time_note||''):''}" style="width:65px;font-size:11px;padding:4px 5px;border:1px solid var(--border);border-radius:var(--radius);">
+      <input type="text" class="cs-temp" placeholder="Temp" value="${s?h(s.temp_note||''):''}" style="width:65px;font-size:11px;padding:4px 5px;border:1px solid var(--border);border-radius:var(--radius);">
+    </div>
+    <button onclick="this.closest('.comp-step-row').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;margin-top:4px;padding:0 3px;">×</button>
+  </div>`;
+}
+
 
 function cycleStore(btn){
   const s=['none','freeze','fridge'],l=['○ Fresh','❄ Freeze','🧊 Fridge'],c=['','freeze','fridge'];
@@ -1723,34 +1809,114 @@ function cycleStore(btn){
 }
 
 async function saveDish(){
-  const name=document.getElementById('dish-name').value.trim();if(!name){showToast('Dish name required','error');return;}
+  const name=document.getElementById('dish-name').value.trim();
+  if(!name){showToast('Dish name required','error');return;}
   const id=document.getElementById('dish-id').value;
   const menuTypes=Array.from(document.getElementById('dish-menu').selectedOptions).map(o=>o.value);
-  const data={name,category:document.getElementById('dish-cat').value,station:document.getElementById('dish-station').value.trim()||null,description:document.getElementById('dish-desc').value.trim()||null,notes:document.getElementById('dish-notes').value.trim()||null,menu_type:menuTypes,updated_at:new Date().toISOString()};
+  const data={name,category:document.getElementById('dish-cat').value,
+    station:document.getElementById('dish-station').value.trim()||null,
+    description:document.getElementById('dish-desc').value.trim()||null,
+    notes:document.getElementById('dish-notes').value.trim()||null,
+    menu_type:menuTypes,updated_at:new Date().toISOString()};
   try{
     let did=id;
-    if(id){const{error}=await sb.from('dishes').update(data).eq('id',id);if(error)throw error;}
-    else{const{data:nd,error}=await sb.from('dishes').insert(data).select().single();if(error)throw error;did=nd.id;}
-    const items=document.querySelectorAll('#comp-list .component-item');
-    await sb.from('components').delete().eq('dish_id',did);
-    const comps=[];
-    items.forEach((item,i)=>{
-      const n=item.querySelector('.comp-name').value.trim();if(!n)return;
-      const st=item.querySelector('.storage-btn').dataset.state;
-      const noteInput=item.querySelectorAll('input[type="text"]')[3];
-      comps.push({dish_id:did,name:n,qty_per_cover:parseFloat(item.querySelector('.comp-qty').value)||null,unit:item.querySelector('.comp-unit').value.trim()||null,station:item.querySelector('.comp-station').value.trim()||null,chef_note:noteInput?noteInput.value.trim()||null:null,freeze_flag:st==='freeze',fridge_flag:st==='fridge',sort_order:i});
-    });
-    if(comps.length){const{error}=await sb.from('components').insert(comps);if(error)throw error;}
-    const{data:nc}=await sb.from('components').select('id').eq('dish_id',did);
-    if(nc&&nc.length){
-      await sb.from('component_allergens').delete().in('component_id',nc.map(c=>c.id));
-      const alR=[];
-      Object.entries(allergenState).forEach(([al,st])=>{if(st&&nc[0])alR.push({component_id:nc[0].id,allergen:al,status:st==='may'?'May Contain':'Contains'});});
-      if(alR.length)await sb.from('component_allergens').insert(alR);
+    if(id){
+      const{error}=await sb.from('dishes').update(data).eq('id',id);
+      if(error)throw error;
+    }else{
+      const{data:nd,error}=await sb.from('dishes').insert(data).select().single();
+      if(error)throw error;
+      did=nd.id;
     }
-    showToast(id?'Dish updated':'Dish added','success');closeModal('dish-modal');await loadDishes();
-  }catch(e){showToast('Error: '+e.message,'error');}
+
+    // Delete old components (cascades to component_allergens)
+    await sb.from('components').delete().eq('dish_id',did);
+
+    // Save each component + its recipe
+    const compItems=document.querySelectorAll('#comp-list .component-item');
+    for(let i=0;i<compItems.length;i++){
+      const item=compItems[i];
+      const n=item.querySelector('.comp-name').value.trim();
+      if(!n)continue;
+      const st=item.querySelector('.storage-btn').dataset.state;
+      const basePortion=parseInt(item.querySelector('.comp-base-portions')?.value)||10;
+
+      // Insert component
+      const{data:nc,error:ce}=await sb.from('components').insert({
+        dish_id:did,name:n,
+        qty_per_cover:parseFloat(item.querySelector('.comp-qty').value)||null,
+        unit:item.querySelector('.comp-unit').value.trim()||null,
+        station:null,
+        chef_note:item.querySelector('.comp-chef-note')?.value.trim()||null,
+        freeze_flag:st==='freeze',fridge_flag:st==='fridge',sort_order:i,
+        base_portions:basePortion
+      }).select().single();
+      if(ce)throw ce;
+
+      const cid=nc.id;
+
+      // Save recipe ingredients for this component
+      const ingRows=item.querySelectorAll('.comp-ing-row');
+      const ings=[];
+      ingRows.forEach((row,j)=>{
+        const ingName=row.querySelector('.ci-name').value.trim();
+        if(!ingName)return;
+        ings.push({
+          sub_recipe_id:null,
+          component_id:cid,
+          ingredient_name:ingName,
+          quantity:parseFloat(row.querySelector('.ci-qty').value)||null,
+          unit:row.querySelector('.ci-unit').value.trim()||null,
+          sort_order:j
+        });
+      });
+      if(ings.length){
+        const{error:ie}=await sb.from('recipe_ingredients').insert(ings);
+        if(ie)console.warn('ingredient save:',ie.message);
+      }
+
+      // Save recipe steps for this component
+      const stepRows=item.querySelectorAll('.comp-step-row');
+      const steps=[];
+      stepRows.forEach((row,j)=>{
+        const inst=row.querySelector('.cs-instruction').value.trim();
+        if(!inst)return;
+        steps.push({
+          sub_recipe_id:null,
+          component_id:cid,
+          step_number:j+1,
+          instruction:inst,
+          time_note:row.querySelector('.cs-time').value.trim()||null,
+          temp_note:row.querySelector('.cs-temp').value.trim()||null
+        });
+      });
+      if(steps.length){
+        const{error:se}=await sb.from('recipe_steps').insert(steps);
+        if(se)console.warn('step save:',se.message);
+      }
+    }
+
+    // Save allergens on first component (dish-level allergens)
+    const{data:allComps}=await sb.from('components').select('id').eq('dish_id',did).order('sort_order').limit(1);
+    if(allComps&&allComps.length){
+      await sb.from('component_allergens').delete().in('component_id',[allComps[0].id]);
+      const alRows=[];
+      Object.entries(allergenState).forEach(([al,st])=>{
+        if(st)alRows.push({component_id:allComps[0].id,allergen:al,status:st==='may'?'May Contain':'Contains'});
+      });
+      if(alRows.length)await sb.from('component_allergens').insert(alRows);
+    }
+
+    _formDirty=false;
+    showToast(id?'Dish updated':'Dish added','success');
+    closeModal('dish-modal');
+    await loadDishes();
+  }catch(e){
+    console.error('saveDish error:',e);
+    showToast('Error saving: '+e.message,'error');
+  }
 }
+
 
 async function deleteDish(){const id=document.getElementById('dish-id').value;if(!id||!confirm('Delete this dish?'))return;await sb.from('dishes').delete().eq('id',id);showToast('Dish deleted','success');closeModal('dish-modal');await loadDishes();}
 
@@ -2268,6 +2434,28 @@ function taskRow(t,opts={}){
   const alTags=t.al.slice(0,4).map(a=>`<span class="task-tag tag-al">${a.allergen}</span>`).join('');
   const dishLabel=opts.hideDish?'':`<div class="task-dish-name">${h(t.dishName)}</div>`;
   const printBtn=t.comp.freeze_flag||t.comp.fridge_flag?`<button class="task-print-btn ${t.comp.freeze_flag?'freeze':''}" onclick="event.stopPropagation();printCompLabel('${t.id}')">Print label</button>`:'';
+  const hasRecipe=(t.comp.recipe_ingredients||[]).length>0||(t.comp.recipe_steps||[]).length>0;
+  const recipeBtn=hasRecipe?`<button class="task-print-btn" onclick="event.stopPropagation();toggleTaskRecipe('${t.id}')" style="margin-top:4px;">📋 Recipe</button>`:'';
+  const ings=(t.comp.recipe_ingredients||[]).sort((a,b)=>a.sort_order-b.sort_order);
+  const steps=(t.comp.recipe_steps||[]).sort((a,b)=>a.step_number-b.step_number);
+  const recipePanel=hasRecipe?`<div id="recipe-panel-${t.id}" style="display:none;padding:10px 14px 14px;background:var(--bg);border-top:1px solid var(--border);">
+    ${ings.length?`<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:6px;">Ingredients (per ${t.comp.base_portions||10} covers)</div>
+    <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:2px;margin-bottom:10px;">
+      ${ings.map(i=>`<div style="font-size:12px;padding:3px 0;border-bottom:1px dotted var(--border);display:contents;">
+        <span style="padding:3px 0;">${h(i.ingredient_name||i.name||'')}</span>
+        <span style="padding:3px 0;font-family:'DM Mono',monospace;color:var(--text2);">${i.quantity||i.qty||''}</span>
+        <span style="padding:3px 0;color:var(--text3);">${i.unit||''}</span>
+      </div>`).join('')}
+    </div>`:''}
+    ${steps.length?`<div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:6px;">Method</div>
+    ${steps.map(s=>`<div style="display:flex;gap:8px;padding:4px 0;border-bottom:1px dotted var(--border);font-size:12px;">
+      <span style="font-family:'DM Mono',monospace;color:var(--text3);min-width:18px;">${s.step_number}.</span>
+      <span style="flex:1;">${h(s.instruction)}</span>
+      ${s.time_note?`<span style="color:var(--text3);font-size:11px;white-space:nowrap;">${h(s.time_note)}</span>`:''}
+      ${s.temp_note?`<span style="color:var(--blue);font-size:11px;white-space:nowrap;">${h(s.temp_note)}</span>`:''}
+    </div>`).join('')}`:''}
+  </div>`:'';
+
   return`<div class="task-row ${done?'done':''}" id="tc-${t.id}" onclick="toggleTask('${t.id}')">
     <div class="task-check-col"><div class="task-checkbox"><span class="task-tick">✓</span></div></div>
     <div class="task-body">
@@ -2276,9 +2464,15 @@ function taskRow(t,opts={}){
       ${t.note?`<div class="task-chef-note">${h(t.note)}</div>`:''}
       <div class="task-tags"><span class="task-tag tag-qty">${t.qty}</span>${stTag}${alTags}</div>
     </div>
-    <div class="task-actions">${printBtn}</div>
-  </div>`;
+    <div class="task-actions">${printBtn}${recipeBtn}</div>
+  </div>${recipePanel}`;
 }
+
+function toggleTaskRecipe(taskId){
+  const panel=document.getElementById('recipe-panel-'+taskId);
+  if(panel)panel.style.display=panel.style.display==='block'?'none':'block';
+}
+
 
 function renderPrepBucket(){
   const el=document.getElementById('prep-bucket-view');
@@ -2842,21 +3036,23 @@ async function generateOrderList(){
   const evDishIds=(ev.event_dishes||[]).map(d=>d.dish_id);
   const evDishes=dishes.filter(d=>evDishIds.includes(d.id));
   if(!evDishes.length){el.innerHTML='<div class="card"><div class="card-body"><div class="empty-state"><div class="empty-title">No dishes on this event</div></div></div></div>';return;}
-  const{data:recs}=await sb.from('recipes').select('*, recipe_sub_recipes(*, recipe_ingredients(*))').in('dish_id',evDishes.map(d=>d.id));
-  const recByDish={};(recs||[]).forEach(r=>recByDish[r.dish_id]=r);
+  // Recipes are now on components directly - already loaded with dishes
+  const recByDish={}; // unused, ingredients fetched per component below
   const scaleMap={};
   evDishes.forEach(dish=>{
-    const recipe=recByDish[dish.id];if(!recipe)return;
-    const scale=covers/recipe.base_portions;
-    (recipe.recipe_sub_recipes||[]).forEach(sub=>{
-      (sub.recipe_ingredients||[]).forEach(ing=>{
+    (dish.components||[]).forEach(comp=>{
+      const scale=covers/(comp.base_portions||10);
+      (comp.recipe_ingredients||[]).forEach(ing=>{
         const name=(ing.ingredient_name||ing.name||'').trim();if(!name)return;
         const ingObj=ingredients_data.find(i=>i.name.toLowerCase()===name.toLowerCase());
-        const type=ingObj?ingObj.type:'fresh';const qty=ing.quantity||ing.qty||0;
-        const scaled=qty?Math.round(qty*scale*100)/100:null;const key=name.toLowerCase();
+        const type=ingObj?ingObj.type:'fresh';
+        const qty=ing.quantity||ing.qty||0;
+        const scaled=qty?Math.round(qty*scale*100)/100:null;
+        const key=name.toLowerCase();
         if(!scaleMap[key])scaleMap[key]={name,qty:0,unit:ing.unit||'',type,dishes:[],ingObj};
         if(scaled)scaleMap[key].qty+=scaled;
-        if(!scaleMap[key].dishes.includes(dish.name))scaleMap[key].dishes.push(dish.name);
+        const label=dish.name+(comp.name?' ('+comp.name+')':'');
+        if(!scaleMap[key].dishes.includes(label))scaleMap[key].dishes.push(label);
       });
     });
   });
