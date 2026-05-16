@@ -2683,17 +2683,36 @@ function renderLabelQueue(){
   </div>`).join('');
 }
 
-async function sendLabel(jobCode,compName,dishName,eventDate,allergens){
+async function sendLabel(jobCode,compName,dishCategory,eventDate,allergenArr,quantity,chefNote,preparedBy){
   const ngrok=settings.ngrok||'';if(!ngrok){showToast('Set ngrok URL in Admin > Settings','error');return;}
+  // Use-by: default 90 days for freeze items
   const ub=new Date(new Date(eventDate).getTime()+90*24*60*60*1000);
-  const payload={job_code:jobCode,product_name:`${dishName} — ${compName}`,section:'Kitchen Prep',prep_date:new Date().toISOString().split('T')[0],use_by:ub.toISOString().split('T')[0],allergens:allergens?allergens.split(',').filter(Boolean):[],notes:`Component: ${compName}`,prepared_by:'Kitchen'};
+  // Match CPS label format exactly
+  const payload={
+    job_code:jobCode,
+    product_name:compName,
+    section:dishCategory||'Kitchen',
+    quantity:quantity||'',
+    prep_date:new Date().toISOString().split('T')[0],
+    use_by:ub.toISOString().split('T')[0],
+    allergens:Array.isArray(allergenArr)?allergenArr:allergenArr?allergenArr.split(',').filter(Boolean):[],
+    notes:chefNote||'',
+    prepared_by:preparedBy||settings.defaultChef||'Kitchen'
+  };
   try{
-    const r=await fetch(`${ngrok}/print`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    if(r.ok)showToast('Label sent to printer','success');else showToast('Printer error — check Pi connection','error');
+    const r=await fetch(`${ngrok}/print`,{method:'POST',headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},body:JSON.stringify(payload)});
+    if(r.ok)showToast(`Label sent: ${compName}`,'success');
+    else showToast('Printer error — check Pi connection','error');
   }catch(e){showToast('Cannot reach printer — check ngrok tunnel','error');}
 }
 
-function printCompLabel(tid){const t=prepTasks.find(x=>x.id===tid);if(!t)return;sendLabel(t.jobCode,t.comp.name,t.dishName,t.evDate,t.al.map(a=>a.allergen).join(','));}
+function printCompLabel(tid){
+  const t=prepTasks.find(x=>x.id===tid);if(!t)return;
+  const buf=1+(settings.buffer||14)/100;
+  const covers=Math.round((t.evCovers||1)*buf);
+  const qty=t.comp.qty_per_cover?Math.ceil(t.comp.qty_per_cover*covers)+' '+(t.comp.unit||'portions'):covers+' portions';
+  sendLabel(t.jobCode,t.comp.name,t.dishCat,t.evDate,t.al.map(a=>a.allergen),qty,t.comp.chef_note||'');
+}
 
 function printAllLabels(){
   const filter=(document.getElementById('label-filter').value||'').toUpperCase();const items=[];
@@ -2705,7 +2724,11 @@ function printAllLabels(){
     });
   });
   if(!items.length){showToast('No labels to print','error');return;}
-  items.forEach((item,i)=>setTimeout(()=>sendLabel(item.ev.job_code,item.comp.name,item.dish.name,item.ev.event_date,item.al.map(a=>a.allergen).join(',')),i*500));
+  items.forEach((item,i)=>{
+    const buf=1+(settings.buffer||14)/100;const covers=Math.round((item.ev.covers||1)*buf);
+    const qty=item.comp.qty_per_cover?Math.ceil(item.comp.qty_per_cover*covers)+' '+(item.comp.unit||'portions'):covers+' portions';
+    setTimeout(()=>sendLabel(item.ev.job_code,item.comp.name,item.dish.category||'Kitchen',item.ev.event_date,item.al.map(a=>a.allergen),qty,item.comp.chef_note||''),i*600);
+  });
   showToast(`Sending ${items.length} labels...`,'success');
 }
 
