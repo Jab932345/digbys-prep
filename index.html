@@ -813,6 +813,103 @@ tbody td{padding:11px 14px;vertical-align:middle;}
   .fsa-table th,.fsa-table td{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .fsa-sym-c,.fsa-sym-m,.al-sym-c,.al-sym-m{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
+
+/* ══════════════════════════════════════════════════════════
+   MENU GRID — card-based dish browser
+   ══════════════════════════════════════════════════════════ */
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;}
+.dish-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:box-shadow .15s,transform .1s;}
+.dish-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.dish-card.locked{border-left:3px solid var(--green);}
+.dish-card.draft{border-left:3px solid var(--amber-bd);}
+.dc-header{padding:14px 16px 10px;border-bottom:1px solid var(--border);}
+.dc-name{font-size:14px;font-weight:600;color:var(--text1);margin-bottom:3px;line-height:1.2;}
+.dc-meta{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.06em;}
+.dc-body{padding:12px 16px;}
+.dc-comps{display:flex;flex-direction:column;gap:3px;margin-bottom:8px;}
+.dc-comp-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);}
+.dc-comp-dot{width:6px;height:6px;border-radius:50%;background:var(--border2);flex-shrink:0;}
+.dc-comp-dot.freeze{background:var(--blue);}
+.dc-comp-dot.fridge{background:var(--green);}
+.dc-footer{padding:10px 16px;background:var(--bg);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.dc-al-row{display:flex;flex-wrap:wrap;gap:3px;}
+.dc-status{font-size:10px;font-family:'DM Mono',monospace;font-weight:600;padding:2px 8px;border-radius:20px;}
+.dc-status.locked{background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);}
+.dc-status.draft{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd);}
+
+/* ══════════════════════════════════════════════════════════
+   DISH DETAIL — component + recipe builder
+   ══════════════════════════════════════════════════════════ */
+.comp-block{border-bottom:1px solid var(--border);transition:background .1s;}
+.comp-block:last-child{border-bottom:none;}
+.comp-block-header{display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;}
+.comp-block-header:hover{background:var(--bg);}
+.comp-expand-icon{font-size:11px;color:var(--text3);transition:transform .2s;width:14px;flex-shrink:0;font-family:'DM Mono',monospace;}
+.comp-block.open .comp-expand-icon{transform:rotate(90deg);}
+.comp-name-field{flex:1;font-size:14px;font-weight:600;border:none;background:transparent;color:var(--text1);font-family:'DM Sans',sans-serif;outline:none;cursor:text;padding:2px 0;}
+.comp-name-field:focus{background:var(--bg);padding:2px 8px;border-radius:var(--radius);border:1px solid var(--green);box-shadow:0 0 0 3px rgba(26,99,71,0.08);}
+.comp-meta-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex-shrink:0;}
+.comp-qty-input{width:64px;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Mono',monospace;text-align:center;}
+.comp-unit-input{width:60px;font-size:11px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Mono',monospace;}
+.storage-cycle{font-size:10px;padding:3px 10px;border-radius:20px;border:1px solid var(--border);background:var(--surface);color:var(--text3);cursor:pointer;white-space:nowrap;font-family:'DM Mono',monospace;transition:all .15s;}
+.storage-cycle.freeze{background:var(--blue-bg);border-color:var(--blue-bd);color:var(--blue);}
+.storage-cycle.fridge{background:var(--green-bg);border-color:var(--green-bd);color:var(--green);}
+.comp-chef-note{font-size:11px;padding:4px 8px;min-width:120px;border:1px solid var(--amber-bd);border-radius:var(--radius);font-family:'DM Sans',sans-serif;color:var(--amber);background:var(--amber-bg);}
+.comp-chef-note::placeholder{color:var(--text3);}
+.comp-remove-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:0 4px;flex-shrink:0;}
+.comp-remove-btn:hover{color:var(--red);}
+.comp-recipe-panel{display:none;border-top:1px solid var(--border);background:var(--bg);}
+.comp-block.open .comp-recipe-panel{display:grid;grid-template-columns:1fr 1fr;}
+.recipe-col{padding:14px 16px;}
+.recipe-col:first-child{border-right:1px solid var(--border);}
+.recipe-col-label{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.09em;font-family:'DM Mono',monospace;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.recipe-base-input{width:52px;font-size:12px;font-weight:600;padding:3px 6px;border:1px solid var(--border);border-radius:var(--radius);text-align:center;font-family:'DM Mono',monospace;}
+.ing-row{display:grid;grid-template-columns:2fr 60px 56px auto;gap:4px;margin-bottom:4px;align-items:center;}
+.ing-row input{font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;}
+.ing-row input:focus,.step-row textarea:focus,.step-timing input:focus{outline:none;border-color:var(--green);}
+.ing-remove,.step-remove{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 2px;line-height:1;}
+.ing-remove:hover,.step-remove:hover{color:var(--red);}
+.step-row{display:flex;gap:6px;margin-bottom:6px;align-items:flex-start;}
+.step-num{font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:7px;min-width:16px;flex-shrink:0;}
+.step-row textarea{flex:1;font-size:12px;padding:5px 7px;border:1px solid var(--border);border-radius:var(--radius);resize:vertical;min-height:36px;font-family:'DM Sans',sans-serif;line-height:1.4;}
+.step-timing{display:flex;flex-direction:column;gap:3px;flex-shrink:0;}
+.step-timing input{width:62px;font-size:11px;padding:4px 5px;border:1px solid var(--border);border-radius:var(--radius);}
+.add-row-btn{font-size:11px;color:var(--green);background:none;border:none;cursor:pointer;padding:4px 0;font-family:'DM Sans',sans-serif;}
+.add-row-btn:hover{text-decoration:underline;}
+
+/* ══════════════════════════════════════════════════════════
+   ORDER BUCKETS
+   ══════════════════════════════════════════════════════════ */
+.order-bucket{margin-bottom:16px;}
+.order-bucket-hdr{display:flex;align-items:center;gap:10px;padding:10px 16px;border-radius:var(--radius-lg) var(--radius-lg) 0 0;font-weight:600;font-size:13px;}
+.order-bucket.need .order-bucket-hdr{background:var(--red-bg);color:var(--red);border:1px solid var(--red-bd);border-bottom:none;}
+.order-bucket.maybe .order-bucket-hdr{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd);border-bottom:none;}
+.order-bucket-body{border:1px solid var(--border);border-radius:0 0 var(--radius-lg) var(--radius-lg);overflow:hidden;}
+.order-bucket.need .order-bucket-body{border-color:var(--red-bd);}
+.order-bucket.maybe .order-bucket-body{border-color:var(--amber-bd);}
+.order-row{display:grid;grid-template-columns:1fr 90px 70px 130px 1fr;gap:0;padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;align-items:center;}
+.order-row:last-child{border-bottom:none;}
+.order-row:hover{background:var(--bg);}
+
+/* ══ RESPONSIVE ══ */
+@media(max-width:900px){
+  .menu-grid{grid-template-columns:1fr 1fr;}
+  .comp-block.open .comp-recipe-panel{grid-template-columns:1fr;}
+  .recipe-col:first-child{border-right:none;border-bottom:1px solid var(--border);}
+  .order-row{grid-template-columns:1fr 80px 70px;}
+  .order-row>:nth-child(4),.order-row>:nth-child(5){display:none;}
+}
+@media(max-width:600px){
+  .menu-grid{grid-template-columns:1fr;}
+  .comp-block-header{flex-wrap:wrap;}
+  .comp-meta-row{width:100%;padding-left:24px;}
+}
+@media print{
+  #page-dish-detail .topbar,.topbar-actions{display:none!important;}
+  .comp-block.open .comp-recipe-panel,.comp-recipe-panel{display:grid!important;grid-template-columns:1fr 1fr;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .comp-block{page-break-inside:avoid;}
+  .comp-expand-icon{display:none;}
+}
 </style>
 </head>
 <body>
@@ -1026,23 +1123,95 @@ tbody td{padding:11px 14px;vertical-align:middle;}
 <!-- ══ MENU BUILDER ══ -->
 <div id="page-menu" class="page">
   <div class="topbar">
-    <div class="topbar-title">Menu builder</div>
+    <div class="topbar-left">
+      <div class="topbar-title">Menu library</div>
+      <div class="topbar-sub" id="menu-count-label">Loading...</div>
+    </div>
     <div class="topbar-actions">
-      <input type="text" class="search-input" placeholder="Search dishes..." id="dish-search" oninput="renderMenu()">
-      <button class="btn btn-primary btn-sm" onclick="openDishModal()">+ Add dish</button>
+      <input type="text" class="search-input" id="dish-search" placeholder="Search dishes, ingredients, allergens..." oninput="renderMenu()" style="width:260px;">
+      <button class="btn btn-primary btn-sm" onclick="openDishDetail()">+ New dish</button>
     </div>
   </div>
+  <div style="background:var(--surface);border-bottom:1px solid var(--border);padding:10px 24px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+    <div class="filter-chip active" onclick="setDishFilter('all',this)">All</div>
+    <div style="width:1px;height:18px;background:var(--border);margin:0 2px;"></div>
+    <div class="filter-chip" onclick="setDishFilter('Canapés',this)">Canapés</div>
+    <div class="filter-chip" onclick="setDishFilter('Starters',this)">Starters</div>
+    <div class="filter-chip" onclick="setDishFilter('Mains',this)">Mains</div>
+    <div class="filter-chip" onclick="setDishFilter('Desserts',this)">Desserts</div>
+    <div class="filter-chip" onclick="setDishFilter('Evening Grazing',this)">Grazing</div>
+    <div class="filter-chip" onclick="setDishFilter('Tasting Menu',this)">Tasting</div>
+    <div class="filter-chip" onclick="setDishFilter('Sides',this)">Sides</div>
+    <div style="width:1px;height:18px;background:var(--border);margin:0 2px;"></div>
+    <div class="filter-chip" onclick="setDishFilter('freeze',this)">❄ Freezable</div>
+    <div class="filter-chip" onclick="setDishFilter('draft',this)">Draft</div>
+    <div class="filter-chip" onclick="setDishFilter('locked',this)">Locked</div>
+  </div>
   <div class="content">
-    <div class="filter-bar">
-      <div class="filter-chip active" onclick="setDishFilter('All',this)">All</div>
-      <div class="filter-chip" onclick="setDishFilter('Canapés',this)">Canapés</div>
-      <div class="filter-chip" onclick="setDishFilter('Starters',this)">Starters</div>
-      <div class="filter-chip" onclick="setDishFilter('Mains',this)">Mains</div>
-      <div class="filter-chip" onclick="setDishFilter('Desserts',this)">Desserts</div>
-      <div class="filter-chip" onclick="setDishFilter('Evening Grazing',this)">Evening Grazing</div>
-      <div class="filter-chip" onclick="setDishFilter('Stock',this)">Stock</div>
+    <div class="menu-grid" id="menu-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text3);"><span class="spinner"></span> Loading...</div>
     </div>
-    <div class="card"><div class="card-body"><table><thead><tr><th>Dish</th><th>Category</th><th>Components</th><th>Freezable</th><th>Allergens</th><th>Status</th><th></th></tr></thead><tbody id="menu-body"><tr><td colspan="7"><div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;"><span class="spinner"></span>Loading...</div></td></tr></tbody></table></div></div>
+  </div>
+</div>
+
+<!-- ══ DISH DETAIL ══ -->
+<div id="page-dish-detail" class="page">
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="btn btn-ghost btn-sm" onclick="checkDirtyBeforeNav('menu')" style="margin-right:6px;">← Menu</button>
+      <div>
+        <div class="topbar-title" id="dd-title">New dish</div>
+        <div class="topbar-sub" id="dd-sub"></div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm" id="dd-lock-btn" onclick="toggleDishLock()">Lock recipe</button>
+      <button class="btn btn-sm" onclick="printDishDetail()">🖨 Print</button>
+      <button class="btn btn-danger btn-sm" id="dd-del-btn" onclick="deleteDishFromDetail()" style="display:none;">Delete</button>
+      <button class="btn btn-primary btn-sm" onclick="saveDishDetail()">Save changes</button>
+    </div>
+  </div>
+  <div class="content" style="max-width:1080px;margin:0 auto;">
+    <input type="hidden" id="dd-id">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;" class="dash-grid">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Dish information</div></div>
+        <div class="card-body" style="padding:16px;">
+          <div class="form-grid-2" style="margin-bottom:12px;">
+            <div class="form-row" style="margin:0;"><label class="form-label">Name</label><input class="form-input" id="dd-name" type="text" placeholder="e.g. Confit duck croquettes" oninput="updateDishDetailHeader()"></div>
+            <div class="form-row" style="margin:0;"><label class="form-label">Category</label><select class="form-select" id="dd-cat" onchange="updateDishDetailHeader()"><option>Canapés</option><option>Starters</option><option>Mains</option><option>Desserts</option><option>Evening Grazing</option><option>Tasting Menu</option><option>Sides</option><option>Other</option></select></div>
+          </div>
+          <div class="form-grid-2" style="margin-bottom:12px;">
+            <div class="form-row" style="margin:0;"><label class="form-label">Station</label><select class="form-select" id="dd-station"><option value="">— not set —</option><option>Hot</option><option>Cold</option><option>Pastry</option><option>Butchery</option><option>Pass</option></select></div>
+            <div class="form-row" style="margin:0;"><label class="form-label">Menu types</label><select class="form-select" id="dd-menu" multiple style="height:60px;"><option value="Weddings">Weddings</option><option value="Wakes">Wakes</option><option value="Private Dining">Private Dining</option><option value="Tasting Menu">Tasting Menu</option><option value="Bespoke">Bespoke</option><option value="Corporate">Corporate</option><option value="Restaurant">Restaurant</option></select></div>
+          </div>
+          <div class="form-row" style="margin:0;"><label class="form-label">Description</label><textarea class="form-textarea" id="dd-desc" placeholder="Brief description, service notes, plating guidance..." style="min-height:54px;"></textarea></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Allergens</div><div style="font-size:11px;color:var(--text3);">Once = Contains · Twice = May contain · Again = clear</div></div>
+        <div class="card-body" style="padding:14px;">
+          <div class="allergen-grid" id="dd-al-grid"></div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;font-family:'DM Mono',monospace;margin-bottom:5px;">Active allergens</div>
+            <div id="dd-al-display" style="font-size:12px;color:var(--text2);">None declared</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-header">
+        <div><div class="card-title">Components &amp; Recipes</div><div class="card-sub">Each component = one prep task. Click ▶ to expand and add ingredients and method.</div></div>
+        <button class="btn btn-primary btn-sm" onclick="addDishComponent()">+ Add component</button>
+      </div>
+      <div id="dd-comp-list" style="min-height:60px;">
+        <div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add the first one above</div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Chef notes &amp; TBCs</div></div>
+      <div class="card-body" style="padding:14px;"><textarea class="form-textarea" id="dd-notes" placeholder="TBC items, things to test and confirm, prep guidance..." style="min-height:72px;"></textarea></div>
+    </div>
   </div>
 </div>
 
@@ -1636,41 +1805,315 @@ function getDishAl(dish){
 }
 
 function renderMenu(){
-  const body=document.getElementById('menu-body');
+  const grid=document.getElementById('menu-grid');
+  const label=document.getElementById('menu-count-label');
+  if(!grid)return;
   const q=(document.getElementById('dish-search').value||'').toLowerCase();
-  let f=dishes.filter(d=>(dishFilter==='All'||d.category===dishFilter)&&(!q||d.name.toLowerCase().includes(q)));
-  // sort by category order then name
-  f.sort((a,b)=>{const oa=CAT_ORDER.indexOf(a.category),ob=CAT_ORDER.indexOf(b.category);return oa!==ob?oa-ob:a.name.localeCompare(b.name);});
-  if(!f.length){body.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">≡</div><div class="empty-title">No dishes found</div></div></td></tr>`;return;}
-  body.innerHTML=f.map(d=>{
-    const comps=d.components||[];const frz=comps.filter(c=>c.freeze_flag).length;const al=getDishAl(d);
-    return`<tr>
-      <td><div style="font-weight:500;">${h(d.name)}</div>${d.station?`<div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px;">${h(d.station)}</div>`:''}</td>
-      <td><span class="badge badge-gray">${d.category}</span></td>
-      <td class="muted">${comps.length}</td>
-      <td>${frz?`<span class="badge badge-blue">❄ ${frz}</span>`:'<span style="color:var(--text3);font-size:11px;">—</span>'}</td>
-      <td>${al.map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${a.allergen}</span>`).join('')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td>
-      <td>${d.locked?'<span class="badge badge-green">Locked</span>':'<span class="badge badge-amber">Draft</span>'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="editDish('${d.id}')">Edit</button></td>
-    </tr>`;
-  }).join('');
+  let f=[...dishes];
+  if(q){f=f.filter(d=>{
+    const al=getDishAl(d).map(a=>a.allergen.toLowerCase()).join(' ');
+    const comps=(d.components||[]).map(c=>c.name.toLowerCase()).join(' ');
+    return d.name.toLowerCase().includes(q)||(d.description||'').toLowerCase().includes(q)||al.includes(q)||comps.includes(q);
+  });}
+  if(dishFilter==='freeze')f=f.filter(d=>(d.components||[]).some(c=>c.freeze_flag));
+  else if(dishFilter==='draft')f=f.filter(d=>!d.locked);
+  else if(dishFilter==='locked')f=f.filter(d=>d.locked);
+  else if(dishFilter!=='all')f=f.filter(d=>d.category===dishFilter);
+  f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
+  if(label)label.textContent=`${f.length} dish${f.length!==1?'es':''} ${dishes.length!==f.length?'of '+dishes.length:''}`;
+  if(!f.length){grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">≡</div><div class="empty-title">No dishes found</div><div class="empty-sub">Try a different search or filter</div></div></div>`;return;}
+  grid.innerHTML=f.map(d=>dishCard(d)).join('');
+}
+
+function dishCard(d){
+  const al=getDishAl(d);
+  const comps=(d.components||[]).sort((a,b)=>a.sort_order-b.sort_order);
+  const frzCount=comps.filter(c=>c.freeze_flag).length;
+  const alHtml=al.slice(0,5).map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${h(a.allergen)}</span>`).join('');
+  const moreAl=al.length>5?`<span style="font-size:10px;color:var(--text3);"> +${al.length-5}</span>`:'';
+  return`<div class="dish-card ${d.locked?'locked':'draft'}" onclick="openDishDetail('${d.id}')">
+    <div class="dc-header"><div class="dc-name">${h(d.name)}</div>
+    <div class="dc-meta">${d.category}${d.station?' · '+d.station:''}${frzCount?' · ❄ '+frzCount+' freezable':''}</div></div>
+    <div class="dc-body"><div class="dc-comps">
+      ${comps.slice(0,5).map(c=>`<div class="dc-comp-row"><div class="dc-comp-dot ${c.freeze_flag?'freeze':c.fridge_flag?'fridge':''}"></div><span>${h(c.name)}</span>${c.qty_per_cover?`<span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-left:auto;">${c.qty_per_cover}${c.unit?' '+c.unit:''}/cover</span>`:''}</div>`).join('')}
+      ${comps.length>5?`<div style="font-size:10px;color:var(--text3);padding-left:12px;">+${comps.length-5} more</div>`:''}
+      ${!comps.length?`<div style="font-size:11px;color:var(--text3);font-style:italic;">No components yet</div>`:''}
+    </div></div>
+    <div class="dc-footer"><div class="dc-al-row">${al.length?alHtml+moreAl:`<span style="font-size:10px;color:var(--text3);">No allergens</span>`}</div>
+    <span class="dc-status ${d.locked?'locked':'draft'}">${d.locked?'Locked':'Draft'}</span></div>
+  </div>`;
 }
 
 function renderDashDishes(){
-  const body=document.getElementById('dash-dish-body');if(!body)return;const r=dishes.slice(0,5);
-  if(!r.length){body.innerHTML=`<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No dishes yet</td></tr>`;return;}
-  body.innerHTML=r.map(d=>{const al=getDishAl(d);return`<tr>
-    <td><div style="font-weight:500;">${h(d.name)}</div></td>
-    <td><span class="badge badge-gray">${d.category}</span></td>
-    <td>${al.slice(0,4).map(a=>`<span class="allergen-tag">${a.allergen}</span>`).join('')+(al.length>4?`<span style="font-size:10px;color:var(--text3);"> +${al.length-4}</span>`:'')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td>
-    <td>${d.locked?'<span class="badge badge-green">Locked</span>':'<span class="badge badge-amber">Draft</span>'}</td>
-    <td><button class="btn btn-ghost btn-sm" onclick="editDish('${d.id}')">Edit</button></td>
-  </tr>`;}).join('');
+  const body=document.getElementById('dash-dish-body');if(!body)return;
+  const r=dishes.slice(0,5);
+  if(!r.length){body.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No dishes yet</td></tr>`;return;}
+  body.innerHTML=r.map(d=>{const al=getDishAl(d);return`<tr><td style="font-weight:500;">${h(d.name)}</td><td><span class="badge badge-gray">${d.category}</span></td><td>${al.slice(0,4).map(a=>`<span class="allergen-tag">${h(a.allergen)}</span>`).join('')+(al.length>4?`<span style="font-size:10px;color:var(--text3);"> +${al.length-4}</span>`:'')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td></tr>`;}).join('');
 }
 
 function setDishFilter(f,el){dishFilter=f;document.querySelectorAll('#page-menu .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderMenu();}
 
+
 // ══════════════════════════════════════════════════════
+// DISH DETAIL PAGE
+// ══════════════════════════════════════════════════════
+let ddAllergenState={};
+
+function buildDdAlGrid(){
+  const grid=document.getElementById('dd-al-grid');if(!grid)return;
+  grid.innerHTML=ALLERGENS.map(a=>`<div class="allergen-toggle" id="ddat-${a}" onclick="cycleDdAl('${a}')">${a}</div>`).join('');
+}
+
+function cycleDdAl(name){
+  const el=document.getElementById('ddat-'+name);
+  const cur=ddAllergenState[name]||null;
+  if(!cur){ddAllergenState[name]='contains';el.className='allergen-toggle contains';}
+  else if(cur==='contains'){ddAllergenState[name]='may';el.className='allergen-toggle may';}
+  else{ddAllergenState[name]=null;el.className='allergen-toggle';}
+  updateDdAlDisplay();
+}
+
+function resetDdAl(){
+  ddAllergenState={};
+  ALLERGENS.forEach(a=>{const el=document.getElementById('ddat-'+a);if(el)el.className='allergen-toggle';});
+  updateDdAlDisplay();
+}
+
+function updateDdAlDisplay(){
+  const el=document.getElementById('dd-al-display');if(!el)return;
+  const active=Object.entries(ddAllergenState).filter(([,v])=>v);
+  if(!active.length){el.textContent='None declared';return;}
+  el.innerHTML=active.map(([a,s])=>`<span class="allergen-tag ${s==='may'?'may':''}">${a}</span>`).join(' ');
+}
+
+function updateDishDetailHeader(){
+  const name=document.getElementById('dd-name').value.trim();
+  const cat=document.getElementById('dd-cat').value;
+  document.getElementById('dd-title').textContent=name||'New dish';
+  document.getElementById('dd-sub').textContent=cat;
+}
+
+async function openDishDetail(id=null){
+  buildDdAlGrid();
+  resetDdAl();
+  _formDirty=false;
+  if(!id){
+    // New dish
+    document.getElementById('dd-id').value='';
+    document.getElementById('dd-name').value='';
+    document.getElementById('dd-cat').value='Canapés';
+    document.getElementById('dd-station').value='';
+    document.getElementById('dd-desc').value='';
+    document.getElementById('dd-notes').value='';
+    document.getElementById('dd-comp-list').innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add one above</div></div>';
+    document.getElementById('dd-lock-btn').textContent='Lock recipe';
+    document.getElementById('dd-del-btn').style.display='none';
+    Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=false);
+    document.getElementById('dd-title').textContent='New dish';
+    document.getElementById('dd-sub').textContent='';
+    nav('dish-detail',null);
+    return;
+  }
+  const d=dishes.find(x=>x.id===id);if(!d)return;
+  document.getElementById('dd-id').value=d.id;
+  document.getElementById('dd-name').value=d.name;
+  document.getElementById('dd-cat').value=d.category;
+  document.getElementById('dd-station').value=d.station||'';
+  document.getElementById('dd-desc').value=d.description||'';
+  document.getElementById('dd-notes').value=d.notes||'';
+  document.getElementById('dd-title').textContent=d.name;
+  document.getElementById('dd-sub').textContent=d.category+(d.station?' · '+d.station:'');
+  document.getElementById('dd-lock-btn').textContent=d.locked?'Unlock recipe':'Lock recipe';
+  document.getElementById('dd-del-btn').style.display='inline-flex';
+  const menus=d.menu_type||[];
+  Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=menus.includes(o.value));
+  // Allergens
+  resetDdAl();
+  getDishAl(d).forEach(a=>{
+    ddAllergenState[a.allergen]=a.status==='May Contain'?'may':'contains';
+    const el=document.getElementById('ddat-'+a.allergen);
+    if(el)el.className='allergen-toggle '+(a.status==='May Contain'?'may':'contains');
+  });
+  updateDdAlDisplay();
+  // Components
+  const compList=document.getElementById('dd-comp-list');
+  compList.innerHTML='';
+  const comps=(d.components||[]).sort((a,b)=>a.sort_order-b.sort_order);
+  if(comps.length){comps.forEach(c=>addDishComponent(c));}
+  else{compList.innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add one above</div></div>';}
+  nav('dish-detail',null);
+  _formDirty=false;
+}
+
+function addDishComponent(c=null){
+  const list=document.getElementById('dd-comp-list');
+  // Clear empty state
+  if(list.querySelector('.empty-state'))list.innerHTML='';
+  const uid='comp-'+Date.now()+Math.random().toString(36).slice(2,6);
+  const div=document.createElement('div');
+  div.className='comp-block';
+  div.dataset.compId=c?c.id:'';
+  const st=c?(c.freeze_flag?'freeze':c.fridge_flag?'fridge':'none'):'none';
+  const stLabel=st==='freeze'?'❄ Freeze':st==='fridge'?'🧊 Fridge':'○ Fresh';
+  const stClass=st==='freeze'?'freeze':st==='fridge'?'fridge':'';
+  const ings=(c&&c.recipe_ingredients)||[];
+  const steps=(c&&c.recipe_steps)||[];
+  div.innerHTML=`
+    <div class="comp-block-header" onclick="toggleCompBlock(this)">
+      <span class="comp-expand-icon">▶</span>
+      <input class="comp-name-field" type="text" placeholder="Component name e.g. Mint pea purée, Confit duck legs..." value="${c?h(c.name):''}" onclick="event.stopPropagation()">
+      <div class="comp-meta-row">
+        <input class="comp-qty-input" type="number" placeholder="Qty/cv" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}" title="Quantity per cover">
+        <input class="comp-unit-input" type="text" placeholder="unit" value="${c?h(c.unit||''):''}">
+        <button class="storage-cycle ${stClass}" data-state="${st}" onclick="event.stopPropagation();cycleStorage(this)">${stLabel}</button>
+        <input class="comp-chef-note" type="text" placeholder="Chef note / finish instruction..." value="${c?h(c.chef_note||''):''}" onclick="event.stopPropagation()" title="Chef note — appears on prep list and labels">
+        <button class="comp-remove-btn" onclick="event.stopPropagation();removeComp(this)" title="Remove component">×</button>
+      </div>
+    </div>
+    <div class="comp-recipe-panel">
+      <div class="recipe-col">
+        <div class="recipe-col-label">
+          <span>Ingredients</span>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span style="font-weight:400;color:var(--text3);">Base portions</span>
+            <input class="recipe-base-input" type="number" min="1" value="${c&&c.base_portions?c.base_portions:10}" title="Quantities below are for this many covers">
+          </div>
+        </div>
+        <div class="ing-list">${ings.sort((a,b)=>a.sort_order-b.sort_order).map(i=>ingRow(i)).join('')}</div>
+        <button class="add-row-btn" onclick="addIngRow(this)">+ Add ingredient</button>
+      </div>
+      <div class="recipe-col">
+        <div class="recipe-col-label">Method</div>
+        <div class="step-list">${steps.sort((a,b)=>a.step_number-b.step_number).map((s,i)=>stepRow(s,i+1)).join('')}</div>
+        <button class="add-row-btn" onclick="addStepRow(this)">+ Add step</button>
+      </div>
+    </div>`;
+  list.appendChild(div);
+}
+
+function toggleCompBlock(header){
+  const block=header.closest('.comp-block');
+  block.classList.toggle('open');
+}
+
+function removeComp(btn){
+  const block=btn.closest('.comp-block');
+  block.remove();
+  if(!document.getElementById('dd-comp-list').children.length){
+    document.getElementById('dd-comp-list').innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add one above</div></div>';
+  }
+  _formDirty=true;
+}
+
+function cycleStorage(btn){
+  const states=['none','freeze','fridge'],labels=['○ Fresh','❄ Freeze','🧊 Fridge'],classes=['','freeze','fridge'];
+  const n=(states.indexOf(btn.dataset.state)+1)%3;
+  btn.dataset.state=states[n];btn.textContent=labels[n];btn.className='storage-cycle '+classes[n];
+  _formDirty=true;
+}
+
+function ingRow(i=null){
+  return`<div class="ing-row">
+    <input type="text" class="ir-name" placeholder="Ingredient" value="${i?h(i.ingredient_name||i.name||''):''}">
+    <input type="number" class="ir-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01">
+    <input type="text" class="ir-unit" placeholder="unit" value="${i?h(i.unit||''):''}">
+    <button class="ing-remove" onclick="this.closest('.ing-row').remove()">×</button>
+  </div>`;
+}
+
+function stepRow(s=null,num=1){
+  return`<div class="step-row">
+    <span class="step-num">${num}.</span>
+    <textarea class="sr-instruction" placeholder="Step instruction...">${s?h(s.instruction):''}</textarea>
+    <div class="step-timing">
+      <input type="text" class="sr-time" placeholder="Time" value="${s?h(s.time_note||''):''}">
+      <input type="text" class="sr-temp" placeholder="Temp" value="${s?h(s.temp_note||''):''}">
+    </div>
+    <button class="step-remove" onclick="this.closest('.step-row').remove()">×</button>
+  </div>`;
+}
+
+function addIngRow(btn){
+  const list=btn.closest('.recipe-col').querySelector('.ing-list');
+  list.insertAdjacentHTML('beforeend',ingRow());
+  _formDirty=true;
+}
+
+function addStepRow(btn){
+  const list=btn.closest('.recipe-col').querySelector('.step-list');
+  const num=list.querySelectorAll('.step-row').length+1;
+  list.insertAdjacentHTML('beforeend',stepRow(null,num));
+  _formDirty=true;
+}
+
+async function saveDishDetail(){
+  const name=document.getElementById('dd-name').value.trim();
+  if(!name){showToast('Dish name required','error');return;}
+  const id=document.getElementById('dd-id').value;
+  const menuTypes=Array.from(document.getElementById('dd-menu').selectedOptions).map(o=>o.value);
+  const dishData={name,category:document.getElementById('dd-cat').value,station:document.getElementById('dd-station').value||null,description:document.getElementById('dd-desc').value.trim()||null,notes:document.getElementById('dd-notes').value.trim()||null,menu_type:menuTypes,updated_at:new Date().toISOString()};
+  try{
+    let did=id;
+    if(id){const{error}=await sb.from('dishes').update(dishData).eq('id',id);if(error)throw error;}
+    else{const{data:nd,error}=await sb.from('dishes').insert(dishData).select().single();if(error)throw error;did=nd.id;document.getElementById('dd-id').value=did;}
+    // Save components
+    await sb.from('components').delete().eq('dish_id',did);
+    const blocks=document.querySelectorAll('#dd-comp-list .comp-block');
+    for(let i=0;i<blocks.length;i++){
+      const blk=blocks[i];
+      const cname=blk.querySelector('.comp-name-field').value.trim();if(!cname)continue;
+      const st=blk.querySelector('.storage-cycle').dataset.state;
+      const bp=parseInt(blk.querySelector('.recipe-base-input')?.value)||10;
+      const{data:nc,error:ce}=await sb.from('components').insert({dish_id:did,name:cname,qty_per_cover:parseFloat(blk.querySelector('.comp-qty-input').value)||null,unit:blk.querySelector('.comp-unit-input').value.trim()||null,station:null,chef_note:blk.querySelector('.comp-chef-note').value.trim()||null,freeze_flag:st==='freeze',fridge_flag:st==='fridge',sort_order:i,base_portions:bp}).select().single();
+      if(ce)throw ce;
+      const cid=nc.id;
+      const ings=[];blk.querySelectorAll('.ing-row').forEach((r,j)=>{const n=r.querySelector('.ir-name').value.trim();if(!n)return;ings.push({component_id:cid,sub_recipe_id:null,ingredient_name:n,quantity:parseFloat(r.querySelector('.ir-qty').value)||null,unit:r.querySelector('.ir-unit').value.trim()||null,sort_order:j});});
+      if(ings.length){const{error:ie}=await sb.from('recipe_ingredients').insert(ings);if(ie)console.warn('ings:',ie.message);}
+      const steps=[];blk.querySelectorAll('.step-row').forEach((r,j)=>{const inst=r.querySelector('.sr-instruction').value.trim();if(!inst)return;steps.push({component_id:cid,sub_recipe_id:null,step_number:j+1,instruction:inst,time_note:r.querySelector('.sr-time').value.trim()||null,temp_note:r.querySelector('.sr-temp').value.trim()||null});});
+      if(steps.length){const{error:se}=await sb.from('recipe_steps').insert(steps);if(se)console.warn('steps:',se.message);}
+    }
+    // Allergens on first component
+    const{data:allComps}=await sb.from('components').select('id').eq('dish_id',did).order('sort_order').limit(1);
+    if(allComps&&allComps.length){
+      await sb.from('component_allergens').delete().in('component_id',[allComps[0].id]);
+      const alRows=Object.entries(ddAllergenState).filter(([,v])=>v).map(([a,s])=>({component_id:allComps[0].id,allergen:a,status:s==='may'?'May Contain':'Contains'}));
+      if(alRows.length)await sb.from('component_allergens').insert(alRows);
+    }
+    _formDirty=false;
+    showToast(id?'Dish updated':'Dish saved','success');
+    await loadDishes();
+    // Update header
+    document.getElementById('dd-title').textContent=name;
+    document.getElementById('dd-sub').textContent=document.getElementById('dd-cat').value;
+    if(!id)document.getElementById('dd-del-btn').style.display='inline-flex';
+  }catch(e){showToast('Error: '+e.message,'error');}
+}
+
+async function toggleDishLock(){
+  const id=document.getElementById('dd-id').value;if(!id){showToast('Save dish first','error');return;}
+  const d=dishes.find(x=>x.id===id);if(!d)return;
+  const newLocked=!d.locked;
+  await sb.from('dishes').update({locked:newLocked}).eq('id',id);
+  showToast(newLocked?'Recipe locked':'Recipe unlocked','success');
+  await loadDishes();
+  document.getElementById('dd-lock-btn').textContent=newLocked?'Unlock recipe':'Lock recipe';
+}
+
+async function deleteDishFromDetail(){
+  const id=document.getElementById('dd-id').value;
+  if(!id||!confirm('Delete this dish? This cannot be undone.'))return;
+  const{error}=await sb.from('dishes').delete().eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Dish deleted','success');
+  _formDirty=false;
+  await loadDishes();
+  nav('menu',null);
+}
+
+function printDishDetail(){
+  window.print();
+}
+
 // DISH MODAL
 // ══════════════════════════════════════════════════════
 function buildAlGrid(){document.getElementById('al-grid').innerHTML=ALLERGENS.map(a=>`<div class="allergen-toggle" id="at-${a}" onclick="cycleAl('${a}')">${a}</div>`).join('');}
@@ -3273,6 +3716,15 @@ function renderDashBoard(){renderDashWeekEvents();renderDashMonthEvents();render
 let _formDirty = false;
 
 function markDirty(){_formDirty=true;}
+
+
+function checkDirtyBeforeNav(page){
+  if(_formDirty){
+    if(!confirm('You have unsaved changes. Leave without saving?'))return;
+    _formDirty=false;
+  }
+  nav(page,null);
+}
 
 function checkDirtyBeforeClose(modalId){
   if(!_formDirty){_formDirty=false;closeModal(modalId);return;}
