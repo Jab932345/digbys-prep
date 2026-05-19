@@ -14,8 +14,8 @@
    ═══════════════════════════════════════════════════════════ */
 :root{
   /* Backgrounds */
-  --bg:#1C1C1A; --bg2:#222220; --bg3:#2A2A27;
-  --surface:#252521; --surface2:#2E2E2A; --surface3:#373732;
+  --bg:#242420; --bg2:#222220; --bg3:#2A2A27;
+  --surface:#2C2C28; --surface2:#353530; --surface3:#3E3E38;
   /* Borders */
   --border:rgba(255,255,255,0.10); --border2:rgba(255,255,255,0.17); --border3:rgba(255,255,255,0.25);
   /* Text */
@@ -431,7 +431,7 @@ tbody td{padding:11px 14px;vertical-align:middle;}
 /* ══ PRINT ═══════════════════════════════════════════════ */
 @media print{
   @page{size:A4;margin:12mm 14mm 14mm 14mm;}
-  body{background:#fff!important;color:#000!important;}
+  body{background:#fff!important;color:#111!important;}
   .sidebar,.bottom-nav,.topbar,.topbar-actions,.filter-bar,.fs-actions,.task-actions,.toast,.modal-overlay,.btn{display:none!important;}
   .main{margin:0!important;}
   .page{display:block!important;}
@@ -1053,25 +1053,6 @@ function nav(page,el){
 
 // ══════════════════════════════════════════════════════
 // DISHES
-// ══════════════════════════════════════════════════════
-  initOverlayListeners();
-  await loadDishes();
-  await loadEvents();
-  await loadIngredients();
-  await loadStaff();
-  await loadStock();
-  if(typeof renderDashBoard==='function')renderDashBoard();
-  if(typeof renderMenu==='function')renderMenu();
-  populatePrepSel();
-  populateAlEvSel();
-  populateOrderSel();
-  populatePackupSel();
-  renderAllergenMatrix();
-  renderLabelQueue();
-  renderAdminSettings();
-  document.getElementById('dash-date').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const conn=document.getElementById('sb-conn');if(conn)conn.className='sb-conn live';
-}
 
 async function loadDishes(){
   console.log('[Digbys] Loading dishes...');
