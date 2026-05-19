@@ -14,12 +14,12 @@
    ═══════════════════════════════════════════════════════════ */
 :root{
   /* Backgrounds */
-  --bg:#0F0F0D; --bg2:#161612; --bg3:#1C1C17;
-  --surface:#1A1A14; --surface2:#222218; --surface3:#2A2A22;
+  --bg:#1C1C1A; --bg2:#222220; --bg3:#2A2A27;
+  --surface:#252521; --surface2:#2E2E2A; --surface3:#373732;
   /* Borders */
-  --border:rgba(255,255,255,0.07); --border2:rgba(255,255,255,0.12); --border3:rgba(255,255,255,0.18);
+  --border:rgba(255,255,255,0.10); --border2:rgba(255,255,255,0.17); --border3:rgba(255,255,255,0.25);
   /* Text */
-  --text1:#F2EFE8; --text2:#9A9288; --text3:#5C5650;
+  --text1:#F0EDE6; --text2:#A8A098; --text3:#726A62;
   /* Brand */
   --green:#3D8B6E; --green-bright:#5ECAA0; --green-bg:rgba(61,139,110,0.1); --green-bd:rgba(94,202,160,0.25);
   --amber:#C4832A; --amber-bg:rgba(196,131,42,0.1); --amber-bd:rgba(196,131,42,0.3);
@@ -988,7 +988,7 @@ let settings={buffer:14,ngrok:'https://palatable-shack-scallion.ngrok-free.dev',
 
 async function init(){
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  buildAlGrid();buildMonthSel();loadSettings();
+  if(typeof buildAlGrid==='function')buildAlGrid();if(typeof buildMonthSel==='function')buildMonthSel();if(typeof loadSettings==='function')loadSettings();
   const dot=document.getElementById('sb-conn'),lbl={textContent:''};
   try{
     const{data,error}=await sb.from('dishes').select('id').limit(1);
@@ -1013,11 +1013,12 @@ async function init(){
   try{await loadStock();}catch(e){console.error('[Digbys] loadStock failed:',e);}
   if(typeof populateOrderSel==="function")populateOrderSel();
   if(typeof populatePackupSel==="function")populatePackupSel();
-  renderDashBoard();
-  renderMenu();
-  if(typeof populatePrepSel==='function')populatePrepSel();
+  if(typeof renderDashBoard==='function')renderDashBoard();
+  if(typeof renderMenu==='function')renderMenu();
+  if(typeof populatePrepSel==='function')populatePrepSel();else if(typeof populatePrep==='function')populatePrep();
   if(typeof populateAlEvSel==='function')populateAlEvSel();
   if(typeof renderLabelQueue==='function')renderLabelQueue();
+  if(typeof loadSettings==='function')loadSettings();
 }
 
 function loadSettings(){
@@ -1028,10 +1029,12 @@ function loadSettings(){
   document.getElementById('set-cps-key').value=settings.cpsKey||'';
 }
 function saveSettings(){
-  settings.buffer=parseInt(document.getElementById('set-buffer').value)||14;
-  settings.ngrok=document.getElementById('set-ngrok').value.trim();
-  settings.cpsUrl=document.getElementById('set-cps-url').value.trim();
-  settings.cpsKey=document.getElementById('set-cps-key').value.trim();
+  const g=id=>document.getElementById(id);
+  settings.buffer=parseInt(g('set-buffer')?.value)||14;
+  settings.ngrok=g('set-ngrok')?.value.trim()||'';
+  settings.defaultChef=g('set-chef')?.value.trim()||'Kitchen';
+  if(g('set-cps-url'))settings.cpsUrl=g('set-cps-url').value.trim();
+  if(g('set-cps-key'))settings.cpsKey=g('set-cps-key').value.trim();
   localStorage.setItem('digbys-s',JSON.stringify(settings));
   showToast('Settings saved','success');
 }
@@ -1057,8 +1060,8 @@ function nav(page,el){
   await loadIngredients();
   await loadStaff();
   await loadStock();
-  renderDashBoard();
-  renderMenu();
+  if(typeof renderDashBoard==='function')renderDashBoard();
+  if(typeof renderMenu==='function')renderMenu();
   populatePrepSel();
   populateAlEvSel();
   populateOrderSel();
@@ -3434,7 +3437,15 @@ function printFunctionSheet(evId){
 
 // BOOT
 // ══════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',()=>initOverlayListeners());
+document.addEventListener('DOMContentLoaded',()=>{
+  initOverlayListeners();
+  // Show dashboard on load
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const dp=document.getElementById('page-dashboard');
+  if(dp)dp.classList.add('active');
+  const si=document.querySelector('.sb-item[data-page="dashboard"]');
+  if(si)si.classList.add('active');
+});
 init();
 </script>
 </body>
