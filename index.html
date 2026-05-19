@@ -812,6 +812,14 @@ tbody td{padding:11px 14px;vertical-align:middle;}
   .fsa-table th,.fsa-table td{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   .fsa-sym-c,.fsa-sym-m,.al-sym-c,.al-sym-m{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
+
+/* ── DISH DETAIL COMPONENT BLOCKS ── */
+.dd-comp-block{border-bottom:1px solid var(--border);}
+.dd-comp-block:last-child{border-bottom:none;}
+.dd-comp-block.open .dd-comp-recipe{display:grid!important;grid-template-columns:1fr 1fr;}
+.dd-comp-block.open .dd-arrow{transform:rotate(90deg)!important;}
+.dd-comp-hdr:hover{background:var(--bg3)!important;}
+@media(max-width:700px){.dd-comp-block.open .dd-comp-recipe{grid-template-columns:1fr!important;}}
 </style>
 </head>
 <body>
@@ -1027,23 +1035,89 @@ tbody td{padding:11px 14px;vertical-align:middle;}
 <!-- ══ MENU BUILDER ══ -->
 <div id="page-menu" class="page">
   <div class="topbar">
-    <div class="topbar-title">Menu builder</div>
+    <div class="topbar-title">Menu library</div>
+    <div class="topbar-sub" id="menu-count-label"></div>
     <div class="topbar-actions">
-      <input type="text" class="search-input" placeholder="Search dishes..." id="dish-search" oninput="renderMenu()">
-      <button class="btn btn-primary btn-sm" onclick="openDishModal()">+ Add dish</button>
+      <div style="position:relative;">
+        <input class="search-input" id="dish-search" placeholder="Search dishes, allergens..." oninput="renderMenu()" style="width:240px;padding-left:30px;">
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:13px;pointer-events:none;">⌕</span>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="openDishDetail()">+ New dish</button>
     </div>
   </div>
-  <div class="content">
-    <div class="filter-bar">
-      <div class="filter-chip active" onclick="setDishFilter('All',this)">All</div>
-      <div class="filter-chip" onclick="setDishFilter('Canapés',this)">Canapés</div>
-      <div class="filter-chip" onclick="setDishFilter('Starters',this)">Starters</div>
-      <div class="filter-chip" onclick="setDishFilter('Mains',this)">Mains</div>
-      <div class="filter-chip" onclick="setDishFilter('Desserts',this)">Desserts</div>
-      <div class="filter-chip" onclick="setDishFilter('Evening Grazing',this)">Evening Grazing</div>
-      <div class="filter-chip" onclick="setDishFilter('Stock',this)">Stock</div>
+  <div style="background:#fff;border-bottom:1px solid var(--border);padding:0 20px;height:38px;display:flex;align-items:center;gap:4px;overflow-x:auto;flex-shrink:0;">
+    <div class="filter-chip active" onclick="setDishFilter('all',this)">All</div>
+    <div style="width:1px;height:16px;background:var(--border);margin:0 2px;"></div>
+    <div class="filter-chip" onclick="setDishFilter('Canapés',this)">Canapés</div>
+    <div class="filter-chip" onclick="setDishFilter('Starters',this)">Starters</div>
+    <div class="filter-chip" onclick="setDishFilter('Mains',this)">Mains</div>
+    <div class="filter-chip" onclick="setDishFilter('Desserts',this)">Desserts</div>
+    <div class="filter-chip" onclick="setDishFilter('Evening Grazing',this)">Grazing</div>
+    <div class="filter-chip" onclick="setDishFilter('Tasting Menu',this)">Tasting</div>
+    <div class="filter-chip" onclick="setDishFilter('Sides',this)">Sides</div>
+    <div style="width:1px;height:16px;background:var(--border);margin:0 2px;"></div>
+    <div class="filter-chip" onclick="setDishFilter('freeze',this)">❄ Freezable</div>
+    <div class="filter-chip" onclick="setDishFilter('draft',this)">Draft</div>
+    <div class="filter-chip" onclick="setDishFilter('locked',this)">Locked</div>
+  </div>
+  <div class="content"><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;" id="menu-grid"></div></div>
+</div>
+
+<!-- ══ DISH DETAIL ══ -->
+<div id="page-dish-detail" class="page">
+  <div class="topbar">
+    <div class="topbar-left" style="display:flex;align-items:center;gap:8px;">
+      <button class="btn btn-sm" onclick="checkDirtyThenNav('menu')">← Menu</button>
+      <div><div class="topbar-title" id="dd-title">New dish</div><div class="topbar-sub" id="dd-sub"></div></div>
     </div>
-    <div class="card"><div class="card-body"><table><thead><tr><th>Dish</th><th>Category</th><th>Components</th><th>Freezable</th><th>Allergens</th><th>Status</th><th></th></tr></thead><tbody id="menu-body"><tr><td colspan="7"><div style="text-align:center;padding:24px;color:var(--text3);font-size:12px;"><span class="spinner"></span>Loading...</div></td></tr></tbody></table></div></div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm" id="dd-lock-btn" onclick="toggleDishLock()">Lock recipe</button>
+      <button class="btn btn-sm" id="dd-del-btn" onclick="deleteDishDetail()" style="display:none;color:var(--red);">Delete</button>
+      <button class="btn btn-primary btn-sm" onclick="saveDishDetail()">Save changes</button>
+    </div>
+  </div>
+  <div class="content" style="max-width:1000px;margin:0 auto;">
+    <input type="hidden" id="dd-id">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
+      <div class="card">
+        <div class="card-header"><div class="card-title">Dish information</div></div>
+        <div style="padding:16px;">
+          <div class="form-grid-2" style="margin-bottom:10px;">
+            <div class="form-row" style="margin:0;"><label class="form-label">Name</label><input class="form-input" id="dd-name" placeholder="e.g. Confit duck croquettes" oninput="updateDdHeader()"></div>
+            <div class="form-row" style="margin:0;"><label class="form-label">Category</label>
+              <select class="form-select" id="dd-cat" onchange="updateDdHeader()"><option>Canapés</option><option>Starters</option><option>Mains</option><option>Desserts</option><option>Evening Grazing</option><option>Tasting Menu</option><option>Sides</option><option>Other</option></select>
+            </div>
+          </div>
+          <div class="form-grid-2" style="margin-bottom:10px;">
+            <div class="form-row" style="margin:0;"><label class="form-label">Station</label>
+              <select class="form-select" id="dd-station"><option value="">—</option><option>Hot</option><option>Cold</option><option>Pastry</option><option>Butchery</option><option>Pass</option></select>
+            </div>
+            <div class="form-row" style="margin:0;"><label class="form-label">Menu types (⌘ multi-select)</label>
+              <select class="form-select" id="dd-menu" multiple style="height:62px;"><option value="Weddings">Weddings</option><option value="Wakes">Wakes</option><option value="Private Dining">Private Dining</option><option value="Tasting Menu">Tasting Menu</option><option value="Bespoke">Bespoke</option><option value="Corporate">Corporate</option><option value="Restaurant">Restaurant</option></select>
+            </div>
+          </div>
+          <div class="form-row" style="margin:0;"><label class="form-label">Description / service notes</label><textarea class="form-textarea" id="dd-desc" placeholder="Service notes, plating, description..." style="min-height:52px;"></textarea></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Allergens</div><div style="font-size:11px;color:var(--text3);">Once = Contains · Twice = May contain</div></div>
+        <div style="padding:14px;">
+          <div class="allergen-grid" id="dd-al-grid"></div>
+          <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);font-size:12px;min-height:22px;" id="dd-al-display"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;">
+      <div class="card-header">
+        <div><div class="card-title">Components &amp; Recipes</div><div style="font-size:11px;color:var(--text3);">Each component = one prep task. Click ▶ to open its recipe.</div></div>
+        <button class="btn btn-primary btn-sm" onclick="ddAddComp()">+ Add component</button>
+      </div>
+      <div id="dd-comp-list"><div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;">No components yet — add one above</div></div>
+    </div>
+    <div class="card">
+      <div class="card-header"><div class="card-title">Notes &amp; TBCs</div></div>
+      <div style="padding:14px;"><textarea class="form-textarea" id="dd-notes" placeholder="Open items, things to test, TBCs..." style="min-height:60px;"></textarea></div>
+    </div>
   </div>
 </div>
 
@@ -1635,26 +1709,7 @@ function getDishAl(dish){
   return all;
 }
 
-function renderMenu(){
-  const body=document.getElementById('menu-body');
-  const q=(document.getElementById('dish-search').value||'').toLowerCase();
-  let f=dishes.filter(d=>(dishFilter==='All'||d.category===dishFilter)&&(!q||d.name.toLowerCase().includes(q)));
-  // sort by category order then name
-  f.sort((a,b)=>{const oa=CAT_ORDER.indexOf(a.category),ob=CAT_ORDER.indexOf(b.category);return oa!==ob?oa-ob:a.name.localeCompare(b.name);});
-  if(!f.length){body.innerHTML=`<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">≡</div><div class="empty-title">No dishes found</div></div></td></tr>`;return;}
-  body.innerHTML=f.map(d=>{
-    const comps=d.components||[];const frz=comps.filter(c=>c.freeze_flag).length;const al=getDishAl(d);
-    return`<tr>
-      <td><div style="font-weight:500;">${h(d.name)}</div>${d.station?`<div style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:1px;">${h(d.station)}</div>`:''}</td>
-      <td><span class="badge badge-gray">${d.category}</span></td>
-      <td class="muted">${comps.length}</td>
-      <td>${frz?`<span class="badge badge-blue">❄ ${frz}</span>`:'<span style="color:var(--text3);font-size:11px;">—</span>'}</td>
-      <td>${al.map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${a.allergen}</span>`).join('')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td>
-      <td>${d.locked?'<span class="badge badge-green">Locked</span>':'<span class="badge badge-amber">Draft</span>'}</td>
-      <td><button class="btn btn-ghost btn-sm" onclick="editDish('${d.id}')">Edit</button></td>
-    </tr>`;
-  }).join('');
-}
+// renderMenu now renders card grid — see new_js injected below
 
 function renderDashDishes(){
   const body=document.getElementById('dash-dish-body');if(!body)return;const r=dishes.slice(0,5);
@@ -1668,7 +1723,7 @@ function renderDashDishes(){
   </tr>`;}).join('');
 }
 
-function setDishFilter(f,el){dishFilter=f;document.querySelectorAll('#page-menu .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderMenu();}
+// setDishFilter — see new_js below
 
 // ══════════════════════════════════════════════════════
 // DISH MODAL
@@ -3159,6 +3214,279 @@ function printFunctionSheet(evId){
     allCards.forEach(c=>c.style.display='');
   },200);
 }
+
+// ══════════════════════════════════════════════════════
+// MENU CARD GRID
+// ══════════════════════════════════════════════════════
+let _dishFilter='all';
+function setDishFilter(f,el){_dishFilter=f;document.querySelectorAll('#page-menu .filter-chip').forEach(c=>c.classList.remove('active'));if(el)el.classList.add('active');renderMenu();}
+
+function renderMenu(){
+  const grid=document.getElementById('menu-grid');
+  const lbl=document.getElementById('menu-count-label');
+  if(!grid)return;
+  const q=(document.getElementById('dish-search')?.value||'').toLowerCase();
+  let f=[...dishes];
+  if(q)f=f.filter(d=>d.name.toLowerCase().includes(q)||(d.description||'').toLowerCase().includes(q)||getDishAl(d).some(a=>a.allergen.toLowerCase().includes(q))||(d.components||[]).some(c=>c.name.toLowerCase().includes(q)));
+  if(_dishFilter==='freeze')f=f.filter(d=>(d.components||[]).some(c=>c.freeze_flag));
+  else if(_dishFilter==='draft')f=f.filter(d=>!d.locked);
+  else if(_dishFilter==='locked')f=f.filter(d=>d.locked);
+  else if(_dishFilter!=='all')f=f.filter(d=>d.category===_dishFilter);
+  f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
+  if(lbl)lbl.textContent=f.length+' dish'+(f.length!==1?'es':'');
+  if(!f.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:48px;color:var(--text3);"><div style="font-size:24px;margin-bottom:8px;">≡</div><div style="font-size:14px;font-weight:500;color:var(--text2);">No dishes found</div></div>';return;}
+  grid.innerHTML=f.map(d=>{
+    const al=getDishAl(d);
+    const comps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+    const frzCount=comps.filter(c=>c.freeze_flag).length;
+    return`<div onclick="openDishDetail('${d.id}')" style="background:#fff;border:1px solid var(--border);border-left:3px solid ${d.locked?'var(--green)':'var(--amber)'};border-radius:var(--radius-lg);overflow:hidden;cursor:pointer;transition:box-shadow .15s,transform .1s;" onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.12)';this.style.transform='translateY(-1px)'" onmouseout="this.style.boxShadow='';this.style.transform=''">
+      <div style="padding:14px 14px 10px;">
+        <div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;">${d.category||''}${d.station?' · '+d.station:''}${frzCount?' · ❄ '+frzCount:''}</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text1);line-height:1.2;margin-bottom:3px;">${h(d.name)}</div>
+        ${d.description?`<div style="font-size:11px;color:var(--text3);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${h(d.description)}</div>`:''}
+      </div>
+      <div style="padding:8px 14px;border-top:1px solid var(--border);">
+        ${comps.slice(0,5).map(c=>`<div style="display:flex;align-items:center;gap:6px;padding:2px 0;font-size:11px;color:var(--text2);">
+          <div style="width:5px;height:5px;border-radius:50%;flex-shrink:0;background:${c.freeze_flag?'#4A7EC4':c.fridge_flag?'var(--green)':'var(--border2)'};"></div>
+          <span>${h(c.name)}</span>
+          ${c.qty_per_cover!=null?`<span style="margin-left:auto;font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">${c.qty_per_cover}${c.unit?' '+c.unit:''}/cv</span>`:''}
+        </div>`).join('')}
+        ${comps.length>5?`<div style="font-size:10px;color:var(--text3);padding:2px 0 0 11px;">+${comps.length-5} more</div>`:''}
+        ${!comps.length?`<div style="font-size:11px;color:var(--text3);font-style:italic;">No components yet</div>`:''}
+      </div>
+      <div style="padding:8px 14px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;flex-wrap:wrap;gap:3px;">${al.slice(0,5).map(a=>`<span class="allergen-tag${a.status==='May Contain'?' may':''}">${h(a.allergen)}</span>`).join('')}${!al.length?'<span style="font-size:10px;color:var(--text3);">No allergens</span>':''}</div>
+        <span style="font-size:9px;padding:2px 7px;border-radius:20px;font-family:\'DM Mono\',monospace;font-weight:600;${d.locked?'background:var(--green-bg);color:var(--green);border:1px solid var(--green-bd);':'background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-bd);'}">${d.locked?'Locked':'Draft'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// DISH DETAIL PAGE
+// ══════════════════════════════════════════════════════
+let _ddAlState={};
+
+function updateDdHeader(){
+  const n=document.getElementById('dd-name')?.value.trim();
+  const cat=document.getElementById('dd-cat')?.value;
+  if(document.getElementById('dd-title'))document.getElementById('dd-title').textContent=n||'New dish';
+  if(document.getElementById('dd-sub'))document.getElementById('dd-sub').textContent=cat||'';
+}
+
+function buildDdAlGrid(){
+  const g=document.getElementById('dd-al-grid');if(!g)return;
+  g.innerHTML=ALLERGENS.map(a=>`<div class="allergen-toggle" id="ddat-${a}" onclick="cycleDdAl('${a}')">${a}</div>`).join('');
+}
+function cycleDdAl(name){
+  const el=document.getElementById('ddat-'+name);if(!el)return;
+  const cur=_ddAlState[name]||null;
+  if(!cur){_ddAlState[name]='contains';el.className='allergen-toggle contains';}
+  else if(cur==='contains'){_ddAlState[name]='may';el.className='allergen-toggle may';}
+  else{delete _ddAlState[name];el.className='allergen-toggle';}
+  const active=Object.entries(_ddAlState).filter(([,v])=>v);
+  const disp=document.getElementById('dd-al-display');
+  if(disp)disp.innerHTML=active.length?active.map(([a,s])=>`<span class="allergen-tag${s==='may'?' may':''}">${a}</span>`).join(' '):'<span style="color:var(--text3);">None declared</span>';
+}
+
+async function openDishDetail(id=null){
+  nav('dish-detail',null);
+  buildDdAlGrid();
+  _ddAlState={};
+  _formDirty=false;
+  if(!id){
+    document.getElementById('dd-id').value='';
+    document.getElementById('dd-name').value='';
+    document.getElementById('dd-cat').value='Canapés';
+    document.getElementById('dd-station').value='';
+    document.getElementById('dd-desc').value='';
+    document.getElementById('dd-notes').value='';
+    document.getElementById('dd-title').textContent='New dish';
+    document.getElementById('dd-sub').textContent='';
+    document.getElementById('dd-lock-btn').textContent='Lock recipe';
+    document.getElementById('dd-del-btn').style.display='none';
+    document.getElementById('dd-comp-list').innerHTML='<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;">No components yet</div>';
+    document.getElementById('dd-al-display').innerHTML='<span style="color:var(--text3);">None declared</span>';
+    Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=false);
+    return;
+  }
+  const d=dishes.find(x=>x.id===id);if(!d)return;
+  document.getElementById('dd-id').value=d.id;
+  document.getElementById('dd-name').value=d.name;
+  document.getElementById('dd-cat').value=d.category;
+  document.getElementById('dd-station').value=d.station||'';
+  document.getElementById('dd-desc').value=d.description||'';
+  document.getElementById('dd-notes').value=d.notes||'';
+  document.getElementById('dd-title').textContent=d.name;
+  document.getElementById('dd-sub').textContent=d.category+(d.station?' · '+d.station:'');
+  document.getElementById('dd-lock-btn').textContent=d.locked?'Unlock':'Lock recipe';
+  document.getElementById('dd-del-btn').style.display='inline-flex';
+  Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=(d.menu_type||[]).includes(o.value));
+  _ddAlState={};
+  getDishAl(d).forEach(a=>{_ddAlState[a.allergen]=a.status==='May Contain'?'may':'contains';const el=document.getElementById('ddat-'+a.allergen);if(el)el.className='allergen-toggle '+(a.status==='May Contain'?'may':'contains');});
+  const active=Object.entries(_ddAlState).filter(([,v])=>v);
+  const disp=document.getElementById('dd-al-display');
+  if(disp)disp.innerHTML=active.length?active.map(([a,s])=>`<span class="allergen-tag${s==='may'?' may':''}">${a}</span>`).join(' '):'<span style="color:var(--text3);">None declared</span>';
+  const cl=document.getElementById('dd-comp-list');cl.innerHTML='';
+  const comps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+  if(comps.length)comps.forEach(c=>ddAddComp(c));
+  else cl.innerHTML='<div style="padding:24px;text-align:center;color:var(--text3);font-size:12px;">No components yet — add one above</div>';
+  _formDirty=false;
+}
+
+function ddAddComp(c=null){
+  const list=document.getElementById('dd-comp-list');
+  const empty=list.querySelector('[style*="text-align:center"]');if(empty)empty.remove();
+  const st=c?(c.freeze_flag?'freeze':c.fridge_flag?'fridge':'none'):'none';
+  const stL={'none':'○ Fresh','freeze':'❄ Freeze','fridge':'🧊 Fridge'}[st];
+  const stC={'none':'','freeze':'freeze','fridge':'fridge'}[st];
+  const ings=(c&&c.recipe_ingredients)||[];
+  const steps=(c&&c.recipe_steps)||[];
+  const div=document.createElement('div');
+  div.className='dd-comp-block';div.dataset.cid=c?c.id:'';
+  div.style.cssText='border-bottom:1px solid var(--border);';
+  div.innerHTML=`
+    <div class="dd-comp-hdr" onclick="this.closest('.dd-comp-block').classList.toggle('open')" style="display:flex;align-items:center;gap:8px;padding:11px 16px;cursor:pointer;background:var(--bg2);">
+      <span style="font-size:11px;color:var(--text3);transition:transform .2s;display:inline-block;" class="dd-arrow">▶</span>
+      <input type="text" class="dd-cname" placeholder="Component name — e.g. Mint pea purée, Hake fillet..." value="${c?h(c.name):''}"
+        style="flex:1;font-size:14px;font-weight:600;border:none;background:transparent;font-family:'DM Sans',sans-serif;outline:none;"
+        onclick="event.stopPropagation()">
+      <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;" onclick="event.stopPropagation()">
+        <input type="number" class="dd-cqty" placeholder="qty" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}"
+          style="width:52px;font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:var(--radius);text-align:center;" title="Per cover">
+        <input type="text" class="dd-cunit" placeholder="unit" value="${c?h(c.unit||''):''}"
+          style="width:50px;font-size:11px;padding:3px 5px;border:1px solid var(--border);border-radius:var(--radius);">
+        <button class="dd-storage ${stC}" data-state="${st}" onclick="ddCycleStorage(this)"
+          style="font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid var(--border2);background:var(--bg2);cursor:pointer;font-family:'DM Mono',monospace;transition:all .12s;">${stL}</button>
+        <input type="text" class="dd-cnote" placeholder="Chef note..." value="${c?h(c.chef_note||''):''}"
+          style="min-width:100px;font-size:11px;padding:3px 7px;border:1px solid var(--amber-bd);border-radius:var(--radius);background:var(--amber-bg);color:var(--amber);" title="Chef note — on prep list + labels">
+        <button onclick="event.stopPropagation();this.closest('.dd-comp-block').remove();_formDirty=true;"
+          style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;flex-shrink:0;">×</button>
+      </div>
+    </div>
+    <div class="dd-comp-recipe" style="display:none;border-top:1px solid var(--border);background:var(--bg);">
+      <div style="display:grid;grid-template-columns:1fr 1fr;">
+        <div style="padding:12px 14px;border-right:1px solid var(--border);">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;">Ingredients</span>
+            <div style="display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text3);">
+              Base: <input type="number" class="dd-base" value="${c&&c.base_portions?c.base_portions:10}" min="1"
+                style="width:44px;padding:2px 5px;border:1px solid var(--border);border-radius:var(--radius);font-size:11px;font-weight:600;text-align:center;"> covers
+            </div>
+          </div>
+          <div class="dd-ing-list">${ings.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>ddIngRow(i)).join('')}</div>
+          <button onclick="this.previousElementSibling.insertAdjacentHTML('beforeend',ddIngRow())" style="font-size:11px;color:var(--green);background:none;border:none;cursor:pointer;padding:4px 0;">+ Add ingredient</button>
+        </div>
+        <div style="padding:12px 14px;">
+          <div style="font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:8px;">Method</div>
+          <div class="dd-step-list">${steps.sort((a,b)=>(a.step_number||0)-(b.step_number||0)).map((s,i)=>ddStepRow(s,i+1)).join('')}</div>
+          <button onclick="(function(btn){const l=btn.previousElementSibling;l.insertAdjacentHTML('beforeend',ddStepRow(null,l.querySelectorAll('.dd-srow').length+1));})(this)" style="font-size:11px;color:var(--green);background:none;border:none;cursor:pointer;padding:4px 0;">+ Add step</button>
+        </div>
+      </div>
+    </div>`;
+  // Toggle arrow on open
+  div.addEventListener('click',function(){
+    const arrow=div.querySelector('.dd-arrow');
+    const recipe=div.querySelector('.dd-comp-recipe');
+    if(div.classList.contains('open')){recipe.style.display='grid';arrow.style.transform='rotate(90deg)';}
+    else{recipe.style.display='none';arrow.style.transform='';}
+  });
+  list.appendChild(div);
+}
+
+function ddCycleStorage(btn){
+  const S=['none','freeze','fridge'],L=['○ Fresh','❄ Freeze','🧊 Fridge'];
+  const n=(S.indexOf(btn.dataset.state)+1)%3;
+  btn.dataset.state=S[n];btn.textContent=L[n];
+  const cols={none:'',freeze:'background:var(--blue-bg);border-color:var(--blue-bd);color:#4A7EC4;',fridge:'background:var(--green-bg);border-color:var(--green-bd);color:var(--green);'};
+  btn.style.cssText='font-size:10px;padding:3px 9px;border-radius:20px;border:1px solid;cursor:pointer;font-family:\'DM Mono\',monospace;'+cols[S[n]];
+  _formDirty=true;
+}
+
+function ddIngRow(i=null){
+  return`<div class="dd-irow" style="display:grid;grid-template-columns:1fr 48px 44px 18px;gap:3px;margin-bottom:3px;align-items:center;">
+    <input type="text" class="ir-name" placeholder="Ingredient" value="${i?h(i.ingredient_name||i.name||''):''}"
+      style="font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);">
+    <input type="number" class="ir-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01"
+      style="font-size:12px;padding:4px 5px;border:1px solid var(--border);border-radius:var(--radius);">
+    <input type="text" class="ir-unit" placeholder="unit" value="${i?h(i.unit||''):''}"
+      style="font-size:12px;padding:4px 5px;border:1px solid var(--border);border-radius:var(--radius);">
+    <button onclick="this.closest('.dd-irow').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;line-height:1;">×</button>
+  </div>`;
+}
+function ddStepRow(s=null,n=1){
+  return`<div class="dd-srow" style="display:flex;gap:5px;margin-bottom:4px;align-items:flex-start;">
+    <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:6px;min-width:14px;flex-shrink:0;">${n}.</span>
+    <textarea style="flex:1;font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:var(--radius);resize:vertical;min-height:32px;font-family:'DM Sans',sans-serif;">${s?h(s.instruction):''}</textarea>
+    <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
+      <input type="text" class="sr-time" placeholder="Time" value="${s?h(s.time_note||''):''}" style="width:58px;font-size:11px;padding:3px 4px;border:1px solid var(--border);border-radius:var(--radius);">
+      <input type="text" class="sr-temp" placeholder="Temp" value="${s?h(s.temp_note||''):''}" style="width:58px;font-size:11px;padding:3px 4px;border:1px solid var(--border);border-radius:var(--radius);">
+    </div>
+    <button onclick="this.closest('.dd-srow').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;margin-top:4px;line-height:1;">×</button>
+  </div>`;
+}
+
+async function saveDishDetail(){
+  const name=document.getElementById('dd-name').value.trim();
+  if(!name){showToast('Dish name required','error');return;}
+  const id=document.getElementById('dd-id').value;
+  const menuTypes=Array.from(document.getElementById('dd-menu').selectedOptions).map(o=>o.value);
+  const dishData={name,category:document.getElementById('dd-cat').value,station:document.getElementById('dd-station').value||null,description:document.getElementById('dd-desc').value.trim()||null,notes:document.getElementById('dd-notes').value.trim()||null,menu_type:menuTypes,updated_at:new Date().toISOString()};
+  try{
+    let did=id;
+    if(id){const{error:e}=await sb.from('dishes').update(dishData).eq('id',id);if(e)throw e;}
+    else{const{data:nd,error:e}=await sb.from('dishes').insert(dishData).select().single();if(e)throw e;did=nd.id;document.getElementById('dd-id').value=did;}
+    await sb.from('components').delete().eq('dish_id',did);
+    const blocks=document.querySelectorAll('#dd-comp-list .dd-comp-block');
+    for(let i=0;i<blocks.length;i++){
+      const blk=blocks[i];
+      const cname=blk.querySelector('.dd-cname').value.trim();if(!cname)continue;
+      const st=blk.querySelector('.dd-storage').dataset.state;
+      const bp=parseInt(blk.querySelector('.dd-base')?.value)||10;
+      const{data:nc,error:ce}=await sb.from('components').insert({dish_id:did,name:cname,qty_per_cover:parseFloat(blk.querySelector('.dd-cqty').value)||null,unit:blk.querySelector('.dd-cunit').value.trim()||null,station:null,chef_note:blk.querySelector('.dd-cnote')?.value.trim()||null,freeze_flag:st==='freeze',fridge_flag:st==='fridge',sort_order:i,base_portions:bp}).select().single();
+      if(ce)throw ce;
+      const cid=nc.id;
+      const ings=[];blk.querySelectorAll('.dd-irow').forEach((r,j)=>{const n=r.querySelector('.ir-name').value.trim();if(!n)return;ings.push({component_id:cid,sub_recipe_id:null,ingredient_name:n,quantity:parseFloat(r.querySelector('.ir-qty').value)||null,unit:r.querySelector('.ir-unit').value.trim()||null,sort_order:j});});
+      if(ings.length){const{error:ie}=await sb.from('recipe_ingredients').insert(ings);if(ie)console.warn('ings:',ie.message);}
+      const steps=[];blk.querySelectorAll('.dd-srow').forEach((r,j)=>{const inst=r.querySelector('textarea').value.trim();if(!inst)return;steps.push({component_id:cid,sub_recipe_id:null,step_number:j+1,instruction:inst,time_note:r.querySelector('.sr-time').value.trim()||null,temp_note:r.querySelector('.sr-temp').value.trim()||null});});
+      if(steps.length){const{error:se}=await sb.from('recipe_steps').insert(steps);if(se)console.warn('steps:',se.message);}
+    }
+    const{data:ac}=await sb.from('components').select('id').eq('dish_id',did).order('sort_order').limit(1);
+    if(ac&&ac.length){
+      await sb.from('component_allergens').delete().in('component_id',[ac[0].id]);
+      const alRows=Object.entries(_ddAlState).filter(([,v])=>v).map(([a,s])=>({component_id:ac[0].id,allergen:a,status:s==='may'?'May Contain':'Contains'}));
+      if(alRows.length)await sb.from('component_allergens').insert(alRows);
+    }
+    _formDirty=false;showToast(id?'Dish updated ✓':'Dish saved ✓','success');
+    await loadDishes();
+    document.getElementById('dd-title').textContent=name;
+    if(!id)document.getElementById('dd-del-btn').style.display='inline-flex';
+  }catch(e){showToast('Error: '+e.message,'error');console.error(e);}
+}
+
+async function toggleDishLock(){
+  const id=document.getElementById('dd-id').value;if(!id){showToast('Save first','error');return;}
+  const d=dishes.find(x=>x.id===id);if(!d)return;
+  const nl=!d.locked;
+  await sb.from('dishes').update({locked:nl}).eq('id',id);
+  showToast(nl?'Locked':'Unlocked','success');
+  await loadDishes();
+  document.getElementById('dd-lock-btn').textContent=nl?'Unlock':'Lock recipe';
+}
+
+async function deleteDishDetail(){
+  const id=document.getElementById('dd-id').value;
+  if(!id||!confirm('Delete this dish? Cannot be undone.'))return;
+  await sb.from('dishes').delete().eq('id',id);
+  showToast('Deleted','success');_formDirty=false;
+  await loadDishes();nav('menu',null);
+}
+
+function checkDirtyThenNav(page){
+  if(_formDirty&&!confirm('Unsaved changes. Leave?'))return;
+  _formDirty=false;nav(page,null);
+}
+
 
 // BOOT
 // ══════════════════════════════════════════════════════
