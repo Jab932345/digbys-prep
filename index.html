@@ -14,12 +14,12 @@
    ═══════════════════════════════════════════════════════════ */
 :root{
   /* Backgrounds */
-  --bg:#242420; --bg2:#222220; --bg3:#2A2A27;
-  --surface:#2C2C28; --surface2:#353530; --surface3:#3E3E38;
+  --bg:#242420; --bg2:#2A2A26; --bg3:#323230;
+  --surface:#2E2E2A; --surface2:#363632; --surface3:#3E3E3A;
   /* Borders */
-  --border:rgba(255,255,255,0.10); --border2:rgba(255,255,255,0.17); --border3:rgba(255,255,255,0.25);
+  --border:rgba(255,255,255,0.10); --border2:rgba(255,255,255,0.18); --border3:rgba(255,255,255,0.18);
   /* Text */
-  --text1:#F0EDE6; --text2:#A8A098; --text3:#726A62;
+  --text1:#F2EFE8; --text2:#9A9288; --text3:#706860;
   /* Brand */
   --green:#3D8B6E; --green-bright:#5ECAA0; --green-bg:rgba(61,139,110,0.1); --green-bd:rgba(94,202,160,0.25);
   --amber:#C4832A; --amber-bg:rgba(196,131,42,0.1); --amber-bd:rgba(196,131,42,0.3);
@@ -431,7 +431,7 @@ tbody td{padding:11px 14px;vertical-align:middle;}
 /* ══ PRINT ═══════════════════════════════════════════════ */
 @media print{
   @page{size:A4;margin:12mm 14mm 14mm 14mm;}
-  body{background:#fff!important;color:#111!important;}
+  body{background:#fff!important;color:#000!important;}
   .sidebar,.bottom-nav,.topbar,.topbar-actions,.filter-bar,.fs-actions,.task-actions,.toast,.modal-overlay,.btn{display:none!important;}
   .main{margin:0!important;}
   .page{display:block!important;}
@@ -920,7 +920,6 @@ CREATE INDEX IF NOT EXISTS idx_rs_comp ON recipe_steps(component_id);</pre>
 </div>
 
 
-
 <!-- ══ STAFF MODAL ══ -->
 <div class="modal-overlay" id="staff-modal">
   <div class="modal" style="width:400px;">
@@ -944,6 +943,10 @@ CREATE INDEX IF NOT EXISTS idx_rs_comp ON recipe_steps(component_id);</pre>
 <div class="toast" id="toast"></div>
 
 <script>
+
+// ══════════════════════════════════════════════════════
+// CONFIG & GLOBALS
+// ══════════════════════════════════════════════════════
 const SUPA_URL='https://qfnwyooipwtfzikukztz.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbnd5b29pcHd0Znppa3VrenR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODY0MTcsImV4cCI6MjA5Mjk2MjQxN30.qzq30fT8L2bhX7kx46HZdco3rt7bN2zRGSKETCNgQqw';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
@@ -985,24 +988,23 @@ let settings={buffer:14,ngrok:'https://palatable-shack-scallion.ngrok-free.dev',
 // ══════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════
-
 async function init(){
   document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  if(typeof buildAlGrid==='function')buildAlGrid();if(typeof buildMonthSel==='function')buildMonthSel();if(typeof loadSettings==='function')loadSettings();
-  const dot=document.getElementById('sb-conn'),lbl={textContent:''};
+  buildAlGrid();buildMonthSel();loadSettings();
+  const dot=document.getElementById('conn-dot'),lbl=document.getElementById('conn-label');
   try{
     const{data,error}=await sb.from('dishes').select('id').limit(1);
     if(error){
       console.error('[Digbys] Connection test failed:',error.message,error);
-      if(dot)dot.className='sb-conn error';
+      dot.className='conn-dot error';lbl.textContent='DB error';
       showToast('DB error: '+error.message,'error');
       return;
     }
-    if(dot)dot.className='sb-conn live';
+    dot.className='conn-dot live';lbl.textContent='Connected';
     console.log('[Digbys] Connected to Supabase OK');
   }catch(e){
     console.error('[Digbys] Connection exception:',e);
-    if(dot)dot.className='sb-conn error';
+    dot.className='conn-dot error';lbl.textContent='Offline';
     showToast('Cannot reach database','error');
     return;
   }
@@ -1011,14 +1013,10 @@ async function init(){
   try{await loadStaff();}catch(e){console.error('[Digbys] loadStaff failed:',e);}
   try{await loadIngredients();}catch(e){console.error('[Digbys] loadIngredients failed:',e);}
   try{await loadStock();}catch(e){console.error('[Digbys] loadStock failed:',e);}
-  if(typeof populateOrderSel==="function")populateOrderSel();
-  if(typeof populatePackupSel==="function")populatePackupSel();
-  if(typeof renderDashBoard==='function')renderDashBoard();
-  if(typeof renderMenu==='function')renderMenu();
-  if(typeof populatePrepSel==='function')populatePrepSel();else if(typeof populatePrep==='function')populatePrep();
-  if(typeof populateAlEvSel==='function')populateAlEvSel();
-  if(typeof renderLabelQueue==='function')renderLabelQueue();
-  if(typeof loadSettings==='function')loadSettings();
+  try{await loadRecipes();}catch(e){console.error('[Digbys] loadRecipes failed:',e);}
+  populateOrderEvSel();
+  populatePackupEvSel();
+  renderDashBoard();
 }
 
 function loadSettings(){
@@ -1029,31 +1027,24 @@ function loadSettings(){
   document.getElementById('set-cps-key').value=settings.cpsKey||'';
 }
 function saveSettings(){
-  const g=id=>document.getElementById(id);
-  settings.buffer=parseInt(g('set-buffer')?.value)||14;
-  settings.ngrok=g('set-ngrok')?.value.trim()||'';
-  settings.defaultChef=g('set-chef')?.value.trim()||'Kitchen';
-  if(g('set-cps-url'))settings.cpsUrl=g('set-cps-url').value.trim();
-  if(g('set-cps-key'))settings.cpsKey=g('set-cps-key').value.trim();
+  settings.buffer=parseInt(document.getElementById('set-buffer').value)||14;
+  settings.ngrok=document.getElementById('set-ngrok').value.trim();
+  settings.cpsUrl=document.getElementById('set-cps-url').value.trim();
+  settings.cpsKey=document.getElementById('set-cps-key').value.trim();
   localStorage.setItem('digbys-s',JSON.stringify(settings));
   showToast('Settings saved','success');
 }
 
 function nav(page,el){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.sb-item,.bnav-tab').forEach(n=>n.classList.remove('active'));
-  const pg=document.getElementById('page-'+page);
-  if(pg)pg.classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
   if(el)el.classList.add('active');
-  // Auto-highlight sidebar by data-page
-  document.querySelectorAll('.sb-item[data-page]').forEach(n=>{
-    if(n.dataset.page===page)n.classList.add('active');
-  });
 }
 
 // ══════════════════════════════════════════════════════
 // DISHES
-
+// ══════════════════════════════════════════════════════
 async function loadDishes(){
   console.log('[Digbys] Loading dishes...');
   const{data,error}=await sb.from('dishes').select(`*, components(*, component_allergens(allergen,status), recipe_ingredients(*), recipe_steps(*))`).order('name');
@@ -1074,881 +1065,12 @@ function getDishAl(dish){
   return all;
 }
 
-function renderMenu(){
-  const grid=document.getElementById('menu-grid');
-  const label=document.getElementById('menu-count-label');
-  if(!grid)return;
-  const q=(document.getElementById('dish-search').value||'').toLowerCase();
-  let f=[...dishes];
-  if(q){f=f.filter(d=>{
-    const al=getDishAl(d).map(a=>a.allergen.toLowerCase()).join(' ');
-    const comps=(d.components||[]).map(c=>c.name.toLowerCase()).join(' ');
-    return d.name.toLowerCase().includes(q)||(d.description||'').toLowerCase().includes(q)||al.includes(q)||comps.includes(q);
-  });}
-  if(dishFilter==='freeze')f=f.filter(d=>(d.components||[]).some(c=>c.freeze_flag));
-  else if(dishFilter==='draft')f=f.filter(d=>!d.locked);
-  else if(dishFilter==='locked')f=f.filter(d=>d.locked);
-  else if(dishFilter!=='all')f=f.filter(d=>d.category===dishFilter);
-  f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
-  if(label)label.textContent=`${f.length} dish${f.length!==1?'es':''} ${dishes.length!==f.length?'of '+dishes.length:''}`;
-  if(!f.length){grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">≡</div><div class="empty-title">No dishes found</div><div class="empty-sub">Try a different search or filter</div></div></div>`;return;}
-  grid.innerHTML=f.map(d=>dishCard(d)).join('');
-}
-
-function dishCard(d){
-  const al=getDishAl(d);
-  const comps=(d.components||[]).sort((a,b)=>a.sort_order-b.sort_order);
-  const frzCount=comps.filter(c=>c.freeze_flag).length;
-  const alHtml=al.slice(0,5).map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${h(a.allergen)}</span>`).join('');
-  const moreAl=al.length>5?`<span style="font-size:10px;color:var(--text3);"> +${al.length-5}</span>`:'';
-  return`<div class="dish-card ${d.locked?'locked':'draft'}" onclick="openDishDetail('${d.id}')">
-    <div class="dc-header"><div class="dc-name">${h(d.name)}</div>
-    <div class="dc-meta">${d.category}${d.station?' · '+d.station:''}${frzCount?' · ❄ '+frzCount+' freezable':''}</div></div>
-    <div class="dc-body"><div class="dc-comps">
-      ${comps.slice(0,5).map(c=>`<div class="dc-comp-row"><div class="dc-comp-dot ${c.freeze_flag?'freeze':c.fridge_flag?'fridge':''}"></div><span>${h(c.name)}</span>${c.qty_per_cover?`<span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;margin-left:auto;">${c.qty_per_cover}${c.unit?' '+c.unit:''}/cover</span>`:''}</div>`).join('')}
-      ${comps.length>5?`<div style="font-size:10px;color:var(--text3);padding-left:12px;">+${comps.length-5} more</div>`:''}
-      ${!comps.length?`<div style="font-size:11px;color:var(--text3);font-style:italic;">No components yet</div>`:''}
-    </div></div>
-    <div class="dc-footer"><div class="dc-al-row">${al.length?alHtml+moreAl:`<span style="font-size:10px;color:var(--text3);">No allergens</span>`}</div>
-    <span class="dc-status ${d.locked?'locked':'draft'}">${d.locked?'Locked':'Draft'}</span></div>
-  </div>`;
-}
-
-function renderDashDishes(){
-  const body=document.getElementById('dash-dish-body');if(!body)return;
-  const r=dishes.slice(0,5);
-  if(!r.length){body.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No dishes yet</td></tr>`;return;}
-  body.innerHTML=r.map(d=>{const al=getDishAl(d);return`<tr><td style="font-weight:500;">${h(d.name)}</td><td><span class="badge badge-gray">${d.category}</span></td><td>${al.slice(0,4).map(a=>`<span class="allergen-tag">${h(a.allergen)}</span>`).join('')+(al.length>4?`<span style="font-size:10px;color:var(--text3);"> +${al.length-4}</span>`:'')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td></tr>`;}).join('');
-}
-
-function setDishFilter(f,el){dishFilter=f;document.querySelectorAll('#page-menu .filter-chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderMenu();}
-
-
 // ══════════════════════════════════════════════════════
-// DISH DETAIL PAGE
-// ══════════════════════════════════════════════════════
-let ddAllergenState={};
-
-function buildDdAlGrid(){
-  const grid=document.getElementById('dd-al-grid');if(!grid)return;
-  grid.innerHTML=ALLERGENS.map(a=>`<div class="allergen-toggle" id="ddat-${a}" onclick="cycleDdAl('${a}')">${a}</div>`).join('');
-}
-
-function cycleDdAl(name){
-  const el=document.getElementById('ddat-'+name);
-  const cur=ddAllergenState[name]||null;
-  if(!cur){ddAllergenState[name]='contains';el.className='allergen-toggle contains';}
-  else if(cur==='contains'){ddAllergenState[name]='may';el.className='allergen-toggle may';}
-  else{ddAllergenState[name]=null;el.className='allergen-toggle';}
-  updateDdAlDisplay();
-}
-
-function resetDdAl(){
-  ddAllergenState={};
-  ALLERGENS.forEach(a=>{const el=document.getElementById('ddat-'+a);if(el)el.className='allergen-toggle';});
-  updateDdAlDisplay();
-}
-
-function updateDdAlDisplay(){
-  const el=document.getElementById('dd-al-display');if(!el)return;
-  const active=Object.entries(ddAllergenState).filter(([,v])=>v);
-  if(!active.length){el.textContent='None declared';return;}
-  el.innerHTML=active.map(([a,s])=>`<span class="allergen-tag ${s==='may'?'may':''}">${a}</span>`).join(' ');
-}
-
-function updateDishDetailHeader(){
-  const name=document.getElementById('dd-name').value.trim();
-  const cat=document.getElementById('dd-cat').value;
-  document.getElementById('dd-title').textContent=name||'New dish';
-  document.getElementById('dd-sub').textContent=cat;
-}
-
-async function openDishDetail(id=null){
-  buildDdAlGrid();
-  resetDdAl();
-  _formDirty=false;
-  if(!id){
-    // New dish
-    document.getElementById('dd-id').value='';
-    document.getElementById('dd-name').value='';
-    document.getElementById('dd-cat').value='Canapés';
-    document.getElementById('dd-station').value='';
-    document.getElementById('dd-desc').value='';
-    document.getElementById('dd-notes').value='';
-    document.getElementById('dd-comp-list').innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add one above</div></div>';
-    document.getElementById('dd-lock-btn').textContent='Lock recipe';
-    document.getElementById('dd-del-btn').style.display='none';
-    Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=false);
-    document.getElementById('dd-title').textContent='New dish';
-    document.getElementById('dd-sub').textContent='';
-    nav('dish-detail',null);
-    return;
-  }
-  const d=dishes.find(x=>x.id===id);if(!d)return;
-  document.getElementById('dd-id').value=d.id;
-  document.getElementById('dd-name').value=d.name;
-  document.getElementById('dd-cat').value=d.category;
-  document.getElementById('dd-station').value=d.station||'';
-  document.getElementById('dd-desc').value=d.description||'';
-  document.getElementById('dd-notes').value=d.notes||'';
-  document.getElementById('dd-title').textContent=d.name;
-  document.getElementById('dd-sub').textContent=d.category+(d.station?' · '+d.station:'');
-  document.getElementById('dd-lock-btn').textContent=d.locked?'Unlock recipe':'Lock recipe';
-  document.getElementById('dd-del-btn').style.display='inline-flex';
-  const menus=d.menu_type||[];
-  Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=menus.includes(o.value));
-  // Allergens
-  resetDdAl();
-  getDishAl(d).forEach(a=>{
-    ddAllergenState[a.allergen]=a.status==='May Contain'?'may':'contains';
-    const el=document.getElementById('ddat-'+a.allergen);
-    if(el)el.className='allergen-toggle '+(a.status==='May Contain'?'may':'contains');
-  });
-  updateDdAlDisplay();
-  // Components
-  const compList=document.getElementById('dd-comp-list');
-  compList.innerHTML='';
-  const comps=(d.components||[]).sort((a,b)=>a.sort_order-b.sort_order);
-  if(comps.length){comps.forEach(c=>addDishComponent(c));}
-  else{compList.innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add one above</div></div>';}
-  nav('dish-detail',null);
-  _formDirty=false;
-}
-
-function addDishComponent(c=null){
-  const list=document.getElementById('dd-comp-list');
-  // Clear empty state
-  if(list.querySelector('.empty-state'))list.innerHTML='';
-  const uid='comp-'+Date.now()+Math.random().toString(36).slice(2,6);
-  const div=document.createElement('div');
-  div.className='comp-block';
-  div.dataset.compId=c?c.id:'';
-  const st=c?(c.freeze_flag?'freeze':c.fridge_flag?'fridge':'none'):'none';
-  const stLabel=st==='freeze'?'❄ Freeze':st==='fridge'?'🧊 Fridge':'○ Fresh';
-  const stClass=st==='freeze'?'freeze':st==='fridge'?'fridge':'';
-  const ings=(c&&c.recipe_ingredients)||[];
-  const steps=(c&&c.recipe_steps)||[];
-  div.innerHTML=`
-    <div class="comp-block-header" onclick="toggleCompBlock(this)">
-      <span class="comp-expand-icon">▶</span>
-      <input class="comp-name-field" type="text" placeholder="Component name e.g. Mint pea purée, Confit duck legs..." value="${c?h(c.name):''}" onclick="event.stopPropagation()">
-      <div class="comp-meta-row">
-        <input class="comp-qty-input" type="number" placeholder="Qty/cv" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}" title="Quantity per cover">
-        <input class="comp-unit-input" type="text" placeholder="unit" value="${c?h(c.unit||''):''}">
-        <button class="storage-cycle ${stClass}" data-state="${st}" onclick="event.stopPropagation();cycleStorage(this)">${stLabel}</button>
-        <input class="comp-chef-note" type="text" placeholder="Chef note / finish instruction..." value="${c?h(c.chef_note||''):''}" onclick="event.stopPropagation()" title="Chef note — appears on prep list and labels">
-        <button class="comp-remove-btn" onclick="event.stopPropagation();removeComp(this)" title="Remove component">×</button>
-      </div>
-    </div>
-    <div class="comp-recipe-panel">
-      <div class="recipe-col">
-        <div class="recipe-col-label">
-          <span>Ingredients</span>
-          <div style="display:flex;align-items:center;gap:6px;">
-            <span style="font-weight:400;color:var(--text3);">Base portions</span>
-            <input class="recipe-base-input" type="number" min="1" value="${c&&c.base_portions?c.base_portions:10}" title="Quantities below are for this many covers">
-          </div>
-        </div>
-        <div class="ing-list">${ings.sort((a,b)=>a.sort_order-b.sort_order).map(i=>ingRow(i)).join('')}</div>
-        <button class="add-row-btn" onclick="addIngRow(this)">+ Add ingredient</button>
-      </div>
-      <div class="recipe-col">
-        <div class="recipe-col-label">Method</div>
-        <div class="step-list">${steps.sort((a,b)=>a.step_number-b.step_number).map((s,i)=>stepRow(s,i+1)).join('')}</div>
-        <button class="add-row-btn" onclick="addStepRow(this)">+ Add step</button>
-      </div>
-    </div>`;
-  list.appendChild(div);
-}
-
-function toggleCompBlock(header){
-  const block=header.closest('.comp-block');
-  block.classList.toggle('open');
-}
-
-function removeComp(btn){
-  const block=btn.closest('.comp-block');
-  block.remove();
-  if(!document.getElementById('dd-comp-list').children.length){
-    document.getElementById('dd-comp-list').innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add one above</div></div>';
-  }
-  _formDirty=true;
-}
-
-function cycleStorage(btn){
-  const states=['none','freeze','fridge'],labels=['○ Fresh','❄ Freeze','🧊 Fridge'],classes=['','freeze','fridge'];
-  const n=(states.indexOf(btn.dataset.state)+1)%3;
-  btn.dataset.state=states[n];btn.textContent=labels[n];btn.className='storage-cycle '+classes[n];
-  _formDirty=true;
-}
-
-function ingRow(i=null){
-  return`<div class="ing-row">
-    <input type="text" class="ir-name" placeholder="Ingredient" value="${i?h(i.ingredient_name||i.name||''):''}">
-    <input type="number" class="ir-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01">
-    <input type="text" class="ir-unit" placeholder="unit" value="${i?h(i.unit||''):''}">
-    <button class="ing-remove" onclick="this.closest('.ing-row').remove()">×</button>
-  </div>`;
-}
-
-function stepRow(s=null,num=1){
-  return`<div class="step-row">
-    <span class="step-num">${num}.</span>
-    <textarea class="sr-instruction" placeholder="Step instruction...">${s?h(s.instruction):''}</textarea>
-    <div class="step-timing">
-      <input type="text" class="sr-time" placeholder="Time" value="${s?h(s.time_note||''):''}">
-      <input type="text" class="sr-temp" placeholder="Temp" value="${s?h(s.temp_note||''):''}">
-    </div>
-    <button class="step-remove" onclick="this.closest('.step-row').remove()">×</button>
-  </div>`;
-}
-
-function addIngRow(btn){
-  const list=btn.closest('.recipe-col').querySelector('.ing-list');
-  list.insertAdjacentHTML('beforeend',ingRow());
-  _formDirty=true;
-}
-
-function addStepRow(btn){
-  const list=btn.closest('.recipe-col').querySelector('.step-list');
-  const num=list.querySelectorAll('.step-row').length+1;
-  list.insertAdjacentHTML('beforeend',stepRow(null,num));
-  _formDirty=true;
-}
-
-async function saveDishDetail(){
-  const name=document.getElementById('dd-name').value.trim();
-  if(!name){showToast('Dish name required','error');return;}
-  const id=document.getElementById('dd-id').value;
-  const menuTypes=Array.from(document.getElementById('dd-menu').selectedOptions).map(o=>o.value);
-  const dishData={name,category:document.getElementById('dd-cat').value,station:document.getElementById('dd-station').value||null,description:document.getElementById('dd-desc').value.trim()||null,notes:document.getElementById('dd-notes').value.trim()||null,menu_type:menuTypes,updated_at:new Date().toISOString()};
-  try{
-    let did=id;
-    if(id){const{error}=await sb.from('dishes').update(dishData).eq('id',id);if(error)throw error;}
-    else{const{data:nd,error}=await sb.from('dishes').insert(dishData).select().single();if(error)throw error;did=nd.id;document.getElementById('dd-id').value=did;}
-    // Save components
-    await sb.from('components').delete().eq('dish_id',did);
-    const blocks=document.querySelectorAll('#dd-comp-list .comp-block');
-    for(let i=0;i<blocks.length;i++){
-      const blk=blocks[i];
-      const cname=blk.querySelector('.comp-name-field').value.trim();if(!cname)continue;
-      const st=blk.querySelector('.storage-cycle').dataset.state;
-      const bp=parseInt(blk.querySelector('.recipe-base-input')?.value)||10;
-      const{data:nc,error:ce}=await sb.from('components').insert({dish_id:did,name:cname,qty_per_cover:parseFloat(blk.querySelector('.comp-qty-input').value)||null,unit:blk.querySelector('.comp-unit-input').value.trim()||null,station:null,chef_note:blk.querySelector('.comp-chef-note').value.trim()||null,freeze_flag:st==='freeze',fridge_flag:st==='fridge',sort_order:i,base_portions:bp}).select().single();
-      if(ce)throw ce;
-      const cid=nc.id;
-      const ings=[];blk.querySelectorAll('.ing-row').forEach((r,j)=>{const n=r.querySelector('.ir-name').value.trim();if(!n)return;ings.push({component_id:cid,sub_recipe_id:null,ingredient_name:n,quantity:parseFloat(r.querySelector('.ir-qty').value)||null,unit:r.querySelector('.ir-unit').value.trim()||null,sort_order:j});});
-      if(ings.length){const{error:ie}=await sb.from('recipe_ingredients').insert(ings);if(ie)console.warn('ings:',ie.message);}
-      const steps=[];blk.querySelectorAll('.step-row').forEach((r,j)=>{const inst=r.querySelector('.sr-instruction').value.trim();if(!inst)return;steps.push({component_id:cid,sub_recipe_id:null,step_number:j+1,instruction:inst,time_note:r.querySelector('.sr-time').value.trim()||null,temp_note:r.querySelector('.sr-temp').value.trim()||null});});
-      if(steps.length){const{error:se}=await sb.from('recipe_steps').insert(steps);if(se)console.warn('steps:',se.message);}
-    }
-    // Allergens on first component
-    const{data:allComps}=await sb.from('components').select('id').eq('dish_id',did).order('sort_order').limit(1);
-    if(allComps&&allComps.length){
-      await sb.from('component_allergens').delete().in('component_id',[allComps[0].id]);
-      const alRows=Object.entries(ddAllergenState).filter(([,v])=>v).map(([a,s])=>({component_id:allComps[0].id,allergen:a,status:s==='may'?'May Contain':'Contains'}));
-      if(alRows.length)await sb.from('component_allergens').insert(alRows);
-    }
-    _formDirty=false;
-    showToast(id?'Dish updated':'Dish saved','success');
-    await loadDishes();
-    // Update header
-    document.getElementById('dd-title').textContent=name;
-    document.getElementById('dd-sub').textContent=document.getElementById('dd-cat').value;
-    if(!id)document.getElementById('dd-del-btn').style.display='inline-flex';
-  }catch(e){showToast('Error: '+e.message,'error');}
-}
-
-async function toggleDishLock(){
-  const id=document.getElementById('dd-id').value;if(!id){showToast('Save dish first','error');return;}
-  const d=dishes.find(x=>x.id===id);if(!d)return;
-  const newLocked=!d.locked;
-  await sb.from('dishes').update({locked:newLocked}).eq('id',id);
-  showToast(newLocked?'Recipe locked':'Recipe unlocked','success');
-  await loadDishes();
-  document.getElementById('dd-lock-btn').textContent=newLocked?'Unlock recipe':'Lock recipe';
-}
-
-async function deleteDishFromDetail(){
-  const id=document.getElementById('dd-id').value;
-  if(!id||!confirm('Delete this dish? This cannot be undone.'))return;
-  const{error}=await sb.from('dishes').delete().eq('id',id);
-  if(error){showToast('Error: '+error.message,'error');return;}
-  showToast('Dish deleted','success');
-  _formDirty=false;
-  await loadDishes();
-  nav('menu',null);
-}
-
-function printDishDetail(){
-  window.print();
-}
-
 // DISH MODAL
 // ══════════════════════════════════════════════════════
-function buildAlGrid(){document.getElementById('al-grid').innerHTML=ALLERGENS.map(a=>`<div class="allergen-toggle" id="at-${a}" onclick="cycleAl('${a}')">${a}</div>`).join('');}
-function cycleAl(n){const el=document.getElementById('at-'+n);const c=allergenState[n]||null;if(!c){allergenState[n]='contains';el.className='allergen-toggle contains';}else if(c==='contains'){allergenState[n]='may';el.className='allergen-toggle may';}else{allergenState[n]=null;el.className='allergen-toggle';}}
-function resetAl(){allergenState={};ALLERGENS.forEach(a=>{const el=document.getElementById('at-'+a);if(el)el.className='allergen-toggle';});}
-
-function openDishModal(){
-  document.getElementById('dish-id').value='';document.getElementById('dish-modal-title').textContent='Add dish';
-  document.getElementById('dish-name').value='';document.getElementById('dish-cat').value='Canapés';
-  document.getElementById('dish-station').value='';document.getElementById('dish-desc').value='';
-  document.getElementById('dish-notes').value='';document.getElementById('dish-del-btn').style.display='none';
-  document.getElementById('comp-list').innerHTML='';resetAl();
-  Array.from(document.getElementById('dish-menu').options).forEach(o=>o.selected=false);
-  document.getElementById('dish-modal').classList.add('open');
-}
-
-async function editDish(id){
-  const d=dishes.find(x=>x.id===id);if(!d)return;
-  document.getElementById('dish-id').value=d.id;
-  document.getElementById('dish-modal-title').textContent='Edit dish';
-  document.getElementById('dish-name').value=d.name;
-  document.getElementById('dish-cat').value=d.category;
-  document.getElementById('dish-station').value=d.station||'';
-  document.getElementById('dish-desc').value=d.description||'';
-  document.getElementById('dish-notes').value=d.notes||'';
-  document.getElementById('dish-del-btn').style.display='inline-flex';
-  document.getElementById('comp-list').innerHTML='';
-  (d.components||[]).sort((a,b)=>a.sort_order-b.sort_order).forEach(c=>addComp(c));
-  resetAl();
-  allergenState={};
-  const al=getDishAl(d);
-  al.forEach(a=>{allergenState[a.allergen]=a.status==='May Contain'?'may':'contains';});
-  buildAlGrid();
-  Object.entries(allergenState).forEach(([a,s])=>{
-    const el=document.getElementById('at-'+a);
-    if(el)el.className='allergen-toggle '+(s==='may'?'may':'contains');
-  });
-  const menus=d.menu_type||[];
-  Array.from(document.getElementById('dish-menu').options).forEach(o=>o.selected=menus.includes(o.value));
-  _formDirty=false;
-  document.getElementById('dish-modal').classList.add('open');
-}
-
-
-function addComp(c=null){
-  const div=document.createElement('div');
-  div.className='component-item';
-  div.dataset.compId=c?c.id:'';
-  const st=c?(c.freeze_flag?'freeze':c.fridge_flag?'fridge':'none'):'none';
-  const sl=st==='freeze'?'❄ Freeze':st==='fridge'?'🧊 Fridge':'○ Fresh';
-  const sc=st==='freeze'?'freeze':st==='fridge'?'fridge':'';
-  const uid='comp-'+Date.now()+Math.random().toString(36).slice(2,5);
-  const ings=(c&&c.recipe_ingredients)||[];
-  const steps=(c&&c.recipe_steps)||[];
-
-  div.innerHTML=`
-    <div style="display:flex;align-items:center;gap:6px;padding:10px 12px;background:var(--bg);border-bottom:1px solid var(--border);">
-      <input class="comp-name" type="text" placeholder="Component name e.g. Mint pea purée, Hake fillet, Green oil..." value="${c?h(c.name):''}"
-        style="flex:2;font-size:13px;font-weight:600;padding:6px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
-      <input class="comp-qty" type="number" placeholder="Qty/cover" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}"
-        style="width:80px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);" title="Quantity per cover">
-      <input class="comp-unit" type="text" placeholder="unit" value="${c?h(c.unit||''):''}"
-        style="width:60px;font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);">
-      <button class="storage-btn ${sc}" data-state="${st}" onclick="cycleStore(this)" style="white-space:nowrap;">${sl}</button>
-      <input class="comp-chef-note" type="text" placeholder="Chef note / instruction..." value="${c?h(c.chef_note||''):''}"
-        style="flex:1;min-width:80px;font-size:11px;padding:6px 8px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;color:var(--amber);">
-      <button onclick="toggleRecipe('${uid}')" style="font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--text2);cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;" title="Add/edit recipe for this component">
-        ${ings.length||steps.length?'📋 Recipe ('+ings.length+' ings)':'📋 Add recipe'}
-      </button>
-      <button class="comp-remove" onclick="this.closest('.component-item').remove()" style="color:var(--text3);font-size:20px;background:none;border:none;cursor:pointer;padding:0 4px;flex-shrink:0;">×</button>
-    </div>
-    <div id="${uid}" class="comp-recipe" style="display:none;background:var(--surface);border-bottom:1px solid var(--border);">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
-        <div style="padding:12px 14px;border-right:1px solid var(--border);">
-          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:8px;">
-            Ingredients <span style="font-weight:400;">(scale from base portions below)</span>
-          </div>
-          <div class="comp-ing-list">${ings.sort((a,b)=>a.sort_order-b.sort_order).map(i=>compIngRow(i)).join('')}</div>
-          <button onclick="this.closest('.comp-recipe').querySelector('.comp-ing-list').insertAdjacentHTML('beforeend',compIngRow())"
-            style="font-size:11px;color:var(--green);background:none;border:none;cursor:pointer;margin-top:6px;padding:0;font-family:'DM Sans',sans-serif;">+ Add ingredient</button>
-        </div>
-        <div style="padding:12px 14px;">
-          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;margin-bottom:8px;">Method steps</div>
-          <div class="comp-step-list">${steps.sort((a,b)=>a.step_number-b.step_number).map((s,i)=>compStepRow(s,i+1)).join('')}</div>
-          <button onclick="(function(btn){const list=btn.closest('.comp-recipe').querySelector('.comp-step-list');list.insertAdjacentHTML('beforeend',compStepRow(null,list.children.length+1));})(this)"
-            style="font-size:11px;color:var(--green);background:none;border:none;cursor:pointer;margin-top:6px;padding:0;font-family:'DM Sans',sans-serif;">+ Add step</button>
-        </div>
-      </div>
-      <div style="padding:8px 14px;background:var(--bg);border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;">
-        <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace;">BASE PORTIONS</span>
-        <input type="number" class="comp-base-portions" value="${c&&c.base_portions?c.base_portions:10}" min="1"
-          style="width:70px;font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:var(--radius);">
-        <span style="font-size:11px;color:var(--text3);">All quantities above are for this many covers — scales automatically for each event</span>
-      </div>
-    </div>`;
-
-  document.getElementById('comp-list').appendChild(div);
-}
-
-function toggleRecipe(uid){
-  const el=document.getElementById(uid);
-  if(!el)return;
-  const open=el.style.display==='block';
-  el.style.display=open?'none':'block';
-}
-
-function compIngRow(i=null){
-  return`<div class="comp-ing-row" style="display:grid;grid-template-columns:2fr 70px 60px auto;gap:4px;margin-bottom:4px;align-items:center;">
-    <input type="text" class="ci-name" placeholder="Ingredient name" value="${i?h(i.ingredient_name||i.name||''):''}"
-      style="font-size:12px;padding:4px 7px;border:1px solid var(--border);border-radius:var(--radius);font-family:'DM Sans',sans-serif;">
-    <input type="number" class="ci-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01"
-      style="font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);">
-    <input type="text" class="ci-unit" placeholder="unit" value="${i?h(i.unit||''):''}"
-      style="font-size:12px;padding:4px 6px;border:1px solid var(--border);border-radius:var(--radius);">
-    <button onclick="this.closest('.comp-ing-row').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;padding:0 3px;">×</button>
-  </div>`;
-}
-
-function compStepRow(s=null,num=1){
-  return`<div class="comp-step-row" style="display:flex;gap:6px;margin-bottom:6px;align-items:flex-start;">
-    <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:6px;min-width:18px;flex-shrink:0;">${num}.</span>
-    <textarea class="cs-instruction" placeholder="Step instruction..." style="flex:1;font-size:12px;padding:5px 8px;border:1px solid var(--border);border-radius:var(--radius);resize:vertical;min-height:38px;font-family:'DM Sans',sans-serif;">${s?h(s.instruction):''}</textarea>
-    <div style="display:flex;flex-direction:column;gap:3px;flex-shrink:0;">
-      <input type="text" class="cs-time" placeholder="Time" value="${s?h(s.time_note||''):''}" style="width:65px;font-size:11px;padding:4px 5px;border:1px solid var(--border);border-radius:var(--radius);">
-      <input type="text" class="cs-temp" placeholder="Temp" value="${s?h(s.temp_note||''):''}" style="width:65px;font-size:11px;padding:4px 5px;border:1px solid var(--border);border-radius:var(--radius);">
-    </div>
-    <button onclick="this.closest('.comp-step-row').remove()" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;line-height:1;margin-top:4px;padding:0 3px;">×</button>
-  </div>`;
-}
-
-
-function cycleStore(btn){
-  const s=['none','freeze','fridge'],l=['○ Fresh','❄ Freeze','🧊 Fridge'],c=['','freeze','fridge'];
-  const n=(s.indexOf(btn.dataset.state)+1)%3;
-  btn.dataset.state=s[n];btn.textContent=l[n];btn.className='storage-btn '+c[n];
-}
-
-async function saveDish(){
-  const name=document.getElementById('dish-name').value.trim();
-  if(!name){showToast('Dish name required','error');return;}
-  const id=document.getElementById('dish-id').value;
-  const menuTypes=Array.from(document.getElementById('dish-menu').selectedOptions).map(o=>o.value);
-  const data={name,category:document.getElementById('dish-cat').value,
-    station:document.getElementById('dish-station').value.trim()||null,
-    description:document.getElementById('dish-desc').value.trim()||null,
-    notes:document.getElementById('dish-notes').value.trim()||null,
-    menu_type:menuTypes,updated_at:new Date().toISOString()};
-  try{
-    let did=id;
-    if(id){
-      const{error}=await sb.from('dishes').update(data).eq('id',id);
-      if(error)throw error;
-    }else{
-      const{data:nd,error}=await sb.from('dishes').insert(data).select().single();
-      if(error)throw error;
-      did=nd.id;
-    }
-
-    // Delete old components (cascades to component_allergens)
-    await sb.from('components').delete().eq('dish_id',did);
-
-    // Save each component + its recipe
-    const compItems=document.querySelectorAll('#comp-list .component-item');
-    for(let i=0;i<compItems.length;i++){
-      const item=compItems[i];
-      const n=item.querySelector('.comp-name').value.trim();
-      if(!n)continue;
-      const st=item.querySelector('.storage-btn').dataset.state;
-      const basePortion=parseInt(item.querySelector('.comp-base-portions')?.value)||10;
-
-      // Insert component
-      const{data:nc,error:ce}=await sb.from('components').insert({
-        dish_id:did,name:n,
-        qty_per_cover:parseFloat(item.querySelector('.comp-qty').value)||null,
-        unit:item.querySelector('.comp-unit').value.trim()||null,
-        station:null,
-        chef_note:item.querySelector('.comp-chef-note')?.value.trim()||null,
-        freeze_flag:st==='freeze',fridge_flag:st==='fridge',sort_order:i,
-        base_portions:basePortion
-      }).select().single();
-      if(ce)throw ce;
-
-      const cid=nc.id;
-
-      // Save recipe ingredients for this component
-      const ingRows=item.querySelectorAll('.comp-ing-row');
-      const ings=[];
-      ingRows.forEach((row,j)=>{
-        const ingName=row.querySelector('.ci-name').value.trim();
-        if(!ingName)return;
-        ings.push({
-          sub_recipe_id:null,
-          component_id:cid,
-          ingredient_name:ingName,
-          quantity:parseFloat(row.querySelector('.ci-qty').value)||null,
-          unit:row.querySelector('.ci-unit').value.trim()||null,
-          sort_order:j
-        });
-      });
-      if(ings.length){
-        const{error:ie}=await sb.from('recipe_ingredients').insert(ings);
-        if(ie)console.warn('ingredient save:',ie.message);
-      }
-
-      // Save recipe steps for this component
-      const stepRows=item.querySelectorAll('.comp-step-row');
-      const steps=[];
-      stepRows.forEach((row,j)=>{
-        const inst=row.querySelector('.cs-instruction').value.trim();
-        if(!inst)return;
-        steps.push({
-          sub_recipe_id:null,
-          component_id:cid,
-          step_number:j+1,
-          instruction:inst,
-          time_note:row.querySelector('.cs-time').value.trim()||null,
-          temp_note:row.querySelector('.cs-temp').value.trim()||null
-        });
-      });
-      if(steps.length){
-        const{error:se}=await sb.from('recipe_steps').insert(steps);
-        if(se)console.warn('step save:',se.message);
-      }
-    }
-
-    // Save allergens on first component (dish-level allergens)
-    const{data:allComps}=await sb.from('components').select('id').eq('dish_id',did).order('sort_order').limit(1);
-    if(allComps&&allComps.length){
-      await sb.from('component_allergens').delete().in('component_id',[allComps[0].id]);
-      const alRows=[];
-      Object.entries(allergenState).forEach(([al,st])=>{
-        if(st)alRows.push({component_id:allComps[0].id,allergen:al,status:st==='may'?'May Contain':'Contains'});
-      });
-      if(alRows.length)await sb.from('component_allergens').insert(alRows);
-    }
-
-    _formDirty=false;
-    showToast(id?'Dish updated':'Dish added','success');
-    closeModal('dish-modal');
-    await loadDishes();
-  }catch(e){
-    console.error('saveDish error:',e);
-    showToast('Error saving: '+e.message,'error');
-  }
-}
-
-
-async function deleteDish(){const id=document.getElementById('dish-id').value;if(!id||!confirm('Delete this dish?'))return;await sb.from('dishes').delete().eq('id',id);showToast('Dish deleted','success');closeModal('dish-modal');await loadDishes();}
-
-// ══════════════════════════════════════════════════════
+async // ══════════════════════════════════════════════════════
 // FUNCTION SHEET (EVENTS)
 // ══════════════════════════════════════════════════════
-
-// ══════════════════════════════════════════════════════
-// MENU LIBRARY
-// ══════════════════════════════════════════════════════
-let dishFilterState='all';
-
-function setDishFilter(f,el){
-  dishFilterState=f;
-  document.querySelectorAll('#page-menu .chip').forEach(c=>c.classList.remove('active'));
-  if(el)el.classList.add('active');
-  renderMenu();
-}
-
-function renderMenu(){
-  const grid=document.getElementById('menu-grid');
-  const label=document.getElementById('menu-count-label');
-  if(!grid)return;
-  const q=(document.getElementById('dish-search')?.value||'').toLowerCase();
-  let f=[...dishes];
-  if(q){f=f.filter(d=>{
-    const als=getDishAl(d).map(a=>a.allergen.toLowerCase()).join(' ');
-    const comps=(d.components||[]).map(c=>(c.name+' '+(c.recipe_ingredients||[]).map(i=>(i.ingredient_name||'').toLowerCase()).join(' ')).toLowerCase()).join(' ');
-    return d.name.toLowerCase().includes(q)||(d.description||'').toLowerCase().includes(q)||als.includes(q)||comps.includes(q);
-  });}
-  if(dishFilterState==='freeze')f=f.filter(d=>(d.components||[]).some(c=>c.freeze_flag));
-  else if(dishFilterState==='draft')f=f.filter(d=>!d.locked);
-  else if(dishFilterState==='locked')f=f.filter(d=>d.locked);
-  else if(dishFilterState!=='all')f=f.filter(d=>d.category===dishFilterState);
-  f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
-  if(label)label.textContent=f.length+' dish'+(f.length!==1?'es':''+(dishes.length!==f.length?' of '+dishes.length:''));
-  if(!f.length){grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">≡</div><div class="empty-title">No dishes found</div><div class="empty-sub">Try a different search or filter</div></div></div>`;return;}
-  grid.innerHTML=f.map(d=>renderDishCard(d)).join('');
-}
-
-function renderDishCard(d){
-  const al=getDishAl(d);
-  const comps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
-  const frzCount=comps.filter(c=>c.freeze_flag).length;
-  return`<div class="dish-card ${d.locked?'locked':'draft'}" onclick="openDishDetail('${d.id}')">
-    <div class="dc-top">
-      <div class="dc-cat">${d.category||'Uncategorised'}${d.station?' · '+d.station:''}${frzCount?' · ❄ '+frzCount:''}</div>
-      <div class="dc-name">${h(d.name)}</div>
-      ${d.description?`<div class="dc-desc">${h(d.description)}</div>`:''}
-    </div>
-    <div class="dc-comps">
-      ${comps.slice(0,5).map(c=>`<div class="dc-comp">
-        <div class="dc-dot ${c.freeze_flag?'freeze':c.fridge_flag?'fridge':''}"></div>
-        <span>${h(c.name)}</span>
-        ${c.qty_per_cover!=null?`<span class="dc-qty">${c.qty_per_cover}${c.unit?' '+c.unit:''}/cv</span>`:''}
-      </div>`).join('')}
-      ${comps.length>5?`<div style="font-size:10px;color:var(--text3);padding:1px 0 0 12px;font-family:'DM Mono',monospace;">+${comps.length-5} more</div>`:''}
-      ${!comps.length?`<div style="font-size:11px;color:var(--text3);font-style:italic;padding:2px 0;">No components yet</div>`:''}
-    </div>
-    <div class="dc-foot">
-      <div class="dc-als">
-        ${al.slice(0,5).map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${h(a.allergen)}</span>`).join('')}
-        ${al.length>5?`<span style="font-size:10px;color:var(--text3);">+${al.length-5}</span>`:''}
-        ${!al.length?`<span style="font-size:10px;color:var(--text3);">No allergens</span>`:''}
-      </div>
-      <span class="dc-status ${d.locked?'locked':'draft'}">${d.locked?'Locked':'Draft'}</span>
-    </div>
-  </div>`;
-}
-
-function renderDashDishes(){
-  const body=document.getElementById('dash-dish-body');if(!body)return;
-  const r=dishes.slice(0,6);
-  if(!r.length){body.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No dishes yet</td></tr>`;return;}
-  body.innerHTML=r.map(d=>{const al=getDishAl(d);return`<tr style="cursor:pointer;" onclick="openDishDetail('${d.id}')"><td style="font-weight:500;">${h(d.name)}</td><td><span class="badge badge-gray">${d.category}</span></td><td>${al.slice(0,4).map(a=>`<span class="allergen-tag">${h(a.allergen)}</span>`).join('')+(al.length>4?`<span style="font-size:10px;color:var(--text3);"> +${al.length-4}</span>`:'')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td></tr>`;}).join('');
-}
-
-// ══════════════════════════════════════════════════════
-// DISH DETAIL PAGE
-// ══════════════════════════════════════════════════════
-let ddAlState={};
-
-function updateDdHeader(){
-  const name=document.getElementById('dd-name')?.value.trim();
-  const cat=document.getElementById('dd-cat')?.value;
-  if(document.getElementById('dd-title'))document.getElementById('dd-title').textContent=name||'New dish';
-  if(document.getElementById('dd-sub'))document.getElementById('dd-sub').textContent=cat||'';
-}
-
-function buildDdAlGrid(){
-  const g=document.getElementById('dd-al-grid');if(!g)return;
-  g.innerHTML=ALLERGENS.map(a=>`<div class="allergen-toggle" id="ddat-${a}" onclick="cycleDdAl('${a}')">${a}</div>`).join('');
-}
-
-function cycleDdAl(name){
-  const el=document.getElementById('ddat-'+name);if(!el)return;
-  const cur=ddAlState[name]||null;
-  if(!cur){ddAlState[name]='contains';el.className='allergen-toggle contains';}
-  else if(cur==='contains'){ddAlState[name]='may';el.className='allergen-toggle may';}
-  else{delete ddAlState[name];el.className='allergen-toggle';}
-  updateDdAlDisplay();
-}
-
-function updateDdAlDisplay(){
-  const el=document.getElementById('dd-al-display');if(!el)return;
-  const active=Object.entries(ddAlState).filter(([,v])=>v);
-  if(!active.length){el.innerHTML='<span style="color:var(--text3);">None declared</span>';return;}
-  el.innerHTML=active.map(([a,s])=>`<span class="allergen-tag ${s==='may'?'may':''}">${a}</span>`).join(' ');
-}
-
-function resetDdAl(){
-  ddAlState={};
-  ALLERGENS.forEach(a=>{const el=document.getElementById('ddat-'+a);if(el)el.className='allergen-toggle';});
-  updateDdAlDisplay();
-}
-
-async function openDishDetail(id=null){
-  nav('dish-detail',null);
-  buildDdAlGrid();
-  resetDdAl();
-  _formDirty=false;
-  if(!id){
-    document.getElementById('dd-id').value='';
-    document.getElementById('dd-name').value='';
-    document.getElementById('dd-cat').value='Canapés';
-    document.getElementById('dd-station').value='';
-    document.getElementById('dd-desc').value='';
-    document.getElementById('dd-notes').value='';
-    document.getElementById('dd-title').textContent='New dish';
-    document.getElementById('dd-sub').textContent='';
-    document.getElementById('dd-lock-btn').textContent='Lock recipe';
-    document.getElementById('dd-del-btn').style.display='none';
-    document.getElementById('dd-comp-list').innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add the first one above</div></div>';
-    Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=false);
-    return;
-  }
-  const d=dishes.find(x=>x.id===id);if(!d)return;
-  document.getElementById('dd-id').value=d.id;
-  document.getElementById('dd-name').value=d.name;
-  document.getElementById('dd-cat').value=d.category;
-  document.getElementById('dd-station').value=d.station||'';
-  document.getElementById('dd-desc').value=d.description||'';
-  document.getElementById('dd-notes').value=d.notes||'';
-  document.getElementById('dd-title').textContent=d.name;
-  document.getElementById('dd-sub').textContent=d.category+(d.station?' · '+d.station:'');
-  document.getElementById('dd-lock-btn').textContent=d.locked?'Unlock recipe':'Lock recipe';
-  document.getElementById('dd-del-btn').style.display='inline-flex';
-  const menus=d.menu_type||[];
-  Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=menus.includes(o.value));
-  resetDdAl();
-  getDishAl(d).forEach(a=>{ddAlState[a.allergen]=a.status==='May Contain'?'may':'contains';const el=document.getElementById('ddat-'+a.allergen);if(el)el.className='allergen-toggle '+(a.status==='May Contain'?'may':'contains');});
-  updateDdAlDisplay();
-  const cl=document.getElementById('dd-comp-list');cl.innerHTML='';
-  const comps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
-  if(comps.length){comps.forEach(c=>addDishComp(c));}
-  else{cl.innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add the first one above</div></div>';}
-  _formDirty=false;
-}
-
-function addDishComp(c=null){
-  const list=document.getElementById('dd-comp-list');
-  const empty=list.querySelector('.empty-state');if(empty)empty.remove();
-  const uid='dc-'+Date.now()+Math.random().toString(36).slice(2,6);
-  const st=c?(c.freeze_flag?'freeze':c.fridge_flag?'fridge':'none'):'none';
-  const stLabel={'none':'○ Fresh','freeze':'❄ Freeze','fridge':'🧊 Fridge'}[st];
-  const ings=(c&&c.recipe_ingredients)||[];
-  const steps=(c&&c.recipe_steps)||[];
-  const div=document.createElement('div');
-  div.className='comp-block';
-  div.dataset.compId=c?c.id:'';
-  div.innerHTML=`
-    <div class="comp-hdr" onclick="toggleDdComp(this)">
-      <span class="comp-arrow">▶</span>
-      <input class="comp-name-inp" type="text" placeholder="Component name — e.g. Mint pea purée, Confit duck legs..." value="${c?h(c.name):''}" onclick="event.stopPropagation()">
-      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;" onclick="event.stopPropagation()">
-        <div class="comp-qty-wrap">
-          <input type="number" placeholder="qty" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}" title="Quantity per cover">
-          <span>/cv</span>
-          <input type="text" placeholder="unit" value="${c?h(c.unit||''):''}" style="width:52px;">
-        </div>
-        <button class="comp-pill ${st}" data-state="${st}" onclick="cycleDdStorage(this)">${stLabel}</button>
-        <input class="comp-note-inp" type="text" placeholder="Chef note / finish instruction..." value="${c?h(c.chef_note||''):''}" title="Appears on prep list and labels">
-      </div>
-      <button class="comp-rm" onclick="event.stopPropagation();removeDdComp(this)" title="Remove">×</button>
-    </div>
-    <div class="comp-recipe">
-      <div class="recipe-col">
-        <div class="recipe-col-hdr">
-          Ingredients
-          <div class="base-portions-wrap">
-            <input class="base-portions-inp" type="number" min="1" value="${c&&c.base_portions?c.base_portions:10}" title="All quantities are for this many covers">
-            <span>covers</span>
-          </div>
-        </div>
-        <div class="dd-ing-list">${ings.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>ddIngRow(i)).join('')}</div>
-        <button class="add-row" onclick="addDdIngRow(this)">+ Add ingredient</button>
-      </div>
-      <div class="recipe-col">
-        <div class="recipe-col-hdr">Method</div>
-        <div class="dd-step-list">${steps.sort((a,b)=>(a.step_number||0)-(b.step_number||0)).map((s,i)=>ddStepRow(s,i+1)).join('')}</div>
-        <button class="add-row" onclick="addDdStepRow(this)">+ Add step</button>
-      </div>
-    </div>`;
-  list.appendChild(div);
-}
-
-function toggleDdComp(hdr){hdr.closest('.comp-block').classList.toggle('open');}
-function removeDdComp(btn){
-  btn.closest('.comp-block').remove();
-  if(!document.getElementById('dd-comp-list').children.length)
-    document.getElementById('dd-comp-list').innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add the first one above</div></div>';
-  _formDirty=true;
-}
-function cycleDdStorage(btn){
-  const S=['none','freeze','fridge'],L=['○ Fresh','❄ Freeze','🧊 Fridge'];
-  const n=(S.indexOf(btn.dataset.state)+1)%3;
-  btn.dataset.state=S[n];btn.textContent=L[n];btn.className='comp-pill '+S[n];
-  _formDirty=true;
-}
-
-function ddIngRow(i=null){
-  return`<div class="ing-row">
-    <input type="text" class="ir-name" placeholder="Ingredient name" value="${i?h(i.ingredient_name||i.name||''):''}" oninput="checkIngDb(this)">
-    <input type="number" class="ir-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01">
-    <input type="text" class="ir-unit" placeholder="unit" value="${i?h(i.unit||''):''}">
-    <button class="row-rm" onclick="this.closest('.ing-row').remove()">×</button>
-  </div>`;
-}
-function ddStepRow(s=null,n=1){
-  return`<div class="step-row">
-    <span class="step-n">${n}.</span>
-    <textarea class="sr-inst" placeholder="Describe this step...">${s?h(s.instruction):''}</textarea>
-    <div class="step-timing">
-      <input type="text" class="sr-time" placeholder="Time" value="${s?h(s.time_note||''):''}">
-      <input type="text" class="sr-temp" placeholder="Temp" value="${s?h(s.temp_note||''):''}">
-    </div>
-    <button class="row-rm" onclick="this.closest('.step-row').remove()">×</button>
-  </div>`;
-}
-function addDdIngRow(btn){btn.previousElementSibling.insertAdjacentHTML('beforeend',ddIngRow());_formDirty=true;}
-function addDdStepRow(btn){
-  const list=btn.previousElementSibling;
-  const n=list.querySelectorAll('.step-row').length+1;
-  list.insertAdjacentHTML('beforeend',ddStepRow(null,n));_formDirty=true;
-}
-function checkIngDb(input){
-  // Green if ingredient exists in our database
-  const name=input.value.trim().toLowerCase();
-  const found=ingredients_data&&ingredients_data.some(i=>(i.name||'').toLowerCase()===name);
-  input.classList.toggle('db-linked',found&&name.length>2);
-}
-
-async function saveDishDetail(){
-  const name=document.getElementById('dd-name').value.trim();
-  if(!name){showToast('Dish name required','error');return;}
-  const id=document.getElementById('dd-id').value;
-  const menuTypes=Array.from(document.getElementById('dd-menu').selectedOptions).map(o=>o.value);
-  const dishData={name,category:document.getElementById('dd-cat').value,station:document.getElementById('dd-station').value||null,description:document.getElementById('dd-desc').value.trim()||null,notes:document.getElementById('dd-notes').value.trim()||null,menu_type:menuTypes,updated_at:new Date().toISOString()};
-  try{
-    let did=id;
-    if(id){const{error}=await sb.from('dishes').update(dishData).eq('id',id);if(error)throw error;}
-    else{const{data:nd,error}=await sb.from('dishes').insert(dishData).select().single();if(error)throw error;did=nd.id;document.getElementById('dd-id').value=did;}
-    await sb.from('components').delete().eq('dish_id',did);
-    const blocks=document.querySelectorAll('#dd-comp-list .comp-block');
-    for(let i=0;i<blocks.length;i++){
-      const blk=blocks[i];
-      const cname=blk.querySelector('.comp-name-inp').value.trim();if(!cname)continue;
-      const st=blk.querySelector('.comp-pill').dataset.state;
-      const qtys=blk.querySelectorAll('.comp-qty-wrap input');
-      const bp=parseInt(blk.querySelector('.base-portions-inp')?.value)||10;
-      const{data:nc,error:ce}=await sb.from('components').insert({dish_id:did,name:cname,qty_per_cover:parseFloat(qtys[0]?.value)||null,unit:qtys[1]?.value.trim()||null,station:null,chef_note:blk.querySelector('.comp-note-inp')?.value.trim()||null,freeze_flag:st==='freeze',fridge_flag:st==='fridge',sort_order:i,base_portions:bp}).select().single();
-      if(ce)throw ce;
-      const cid=nc.id;
-      const ings=[];blk.querySelectorAll('.ing-row').forEach((r,j)=>{const n=r.querySelector('.ir-name').value.trim();if(!n)return;ings.push({component_id:cid,sub_recipe_id:null,ingredient_name:n,quantity:parseFloat(r.querySelector('.ir-qty').value)||null,unit:r.querySelector('.ir-unit').value.trim()||null,sort_order:j});});
-      if(ings.length){const{error:ie}=await sb.from('recipe_ingredients').insert(ings);if(ie)console.warn('ings:',ie.message);}
-      const steps=[];blk.querySelectorAll('.step-row').forEach((r,j)=>{const inst=r.querySelector('.sr-inst').value.trim();if(!inst)return;steps.push({component_id:cid,sub_recipe_id:null,step_number:j+1,instruction:inst,time_note:r.querySelector('.sr-time').value.trim()||null,temp_note:r.querySelector('.sr-temp').value.trim()||null});});
-      if(steps.length){const{error:se}=await sb.from('recipe_steps').insert(steps);if(se)console.warn('steps:',se.message);}
-    }
-    // Allergens on first component
-    const{data:ac}=await sb.from('components').select('id').eq('dish_id',did).order('sort_order').limit(1);
-    if(ac&&ac.length){
-      await sb.from('component_allergens').delete().in('component_id',[ac[0].id]);
-      const alRows=Object.entries(ddAlState).filter(([,v])=>v).map(([a,s])=>({component_id:ac[0].id,allergen:a,status:s==='may'?'May Contain':'Contains'}));
-      if(alRows.length)await sb.from('component_allergens').insert(alRows);
-    }
-    _formDirty=false;
-    showToast(id?'Dish updated ✓':'Dish saved ✓','success');
-    await loadDishes();
-    document.getElementById('dd-title').textContent=name;
-    if(!id)document.getElementById('dd-del-btn').style.display='inline-flex';
-  }catch(e){showToast('Error: '+e.message,'error');console.error(e);}
-}
-
-async function toggleDishLock(){
-  const id=document.getElementById('dd-id').value;if(!id){showToast('Save first','error');return;}
-  const d=dishes.find(x=>x.id===id);if(!d)return;
-  const nl=!d.locked;
-  await sb.from('dishes').update({locked:nl}).eq('id',id);
-  showToast(nl?'Recipe locked':'Recipe unlocked','success');
-  await loadDishes();
-  document.getElementById('dd-lock-btn').textContent=nl?'Unlock recipe':'Lock recipe';
-}
-
-async function deleteDishFromDetail(){
-  const id=document.getElementById('dd-id').value;
-  if(!id||!confirm('Delete this dish and all its components? This cannot be undone.'))return;
-  const{error}=await sb.from('dishes').delete().eq('id',id);
-  if(error){showToast('Error: '+error.message,'error');return;}
-  showToast('Dish deleted','success');_formDirty=false;
-  await loadDishes();nav('menu',null);
-}
-
-function checkDirtyBeforeNav(page){
-  if(_formDirty&&!confirm('You have unsaved changes. Leave without saving?'))return;
-  _formDirty=false;nav(page,null);
-}
-
-
-
 async function loadEvents(){
   console.log('[Digbys] Loading events...');
   const{data,error}=await sb.from('events').select('*, event_dishes(dish_id)').order('event_date');
@@ -3300,15 +2422,6 @@ let _formDirty = false;
 
 function markDirty(){_formDirty=true;}
 
-
-function checkDirtyBeforeNav(page){
-  if(_formDirty){
-    if(!confirm('You have unsaved changes. Leave without saving?'))return;
-    _formDirty=false;
-  }
-  nav(page,null);
-}
-
 function checkDirtyBeforeClose(modalId){
   if(!_formDirty){_formDirty=false;closeModal(modalId);return;}
   if(confirm('You have unsaved changes.\n\nLeave without saving?')){
@@ -3414,20 +2527,324 @@ function printFunctionSheet(evId){
   },200);
 }
 
-
-
 // BOOT
 // ══════════════════════════════════════════════════════
-document.addEventListener('DOMContentLoaded',()=>{
-  initOverlayListeners();
-  // Show dashboard on load
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  const dp=document.getElementById('page-dashboard');
-  if(dp)dp.classList.add('active');
-  const si=document.querySelector('.sb-item[data-page="dashboard"]');
-  if(si)si.classList.add('active');
-});
+document.addEventListener('DOMContentLoaded',()=>initOverlayListeners());
 init();
+
+
+// ══════════════════════════════════════════════════════
+// MENU LIBRARY
+// ══════════════════════════════════════════════════════
+let dishFilterState='all';
+
+function setDishFilter(f,el){
+  dishFilterState=f;
+  document.querySelectorAll('#page-menu .chip').forEach(c=>c.classList.remove('active'));
+  if(el)el.classList.add('active');
+  renderMenu();
+}
+
+function renderMenu(){
+  const grid=document.getElementById('menu-grid');
+  const label=document.getElementById('menu-count-label');
+  if(!grid)return;
+  const q=(document.getElementById('dish-search')?.value||'').toLowerCase();
+  let f=[...dishes];
+  if(q){f=f.filter(d=>{
+    const als=getDishAl(d).map(a=>a.allergen.toLowerCase()).join(' ');
+    const comps=(d.components||[]).map(c=>(c.name+' '+(c.recipe_ingredients||[]).map(i=>(i.ingredient_name||'').toLowerCase()).join(' ')).toLowerCase()).join(' ');
+    return d.name.toLowerCase().includes(q)||(d.description||'').toLowerCase().includes(q)||als.includes(q)||comps.includes(q);
+  });}
+  if(dishFilterState==='freeze')f=f.filter(d=>(d.components||[]).some(c=>c.freeze_flag));
+  else if(dishFilterState==='draft')f=f.filter(d=>!d.locked);
+  else if(dishFilterState==='locked')f=f.filter(d=>d.locked);
+  else if(dishFilterState!=='all')f=f.filter(d=>d.category===dishFilterState);
+  f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
+  if(label)label.textContent=f.length+' dish'+(f.length!==1?'es':''+(dishes.length!==f.length?' of '+dishes.length:''));
+  if(!f.length){grid.innerHTML=`<div style="grid-column:1/-1"><div class="empty-state"><div class="empty-icon">≡</div><div class="empty-title">No dishes found</div><div class="empty-sub">Try a different search or filter</div></div></div>`;return;}
+  grid.innerHTML=f.map(d=>renderDishCard(d)).join('');
+}
+
+function renderDishCard(d){
+  const al=getDishAl(d);
+  const comps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+  const frzCount=comps.filter(c=>c.freeze_flag).length;
+  return`<div class="dish-card ${d.locked?'locked':'draft'}" onclick="openDishDetail('${d.id}')">
+    <div class="dc-top">
+      <div class="dc-cat">${d.category||'Uncategorised'}${d.station?' · '+d.station:''}${frzCount?' · ❄ '+frzCount:''}</div>
+      <div class="dc-name">${h(d.name)}</div>
+      ${d.description?`<div class="dc-desc">${h(d.description)}</div>`:''}
+    </div>
+    <div class="dc-comps">
+      ${comps.slice(0,5).map(c=>`<div class="dc-comp">
+        <div class="dc-dot ${c.freeze_flag?'freeze':c.fridge_flag?'fridge':''}"></div>
+        <span>${h(c.name)}</span>
+        ${c.qty_per_cover!=null?`<span class="dc-qty">${c.qty_per_cover}${c.unit?' '+c.unit:''}/cv</span>`:''}
+      </div>`).join('')}
+      ${comps.length>5?`<div style="font-size:10px;color:var(--text3);padding:1px 0 0 12px;font-family:'DM Mono',monospace;">+${comps.length-5} more</div>`:''}
+      ${!comps.length?`<div style="font-size:11px;color:var(--text3);font-style:italic;padding:2px 0;">No components yet</div>`:''}
+    </div>
+    <div class="dc-foot">
+      <div class="dc-als">
+        ${al.slice(0,5).map(a=>`<span class="allergen-tag ${a.status==='May Contain'?'may':''}">${h(a.allergen)}</span>`).join('')}
+        ${al.length>5?`<span style="font-size:10px;color:var(--text3);">+${al.length-5}</span>`:''}
+        ${!al.length?`<span style="font-size:10px;color:var(--text3);">No allergens</span>`:''}
+      </div>
+      <span class="dc-status ${d.locked?'locked':'draft'}">${d.locked?'Locked':'Draft'}</span>
+    </div>
+  </div>`;
+}
+
+function renderDashDishes(){
+  const body=document.getElementById('dash-dish-body');if(!body)return;
+  const r=dishes.slice(0,6);
+  if(!r.length){body.innerHTML=`<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text3);font-size:12px;">No dishes yet</td></tr>`;return;}
+  body.innerHTML=r.map(d=>{const al=getDishAl(d);return`<tr style="cursor:pointer;" onclick="openDishDetail('${d.id}')"><td style="font-weight:500;">${h(d.name)}</td><td><span class="badge badge-gray">${d.category}</span></td><td>${al.slice(0,4).map(a=>`<span class="allergen-tag">${h(a.allergen)}</span>`).join('')+(al.length>4?`<span style="font-size:10px;color:var(--text3);"> +${al.length-4}</span>`:'')||'<span style="color:var(--text3);font-size:11px;">None</span>'}</td></tr>`;}).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// DISH DETAIL PAGE
+// ══════════════════════════════════════════════════════
+let ddAlState={};
+
+function updateDdHeader(){
+  const name=document.getElementById('dd-name')?.value.trim();
+  const cat=document.getElementById('dd-cat')?.value;
+  if(document.getElementById('dd-title'))document.getElementById('dd-title').textContent=name||'New dish';
+  if(document.getElementById('dd-sub'))document.getElementById('dd-sub').textContent=cat||'';
+}
+
+function buildDdAlGrid(){
+  const g=document.getElementById('dd-al-grid');if(!g)return;
+  g.innerHTML=ALLERGENS.map(a=>`<div class="allergen-toggle" id="ddat-${a}" onclick="cycleDdAl('${a}')">${a}</div>`).join('');
+}
+
+function cycleDdAl(name){
+  const el=document.getElementById('ddat-'+name);if(!el)return;
+  const cur=ddAlState[name]||null;
+  if(!cur){ddAlState[name]='contains';el.className='allergen-toggle contains';}
+  else if(cur==='contains'){ddAlState[name]='may';el.className='allergen-toggle may';}
+  else{delete ddAlState[name];el.className='allergen-toggle';}
+  updateDdAlDisplay();
+}
+
+function updateDdAlDisplay(){
+  const el=document.getElementById('dd-al-display');if(!el)return;
+  const active=Object.entries(ddAlState).filter(([,v])=>v);
+  if(!active.length){el.innerHTML='<span style="color:var(--text3);">None declared</span>';return;}
+  el.innerHTML=active.map(([a,s])=>`<span class="allergen-tag ${s==='may'?'may':''}">${a}</span>`).join(' ');
+}
+
+function resetDdAl(){
+  ddAlState={};
+  ALLERGENS.forEach(a=>{const el=document.getElementById('ddat-'+a);if(el)el.className='allergen-toggle';});
+  updateDdAlDisplay();
+}
+
+async function openDishDetail(id=null){
+  nav('dish-detail',null);
+  buildDdAlGrid();
+  resetDdAl();
+  _formDirty=false;
+  if(!id){
+    document.getElementById('dd-id').value='';
+    document.getElementById('dd-name').value='';
+    document.getElementById('dd-cat').value='Canapés';
+    document.getElementById('dd-station').value='';
+    document.getElementById('dd-desc').value='';
+    document.getElementById('dd-notes').value='';
+    document.getElementById('dd-title').textContent='New dish';
+    document.getElementById('dd-sub').textContent='';
+    document.getElementById('dd-lock-btn').textContent='Lock recipe';
+    document.getElementById('dd-del-btn').style.display='none';
+    document.getElementById('dd-comp-list').innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add the first one above</div></div>';
+    Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=false);
+    return;
+  }
+  const d=dishes.find(x=>x.id===id);if(!d)return;
+  document.getElementById('dd-id').value=d.id;
+  document.getElementById('dd-name').value=d.name;
+  document.getElementById('dd-cat').value=d.category;
+  document.getElementById('dd-station').value=d.station||'';
+  document.getElementById('dd-desc').value=d.description||'';
+  document.getElementById('dd-notes').value=d.notes||'';
+  document.getElementById('dd-title').textContent=d.name;
+  document.getElementById('dd-sub').textContent=d.category+(d.station?' · '+d.station:'');
+  document.getElementById('dd-lock-btn').textContent=d.locked?'Unlock recipe':'Lock recipe';
+  document.getElementById('dd-del-btn').style.display='inline-flex';
+  const menus=d.menu_type||[];
+  Array.from(document.getElementById('dd-menu').options).forEach(o=>o.selected=menus.includes(o.value));
+  resetDdAl();
+  getDishAl(d).forEach(a=>{ddAlState[a.allergen]=a.status==='May Contain'?'may':'contains';const el=document.getElementById('ddat-'+a.allergen);if(el)el.className='allergen-toggle '+(a.status==='May Contain'?'may':'contains');});
+  updateDdAlDisplay();
+  const cl=document.getElementById('dd-comp-list');cl.innerHTML='';
+  const comps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+  if(comps.length){comps.forEach(c=>addDishComp(c));}
+  else{cl.innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add the first one above</div></div>';}
+  _formDirty=false;
+}
+
+function addDishComp(c=null){
+  const list=document.getElementById('dd-comp-list');
+  const empty=list.querySelector('.empty-state');if(empty)empty.remove();
+  const uid='dc-'+Date.now()+Math.random().toString(36).slice(2,6);
+  const st=c?(c.freeze_flag?'freeze':c.fridge_flag?'fridge':'none'):'none';
+  const stLabel={'none':'○ Fresh','freeze':'❄ Freeze','fridge':'🧊 Fridge'}[st];
+  const ings=(c&&c.recipe_ingredients)||[];
+  const steps=(c&&c.recipe_steps)||[];
+  const div=document.createElement('div');
+  div.className='comp-block';
+  div.dataset.compId=c?c.id:'';
+  div.innerHTML=`
+    <div class="comp-hdr" onclick="toggleDdComp(this)">
+      <span class="comp-arrow">▶</span>
+      <input class="comp-name-inp" type="text" placeholder="Component name — e.g. Mint pea purée, Confit duck legs..." value="${c?h(c.name):''}" onclick="event.stopPropagation()">
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;" onclick="event.stopPropagation()">
+        <div class="comp-qty-wrap">
+          <input type="number" placeholder="qty" min="0" step="0.01" value="${c&&c.qty_per_cover!=null?c.qty_per_cover:''}" title="Quantity per cover">
+          <span>/cv</span>
+          <input type="text" placeholder="unit" value="${c?h(c.unit||''):''}" style="width:52px;">
+        </div>
+        <button class="comp-pill ${st}" data-state="${st}" onclick="cycleDdStorage(this)">${stLabel}</button>
+        <input class="comp-note-inp" type="text" placeholder="Chef note / finish instruction..." value="${c?h(c.chef_note||''):''}" title="Appears on prep list and labels">
+      </div>
+      <button class="comp-rm" onclick="event.stopPropagation();removeDdComp(this)" title="Remove">×</button>
+    </div>
+    <div class="comp-recipe">
+      <div class="recipe-col">
+        <div class="recipe-col-hdr">
+          Ingredients
+          <div class="base-portions-wrap">
+            <input class="base-portions-inp" type="number" min="1" value="${c&&c.base_portions?c.base_portions:10}" title="All quantities are for this many covers">
+            <span>covers</span>
+          </div>
+        </div>
+        <div class="dd-ing-list">${ings.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>ddIngRow(i)).join('')}</div>
+        <button class="add-row" onclick="addDdIngRow(this)">+ Add ingredient</button>
+      </div>
+      <div class="recipe-col">
+        <div class="recipe-col-hdr">Method</div>
+        <div class="dd-step-list">${steps.sort((a,b)=>(a.step_number||0)-(b.step_number||0)).map((s,i)=>ddStepRow(s,i+1)).join('')}</div>
+        <button class="add-row" onclick="addDdStepRow(this)">+ Add step</button>
+      </div>
+    </div>`;
+  list.appendChild(div);
+}
+
+function toggleDdComp(hdr){hdr.closest('.comp-block').classList.toggle('open');}
+function removeDdComp(btn){
+  btn.closest('.comp-block').remove();
+  if(!document.getElementById('dd-comp-list').children.length)
+    document.getElementById('dd-comp-list').innerHTML='<div class="empty-state" style="padding:32px;"><div class="empty-sub">No components yet — add the first one above</div></div>';
+  _formDirty=true;
+}
+function cycleDdStorage(btn){
+  const S=['none','freeze','fridge'],L=['○ Fresh','❄ Freeze','🧊 Fridge'];
+  const n=(S.indexOf(btn.dataset.state)+1)%3;
+  btn.dataset.state=S[n];btn.textContent=L[n];btn.className='comp-pill '+S[n];
+  _formDirty=true;
+}
+
+function ddIngRow(i=null){
+  return`<div class="ing-row">
+    <input type="text" class="ir-name" placeholder="Ingredient name" value="${i?h(i.ingredient_name||i.name||''):''}" oninput="checkIngDb(this)">
+    <input type="number" class="ir-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01">
+    <input type="text" class="ir-unit" placeholder="unit" value="${i?h(i.unit||''):''}">
+    <button class="row-rm" onclick="this.closest('.ing-row').remove()">×</button>
+  </div>`;
+}
+function ddStepRow(s=null,n=1){
+  return`<div class="step-row">
+    <span class="step-n">${n}.</span>
+    <textarea class="sr-inst" placeholder="Describe this step...">${s?h(s.instruction):''}</textarea>
+    <div class="step-timing">
+      <input type="text" class="sr-time" placeholder="Time" value="${s?h(s.time_note||''):''}">
+      <input type="text" class="sr-temp" placeholder="Temp" value="${s?h(s.temp_note||''):''}">
+    </div>
+    <button class="row-rm" onclick="this.closest('.step-row').remove()">×</button>
+  </div>`;
+}
+function addDdIngRow(btn){btn.previousElementSibling.insertAdjacentHTML('beforeend',ddIngRow());_formDirty=true;}
+function addDdStepRow(btn){
+  const list=btn.previousElementSibling;
+  const n=list.querySelectorAll('.step-row').length+1;
+  list.insertAdjacentHTML('beforeend',ddStepRow(null,n));_formDirty=true;
+}
+function checkIngDb(input){
+  // Green if ingredient exists in our database
+  const name=input.value.trim().toLowerCase();
+  const found=ingredients_data&&ingredients_data.some(i=>(i.name||'').toLowerCase()===name);
+  input.classList.toggle('db-linked',found&&name.length>2);
+}
+
+async function saveDishDetail(){
+  const name=document.getElementById('dd-name').value.trim();
+  if(!name){showToast('Dish name required','error');return;}
+  const id=document.getElementById('dd-id').value;
+  const menuTypes=Array.from(document.getElementById('dd-menu').selectedOptions).map(o=>o.value);
+  const dishData={name,category:document.getElementById('dd-cat').value,station:document.getElementById('dd-station').value||null,description:document.getElementById('dd-desc').value.trim()||null,notes:document.getElementById('dd-notes').value.trim()||null,menu_type:menuTypes,updated_at:new Date().toISOString()};
+  try{
+    let did=id;
+    if(id){const{error}=await sb.from('dishes').update(dishData).eq('id',id);if(error)throw error;}
+    else{const{data:nd,error}=await sb.from('dishes').insert(dishData).select().single();if(error)throw error;did=nd.id;document.getElementById('dd-id').value=did;}
+    await sb.from('components').delete().eq('dish_id',did);
+    const blocks=document.querySelectorAll('#dd-comp-list .comp-block');
+    for(let i=0;i<blocks.length;i++){
+      const blk=blocks[i];
+      const cname=blk.querySelector('.comp-name-inp').value.trim();if(!cname)continue;
+      const st=blk.querySelector('.comp-pill').dataset.state;
+      const qtys=blk.querySelectorAll('.comp-qty-wrap input');
+      const bp=parseInt(blk.querySelector('.base-portions-inp')?.value)||10;
+      const{data:nc,error:ce}=await sb.from('components').insert({dish_id:did,name:cname,qty_per_cover:parseFloat(qtys[0]?.value)||null,unit:qtys[1]?.value.trim()||null,station:null,chef_note:blk.querySelector('.comp-note-inp')?.value.trim()||null,freeze_flag:st==='freeze',fridge_flag:st==='fridge',sort_order:i,base_portions:bp}).select().single();
+      if(ce)throw ce;
+      const cid=nc.id;
+      const ings=[];blk.querySelectorAll('.ing-row').forEach((r,j)=>{const n=r.querySelector('.ir-name').value.trim();if(!n)return;ings.push({component_id:cid,sub_recipe_id:null,ingredient_name:n,quantity:parseFloat(r.querySelector('.ir-qty').value)||null,unit:r.querySelector('.ir-unit').value.trim()||null,sort_order:j});});
+      if(ings.length){const{error:ie}=await sb.from('recipe_ingredients').insert(ings);if(ie)console.warn('ings:',ie.message);}
+      const steps=[];blk.querySelectorAll('.step-row').forEach((r,j)=>{const inst=r.querySelector('.sr-inst').value.trim();if(!inst)return;steps.push({component_id:cid,sub_recipe_id:null,step_number:j+1,instruction:inst,time_note:r.querySelector('.sr-time').value.trim()||null,temp_note:r.querySelector('.sr-temp').value.trim()||null});});
+      if(steps.length){const{error:se}=await sb.from('recipe_steps').insert(steps);if(se)console.warn('steps:',se.message);}
+    }
+    // Allergens on first component
+    const{data:ac}=await sb.from('components').select('id').eq('dish_id',did).order('sort_order').limit(1);
+    if(ac&&ac.length){
+      await sb.from('component_allergens').delete().in('component_id',[ac[0].id]);
+      const alRows=Object.entries(ddAlState).filter(([,v])=>v).map(([a,s])=>({component_id:ac[0].id,allergen:a,status:s==='may'?'May Contain':'Contains'}));
+      if(alRows.length)await sb.from('component_allergens').insert(alRows);
+    }
+    _formDirty=false;
+    showToast(id?'Dish updated ✓':'Dish saved ✓','success');
+    await loadDishes();
+    document.getElementById('dd-title').textContent=name;
+    if(!id)document.getElementById('dd-del-btn').style.display='inline-flex';
+  }catch(e){showToast('Error: '+e.message,'error');console.error(e);}
+}
+
+async function toggleDishLock(){
+  const id=document.getElementById('dd-id').value;if(!id){showToast('Save first','error');return;}
+  const d=dishes.find(x=>x.id===id);if(!d)return;
+  const nl=!d.locked;
+  await sb.from('dishes').update({locked:nl}).eq('id',id);
+  showToast(nl?'Recipe locked':'Recipe unlocked','success');
+  await loadDishes();
+  document.getElementById('dd-lock-btn').textContent=nl?'Unlock recipe':'Lock recipe';
+}
+
+async function deleteDishFromDetail(){
+  const id=document.getElementById('dd-id').value;
+  if(!id||!confirm('Delete this dish and all its components? This cannot be undone.'))return;
+  const{error}=await sb.from('dishes').delete().eq('id',id);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast('Dish deleted','success');_formDirty=false;
+  await loadDishes();nav('menu',null);
+}
+
+function checkDirtyBeforeNav(page){
+  if(_formDirty&&!confirm('You have unsaved changes. Leave without saving?'))return;
+  _formDirty=false;nav(page,null);
+}
+
+
+
 </script>
 </body>
 </html>
