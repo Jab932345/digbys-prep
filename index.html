@@ -791,11 +791,10 @@ html,body{height:100%;overflow:hidden;background:var(--parch);color:var(--ink);f
   <div class="filter-bar">
     <div class="fchip on" onclick="setIngFilter('all',this)">All types</div>
     <div class="filter-sep"></div>
-    <div class="fchip" onclick="setIngFilter('perishable',this)">🐟 Perishable</div>
+    <div class="fchip" onclick="setIngFilter('protein',this)">🥩 Protein</div>
     <div class="fchip" onclick="setIngFilter('chilled',this)">🧊 Chilled</div>
     <div class="fchip" onclick="setIngFilter('produce',this)">🥬 Produce</div>
     <div class="fchip" onclick="setIngFilter('dry',this)">🌾 Dry store</div>
-    <div class="fchip" onclick="setIngFilter('alcohol',this)">🍷 Alcohol</div>
     <div class="fchip" onclick="setIngFilter('frozen',this)">❄ Frozen</div>
   </div>
   <div class="pg-body">
@@ -831,7 +830,7 @@ html,body{height:100%;overflow:hidden;background:var(--parch);color:var(--ink);f
 ══════════════════════════════════════════════ -->
 <div id="page-labels" class="page">
   <div class="topbar">
-    <div class="tb-title">Label queue</div>
+    <div class="tb-title">Dietary plate labels</div>
     <div class="tb-space"></div>
     <div class="tb-actions">
       <select class="fld-select" id="label-ev-sel" style="width:240px;height:32px;font-size:12px;" onchange="renderLabelQueue()">
@@ -842,7 +841,7 @@ html,body{height:100%;overflow:hidden;background:var(--parch);color:var(--ink);f
   </div>
   <div class="pg-body">
     <div class="card">
-      <div class="card-head"><div class="card-title">Freeze &amp; fridge components</div><div style="font-size:11px;color:var(--ink3);">Dietary guest labels are also listed</div></div>
+      <div class="card-head"><div class="card-title">Dietary plate labels</div><div style="font-size:11px;color:var(--ink3);">Labels for guests with dietary requirements — assign dishes to guests on the function sheet first</div></div>
       <div id="label-list"></div>
     </div>
   </div>
@@ -971,11 +970,10 @@ html,body{height:100%;overflow:hidden;background:var(--parch);color:var(--ink);f
       <div class="fld"><label class="fld-label">Ingredient name</label><input class="fld-input" id="ing-name" placeholder="e.g. Duck legs, Double cream, Panko breadcrumbs"></div>
       <div class="fld"><label class="fld-label">Type</label>
         <select class="fld-select" id="ing-type">
-          <option value="perishable">🐟 Perishable (fish, meat, eggs — order 1-2 days before)</option>
+          <option value="protein">🥩 Protein (meat, fish, eggs — order fresh per event)</option>
           <option value="chilled">🧊 Chilled (dairy, bacon, cheeses — order weekly)</option>
           <option value="produce">🥬 Produce (veg, herbs, fruit — order weekly)</option>
           <option value="dry">🌾 Dry store (flour, pasta, spices, cans)</option>
-          <option value="alcohol">🍷 Alcohol (wine, spirits, vinegar)</option>
           <option value="frozen">❄ Frozen (bought-in frozen items)</option>
         </select>
       </div>
@@ -1068,8 +1066,8 @@ const ALLERGENS=['Gluten','Dairy','Egg','Fish','Shellfish','Nuts','Peanuts','Soy
 const EV_TYPES={WED:'Wedding',PRIV:'Private Dining',TM:'Tasting Menu',CAN:'Canapés',BUF:'Buffet',CORP:'Corporate',GAL:'Gala Dinner',GRZ:'Evening Grazing',WAKE:'Wake'};
 const STATUS_BADGE={Confirmed:'badge-g',Provisional:'badge-a',Enquiry:'badge-n',Completed:'badge-b',Cancelled:'badge-r'};
 const CAT_ORDER=['Canapés','Starters','Mains','Desserts','Evening Grazing','Tasting Menu','Sides','Other'];
-const ING_TYPES={perishable:'Perishable',chilled:'Chilled',produce:'Produce',dry:'Dry store',alcohol:'Alcohol',frozen:'Frozen'};
-const BUCKETS={advance:{label:'Advance prep — freeze',cls:'advance',fn:c=>c.freeze_flag},close:{label:'1–2 days before — fridge',cls:'close',fn:c=>c.fridge_flag&&!c.freeze_flag},service:{label:'Day of service — fresh',cls:'service',fn:c=>!c.freeze_flag&&!c.fridge_flag}};
+const ING_TYPES={protein:'🥩 Protein',chilled:'🧊 Chilled',produce:'🥬 Produce',dry:'🌾 Dry store',frozen:'❄ Frozen'};
+const BUCKETS={advance:{label:'Advance prep — ❄ Freeze',cls:'advance',fn:c=>c.freeze_flag},close:{label:'Fridge prep — up to 5 days before',cls:'close',fn:c=>c.fridge_flag&&!c.freeze_flag},service:{label:'Day of service — Fresh / up to 2 days',cls:'service',fn:c=>!c.freeze_flag&&!c.fridge_flag}};
 
 // STATE
 let dishes=[],events=[],ingredients_data=[],stock_data=[],production_runs=[];
@@ -1196,7 +1194,13 @@ function buildAlGrids(){
 function buildIngDatalist(){
   let dl=document.getElementById('ing-datalist');
   if(!dl){dl=document.createElement('datalist');dl.id='ing-datalist';document.body.appendChild(dl);}
-  dl.innerHTML=ingredients_data.map(i=>`<option value="${h(i.name)}">`).join('');
+  // Include type as label so the dropdown shows useful info
+  dl.innerHTML=ingredients_data.map(i=>`<option value="${h(i.name)}" label="${ING_TYPES[i.type]||i.type}${i.allergens&&i.allergens.length?' · '+i.allergens.join(', '):''}${i.cost_per_unit?' · '+fmt$(i.cost_per_unit)+'/'+i.unit:''}">`).join('');
+}
+
+// Check if an ingredient is in the database and return it
+function findIngredient(name){
+  return ingredients_data.find(x=>x.name.toLowerCase()===name.toLowerCase().trim());
 }
 
 function cycleAlTog(gid,name){
@@ -1369,7 +1373,7 @@ function ddAddComp(c=null){
   const list=document.getElementById('dd-comp-list');
   const empty=list.querySelector('.empty');if(empty)empty.remove();
   const st=c?(c.freeze_flag?'frz':c.fridge_flag?'fri':''):'';
-  const stL=st==='frz'?'❄ Freeze':st==='fri'?'🧊 Fridge':'○ Fresh';
+  const stL=st==='frz'?'❄ Freeze (advance)':st==='fri'?'🧊 Fridge (up to 5 days)':'○ Fresh (up to 2 days)';
   const ings=(c&&c.recipe_ingredients)||[];const steps=(c&&c.recipe_steps)||[];
   const uid='u'+Math.random().toString(36).slice(2,8);
   const div=document.createElement('div');div.className='comp-block';div.dataset.cid=c?c.id:'';
@@ -1405,7 +1409,7 @@ function ddAddComp(c=null){
 }
 
 function cycleSt(btn){
-  const S=['','frz','fri'],L=['○ Fresh','❄ Freeze','🧊 Fridge'];
+  const S=['','frz','fri'],L=['○ Fresh (up to 2 days)','❄ Freeze (advance)','🧊 Fridge (up to 5 days)'];
   const n=(S.indexOf(btn.dataset.st)+1)%3;
   btn.dataset.st=S[n];btn.textContent=L[n];
   btn.className='comp-storage'+(S[n]?' '+S[n]:'');
@@ -1413,7 +1417,7 @@ function cycleSt(btn){
 }
 
 function ingRowHTML(i=null){
-  const ingObj=i?ingredients_data.find(x=>x.name.toLowerCase()===(i.ingredient_name||'').toLowerCase()):null;
+  const ingObj=i?findIngredient(i.ingredient_name||''):null;
   return`<div class="ing-row"><input type="text" class="ir-name${ingObj?' linked':''}" placeholder="Ingredient" value="${i?h(i.ingredient_name||''):''}" list="ing-datalist"><input type="number" class="ir-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01"><input type="text" class="ir-unit" placeholder="unit" value="${i?h(i.unit||''):''}"><span class="ing-row-cost"></span><button class="ing-rm" onclick="this.closest('.ing-row').remove();_formDirty=true;">×</button></div>`;
 }
 
@@ -1427,9 +1431,12 @@ function addIngRow(btn,uid){
   const row=list.lastElementChild;
   row.querySelectorAll('.ir-name,.ir-qty').forEach(inp=>inp.addEventListener('input',()=>{const blk=inp.closest('.comp-block');if(blk)updateCompCost(blk,uid);}));
   row.querySelector('.ir-name').addEventListener('blur',e=>{
-    const ing=ingredients_data.find(x=>x.name.toLowerCase()===e.target.value.toLowerCase());
+    const ing=findIngredient(e.target.value);
     e.target.classList.toggle('linked',!!ing);
-    if(ing&&!row.querySelector('.ir-unit').value)row.querySelector('.ir-unit').value=ing.unit||'';
+    if(ing){
+      if(!row.querySelector('.ir-unit').value)row.querySelector('.ir-unit').value=ing.unit||'';
+      e.target.title=ing.cost_per_unit?fmt$(ing.cost_per_unit)+'/'+ing.unit+' · '+(ING_TYPES[ing.type]||ing.type):(ING_TYPES[ing.type]||ing.type);
+    }
   });
   _formDirty=true;
 }
@@ -1772,8 +1779,28 @@ function toggleTask(id){
 function toggleTaskRecipe(id){const el=document.getElementById('recipe-'+id);if(el)el.style.display=el.style.display==='grid'?'none':'grid';}
 
 // ═══════════════════════════════════════════════════
-// ALLERGEN MATRIX
 // ═══════════════════════════════════════════════════
+// ALLERGEN MATRIX (FSA — official format)
+// ═══════════════════════════════════════════════════
+const FSA_ICONS={
+  "Celery":"https://www.food.gov.uk/sites/default/files/media/document/celery.png",
+  "Cereals containing gluten":"https://www.food.gov.uk/sites/default/files/media/document/gluten.png",
+  "Crustaceans":"https://www.food.gov.uk/sites/default/files/media/document/crustaceans.png",
+  "Eggs":"https://www.food.gov.uk/sites/default/files/media/document/eggs.png",
+  "Fish":"https://www.food.gov.uk/sites/default/files/media/document/fish.png",
+  "Lupin":"https://www.food.gov.uk/sites/default/files/media/document/lupin.png",
+  "Milk":"https://www.food.gov.uk/sites/default/files/media/document/milk.png",
+  "Molluscs":"https://www.food.gov.uk/sites/default/files/media/document/molluscs.png",
+  "Mustard":"https://www.food.gov.uk/sites/default/files/media/document/mustard.png",
+  "Nuts":"https://www.food.gov.uk/sites/default/files/media/document/nuts.png",
+  "Peanuts":"https://www.food.gov.uk/sites/default/files/media/document/peanuts.png",
+  "Sesame":"https://www.food.gov.uk/sites/default/files/media/document/sesame.png",
+  "Soya":"https://www.food.gov.uk/sites/default/files/media/document/soya.png",
+  "Sulphites":"https://www.food.gov.uk/sites/default/files/media/document/sulphur-dioxide.png"
+};
+const FSA_NAMES={"Celery":"Celery","Cereals containing gluten":"Gluten","Crustaceans":"Crustaceans","Eggs":"Eggs","Fish":"Fish","Lupin":"Lupin","Milk":"Milk","Molluscs":"Molluscs","Mustard":"Mustard","Nuts":"Tree nuts","Peanuts":"Peanuts","Sesame":"Sesame","Soya":"Soya","Sulphites":"Sulphur dioxide"};
+const AL_TO_FSA={'Gluten':'Cereals containing gluten','Dairy':'Milk','Egg':'Eggs','Fish':'Fish','Shellfish':'Crustaceans','Nuts':'Nuts','Peanuts':'Peanuts','Soya':'Soya','Celery':'Celery','Mustard':'Mustard','Sesame':'Sesame','Sulphites':'Sulphites','Lupin':'Lupin','Molluscs':'Molluscs'};
+
 function renderAllergenMatrix(){
   const wrap=document.getElementById('al-wrap');if(!wrap)return;
   const evId=document.getElementById('al-ev-sel')?.value;
@@ -1781,21 +1808,40 @@ function renderAllergenMatrix(){
   if(evId){const ev=events.find(x=>x.id===evId);if(ev)dishList=dishes.filter(d=>(ev.event_dishes||[]).map(x=>x.dish_id).includes(d.id));}
   const sorted=dishList.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
   if(!sorted.length){wrap.innerHTML='<div class="empty"><div class="empty-title">No dishes</div></div>';return;}
-  const alHdrs=AL14.map(a=>`<th style="writing-mode:vertical-rl;transform:rotate(180deg);height:80px;vertical-align:bottom;padding:5px 2px;">${AL_SHORT[a]||a}</th>`).join('');
+
+  const iconHdrs=AL14.map(a=>`<th style="padding:5px 4px;border:1px solid #ccc;background:#f5f5f5;min-width:54px;text-align:center;vertical-align:bottom;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;"><img src="${FSA_ICONS[a]||''}" alt="${a}" style="width:34px;height:34px;object-fit:contain;" onerror="this.style.display='none'"><span style="font-size:8px;font-weight:600;color:#333;text-align:center;line-height:1.2;">${FSA_NAMES[a]||a}</span></div></th>`).join('');
+
   let rows='';
-  sorted.forEach(d=>{
+  sorted.forEach((d,di)=>{
     const al=getDishAl(d);
-    rows+=`<tr><td class="dish-td" colspan="${AL14.length+1}" style="font-family:var(--serif);font-size:13px;padding:7px 12px;">${h(d.name)} <span style="font-family:var(--mono);font-size:10px;color:var(--ink3);font-weight:400;">${d.category}</span></td></tr>`;
-    rows+=`<tr><td class="comp-td">All allergens</td>${AL14.map(a=>{const found=al.find(x=>x.allergen===a||AL_SHORT[a]===x.allergen||x.allergen==='Gluten'&&a==='Cereals containing gluten'||x.allergen==='Dairy'&&a==='Milk'||x.allergen==='Egg'&&a==='Eggs'||x.allergen==='Shellfish'&&a==='Crustaceans');return`<td>${found?(found.status==='May Contain'?'<span class="al-sym-m">M</span>':'<span class="al-sym-c">C</span>'):''}</td>`;}).join('')}</tr>`;
+    const cSet=new Set();const mSet=new Set();
+    al.forEach(a=>{const f=AL_TO_FSA[a.allergen]||a.allergen;if(a.status==='May Contain')mSet.add(f);else cSet.add(f);});
+    const bg=di%2===0?'#ffffff':'#fafafa';
+    rows+=`<tr><td style="padding:9px 12px;border:1px solid #ddd;background:${bg};font-weight:600;font-size:13px;">${h(d.name)}</td><td style="padding:9px 10px;border:1px solid #ddd;background:${bg};font-size:11px;color:#888;">${d.category}</td>${AL14.map(a=>{if(cSet.has(a))return`<td style="padding:5px 3px;border:1px solid #ddd;text-align:center;background:#fff0f0;"><img src="${FSA_ICONS[a]}" style="width:30px;height:30px;object-fit:contain;" onerror="this.style.display='none'"></td>`;if(mSet.has(a))return`<td style="padding:5px 3px;border:1px solid #ddd;text-align:center;background:#fff8ee;"><img src="${FSA_ICONS[a]}" style="width:30px;height:30px;object-fit:contain;opacity:0.4;" onerror="this.style.display='none'"><div style="font-size:8px;color:#C47A00;font-weight:700;">MC</div></td>`;return`<td style="padding:5px 3px;border:1px solid #ddd;background:${bg};"></td>`;}).join('')}</tr>`;
   });
-  wrap.innerHTML=`<div style="padding:12px 20px;background:var(--white);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-    <div style="display:flex;align-items:center;gap:6px;"><span class="al-sym-c">C</span><span style="font-size:12px;">Contains</span></div>
-    <div style="display:flex;align-items:center;gap:6px;"><span class="al-sym-m">M</span><span style="font-size:12px;">May contain</span></div>
-    <div style="margin-left:auto;font-size:11px;color:var(--ink3);">FSA 14 allergens · ${sorted.length} dish${sorted.length!==1?'es':''}</div>
-  </div><div class="fsa-wrap" style="padding:16px;"><table class="fsa-tbl"><thead><tr><th class="dish-th">Dish</th>${alHdrs}</tr></thead><tbody>${rows}</tbody></table></div>`;
+
+  wrap.innerHTML=`<div style="background:#fff;border-bottom:1px solid var(--rule);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+    <div><div style="font-family:var(--serif);font-size:16px;">Allergen information</div><div style="font-size:11px;color:var(--ink3);margin-top:2px;">14 major allergens · ${sorted.length} dish${sorted.length!==1?'es':''} · FSA standard format</div></div>
+    <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
+  </div>
+  <div style="padding:8px 20px;border-bottom:1px solid var(--rule);display:flex;gap:20px;flex-wrap:wrap;background:#fafafa;">
+    <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><div style="width:28px;height:28px;background:#fff0f0;border:1px solid #ddd;border-radius:3px;display:flex;align-items:center;justify-content:center;"><img src="${FSA_ICONS['Milk']}" style="width:22px;height:22px;object-fit:contain;"></div><span><strong>Contains</strong> — full colour icon</span></div>
+    <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><div style="width:28px;height:28px;background:#fff8ee;border:1px solid #ddd;border-radius:3px;display:flex;align-items:center;justify-content:center;"><img src="${FSA_ICONS['Milk']}" style="width:22px;height:22px;object-fit:contain;opacity:0.4;"></div><span><strong>May contain (MC)</strong> — faded icon</span></div>
+    <div style="display:flex;align-items:center;gap:7px;font-size:12px;"><div style="width:28px;height:28px;background:#f5f5f5;border:1px solid #ddd;border-radius:3px;"></div><span style="color:#888;">Not present</span></div>
+  </div>
+  <div style="overflow-x:auto;padding:16px 20px;">
+    <table style="border-collapse:collapse;font-size:13px;">
+      <thead><tr>
+        <th style="padding:8px 12px;border:1px solid #ccc;background:#f5f5f5;text-align:left;font-weight:600;font-size:12px;white-space:nowrap;">Dish</th>
+        <th style="padding:8px 12px;border:1px solid #ccc;background:#f5f5f5;text-align:left;font-weight:600;font-size:12px;white-space:nowrap;">Course</th>
+        ${iconHdrs}
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+  <div style="padding:8px 20px;border-top:1px solid var(--rule);font-size:10px;color:#aaa;">Allergen icons © Food Standards Agency (food.gov.uk). Always verify allergen information with your kitchen team before service.</div>`;
 }
 
-// ═══════════════════════════════════════════════════
 // ORDERS — AI bucketed
 // ═══════════════════════════════════════════════════
 async function generateOrderList(){
@@ -1825,7 +1871,7 @@ async function generateOrderList(){
 Event: ${ev.client_name}, ${ev.covers} covers (${covers} prepping with buffer)
 Dishes: ${evDishes.map(d=>d.name).join(', ')}
 Ingredients (name|qty|unit|type): ${items.map(i=>`${i.name}|${i.qty}|${i.unit}|${i.type}`).join('\n')}
-Types: perishable=fresh fish/meat/eggs, chilled=dairy/bacon, produce=veg/herbs, dry=flour/pasta/spices/cans, alcohol=wine/spirits, frozen=bought-in frozen
+Types: protein=meat/fish/eggs (always order fresh), chilled=dairy/bacon/cheeses, produce=veg/herbs/fruit, dry=flour/pasta/spices/cans, frozen=bought-in frozen items
 Classify as need/maybe/omit. OMIT means negligible quantity definitely in stock (2g salt, 1 bay leaf). NEED = must order. MAYBE = check stock first.
 Respond ONLY with JSON: [{"name":"...","bucket":"need|maybe|omit","reason":"..."}]`;
     const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
@@ -1840,8 +1886,8 @@ Respond ONLY with JSON: [{"name":"...","bucket":"need|maybe|omit","reason":"..."
     });
     renderOrderList(ev,covers,need,maybe);
   }catch(e){
-    const need=items.filter(i=>['perishable','chilled','produce','alcohol','frozen'].includes(i.type)).map(i=>({...i,totalCost:i.cost?i.qty*i.cost:null}));
-    const maybe=items.filter(i=>i.type==='dry').map(i=>({...i,totalCost:i.cost?i.qty*i.cost:null}));
+    const need=items.filter(i=>['protein','produce'].includes(i.type)).map(i=>({...i,totalCost:i.cost?i.qty*i.cost:null}));
+    const maybe=items.filter(i=>['dry','chilled','frozen'].includes(i.type)).map(i=>({...i,totalCost:i.cost?i.qty*i.cost:null}));
     renderOrderList(ev,covers,need,maybe);
   }
 }
@@ -1867,29 +1913,24 @@ function renderLabelQueue(){
   const labels=[];
   evList.forEach(ev=>{
     if(!ev)return;
-    const buf=1+(_settings.buffer||14)/100;const covers=Math.round(ev.covers*buf);
-    const evDishes=dishes.filter(d=>(ev.event_dishes||[]).map(x=>x.dish_id).includes(d.id));
-    evDishes.forEach(dish=>(dish.components||[]).filter(c=>c.freeze_flag||c.fridge_flag).forEach(comp=>{
-      const qty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*covers)+' '+(comp.unit||'portions'):covers+' portions';
-      labels.push({type:'component',job:ev.job_code,client:ev.client_name,date:ev.event_date,compName:comp.name,dishName:dish.name,dishCat:dish.category,allergens:getDishAl(dish).map(a=>a.allergen),qty,chefNote:comp.chef_note||'',storage:comp.freeze_flag?'Freeze':'Fridge',id:dish.id+'_'+comp.id});
-    }));
+    // DIETARY ONLY — component labels now live on production runs
     (ev.guest_allergens||[]).filter(g=>g.dishes&&g.dishes.length).forEach(g=>g.dishes.forEach(did=>{
       const d=dishes.find(x=>x.id===did);if(!d)return;
       labels.push({type:'dietary',job:ev.job_code,client:ev.client_name,date:ev.event_date,guestName:g.name,dishName:d.name,allergens:g.allergens||[],dietary:g.dietary||[],severity:g.severity,custom:g.custom||''});
     }));
   });
   const sl=document.getElementById('s-labels');if(sl)sl.textContent=labels.length;
-  if(!labels.length){wrap.innerHTML='<div class="empty" style="padding:32px;"><div class="empty-title">No labels pending</div><div class="empty-sub">Labels generate from freeze/fridge components on confirmed events, and from dietary guests with assigned dishes.</div></div>';wrap._labels=[];return;}
+  if(!labels.length){wrap.innerHTML=`<div class="empty" style="padding:32px;"><div class="empty-icon">🌿</div><div class="empty-title">No dietary labels pending</div><div class="empty-sub">Add guests with allergens to a function sheet, then assign them dishes.<br>Component labels for production runs are printed from the Production runs tab.</div></div>`;wrap._labels=[];return;}
   wrap._labels=labels;
   wrap.innerHTML=labels.map((l,i)=>`<div class="label-item">
-    <span style="font-size:16px;">${l.type==='dietary'?'🌿':'🏷'}</span>
+    <span style="font-size:18px;">🌿</span>
     <div style="flex:1;">
-      <div class="label-name">${l.type==='dietary'?h(l.guestName||'Guest')+' — '+h(l.dishName):h(l.compName)}</div>
-      <div style="font-size:11px;color:var(--ink3);">${l.type==='dietary'?h(l.severity||'')+(l.dietary&&l.dietary.length?' · '+l.dietary.join(', '):'')+(l.custom?' · '+h(l.custom):''):h(l.dishName)+' · '+l.storage+' · '+l.qty}</div>
-      <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:2px;">${(l.allergens||[]).map(a=>`<span class="al-tag">${a}</span>`).join('')}</div>
+      <div class="label-name">${h(l.guestName||'Guest')} — <span style="font-weight:400;">${h(l.dishName)}</span></div>
+      <div style="font-size:11px;color:var(--ink3);">${h(l.client||'')} · ${fmtDateShort(l.date)} · ${h(l.severity||'Allergy')}${l.dietary&&l.dietary.length?' · '+l.dietary.join(', '):''}${l.custom?' · '+h(l.custom):''}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:2px;margin-top:3px;">${(l.allergens||[]).map(a=>`<span class="al-tag">${a}</span>`).join('')}</div>
     </div>
     <div class="label-job">${l.job||''} · ${fmtDateShort(l.date)}</div>
-    <button class="btn btn-sm" onclick="sendSingleLabel(${i})">Print</button>
+    <button class="btn btn-sm" onclick="sendSingleLabel(${i})">🖨 Print</button>
   </div>`).join('');
 }
 
@@ -1959,7 +2000,7 @@ function renderIngredients(){
 function openIngModal(){
   document.getElementById('ing-modal-title').textContent='New ingredient';
   ['ing-id','ing-name','ing-unit','ing-cost','ing-supplier','ing-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('ing-type').value='perishable';
+  document.getElementById('ing-type').value='protein';
   _ingAlState={};ALLERGENS.forEach(a=>{const el=document.getElementById('ing-al-grid-'+a);if(el)el.className='al-tog';});
   openModal('ing-modal');
 }
@@ -1968,7 +2009,7 @@ function editIngredient(id){
   const i=ingredients_data.find(x=>x.id===id);if(!i)return;
   document.getElementById('ing-modal-title').textContent='Edit ingredient';
   document.getElementById('ing-id').value=i.id;document.getElementById('ing-name').value=i.name||'';
-  document.getElementById('ing-type').value=i.type||'perishable';document.getElementById('ing-unit').value=i.unit||'';
+  document.getElementById('ing-type').value=i.type||'protein';document.getElementById('ing-unit').value=i.unit||'';
   document.getElementById('ing-cost').value=i.cost_per_unit!=null?i.cost_per_unit:'';
   document.getElementById('ing-supplier').value=i.supplier||'';document.getElementById('ing-notes').value=i.notes||'';
   _ingAlState={};(i.allergens||[]).forEach(a=>{_ingAlState[a]='contains';const el=document.getElementById('ing-al-grid-'+a);if(el)el.className='al-tog c';});
@@ -2072,7 +2113,7 @@ function renderProductionRuns(){
       <div class="run-hd">
         <div><div class="run-title">${h(run.name)}</div><div class="run-meta">${run.run_date?fmtDate(run.run_date)+' · ':''} ${runEvs.length} event${runEvs.length!==1?'s':''} · ${run.buffer_pct||14}% buffer</div>
         <div style="margin-top:5px;">${runEvs.map(e=>`<span class="badge badge-n" style="margin-right:3px;">${h(e.client_name)} ${fmtDateShort(e.event_date)}</span>`).join('')}</div></div>
-        <span class="badge ${run.status==='completed'?'badge-g':'badge-a'}">${run.status}</span>
+        <div style='display:flex;gap:6px;align-items:center;flex-shrink:0;'><button class='btn btn-sm' onclick="openProductionLabels('${run.id}')">🏷 Print labels</button><span class="badge ${run.status==='completed'?'badge-g':'badge-a'}">${run.status}</span></div>
       </div>
       ${reqList.length?`<div>
         <div style="display:grid;grid-template-columns:1fr 80px 80px 100px 80px;gap:0;padding:7px 14px;background:var(--parch);border-bottom:1px solid var(--rule);">
@@ -2166,6 +2207,143 @@ document.addEventListener('DOMContentLoaded',()=>{
   nav('dashboard',null);
   init().catch(e=>console.error('Init failed:',e));
 });
+
+// ═══════════════════════════════════════════════════
+// PRODUCTION LABEL PRINTER
+// ═══════════════════════════════════════════════════
+function openProductionLabels(runId){
+  const run=production_runs.find(x=>x.id===runId);if(!run)return;
+  const runEvs=events.filter(e=>(run.production_run_events||[]).map(x=>x.event_id).includes(e.id));
+  const buf=1+(run.buffer_pct||14)/100;
+  document.getElementById('plm-title').textContent='Production labels — '+run.name;
+  document.getElementById('plm-sub').textContent=runEvs.map(e=>h(e.client_name)+' '+fmtDateShort(e.event_date)).join(' · ');
+  const compMap={};
+  runEvs.forEach(ev=>{
+    const covers=Math.round(ev.covers*buf);
+    dishes.filter(d=>(ev.event_dishes||[]).map(x=>x.dish_id).includes(d.id)).forEach(dish=>{
+      (dish.components||[]).filter(comp=>comp.freeze_flag||comp.fridge_flag).forEach(comp=>{
+        const qty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*covers):covers;
+        const key=comp.name.toLowerCase()+'|'+ev.id;
+        if(!compMap[key])compMap[key]={compName:comp.name,dishName:dish.name,dishCat:dish.category,unit:comp.unit||'portions',allergens:getDishAl(dish).map(a=>a.allergen),chefNote:comp.chef_note||'',job:ev.job_code||'',qty:0,evDate:ev.event_date,client:ev.client_name};
+        compMap[key].qty+=qty;
+      });
+    });
+  });
+  const tbody=document.getElementById('plm-rows');tbody.innerHTML='';
+  Object.values(compMap).forEach(r=>{
+    const useBy=new Date(new Date(r.evDate).getTime()+90*24*60*60*1000).toISOString().split('T')[0];
+    plmAddRow({product_name:r.compName,job_code:r.job,qty:r.qty,unit:r.unit,use_by:useBy,allergens:r.allergens.join(', '),notes:r.chefNote,prepared_by:_settings.defaultChef||'Kitchen',section:r.dishCat||r.dishName});
+  });
+  if(!tbody.children.length)tbody.innerHTML='<tr><td colspan="9" style="padding:24px;text-align:center;color:var(--ink3);font-size:12px;">No freeze or fridge components in this run. Assign dishes to the events first.</td></tr>';
+  document.getElementById('plm-status').textContent='';
+  openModal('prod-label-modal');
+}
+
+function plmAddRow(data=null){
+  const tbody=document.getElementById('plm-rows');
+  const tr=document.createElement('tr');tr.style.borderBottom='1px solid var(--rule2)';
+  const inp=(val,w,ph,type='text')=>`<input type="${type}" value="${h(val||'')}" placeholder="${ph||''}" style="width:${w};font-size:12px;padding:5px 7px;border:1px solid var(--rule);border-radius:var(--r);background:var(--white);font-family:var(--sans);outline:none;" onfocus="this.style.borderColor='var(--g500)'" onblur="this.style.borderColor='var(--rule)'">`;
+  tr.innerHTML=`<td style="padding:6px 8px;">${inp(data?.product_name,'170px','Component name')}</td>
+    <td style="padding:6px 8px;">${inp(data?.job_code,'100px','Job code')}</td>
+    <td style="padding:6px 8px;">${inp(data?.qty,'64px','Qty','number')}</td>
+    <td style="padding:6px 8px;">${inp(data?.unit,'60px','unit')}</td>
+    <td style="padding:6px 8px;">${inp(data?.use_by,'98px','','date')}</td>
+    <td style="padding:6px 8px;">${inp(data?.allergens,'150px','e.g. Dairy, Gluten')}</td>
+    <td style="padding:6px 8px;">${inp(data?.notes,'130px','Chef note')}</td>
+    <td style="padding:6px 8px;">${inp(data?.prepared_by||(_settings.defaultChef||'Kitchen'),'65px','Name')}</td>
+    <td style="padding:6px 4px;text-align:center;white-space:nowrap;">
+      <button onclick="plmPrintRow(this)" style="font-size:11px;padding:3px 8px;border:1px solid var(--rule);border-radius:var(--r);background:var(--white);cursor:pointer;" title="Print this label">🖨</button>
+      <button onclick="this.closest('tr').remove()" style="font-size:15px;background:none;border:none;cursor:pointer;color:var(--ink3);padding:0 3px;" title="Remove">×</button>
+    </td>`;
+  tbody.appendChild(tr);
+}
+
+function plmGetPayload(tr){
+  const i=tr.querySelectorAll('input');
+  return{job_code:i[1].value.trim()||'PROD',product_name:i[0].value.trim(),section:'Production',quantity:i[2].value+' '+(i[3].value.trim()||'portions'),prep_date:new Date().toISOString().split('T')[0],use_by:i[4].value||new Date(Date.now()+90*24*60*60*1000).toISOString().split('T')[0],allergens:i[5].value.split(',').map(s=>s.trim()).filter(Boolean),notes:i[6].value.trim(),prepared_by:i[7].value.trim()||_settings.defaultChef||'Kitchen'};
+}
+
+async function plmPrintRow(btn){
+  const tr=btn.closest('tr');const p=plmGetPayload(tr);
+  if(!p.product_name){showToast('Product name required','error');return;}
+  await _sendPayloadToCPS(p);
+  tr.style.background='var(--g100)';btn.textContent='✓';btn.style.color='var(--g700)';
+  setTimeout(()=>{btn.textContent='🖨';btn.style.color='';tr.style.background='';},2500);
+}
+
+async function plmPrintAll(){
+  const rows=document.querySelectorAll('#plm-rows tr');if(!rows.length){showToast('No rows to print','error');return;}
+  const statusEl=document.getElementById('plm-status');let done=0;
+  for(const tr of rows){
+    const p=plmGetPayload(tr);if(!p.product_name)continue;
+    statusEl.textContent='Printing '+(done+1)+' of '+rows.length+'...';
+    await _sendPayloadToCPS(p);
+    tr.style.background='var(--g100)';
+    const pb=tr.querySelector('button');if(pb){pb.textContent='✓';pb.style.color='var(--g700)';}
+    done++;await new Promise(r=>setTimeout(r,600));
+  }
+  statusEl.textContent=done+' label'+(done!==1?'s':'')+' sent ✓';
+}
+
+async function _sendPayloadToCPS(payload){
+  const ngrok=_settings.ngrok;if(!ngrok){showToast('Set ngrok URL in settings','error');return;}
+  try{
+    const r=await fetch(ngrok+'/print',{method:'POST',headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},body:JSON.stringify(payload)});
+    if(r.ok)showToast('Label sent: '+payload.product_name);
+    else showToast('Printer error — check Pi','error');
+  }catch(e){showToast('Cannot reach printer','error');}
+}
+
 </script>
+
+<!-- ══════════════════════════════════════════════
+     PRODUCTION LABEL PRINTER MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="prod-label-modal">
+<div class="modal modal-xl">
+  <div class="modal-hd">
+    <div>
+      <div class="modal-title" id="plm-title">Print production labels</div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:2px;" id="plm-sub"></div>
+    </div>
+    <button class="modal-close" onclick="closeModal('prod-label-modal')">×</button>
+  </div>
+  <div class="modal-body" style="padding:0;">
+    <!-- Instructions bar -->
+    <div style="padding:10px 20px;background:var(--g100);border-bottom:1px solid var(--gborder);font-size:12px;color:var(--g900);display:flex;align-items:center;gap:8px;">
+      <span>🏷</span>
+      <span>Each row = one label. Edit any field before printing. Add rows for extra boxes. Click <strong>Print all</strong> to send all to the printer, or print individual rows.</span>
+    </div>
+    <!-- Label editor table -->
+    <div style="overflow-x:auto;">
+      <table style="width:100%;border-collapse:collapse;font-size:12px;" id="plm-table">
+        <thead>
+          <tr style="background:var(--parch);border-bottom:1px solid var(--rule);">
+            <th style="padding:8px 10px;text-align:left;font-size:9px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);">Component / product</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);width:110px;">Job code</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);width:80px;">Qty / portions</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);width:80px;">Unit</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);width:100px;">Use by</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);">Allergens</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);">Chef note</th>
+            <th style="padding:8px 10px;text-align:left;font-size:9px;font-family:var(--mono);font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink3);width:60px;">Prep by</th>
+            <th style="width:60px;padding:8px 10px;"></th>
+          </tr>
+        </thead>
+        <tbody id="plm-rows"></tbody>
+      </table>
+    </div>
+    <div style="padding:10px 20px;border-top:1px solid var(--rule2);">
+      <button class="btn btn-sm" onclick="plmAddRow()">+ Add row</button>
+    </div>
+  </div>
+  <div class="modal-ft">
+    <div style="font-size:11px;color:var(--ink3);margin-right:auto;" id="plm-status"></div>
+    <button class="btn" onclick="closeModal('prod-label-modal')">Close</button>
+    <button class="btn btn-prim" onclick="plmPrintAll()">🖨 Print all labels</button>
+  </div>
+</div>
+</div>
+
 </body>
 </html>
