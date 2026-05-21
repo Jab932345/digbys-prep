@@ -1431,7 +1431,6 @@ function ddAddComp(c=null){
   <div class="comp-recipe">
     <div class="recipe-col">
       <div class="recipe-col-hd">Ingredients<div class="base-wrap">base <input class="base-inp ci-base" type="number" min="1" value="${c&&c.base_portions?c.base_portions:10}"> covers</div></div>
-      <div style="display:grid;grid-template-columns:1fr 52px 44px 64px 18px;gap:3px;margin-bottom:5px;"><span style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;">Name</span><span style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;">Qty</span><span style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;">Unit</span><span style="font-size:9px;font-family:var(--mono);color:var(--ink3);text-transform:uppercase;text-align:right;">Cost</span><span></span></div>
       <div class="ci-ing-list">${ings.sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>ingRowHTML(i)).join('')}</div>
       <button class="add-row" onclick="addIngRow(this,'${uid}')">+ Add ingredient</button>
       <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--rule2);font-size:11px;color:var(--ink3);" id="ctotal-${uid}"></div>
@@ -1469,25 +1468,32 @@ function getUnitOptions(soldBy){
 function ingRowHTML(i=null){
   const ingObj=i?findIngredient(i.ingredient_name||''):null;
   const unitOpts=ingObj?getUnitOptions(ingObj.sold_by||ingObj.unit||'kg'):['g','kg','ml','each'];
-  const unitHint=ingObj?unitOpts[0]:'unit';
   const priceHint=ingObj&&ingObj.cost_per_unit?fmt$(ingObj.cost_per_unit)+'/'+(ingObj.sold_by||ingObj.unit||'kg'):'';
-  return`<div class="ing-row">
-    <div style="position:relative;">
-      <input type="text" class="ir-name${ingObj?' linked':''}" placeholder="Search ingredients..." value="${i?h(i.ingredient_name||''):''}"
-        autocomplete="off"
-        oninput="onIngNameInput(this)"
-        onblur="onIngNameBlur(this)"
-        style="width:100%;font-size:12px;padding:4px 6px;border:1px solid ${ingObj?'var(--gborder)':'var(--rule)'};border-radius:var(--r);background:${ingObj?'var(--g100)':'var(--white)'};color:${ingObj?'var(--g900)':'var(--ink)'};">
+  const bdr=ingObj?'var(--gborder)':'var(--rule)';
+  const bg=ingObj?'var(--g100)':'var(--white)';
+  const col=ingObj?'var(--g900)':'var(--ink)';
+  // Use table layout — bulletproof width distribution
+  return`<div class="ing-row" style="display:table;width:100%;table-layout:fixed;margin-bottom:4px;">
+    <div style="display:table-cell;position:relative;padding-right:3px;">
+      <input type="text" class="ir-name" placeholder="Search ingredients..." value="${i?h(i.ingredient_name||''):''}"
+        autocomplete="off" oninput="onIngNameInput(this)" onblur="onIngNameBlur(this)"
+        style="width:100%;font-size:12px;padding:4px 6px;border:1px solid ${bdr};border-radius:var(--r);background:${bg};color:${col};box-sizing:border-box;">
       <div class="ing-suggestions" style="display:none;position:absolute;top:100%;left:0;right:0;z-index:50;background:var(--white);border:1px solid var(--rule2);border-radius:var(--r);box-shadow:var(--shadow-lg);max-height:160px;overflow-y:auto;"></div>
     </div>
-    <input type="number" class="ir-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01"
-      style="font-size:12px;padding:4px 5px;border:1px solid var(--rule);border-radius:var(--r);text-align:right;width:100%;" oninput="onIngQtyInput(this)">
-    <select class="ir-unit" style="font-size:12px;padding:4px 5px;border:1px solid var(--rule);border-radius:var(--r);background:var(--white);width:100%;">
-      ${unitOpts.map(u=>`<option${(i&&i.unit===u)?' selected':''}>${u}</option>`).join('')}
-      ${!ingObj?'<option value="g">g</option><option value="kg">kg</option><option value="ml">ml</option><option value="each">each</option>':''}
-    </select>
-    <span class="ing-row-cost" style="font-size:10px;color:var(--g700);font-family:var(--mono);text-align:right;white-space:nowrap;">${priceHint}</span>
-    <button class="ing-rm" onclick="this.closest('.ing-row').remove();_formDirty=true;" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:14px;text-align:center;">×</button>
+    <div style="display:table-cell;width:58px;padding-right:3px;">
+      <input type="number" class="ir-qty" placeholder="Qty" value="${i?(i.quantity||i.qty||''):''}" step="0.01"
+        style="width:100%;font-size:12px;padding:4px 5px;border:1px solid var(--rule);border-radius:var(--r);text-align:right;box-sizing:border-box;" oninput="onIngQtyInput(this)">
+    </div>
+    <div style="display:table-cell;width:68px;padding-right:3px;">
+      <select class="ir-unit" style="width:100%;font-size:12px;padding:4px 5px;border:1px solid var(--rule);border-radius:var(--r);background:var(--white);box-sizing:border-box;">
+        ${unitOpts.map(u=>`<option${(i&&i.unit===u)?' selected':''}>${u}</option>`).join('')}
+        ${!ingObj?'<option>g</option><option>kg</option><option>ml</option><option>each</option>':''}
+      </select>
+    </div>
+    <div style="display:table-cell;width:62px;font-size:10px;color:var(--g700);font-family:var(--mono);text-align:right;white-space:nowrap;vertical-align:middle;" class="ing-row-cost">${priceHint}</div>
+    <div style="display:table-cell;width:20px;text-align:center;vertical-align:middle;">
+      <button class="ing-rm" onclick="this.closest('.ing-row').remove();_formDirty=true;" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:14px;padding:0;line-height:1;">×</button>
+    </div>
   </div>`;
 }
 
@@ -1551,7 +1557,10 @@ function stepRowHTML(s=null,n=1){
 }
 
 function addIngRow(btn,uid){
-  const list=btn.previousElementSibling.previousElementSibling;
+  // Find ci-ing-list relative to the button — walk up to recipe-col then find it
+  const col=btn.closest('.recipe-col');
+  const list=col?.querySelector('.ci-ing-list');
+  if(!list)return;
   list.insertAdjacentHTML('beforeend',ingRowHTML());
   _formDirty=true;
 }
