@@ -979,8 +979,20 @@ html,body{height:100%;overflow:hidden;background:var(--parch);color:var(--ink);f
       </div>
     </div>
     <div class="form-grid form-grid-3">
-      <div class="fld"><label class="fld-label">Unit</label><input class="fld-input" id="ing-unit" placeholder="e.g. kg, litre, each"></div>
-      <div class="fld"><label class="fld-label">Cost per unit (£)</label><input class="fld-input" id="ing-cost" type="number" step="0.01" min="0" placeholder="0.00"></div>
+      <div class="fld">
+        <label class="fld-label">Sold by</label>
+        <select class="fld-select" id="ing-sold-by">
+          <option value="kg">Weight — per kg</option>
+          <option value="litre">Volume — per litre</option>
+          <option value="each">Each / unit</option>
+          <option value="bunch">Bunch</option>
+        </select>
+      </div>
+      <div class="fld">
+        <label class="fld-label">Approx. price (£ per <span id="ing-per-lbl">kg</span>)</label>
+        <input class="fld-input" id="ing-cost" type="number" step="0.01" min="0" placeholder="e.g. 30.00">
+        <div class="fld-hint">Rough guide — doesn't have to be exact, used for costing estimates</div>
+      </div>
       <div class="fld"><label class="fld-label">Supplier</label><input class="fld-input" id="ing-supplier" placeholder="e.g. Bidfood, Total Produce"></div>
     </div>
     <div class="fld"><label class="fld-label">Allergens this ingredient contains</label>
@@ -1106,7 +1118,23 @@ function calcCompCost(comp){
   const base=comp.base_portions||10;let total=0;let hasAny=false;
   ings.forEach(i=>{
     const obj=ingredients_data.find(x=>x.name.toLowerCase()===(i.ingredient_name||'').toLowerCase());
-    if(obj&&obj.cost_per_unit!=null){total+=(parseFloat(i.quantity)||0)*parseFloat(obj.cost_per_unit);hasAny=true;}
+    if(obj&&obj.cost_per_unit!=null){
+      const qty=parseFloat(i.quantity)||0;
+      const recipeUnit=(i.unit||'').toLowerCase().trim();
+      const soldBy=(obj.sold_by||obj.unit||'kg').toLowerCase().trim();
+      let cost=0;
+      if(soldBy==='kg'&&(recipeUnit==='g'||recipeUnit==='grams')){
+        cost=qty/1000*parseFloat(obj.cost_per_unit); // g → kg
+      }else if(soldBy==='litre'&&(recipeUnit==='ml'||recipeUnit==='millilitres')){
+        cost=qty/1000*parseFloat(obj.cost_per_unit); // ml → litre
+      }else if(soldBy==='litre'&&(recipeUnit==='cl')){
+        cost=qty/100*parseFloat(obj.cost_per_unit); // cl → litre
+      }else{
+        // Same unit, or each/bunch — direct multiply
+        cost=qty*parseFloat(obj.cost_per_unit);
+      }
+      total+=cost;hasAny=true;
+    }
   });
   return hasAny?total/base:null;
 }
@@ -1195,7 +1223,7 @@ function buildIngDatalist(){
   let dl=document.getElementById('ing-datalist');
   if(!dl){dl=document.createElement('datalist');dl.id='ing-datalist';document.body.appendChild(dl);}
   // Include type as label so the dropdown shows useful info
-  dl.innerHTML=ingredients_data.map(i=>`<option value="${h(i.name)}" label="${ING_TYPES[i.type]||i.type}${i.allergens&&i.allergens.length?' · '+i.allergens.join(', '):''}${i.cost_per_unit?' · '+fmt$(i.cost_per_unit)+'/'+i.unit:''}">`).join('');
+  dl.innerHTML=ingredients_data.map(i=>`<option value="${h(i.name)}" label="${ING_TYPES[i.type]||i.type}${i.cost_per_unit?' · '+fmt$(i.cost_per_unit)+'/'+(i.sold_by||i.unit||'kg'):''}${i.allergens&&i.allergens.length?' · '+i.allergens.join(', '):''}">` ).join('');
 }
 
 // Check if an ingredient is in the database and return it
@@ -1453,9 +1481,18 @@ function updateCompCost(compBlock,uid){
   ings.forEach(row=>{
     const name=row.querySelector('.ir-name').value.trim();
     const qty=parseFloat(row.querySelector('.ir-qty').value)||0;
+    const recipeUnit=(row.querySelector('.ir-unit').value||'').toLowerCase().trim();
     const obj=ingredients_data.find(x=>x.name.toLowerCase()===name.toLowerCase());
     const costEl=row.querySelector('.ing-row-cost');
-    if(obj&&obj.cost_per_unit!=null&&qty){const c=qty*parseFloat(obj.cost_per_unit);if(costEl)costEl.textContent=fmt$(c/base);total+=c;hasAny=true;}
+    if(obj&&obj.cost_per_unit!=null&&qty){
+      const soldBy=(obj.sold_by||obj.unit||'kg').toLowerCase().trim();
+      let lineCost=0;
+      if(soldBy==='kg'&&(recipeUnit==='g'||recipeUnit==='grams'))lineCost=qty/1000*parseFloat(obj.cost_per_unit);
+      else if(soldBy==='litre'&&(recipeUnit==='ml'||recipeUnit==='millilitres'))lineCost=qty/1000*parseFloat(obj.cost_per_unit);
+      else if(soldBy==='litre'&&recipeUnit==='cl')lineCost=qty/100*parseFloat(obj.cost_per_unit);
+      else lineCost=qty*parseFloat(obj.cost_per_unit);
+      if(costEl)costEl.textContent=fmt$(lineCost/base);total+=lineCost;hasAny=true;
+    }
     else{if(costEl)costEl.textContent='';}
   });
   const pill=document.getElementById('ccpill-'+uid);if(pill)pill.textContent=hasAny?fmt$(total/base)+'/cv':'—';
@@ -1999,17 +2036,28 @@ function renderIngredients(){
 
 function openIngModal(){
   document.getElementById('ing-modal-title').textContent='New ingredient';
-  ['ing-id','ing-name','ing-unit','ing-cost','ing-supplier','ing-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['ing-id','ing-name','ing-cost','ing-supplier','ing-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('ing-type').value='protein';
+  document.getElementById('ing-sold-by').value='kg';
+  document.getElementById('ing-per-lbl').textContent='kg';
   _ingAlState={};ALLERGENS.forEach(a=>{const el=document.getElementById('ing-al-grid-'+a);if(el)el.className='al-tog';});
   openModal('ing-modal');
 }
+// Update "per X" label when sold-by changes
+document.addEventListener('change',e=>{
+  if(e.target.id==='ing-sold-by'){
+    const lbl=document.getElementById('ing-per-lbl');
+    if(lbl)lbl.textContent=e.target.value;
+  }
+});
 
 function editIngredient(id){
   const i=ingredients_data.find(x=>x.id===id);if(!i)return;
   document.getElementById('ing-modal-title').textContent='Edit ingredient';
   document.getElementById('ing-id').value=i.id;document.getElementById('ing-name').value=i.name||'';
-  document.getElementById('ing-type').value=i.type||'protein';document.getElementById('ing-unit').value=i.unit||'';
+  document.getElementById('ing-type').value=i.type||'protein';
+  const soldBy=i.sold_by||i.unit||'kg';document.getElementById('ing-sold-by').value=soldBy;
+  const perLbl=document.getElementById('ing-per-lbl');if(perLbl)perLbl.textContent=soldBy;
   document.getElementById('ing-cost').value=i.cost_per_unit!=null?i.cost_per_unit:'';
   document.getElementById('ing-supplier').value=i.supplier||'';document.getElementById('ing-notes').value=i.notes||'';
   _ingAlState={};(i.allergens||[]).forEach(a=>{_ingAlState[a]='contains';const el=document.getElementById('ing-al-grid-'+a);if(el)el.className='al-tog c';});
@@ -2020,7 +2068,8 @@ async function saveIngredient(){
   const name=document.getElementById('ing-name').value.trim();if(!name){showToast('Name required','error');return;}
   const id=document.getElementById('ing-id').value;
   const allergens=Object.keys(_ingAlState).filter(a=>_ingAlState[a]);
-  const data={name,type:document.getElementById('ing-type').value,unit:document.getElementById('ing-unit').value.trim()||null,cost_per_unit:parseFloat(document.getElementById('ing-cost').value)||null,supplier:document.getElementById('ing-supplier').value.trim()||null,notes:document.getElementById('ing-notes').value.trim()||null,allergens};
+  const soldBy=document.getElementById('ing-sold-by').value||'kg';
+  const data={name,type:document.getElementById('ing-type').value,unit:soldBy,sold_by:soldBy,cost_per_unit:parseFloat(document.getElementById('ing-cost').value)||null,supplier:document.getElementById('ing-supplier').value.trim()||null,notes:document.getElementById('ing-notes').value.trim()||null,allergens};
   try{
     if(id)await sb.from('ingredients').update(data).eq('id',id);
     else await sb.from('ingredients').insert(data);
