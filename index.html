@@ -193,6 +193,10 @@ html,body{height:100%;overflow:hidden;background:var(--parch);color:var(--ink);f
 .dc-status{font-size:9px;font-family:var(--mono);padding:2px 7px;border-radius:20px;flex-shrink:0;}
 
 
+
+/* ── EVENT TABS ─────────────────────────────────── */
+.ev-tab{transition:color .12s,border-color .12s;}
+.ev-tab:hover{color:var(--ink2)!important;}
 /* ── INGREDIENT SUGGESTION DROPDOWN ─────────────── */
 .ing-sug-active{background:var(--g100)!important;color:var(--g900);}
 .ing-suggestions{border-radius:var(--r);overflow:hidden;}
@@ -459,15 +463,23 @@ html,body{height:100%;overflow:hidden;background:var(--parch);color:var(--ink);f
 /* ── PRINT ─────────────────────────────────────── */
 @media print{
   @page{size:A4;margin:12mm 14mm;}
-  body{background:#fff;color:#000;}
-  .sidebar,.topbar .tb-actions,.fs-actions,.task-actions,.filter-bar,.toast,.modal-overlay{display:none!important;}
-  .shell{display:block;}
-  .main{overflow:visible;}
-  .page{display:block!important;}
-  .fs-card{page-break-inside:avoid;border:0.5pt solid #ccc;box-shadow:none;}
-  .fs-hd{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{background:#fff!important;color:#000!important;}
+  .sidebar,.tb-actions,.fs-actions,.task-actions,.filter-bar,.toast,.modal-overlay,.btn,.stat-row,.card-head .btn,.fs-hd .btn{display:none!important;}
+  .shell{display:block!important;}
+  .main{overflow:visible!important;}
+  /* By default hide all pages */
+  .page{display:none!important;}
+  /* Only show the page marked for printing */
+  .page.print-target{display:block!important;}
+  /* Function sheet specific */
+  .fs-card{page-break-inside:avoid;border:0.5pt solid #ccc!important;box-shadow:none!important;margin-bottom:8mm;}
+  .fs-card:not(.print-target-card){display:none!important;}
+  .fs-card.print-target-card{display:block!important;}
+  .fs-hd,.fs-body,.fs-full,.fs-actions{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  /* Prep list */
   .prep-bucket-hd{-webkit-print-color-adjust:exact;print-color-adjust:exact;page-break-after:avoid;}
   .task-row{page-break-inside:avoid;}
+  /* Allergen matrix */
   .fsa-tbl td,.fsa-tbl th{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
 }
 </style>
@@ -551,12 +563,26 @@ html,body{height:100%;overflow:hidden;background:var(--parch);color:var(--ink);f
     <div class="tb-title">Function sheets</div>
     <div class="tb-space"></div>
     <div class="tb-actions">
-      <select class="fld-select" id="ev-filter" style="width:140px;height:32px;font-size:12px;" onchange="renderEventsList()">
+      <select class="fld-select" id="ev-status-filter" style="width:130px;height:32px;font-size:12px;" onchange="renderEventsList()">
         <option value="">All statuses</option>
         <option>Confirmed</option><option>Provisional</option><option>Enquiry</option><option>Completed</option><option>Cancelled</option>
       </select>
+      <select class="fld-select" id="ev-payment-filter" style="width:130px;height:32px;font-size:12px;" onchange="renderEventsList()">
+        <option value="">All payments</option>
+        <option value="unpaid">Unpaid</option>
+        <option value="deposit">Deposit taken</option>
+        <option value="invoiced">Invoiced</option>
+        <option value="paid">Paid in full</option>
+      </select>
       <button class="btn btn-prim btn-sm" onclick="openFunctionSheet()">+ New event</button>
     </div>
+  </div>
+  <!-- Tab bar -->
+  <div style="background:var(--white);border-bottom:1px solid var(--rule);padding:0 20px;display:flex;align-items:center;gap:0;">
+    <button class="ev-tab active" id="ev-tab-upcoming" onclick="setEvTab('upcoming',this)" style="padding:10px 18px;font-size:13px;font-weight:500;border:none;background:transparent;cursor:pointer;border-bottom:2px solid var(--g700);color:var(--g700);margin-bottom:-1px;">Upcoming</button>
+    <button class="ev-tab" id="ev-tab-past" onclick="setEvTab('past',this)" style="padding:10px 18px;font-size:13px;font-weight:500;border:none;background:transparent;cursor:pointer;border-bottom:2px solid transparent;color:var(--ink3);margin-bottom:-1px;">Past events</button>
+    <div style="flex:1;"></div>
+    <div id="ev-tab-count" style="font-size:11px;color:var(--ink3);font-family:var(--mono);padding:0 8px;"></div>
   </div>
   <div class="pg-body" id="events-list"></div>
 </div>
@@ -922,8 +948,13 @@ html,body{height:100%;overflow:hidden;background:var(--parch);color:var(--ink);f
           <option>Enquiry</option><option>Provisional</option><option>Confirmed</option><option>Completed</option><option>Cancelled</option>
         </select>
       </div>
-      <div class="fld"><label class="fld-label">Deposit</label>
-        <select class="fld-select" id="fs-deposit"><option value="">Not taken</option><option>Invoice sent</option><option>Yes</option></select>
+      <div class="fld"><label class="fld-label">Payment status</label>
+        <select class="fld-select" id="fs-deposit">
+          <option value="">Unpaid</option>
+          <option value="deposit">Deposit taken</option>
+          <option value="invoiced">Invoice sent</option>
+          <option value="paid">Paid in full</option>
+        </select>
       </div>
     </div>
 
@@ -1723,12 +1754,80 @@ async function deleteDish(){
 // ═══════════════════════════════════════════════════
 function genJobCode(evType,date){const d=new Date(date);return'DF'+String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+String(d.getFullYear()).slice(2)+(evType||'EV');}
 
+
+function printFunctionSheet(evId){
+  // Mark the right page and card for printing
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('print-target'));
+  document.querySelectorAll('.fs-card').forEach(c=>c.classList.remove('print-target-card'));
+  const page=document.getElementById('page-events');
+  if(page)page.classList.add('print-target');
+  const card=document.getElementById('fscard-'+evId);
+  if(card)card.classList.add('print-target-card');
+  // Also make sure the allergen matrix prints with the function sheet
+  // Store current active page
+  const prevActive=document.querySelector('.page.active');
+  // Switch to events page so print makes sense
+  nav('events',null);
+  setTimeout(()=>{
+    window.print();
+    // Cleanup
+    if(page)page.classList.remove('print-target');
+    if(card)card.classList.remove('print-target-card');
+    // Restore previous page
+    if(prevActive)prevActive.classList.add('active');
+  },300);
+}
+
+
+async function markPayment(evId, status){
+  const{error}=await sb.from('events').update({deposit_status:status}).eq('id',evId);
+  if(error){showToast('Error: '+error.message,'error');return;}
+  showToast(status==='paid'?'Marked as paid ✓':status==='invoiced'?'Marked as invoiced':'Payment status cleared');
+  await loadEvents();
+}
+
+let _evTab='upcoming';
+
+function setEvTab(tab,el){
+  _evTab=tab;
+  document.querySelectorAll('.ev-tab').forEach(t=>{
+    t.style.borderBottomColor='transparent';t.style.color='var(--ink3)';t.classList.remove('active');
+  });
+  el.style.borderBottomColor='var(--g700)';el.style.color='var(--g700)';el.classList.add('active');
+  renderEventsList();
+}
+
+function getPaymentStatus(ev){
+  return ev.deposit_status||'';
+}
+
 function renderEventsList(){
   const wrap=document.getElementById('events-list');if(!wrap)return;
-  const filter=document.getElementById('ev-filter').value;
-  let f=[...events];if(filter)f=f.filter(e=>e.status===filter);
-  f.sort((a,b)=>new Date(a.event_date)-new Date(b.event_date));
-  if(!f.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">◷</div><div class="empty-title">No events</div></div>';return;}
+  const statusFilter=document.getElementById('ev-status-filter')?.value||'';
+  const paymentFilter=document.getElementById('ev-payment-filter')?.value||'';
+  const now=new Date();now.setHours(0,0,0,0);
+  let f=[...events];
+  // Tab filter
+  if(_evTab==='upcoming'){
+    f=f.filter(e=>new Date(e.event_date)>=now&&e.status!=='Cancelled');
+    f.sort((a,b)=>new Date(a.event_date)-new Date(b.event_date));
+  }else{
+    f=f.filter(e=>new Date(e.event_date)<now||e.status==='Completed'||e.status==='Cancelled');
+    f.sort((a,b)=>new Date(b.event_date)-new Date(a.event_date)); // newest first
+  }
+  // Status filter
+  if(statusFilter)f=f.filter(e=>e.status===statusFilter);
+  // Payment filter
+  if(paymentFilter){
+    if(paymentFilter==='unpaid')f=f.filter(e=>!e.deposit_status||e.deposit_status==='');
+    else f=f.filter(e=>e.deposit_status===paymentFilter);
+  }
+  const count=document.getElementById('ev-tab-count');
+  if(count)count.textContent=f.length+' event'+(f.length!==1?'s':'');
+  if(!f.length){
+    wrap.innerHTML=`<div class="empty"><div class="empty-icon">◷</div><div class="empty-title">${_evTab==='upcoming'?'No upcoming events':'No past events'}</div><div class="empty-sub">${_evTab==='upcoming'?'Create a new event above':'Past events appear here once the date has passed'}</div></div>`;
+    return;
+  }
   wrap.innerHTML=f.map(ev=>renderFsCard(ev)).join('');
 }
 
@@ -1746,6 +1845,7 @@ function renderFsCard(ev){
         <div class="fs-covers">${ev.covers} covers${ev.start_time?' · '+ev.start_time:''}${ev.end_time?' – '+ev.end_time:''}</div>
         <div style="margin-top:5px;display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;">
           <span class="badge ${STATUS_BADGE[ev.status]||'badge-n'}">${ev.status}</span>
+          ${ev.deposit_status?`<span class="badge ${ev.deposit_status==='paid'?'badge-g':ev.deposit_status==='invoiced'?'badge-b':'badge-a'}">${{'deposit':'Deposit ✓','invoiced':'Invoiced','paid':'Paid ✓'}[ev.deposit_status]||ev.deposit_status}</span>`:`<span class="badge badge-r">Unpaid</span>`}
           ${totalFC>0?`<span class="cost-pill">FC: ${fmt$(totalFC)}</span>`:''}
         </div>
       </div>
@@ -1781,8 +1881,12 @@ function renderFsCard(ev){
       <button class="btn btn-sm" onclick="goPrep('${ev.id}')">Prep list</button>
       <button class="btn btn-sm" onclick="document.getElementById('order-ev-sel').value='${ev.id}';generateOrderList();nav('orders',null)">Orders</button>
       <button class="btn btn-sm" onclick="document.getElementById('al-ev-sel').value='${ev.id}';renderAllergenMatrix();nav('allergens',null)">Allergens</button>
-      <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
+      <button class="btn btn-sm" onclick="printFunctionSheet('${ev.id}')">🖨 Print sheet</button>
       <button class="btn btn-sm" onclick="printDietaryLabels('${ev.id}')">🏷 Dietary labels</button>
+      <div style="margin-left:auto;display:flex;gap:5px;">
+        ${ev.deposit_status!=='paid'?`<button class="btn btn-sm" onclick="markPayment('${ev.id}','paid')" style="color:var(--g700);border-color:var(--gborder);">✓ Mark paid</button>`:`<button class="btn btn-sm" onclick="markPayment('${ev.id}','')" style="color:var(--ink3);">Unmark paid</button>`}
+        ${ev.deposit_status!=='invoiced'&&ev.deposit_status!=='paid'?`<button class="btn btn-sm" onclick="markPayment('${ev.id}','invoiced')">Send invoice</button>`:''}
+      </div>
     </div>
   </div>`;
 }
