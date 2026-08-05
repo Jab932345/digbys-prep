@@ -778,99 +778,32 @@ html, body { height: 100%; overflow: hidden; background: var(--body); color: var
 <div id="page-dish-detail" class="page">
   <div class="topbar">
     <button class="btn btn-ghost btn-sm" onclick="checkDirtyNav('menu')">← Library</button>
-    <div>
-      <div class="topbar-title" id="dd-title">New dish</div>
-      <div class="topbar-sub" id="dd-sub"></div>
-    </div>
+    <div class="topbar-title" id="dd-title">New dish</div>
     <div class="topbar-space"></div>
-    <button class="btn btn-sm" id="dd-lock-btn" onclick="toggleDishLock()">Lock</button>
-    <button class="btn btn-sm" onclick="window.print()">🖨</button>
+    <div id="dd-step-indicator" style="display:flex;align-items:center;gap:6px;font-size:11px;font-family:var(--mono);color:var(--ink4);"></div>
     <button class="btn btn-danger btn-sm" id="dd-del-btn" style="display:none" onclick="deleteDish()">Delete</button>
-    <button class="btn btn-primary btn-sm" onclick="saveDishDetail()">Save</button>
+    <button class="btn btn-sm" id="dd-lock-btn" onclick="toggleDishLock()" style="display:none;">Lock</button>
+    <button class="btn btn-primary btn-sm" onclick="saveDishDetail()">Save dish</button>
   </div>
-  <div class="dd-layout">
-    <div class="dd-main">
-      <input type="hidden" id="dd-id">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;">
-        <div class="panel">
-          <div class="panel-head"><div class="panel-title">Dish information</div></div>
-          <div class="panel-body">
-            <div class="grid-2" style="margin-bottom:12px;">
-              <div class="field" style="margin:0;"><label class="field-label">Name</label><input class="field-input" id="dd-name" oninput="ddUpdateHeader()"></div>
-              <div class="field" style="margin:0;"><label class="field-label">Category</label>
-                <select class="field-select" id="dd-cat" onchange="ddUpdateHeader()">
-                  <option>Canapés</option><option>Starters</option><option>Mains</option><option>Desserts</option><option>Evening Grazing</option><option>Tasting Menu</option><option>Sides</option><option>Other</option>
-                </select>
-              </div>
-            </div>
-            <div class="grid-3" style="margin-bottom:12px;">
-              <div class="field" style="margin:0;"><label class="field-label">Station</label>
-                <select class="field-select" id="dd-station"><option value="">—</option><option>Hot</option><option>Cold</option><option>Pastry</option><option>Butchery</option><option>Pass</option></select>
-              </div>
-              <div class="field" style="margin:0;"><label class="field-label">Variant of</label>
-                <select class="field-select" id="dd-variant-of"><option value="">—</option></select>
-              </div>
-              <div class="field" style="margin:0;"><label class="field-label">Target FC %</label>
-                <input class="field-input" id="dd-target-fc" type="number" placeholder="32" min="1" max="100">
-              </div>
-            </div>
-            <div class="field" style="margin-bottom:12px;"><label class="field-label">Menu types</label>
-              <div class="menu-chips" id="dd-menu-chips">
-                <div class="menu-chip" data-val="Weddings" onclick="toggleMenuChip(this)">Weddings</div>
-                <div class="menu-chip" data-val="Wakes" onclick="toggleMenuChip(this)">Wakes</div>
-                <div class="menu-chip" data-val="Private Dining" onclick="toggleMenuChip(this)">Private Dining</div>
-                <div class="menu-chip" data-val="Tasting Menu" onclick="toggleMenuChip(this)">Tasting Menu</div>
-                <div class="menu-chip" data-val="Bespoke" onclick="toggleMenuChip(this)">Bespoke</div>
-                <div class="menu-chip" data-val="Corporate" onclick="toggleMenuChip(this)">Corporate</div>
-                <div class="menu-chip" data-val="Restaurant" onclick="toggleMenuChip(this)">Restaurant</div>
-              </div>
-            </div>
-            <div class="field" style="margin-bottom:12px;"><label class="field-label">Description / service notes</label><textarea class="field-textarea" id="dd-desc" style="min-height:56px;"></textarea></div>
-            <div class="field" style="margin:0;"><label class="field-label">Chef notes / TBCs</label><textarea class="field-textarea" id="dd-notes" style="min-height:48px;"></textarea></div>
-          </div>
-        </div>
-        <div>
-          <div class="panel" style="margin-bottom:12px;">
-            <div class="panel-head"><div class="panel-title">Allergens</div><div style="font-size:10px;color:var(--ink4);">Tap once = Contains · Twice = May contain</div></div>
-            <div class="panel-body">
-              <div class="al-grid" id="dd-al-grid" style="margin-bottom:10px;"></div>
-              <div id="dd-al-display" style="font-size:12px;min-height:20px;"></div>
-            </div>
-          </div>
-          <div class="panel" id="dd-cost-card" style="display:none;">
-            <div class="panel-head">
-              <div class="panel-title">Costing</div>
-              <div id="dd-cost-summary"></div>
-            </div>
-            <div style="padding:12px 18px;font-size:12px;color:var(--ink4);" id="dd-cost-detail"></div>
-          </div>
-        </div>
-      </div>
-      <div class="panel">
-        <div class="panel-head">
-          <div><div class="panel-title">Components & recipes</div><div class="panel-sub">Each component = one prep task. Expand to add ingredients and method.</div></div>
-          <button class="btn btn-primary btn-sm" onclick="ddAddComp()">+ Add component</button>
-        </div>
-        <div id="dd-comp-list" style="padding:6px 0 2px;">
-          <div class="empty" style="padding:24px;"><div class="empty-sub">No components yet</div></div>
-        </div>
-      </div>
-    </div>
-    <div class="dd-side">
-      <div class="section-label">Quick reference</div>
-      <div style="font-size:12px;color:var(--ink3);line-height:1.7;margin-bottom:18px;">This dish feeds into:<br>• Function sheet dish picker<br>• Prep lists (one task per component)<br>• Order lists (scaled ingredient quantities)<br>• Allergen matrix<br>• Label queue (freeze/fridge components)</div>
-      <div class="section-label">Storage flags</div>
-      <div style="font-size:12px;color:var(--ink3);line-height:1.9;margin-bottom:18px;">
-        <span style="color:var(--blue);font-family:var(--mono);">❄ Freeze</span> — advance prep, frozen<br>
-        <span style="color:var(--green);font-family:var(--mono);">🧊 Fridge</span> — up to 5 days before<br>
-        <span style="color:var(--ink4);font-family:var(--mono);">○ Fresh</span> — day of service, up to 2 days
-      </div>
-      <div class="section-label">Costing</div>
-      <div style="font-size:12px;color:var(--ink3);line-height:1.7;margin-bottom:18px;">Set ingredient prices in the Ingredients page first. Enter recipe quantities in grams or the appropriate unit — cost per cover calculates automatically.<br><br><strong style="color:var(--ink2);">Typical targets:</strong><br>Events: 28–35%<br>Canapés: 18–25%<br>Restaurant: 28–32%</div>
-      <div class="section-label">Dietary variants</div>
-      <div style="font-size:12px;color:var(--ink3);line-height:1.7;">Set "Variant of" above to link this dish as a dietary alternative. Variants appear on function sheets for dietary guests.</div>
-    </div>
+
+  <!-- Step tabs -->
+  <div style="background:var(--white);border-bottom:1px solid var(--border);padding:0;display:flex;flex-shrink:0;">
+    <button class="dd-step-tab active" id="ddt-1" onclick="ddGoStep(1)">
+      <span class="ddt-n">1</span> Dish info
+    </button>
+    <button class="dd-step-tab" id="ddt-2" onclick="ddGoStep(2)">
+      <span class="ddt-n">2</span> Allergens
+    </button>
+    <button class="dd-step-tab" id="ddt-3" onclick="ddGoStep(3)">
+      <span class="ddt-n">3</span> Components
+    </button>
+    <button class="dd-step-tab" id="ddt-4" onclick="ddGoStep(4)">
+      <span class="ddt-n">4</span> Costing
+    </button>
   </div>
+
+  <input type="hidden" id="dd-id">
+  <div class="page-body" id="dd-step-body"></div>
 </div>
 
 <!-- ══ INGREDIENTS ════════════════════════════════ -->
@@ -1279,21 +1212,7 @@ function buildIngDatalist(){
   dl.innerHTML=ingredients_data.map(i=>`<option value="${h(i.name)}" label="${ING_TYPES[i.type]||i.type}${i.cost_per_unit?' · '+fmt$(i.cost_per_unit)+'/'+(i.sold_by||i.unit||'kg'):''}">` ).join('');
 }
 
-function cycleAlTog(gid,name){
-  const state=gid==='dd-al-grid'?_ddAlState:_ingAlState;
-  const el=document.getElementById(gid+'-'+name);if(!el)return;
-  const cur=state[name]||null;
-  if(!cur){state[name]='contains';el.className='al-tog c';}
-  else if(cur==='contains'){state[name]='may';el.className='al-tog m';}
-  else{delete state[name];el.className='al-tog';}
-  if(gid==='dd-al-grid')updateDdAlDisplay();
-  _formDirty=true;
-}
-function updateDdAlDisplay(){
-  const el=document.getElementById('dd-al-display');if(!el)return;
-  const a=Object.entries(_ddAlState).filter(([,v])=>v);
-  el.innerHTML=a.length?a.map(([n,s])=>`<span class="al-tag${s==='may'?' may':''}">${n}</span>`).join(' '):'<span style="color:var(--ink4);">None declared</span>';
-}
+function updateDdAlDisplay(){}
 
 // ═══════════════════════════════════════════════
 // DASHBOARD
@@ -1383,61 +1302,416 @@ function renderDishLibrary(){
 }
 
 // ═══════════════════════════════════════════════
-// DISH DETAIL
+// DISH BUILDER — STEP WIZARD
 // ═══════════════════════════════════════════════
-function ddUpdateHeader(){
-  const n=document.getElementById('dd-name')?.value.trim();const cat=document.getElementById('dd-cat')?.value;
-  document.getElementById('dd-title').textContent=n||'New dish';
-  document.getElementById('dd-sub').textContent=cat||'';
+let _ddStep=1, _ddData={name:'',category:'Canapés',station:'',description:'',notes:'',menu_type:[],variant_of:'',target_food_cost:''};
+
+function ddGoStep(n){
+  _ddStep=n;
+  document.querySelectorAll('.dd-step-tab').forEach((t,i)=>{
+    t.classList.toggle('active',i+1===n);
+    t.classList.toggle('done',i+1<n);
+  });
+  const body=document.getElementById('dd-step-body');
+  if(n===1)body.innerHTML=ddStep1HTML();
+  else if(n===2)body.innerHTML=ddStep2HTML();
+  else if(n===3)body.innerHTML=ddStep3HTML();
+  else if(n===4)body.innerHTML=ddStep4HTML();
+  ddBindStep(n);
 }
+
+// ── STEP 1: Dish info ────────────────────────────
+function ddStep1HTML(){
+  const menuTypes=['Weddings','Wakes','Private Dining','Tasting Menu','Bespoke','Corporate','Restaurant'];
+  return`<div class="dd-step">
+    <div class="step-heading">What's the dish?</div>
+    <div class="step-sub">Basic information — name, category and where it sits in the business.</div>
+    <div class="grid-2" style="margin-bottom:14px;">
+      <div class="field"><label class="field-label">Dish name *</label>
+        <input class="field-input" id="dd-name" value="${h(_ddData.name)}" placeholder="e.g. Egg Mayo & Cress Sandwich" oninput="_ddData.name=this.value;document.getElementById('dd-title').textContent=this.value||'New dish';_formDirty=true;" autofocus>
+      </div>
+      <div class="field"><label class="field-label">Category *</label>
+        <select class="field-select" id="dd-cat" onchange="_ddData.category=this.value;_formDirty=true;">
+          ${['Canapés','Starters','Mains','Desserts','Evening Grazing','Tasting Menu','Sides','Other'].map(o=>`<option${_ddData.category===o?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="grid-3" style="margin-bottom:14px;">
+      <div class="field"><label class="field-label">Station</label>
+        <select class="field-select" id="dd-station" onchange="_ddData.station=this.value;">
+          <option value="">—</option>
+          ${['Hot','Cold','Pastry','Butchery','Pass'].map(o=>`<option${_ddData.station===o?' selected':''}>${o}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label class="field-label">Variant of</label>
+        <select class="field-select" id="dd-variant-of" onchange="_ddData.variant_of=this.value;">
+          <option value="">— standalone dish —</option>
+          ${dishes.filter(d=>d.id!==document.getElementById('dd-id').value).map(d=>`<option value="${d.id}"${_ddData.variant_of===d.id?' selected':''}>${h(d.name)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label class="field-label">Target food cost %</label>
+        <input class="field-input" id="dd-target-fc" type="number" placeholder="32" min="1" max="100" value="${_ddData.target_food_cost||''}" oninput="_ddData.target_food_cost=this.value;">
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:14px;"><label class="field-label">Menu types — where does this dish appear?</label>
+      <div class="menu-chips">
+        ${menuTypes.map(t=>`<div class="menu-chip${_ddData.menu_type.includes(t)?' on':''}" onclick="this.classList.toggle('on');_ddData.menu_type=Array.from(document.querySelectorAll('.menu-chip.on')).map(c=>c.textContent);_formDirty=true;">${t}</div>`).join('')}
+      </div>
+    </div>
+    <div class="grid-2" style="margin-bottom:0;">
+      <div class="field" style="margin:0;"><label class="field-label">Description / service notes</label>
+        <textarea class="field-textarea" id="dd-desc" placeholder="How it's plated, what it comes with, service notes..." oninput="_ddData.description=this.value;">${h(_ddData.description)}</textarea>
+      </div>
+      <div class="field" style="margin:0;"><label class="field-label">Chef notes / TBCs</label>
+        <textarea class="field-textarea" id="dd-notes" placeholder="Technique notes, TBCs, reminders..." oninput="_ddData.notes=this.value;">${h(_ddData.notes)}</textarea>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:20px;">
+      <button class="btn btn-primary" onclick="ddStep1Next()">Next — Allergens →</button>
+    </div>
+  </div>`;
+}
+function ddStep1Next(){
+  if(!_ddData.name.trim()){toast('Dish name required','err');return;}
+  ddGoStep(2);
+}
+function ddBindStep(n){}
+
+// ── STEP 2: Allergens ────────────────────────────
+function ddStep2HTML(){
+  return`<div class="dd-step">
+    <div class="step-heading">Allergens</div>
+    <div class="step-sub">Tap once for Contains, twice for May Contain, again to clear. These appear on the allergen matrix and function sheets.</div>
+    <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:24px;">
+      ${ALLERGENS.map(a=>{const st=_ddAlState[a]||'';return`<div class="al-tog${st==='contains'?' c':st==='may'?' m':''}" onclick="cycleAlTog('dd',this,'${a}')" style="padding:8px 4px;font-size:11px;text-align:center;">${a}</div>`;}).join('')}
+    </div>
+    <div id="dd-al-summary" style="min-height:32px;margin-bottom:24px;">${ddAlSummary()}</div>
+    <div style="display:flex;justify-content:space-between;margin-top:8px;">
+      <button class="btn btn-ghost" onclick="ddGoStep(1)">← Back</button>
+      <button class="btn btn-primary" onclick="ddGoStep(3)">Next — Components →</button>
+    </div>
+  </div>`;
+}
+function ddAlSummary(){
+  const a=Object.entries(_ddAlState).filter(([,v])=>v);
+  if(!a.length)return'<span style="font-size:12px;color:var(--ink4);">No allergens declared</span>';
+  return a.map(([n,s])=>`<span class="al-tag${s==='may'?' may':''}">${n}</span>`).join(' ');
+}
+function cycleAlTog(ctx,el,name){
+  const cur=_ddAlState[name]||'';
+  if(!cur){_ddAlState[name]='contains';el.className='al-tog c';}
+  else if(cur==='contains'){_ddAlState[name]='may';el.className='al-tog m';}
+  else{delete _ddAlState[name];el.className='al-tog';}
+  const sum=document.getElementById('dd-al-summary');if(sum)sum.innerHTML=ddAlSummary();
+  _formDirty=true;
+}
+
+// ── STEP 3: Components ───────────────────────────
+let _ddComps=[];
+
+function ddStep3HTML(){
+  if(!_ddComps.length)_ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',ings:[],steps:[]}];
+  return`<div class="dd-step-wide">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div><div class="step-heading" style="margin:0;">Components & recipes</div><div class="step-sub" style="margin:0;">Each component is one prep task — one label, one freezer bag, one thing to tick off the prep list.</div></div>
+      <button class="btn btn-primary btn-sm" onclick="ddAddComp3()">+ Add component</button>
+    </div>
+    <div id="dd-comp3-list">${_ddComps.map((c,i)=>ddComp3HTML(c,i)).join('')}</div>
+    <div style="display:flex;justify-content:space-between;margin-top:20px;">
+      <button class="btn btn-ghost" onclick="ddGoStep(2)">← Back</button>
+      <button class="btn btn-primary" onclick="ddGoStep(4)">Next — Costing →</button>
+    </div>
+  </div>`;
+}
+
+function ddComp3HTML(comp,idx){
+  const stLabels={frz:'❄ Freeze',fri:'🧊 Fridge',fsh:'○ Fresh'};
+  return`<div class="comp-block open" id="cb-${comp.id}">
+    <div class="comp-block-hd" onclick="document.getElementById('cb-${comp.id}').classList.toggle('open')">
+      <span style="font-size:10px;color:var(--ink4);font-family:var(--mono);flex-shrink:0;">${idx+1}</span>
+      <input class="comp-block-name" placeholder="Component name — e.g. Egg mayo filling, Sous vide chicken..." value="${h(comp.name)}"
+        onclick="event.stopPropagation()" oninput="event.stopPropagation();_ddComps[${idx}].name=this.value;_formDirty=true;">
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;" onclick="event.stopPropagation()">
+        <div class="comp-storage-btns">
+          ${['frz','fri','fsh'].map(s=>`<button class="csb ${s}${comp.storage===s?' on':''}" onclick="setCompStorage('${comp.id}','${s}')">${stLabels[s]}</button>`).join('')}
+        </div>
+        <button onclick="event.stopPropagation();ddRemoveComp('${comp.id}')" style="background:none;border:none;color:var(--ink4);cursor:pointer;font-size:18px;padding:0 2px;">×</button>
+      </div>
+    </div>
+    <div class="comp-block-body">
+      <div class="comp-left">
+        <div class="comp-meta-row" style="margin-bottom:10px;">
+          <div class="comp-meta-field"><div class="comp-meta-label">Base portions</div>
+            <input class="comp-meta-input" type="number" min="1" placeholder="10" value="${comp.base||10}"
+              oninput="_ddComps[${idx}].base=parseInt(this.value)||10;ddRefreshCompCost('${comp.id}');">
+          </div>
+          <div class="comp-meta-field"><div class="comp-meta-label">Qty per cover</div>
+            <input class="comp-meta-input" type="number" step="0.01" placeholder="e.g. 3" value="${comp.qty||''}"
+              oninput="_ddComps[${idx}].qty=this.value;">
+          </div>
+          <div class="comp-meta-field"><div class="comp-meta-label">Unit</div>
+            <input class="comp-meta-input" placeholder="e.g. fingers" value="${h(comp.unit||'')}"
+              oninput="_ddComps[${idx}].unit=this.value;">
+          </div>
+        </div>
+        <div style="margin-bottom:6px;"><div class="comp-meta-label" style="margin-bottom:4px;">Chef note</div>
+          <input class="comp-meta-input" placeholder="Short note shown on prep list and label..." value="${h(comp.note||'')}"
+            oninput="_ddComps[${idx}].note=this.value;" style="background:var(--ambg);border-color:var(--ambd);color:var(--amber);">
+        </div>
+        <div class="comp-section-hd" style="margin-top:14px;">
+          Ingredients
+          <div style="font-size:10px;color:var(--green);font-family:var(--mono);" id="cctotal-${comp.id}"></div>
+        </div>
+        <div id="ci-ings-${comp.id}">${comp.ings.map((i,j)=>ddIng3HTML(comp.id,idx,i,j)).join('')}</div>
+        <button class="add-row-btn" onclick="ddAddIng3('${comp.id}',${idx})">+ ingredient</button>
+      </div>
+      <div class="comp-right">
+        <div class="comp-section-hd">Method steps</div>
+        <div id="ci-steps-${comp.id}">${comp.steps.map((s,j)=>ddStep3RowHTML(comp.id,idx,s,j)).join('')}</div>
+        <button class="add-row-btn" onclick="ddAddStep3('${comp.id}',${idx})">+ step</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function ddIng3HTML(cid,cidx,ing,idx){
+  const obj=ing.name?findIngredient(ing.name):null;
+  const unitOpts=obj?getUnitOptions(obj.sold_by||'kg'):['g','kg','ml','each','bunch'];
+  const lineCost=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj):null;
+  const base=_ddComps[cidx]?.base||10;
+  return`<div class="ir2" id="ir2-${cid}-${idx}">
+    <div style="flex:1;position:relative;">
+      <input class="ir2-name${obj?' linked':ing.name?' unlinked':''}" placeholder="Search ingredients..." value="${h(ing.name||'')}" autocomplete="off"
+        oninput="onIr2Input(this,'${cid}',${cidx},${idx})" onblur="onIr2Blur(this,'${cid}',${cidx},${idx})" onkeydown="onIr2Keydown(this,event,'${cid}',${cidx},${idx})">
+      <div class="ir2-sug" id="ir2sug-${cid}-${idx}"></div>
+    </div>
+    <input class="ir2-qty" type="number" step="0.01" placeholder="Qty" value="${ing.qty||''}"
+      oninput="_ddComps[${cidx}].ings[${idx}].qty=this.value;ddRefreshIngCost('${cid}',${cidx},${idx});">
+    <select class="ir2-unit" onchange="_ddComps[${cidx}].ings[${idx}].unit=this.value;ddRefreshIngCost('${cid}',${cidx},${idx});">
+      ${unitOpts.map(u=>`<option${ing.unit===u?' selected':''}>${u}</option>`).join('')}
+      ${!obj?'<option>g</option><option>kg</option><option>ml</option><option>each</option>':''}
+    </select>
+    <span class="ir2-cost" id="ir2cost-${cid}-${idx}">${lineCost!=null?'£'+(lineCost/base).toFixed(3)+'/cv':''}</span>
+    <button class="ir2-rm" onclick="ddRemoveIng('${cid}',${cidx},${idx})">×</button>
+  </div>`;
+}
+
+function ddStep3RowHTML(cid,cidx,step,idx){
+  return`<div class="sr2">
+    <span class="sr2-n">${idx+1}.</span>
+    <textarea class="sr2-ta" placeholder="Describe this step..." oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px';_ddComps[${cidx}].steps[${idx}]=this.value;_formDirty=true;">${h(step||'')}</textarea>
+    <button class="ir2-rm" style="margin-top:5px;" onclick="ddRemoveStep('${cid}',${cidx},${idx})">×</button>
+  </div>`;
+}
+
+function setCompStorage(cid,st){
+  const idx=_ddComps.findIndex(c=>c.id===cid);if(idx<0)return;
+  _ddComps[idx].storage=st;
+  document.querySelectorAll(`#cb-${cid} .csb`).forEach(b=>{b.classList.toggle('on',b.classList.contains(st));});
+  _formDirty=true;
+}
+
+function ddAddComp3(){
+  const id='c'+Date.now();
+  _ddComps.push({id,name:'',storage:'fri',base:10,qty:'',unit:'',note:'',ings:[],steps:[]});
+  const list=document.getElementById('dd-comp3-list');
+  list.insertAdjacentHTML('beforeend',ddComp3HTML(_ddComps[_ddComps.length-1],_ddComps.length-1));
+  _formDirty=true;
+}
+
+function ddRemoveComp(cid){
+  if(!confirm('Remove this component?'))return;
+  _ddComps=_ddComps.filter(c=>c.id!==cid);
+  document.getElementById('cb-'+cid)?.remove();
+  _formDirty=true;
+}
+
+function ddAddIng3(cid,cidx){
+  _ddComps[cidx].ings.push({name:'',qty:'',unit:'g'});
+  const idx=_ddComps[cidx].ings.length-1;
+  const list=document.getElementById('ci-ings-'+cid);
+  list.insertAdjacentHTML('beforeend',ddIng3HTML(cid,cidx,_ddComps[cidx].ings[idx],idx));
+  list.lastElementChild.querySelector('.ir2-name')?.focus();
+  _formDirty=true;
+}
+
+function ddRemoveIng(cid,cidx,idx){
+  _ddComps[cidx].ings.splice(idx,1);
+  const list=document.getElementById('ci-ings-'+cid);
+  list.innerHTML=_ddComps[cidx].ings.map((i,j)=>ddIng3HTML(cid,cidx,i,j)).join('');
+  ddRefreshCompCost(cid);_formDirty=true;
+}
+
+function ddAddStep3(cid,cidx){
+  _ddComps[cidx].steps.push('');
+  const idx=_ddComps[cidx].steps.length-1;
+  const list=document.getElementById('ci-steps-'+cid);
+  list.insertAdjacentHTML('beforeend',ddStep3RowHTML(cid,cidx,'',idx));
+  list.lastElementChild.querySelector('textarea')?.focus();
+  _formDirty=true;
+}
+
+function ddRemoveStep(cid,cidx,idx){
+  _ddComps[cidx].steps.splice(idx,1);
+  document.getElementById('ci-steps-'+cid).innerHTML=_ddComps[cidx].steps.map((s,j)=>ddStep3RowHTML(cid,cidx,s,j)).join('');
+  _formDirty=true;
+}
+
+function ddRefreshIngCost(cid,cidx,idx){
+  const ing=_ddComps[cidx]?.ings[idx];if(!ing)return;
+  const obj=findIngredient(ing.name||'');
+  const base=_ddComps[cidx].base||10;
+  const lc=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj):null;
+  const el=document.getElementById(`ir2cost-${cid}-${idx}`);
+  if(el)el.textContent=lc!=null?'£'+(lc/base).toFixed(3)+'/cv':'';
+  ddRefreshCompCost(cid);
+}
+
+function ddRefreshCompCost(cid){
+  const cidx=_ddComps.findIndex(c=>c.id===cid);if(cidx<0)return;
+  const comp=_ddComps[cidx];const base=comp.base||10;
+  let total=0;let any=false;
+  comp.ings.forEach(ing=>{
+    const obj=findIngredient(ing.name||'');
+    const lc=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj):null;
+    if(lc!=null){total+=lc;any=true;}
+  });
+  const el=document.getElementById('cctotal-'+cid);
+  if(el)el.textContent=any?'£'+(total/base).toFixed(3)+'/cv':'';
+}
+
+// Ingredient search for step 3
+function onIr2Input(input,cid,cidx,idx){
+  const q=input.value.trim();_ddComps[cidx].ings[idx].name=q;
+  const sug=document.getElementById(`ir2sug-${cid}-${idx}`);if(!sug)return;
+  if(!q){sug.style.display='none';return;}
+  const matches=ingredients_data.filter(i=>i.name.toLowerCase().includes(q.toLowerCase())).slice(0,8);
+  if(!matches.length){sug.innerHTML='<div style="padding:7px 10px;font-size:11px;color:var(--ink4);font-style:italic;">No match — add it in Ingredients first</div>';sug.style.display='block';return;}
+  sug.innerHTML=matches.map((ing,i)=>`<div class="ir2-sug-item${i===0?' ir2-sug-active':''}" onmousedown="selectIr2('${cid}',${cidx},${idx},'${ing.name.replace(/'/g,"\'")}')">
+    <span style="font-weight:${i===0?'500':'400'};">${h(ing.name)}</span>
+    <span style="font-size:10px;color:var(--ink4);font-family:var(--mono);">${ING_TYPES[ing.type]||ing.type}${ing.cost_per_unit?' · £'+ing.cost_per_unit+'/'+(ing.sold_by||'kg'):''}</span>
+  </div>`).join('');
+  sug.style.display='block';
+}
+
+function onIr2Blur(input,cid,cidx,idx){
+  setTimeout(()=>{
+    const sug=document.getElementById(`ir2sug-${cid}-${idx}`);if(sug)sug.style.display='none';
+    const name=input.value.trim();const obj=findIngredient(name);
+    if(obj){input.className='ir2-name linked';updateIr2Units(cid,cidx,idx,obj);}
+    else if(name){input.className='ir2-name unlinked';}
+    else{input.className='ir2-name';}
+    ddRefreshIngCost(cid,cidx,idx);
+  },150);
+}
+
+function onIr2Keydown(input,e,cid,cidx,idx){
+  const sug=document.getElementById(`ir2sug-${cid}-${idx}`);if(!sug||sug.style.display==='none')return;
+  const items=sug.querySelectorAll('.ir2-sug-item');
+  let ai=[...items].findIndex(x=>x.classList.contains('ir2-sug-active'));
+  if(e.key==='ArrowDown'){e.preventDefault();items.forEach(x=>x.classList.remove('ir2-sug-active'));items[Math.min(ai+1,items.length-1)]?.classList.add('ir2-sug-active');}
+  else if(e.key==='ArrowUp'){e.preventDefault();items.forEach(x=>x.classList.remove('ir2-sug-active'));items[Math.max(ai-1,0)]?.classList.add('ir2-sug-active');}
+  else if(e.key==='Enter'){e.preventDefault();const a=sug.querySelector('.ir2-sug-active');if(a){const name=a.querySelector('span:first-child').textContent;selectIr2(cid,cidx,idx,name);}}
+  else if(e.key==='Escape')sug.style.display='none';
+  else if(e.key==='Tab'){const a=sug.querySelector('.ir2-sug-active');if(a){e.preventDefault();const name=a.querySelector('span:first-child').textContent;selectIr2(cid,cidx,idx,name);}}
+}
+
+function selectIr2(cid,cidx,idx,name){
+  _ddComps[cidx].ings[idx].name=name;
+  const input=document.querySelector(`#ir2-${cid}-${idx} .ir2-name`);
+  if(input){input.value=name;input.className='ir2-name linked';}
+  const sug=document.getElementById(`ir2sug-${cid}-${idx}`);if(sug)sug.style.display='none';
+  const obj=findIngredient(name);if(obj)updateIr2Units(cid,cidx,idx,obj);
+  ddRefreshIngCost(cid,cidx,idx);_formDirty=true;
+}
+
+function updateIr2Units(cid,cidx,idx,obj){
+  const opts=getUnitOptions(obj.sold_by||'kg');
+  const cur=_ddComps[cidx].ings[idx].unit;
+  const sel=document.querySelector(`#ir2-${cid}-${idx} .ir2-unit`);
+  if(!sel)return;
+  sel.innerHTML=opts.map(u=>`<option${u===cur?' selected':''}>${u}</option>`).join('');
+  if(!opts.includes(cur)){sel.value=opts[0];_ddComps[cidx].ings[idx].unit=opts[0];}
+}
+
+// ── STEP 4: Costing ──────────────────────────────
+function ddStep4HTML(){
+  let totalCost=0;let anyCosted=false;
+  const rows=_ddComps.map(comp=>{
+    const base=comp.base||10;
+    let compTotal=0;let compAny=false;
+    comp.ings.forEach(ing=>{
+      const obj=findIngredient(ing.name||'');
+      const lc=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj):null;
+      if(lc!=null){compTotal+=lc;compAny=true;}
+    });
+    const cpc=compAny?compTotal/base:null;
+    if(cpc!=null){totalCost+=cpc;anyCosted=true;}
+    const stCls=comp.storage==='frz'?'badge-blue':comp.storage==='fri'?'badge-green':'badge-neutral';
+    const stLbl=comp.storage==='frz'?'❄ Freeze':comp.storage==='fri'?'🧊 Fridge':'○ Fresh';
+    return`<tr>
+      <td style="font-weight:500;">${h(comp.name||'Unnamed')}</td>
+      <td><span class="badge ${stCls}" style="font-size:9px;">${stLbl}</span></td>
+      <td class="mono">${comp.ings.length} ingredient${comp.ings.length!==1?'s':''}</td>
+      <td class="mono" style="color:var(--green);text-align:right;">${cpc!=null?'£'+cpc.toFixed(3)+'/cv':'—'}</td>
+    </tr>`;
+  }).join('');
+  const target=parseFloat(_ddData.target_food_cost)||32;
+  const pctNote=anyCosted&&_ddData.name?`At £${(totalCost*(100/target)).toFixed(2)} selling price this hits your ${target}% FC target.`:'Set a target FC % on step 1 to see selling price guidance.';
+  const pctCls=!anyCosted?'':'good';
+  return`<div class="dd-step">
+    <div class="step-heading">Cost summary</div>
+    <div class="step-sub">Based on your ingredient prices and recipe quantities. Update prices in the Ingredients page to keep this accurate.</div>
+    ${anyCosted?`<div style="margin-bottom:24px;padding:20px 24px;background:var(--white);border:1px solid var(--border);border-radius:var(--r2);box-shadow:var(--shadow);">
+      <div style="font-size:10px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--ink4);margin-bottom:8px;">Cost per cover</div>
+      <div class="cost-total">£${totalCost.toFixed(3)}</div>
+      <div class="cost-pct ${pctCls}" style="margin-top:8px;">${pctNote}</div>
+    </div>`:'<div style="padding:20px;background:var(--body);border-radius:var(--r2);color:var(--ink4);font-size:13px;margin-bottom:24px;">Add ingredient quantities in step 3 to see costs.</div>'}
+    <table class="cost-table">
+      <thead><tr><th>Component</th><th>Storage</th><th>Ingredients</th><th style="text-align:right;">Cost/cover</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="background:var(--ambg);border:1px solid var(--ambd);border-radius:var(--r2);padding:12px 16px;font-size:12px;color:var(--amber);margin-bottom:24px;">
+      ⚠ Costs only include ingredients with prices set. Any unlinked ingredients show as — above.
+    </div>
+    <div style="display:flex;justify-content:space-between;">
+      <button class="btn btn-ghost" onclick="ddGoStep(3)">← Back</button>
+      <button class="btn btn-primary" onclick="saveDishDetail()">Save dish ✓</button>
+    </div>
+  </div>`;
+}
+
+function ddUpdateHeader(){} // kept for compatibility
 function toggleMenuChip(chip){chip.classList.toggle('on');_formDirty=true;}
 
 async function openDishDetail(id=null){
-  nav('dish-detail',null);_ddAlState={};_formDirty=false;buildAlGrids();
-  ALLERGENS.forEach(a=>{const el=document.getElementById('dd-al-grid-'+a);if(el)el.className='al-tog';});
-  document.getElementById('dd-al-display').innerHTML='<span style="color:var(--ink4);">None declared</span>';
-  document.getElementById('dd-cost-card').style.display='none';
+  nav('dish-detail',null);_ddAlState={};_ddComps=[];_ddData={name:'',category:'Canapés',station:'',description:'',notes:'',menu_type:[],variant_of:'',target_food_cost:''};_formDirty=false;
+  document.getElementById('dd-id').value=id||'';
+  const lockBtn=document.getElementById('dd-lock-btn');const delBtn=document.getElementById('dd-del-btn');
   if(!id){
-    ['dd-id','dd-name','dd-desc','dd-notes','dd-target-fc'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
-    document.getElementById('dd-cat').value='Canapés';document.getElementById('dd-station').value='';
-    document.getElementById('dd-title').textContent='New dish';document.getElementById('dd-sub').textContent='';
-    document.getElementById('dd-lock-btn').textContent='Lock';document.getElementById('dd-del-btn').style.display='none';
-    document.getElementById('dd-comp-list').innerHTML='<div class="empty" style="padding:24px;"><div class="empty-sub">No components yet</div></div>';
-    document.querySelectorAll('#dd-menu-chips .menu-chip').forEach(c=>c.classList.remove('on'));
-    return;
+    document.getElementById('dd-title').textContent='New dish';
+    if(lockBtn)lockBtn.style.display='none';if(delBtn)delBtn.style.display='none';
+    _ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',ings:[],steps:[]}];
+    ddGoStep(1);return;
   }
   const d=dishes.find(x=>x.id===id);if(!d)return;
-  document.getElementById('dd-id').value=d.id;document.getElementById('dd-name').value=d.name;
-  document.getElementById('dd-cat').value=d.category;document.getElementById('dd-station').value=d.station||'';
-  document.getElementById('dd-desc').value=d.description||'';document.getElementById('dd-notes').value=d.notes||'';
-  document.getElementById('dd-target-fc').value=d.target_food_cost||'';
-  document.getElementById('dd-title').textContent=d.name;document.getElementById('dd-sub').textContent=d.category+(d.station?' · '+d.station:'');
-  document.getElementById('dd-lock-btn').textContent=d.locked?'Unlock':'Lock';
-  document.getElementById('dd-del-btn').style.display='inline-flex';
-  const vsel=document.getElementById('dd-variant-of');if(vsel)vsel.value=d.variant_of||'';
-  document.querySelectorAll('#dd-menu-chips .menu-chip').forEach(chip=>chip.classList.toggle('on',(d.menu_type||[]).includes(chip.dataset.val)));
-  getDishAl(d).forEach(a=>{_ddAlState[a.allergen]=a.status==='May Contain'?'may':'contains';const el=document.getElementById('dd-al-grid-'+a.allergen);if(el)el.className='al-tog '+(a.status==='May Contain'?'m':'c');});
-  updateDdAlDisplay();
-  const cl=document.getElementById('dd-comp-list');cl.innerHTML='';
-  const comps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
-  if(comps.length)comps.forEach(c=>ddAddComp(c));
-  else cl.innerHTML='<div class="empty" style="padding:24px;"><div class="empty-sub">No components yet</div></div>';
-  updateDdCostCard(d);_formDirty=false;
+  _ddData={name:d.name,category:d.category||'Canapés',station:d.station||'',description:d.description||'',notes:d.notes||'',menu_type:d.menu_type||[],variant_of:d.variant_of||'',target_food_cost:d.target_food_cost||''};
+  document.getElementById('dd-title').textContent=d.name;
+  if(lockBtn){lockBtn.style.display='';lockBtn.textContent=d.locked?'Unlock':'Lock';}
+  if(delBtn)delBtn.style.display='';
+  getDishAl(d).forEach(a=>{_ddAlState[a.allergen]=a.status==='May Contain'?'may':'contains';});
+  _ddComps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(comp=>({
+    id:'c'+comp.id,dbId:comp.id,name:comp.name,
+    storage:comp.freeze_flag?'frz':comp.fridge_flag?'fri':'fsh',
+    base:comp.base_portions||10,qty:comp.qty_per_cover||'',unit:comp.unit||'',note:comp.chef_note||'',
+    ings:(comp.recipe_ingredients||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>({name:i.ingredient_name||i.name||'',qty:i.quantity||i.qty||'',unit:i.unit||'g'})),
+    steps:(comp.recipe_steps||[]).sort((a,b)=>(a.step_number||0)-(b.step_number||0)).map(s=>s.instruction||'')
+  }));
+  if(!_ddComps.length)_ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',ings:[],steps:[]}];
+  ddGoStep(1);_formDirty=false;
 }
 
-function updateDdCostCard(d){
-  const card=document.getElementById('dd-cost-card');if(!card)return;
-  card.style.display='';
-  const cost=calcDishCost(d);
-  const sumEl=document.getElementById('dd-cost-summary');const detEl=document.getElementById('dd-cost-detail');
-  if(!sumEl||!detEl)return;
-  if(cost===null){sumEl.innerHTML='<span style="font-size:11px;color:var(--ink4);">Add ingredient costs to calculate</span>';detEl.innerHTML='<div style="font-size:12px;color:var(--ink4);">Set costs in the Ingredients page, then add quantities to each recipe.</div>';return;}
-  const target=parseFloat(d.target_food_cost)||32;
-  const pct=cost/(cost*(100/target))*100;
-  const cls=pct>40?'badge-red':pct>30?'badge-amber':'badge-green';
-  sumEl.innerHTML=`<span class="cost-pill">${fmt$(cost)}/cover</span><span class="badge ${cls}" style="margin-left:6px;">${Math.round(target)}% target FC</span>`;
-  detEl.innerHTML=(d.components||[]).filter(c=>calcCompCost(c)!=null).map(c=>`<div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border2);font-size:12px;"><span>${h(c.name)}</span><span class="cost-pill" style="font-size:10px;">${fmt$(calcCompCost(c))}/cv</span></div>`).join('');
-}
+function updateDdCostCard(d){}
 
 function ddAddComp(c=null){
   const list=document.getElementById('dd-comp-list');
@@ -1596,25 +1870,25 @@ function updateIngRowUnits(row,ing){
 function onIngQtyInput(qtyInput){const blk=qtyInput.closest('.comp');if(blk)updateCompCost(blk,'');_formDirty=true;}
 
 async function saveDishDetail(){
-  const name=document.getElementById('dd-name').value.trim();if(!name){toast('Dish name required','err');return;}
+  // Sync any active step 1 inputs first
+  const nameEl=document.getElementById('dd-name');if(nameEl)_ddData.name=nameEl.value.trim();
+  if(!_ddData.name){toast('Dish name required','err');ddGoStep(1);return;}
   const id=document.getElementById('dd-id').value;
-  const menuTypes=Array.from(document.querySelectorAll('#dd-menu-chips .menu-chip.on')).map(c=>c.dataset.val);
-  const dishData={name,category:document.getElementById('dd-cat').value,station:document.getElementById('dd-station').value||null,description:document.getElementById('dd-desc').value.trim()||null,notes:document.getElementById('dd-notes').value.trim()||null,menu_type:menuTypes,variant_of:document.getElementById('dd-variant-of').value||null,target_food_cost:parseFloat(document.getElementById('dd-target-fc').value)||null,updated_at:new Date().toISOString()};
+  const menuChips=Array.from(document.querySelectorAll('.menu-chip.on'));
+  if(menuChips.length)_ddData.menu_type=menuChips.map(c=>c.textContent);
+  const dishData={name:_ddData.name,category:_ddData.category||'Canapés',station:_ddData.station||null,description:_ddData.description||null,notes:_ddData.notes||null,menu_type:_ddData.menu_type||[],variant_of:_ddData.variant_of||null,target_food_cost:parseFloat(_ddData.target_food_cost)||null,updated_at:new Date().toISOString()};
   try{
     let did=id;
     if(id){const{error:e}=await sb.from('dishes').update(dishData).eq('id',id);if(e)throw e;}
     else{const{data:nd,error:e}=await sb.from('dishes').insert(dishData).select().single();if(e)throw e;did=nd.id;document.getElementById('dd-id').value=did;}
     await sb.from('components').delete().eq('dish_id',did);
-    for(let i=0;i<document.querySelectorAll('#dd-comp-list .comp').length;i++){
-      const blk=document.querySelectorAll('#dd-comp-list .comp')[i];
-      const cname=blk.querySelector('.comp-name-inp').value.trim();if(!cname)continue;
-      const st=blk.querySelector('.comp-storage').dataset.st||'';
-      const bp=parseInt(blk.querySelector('.ci-base')?.value)||10;
-      const{data:nc,error:ce}=await sb.from('components').insert({dish_id:did,name:cname,qty_per_cover:parseFloat(blk.querySelector('.ci-qty')?.value)||null,unit:blk.querySelector('.ci-unit')?.value.trim()||null,chef_note:blk.querySelector('.ci-note')?.value.trim()||null,freeze_flag:st==='frz',fridge_flag:st==='fri',sort_order:i,base_portions:bp}).select().single();
+    for(let i=0;i<_ddComps.length;i++){
+      const comp=_ddComps[i];const cname=comp.name.trim();if(!cname)continue;
+      const{data:nc,error:ce}=await sb.from('components').insert({dish_id:did,name:cname,qty_per_cover:parseFloat(comp.qty)||null,unit:comp.unit||null,chef_note:comp.note||null,freeze_flag:comp.storage==='frz',fridge_flag:comp.storage==='fri',sort_order:i,base_portions:parseInt(comp.base)||10}).select().single();
       if(ce)throw ce;const cid=nc.id;
-      const ings=[];blk.querySelectorAll('.ing-row').forEach((r,j)=>{const n=r.querySelector('.ir-name').value.trim();if(!n)return;ings.push({component_id:cid,name:n,ingredient_name:n,quantity:parseFloat(r.querySelector('.ir-qty').value)||null,qty:parseFloat(r.querySelector('.ir-qty').value)||null,unit:r.querySelector('.ir-unit').value.trim()||null,sort_order:j});});
+      const ings=comp.ings.filter(ing=>ing.name.trim()).map((ing,j)=>({component_id:cid,name:ing.name,ingredient_name:ing.name,quantity:parseFloat(ing.qty)||null,qty:parseFloat(ing.qty)||null,unit:ing.unit||null,sort_order:j}));
       if(ings.length)await sb.from('recipe_ingredients').insert(ings);
-      const steps=[];blk.querySelectorAll('.step-row').forEach((r,j)=>{const inst=r.querySelector('textarea').value.trim();if(!inst)return;steps.push({component_id:cid,sub_recipe_id:null,step_number:j+1,instruction:inst,time_note:r.querySelector('.sr-time').value.trim()||null,temp_note:r.querySelector('.sr-temp').value.trim()||null});});
+      const steps=comp.steps.filter(s=>s.trim()).map((s,j)=>({component_id:cid,step_number:j+1,instruction:s}));
       if(steps.length)await sb.from('recipe_steps').insert(steps);
     }
     // Save allergens on first component
@@ -1624,10 +1898,10 @@ async function saveDishDetail(){
       const alRows=Object.entries(_ddAlState).filter(([,v])=>v).map(([a,s])=>({component_id:ac[0].id,allergen:a,status:s==='may'?'May Contain':'Contains'}));
       if(alRows.length)await sb.from('component_allergens').insert(alRows);
     }
-    _formDirty=false;toast(id?'Dish updated':'Dish saved');
-    await loadDishes();document.getElementById('dd-title').textContent=name;
-    if(!id)document.getElementById('dd-del-btn').style.display='inline-flex';
-    const updated=dishes.find(x=>x.id===did);if(updated)updateDdCostCard(updated);
+    _formDirty=false;toast(id?'Dish updated ✓':'Dish saved ✓');
+    await loadDishes();document.getElementById('dd-title').textContent=_ddData.name;
+    const delBtn=document.getElementById('dd-del-btn');if(delBtn&&!id)delBtn.style.display='';
+    const lockBtn=document.getElementById('dd-lock-btn');if(lockBtn)lockBtn.style.display='';
   }catch(e){toast('Error: '+e.message,'err');console.error(e);}
 }
 
