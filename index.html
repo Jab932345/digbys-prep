@@ -2491,7 +2491,12 @@ async function initCleaning(){
     _clTasks=t||[];
     const{data:c}=await sb.from('cleaning_completions').select('*').gte('week_start',_clWS());
     _clDone=c||[];
-  }catch(e){_clTasks=[];_clDone=[];}
+  }catch(e){
+    _clTasks=[];_clDone=[];
+    const w=document.getElementById('cl-task-list');
+    if(w)w.innerHTML='<div class="empty"><div class="empty-icon">&#9888;</div><div class="empty-title">Cleaning tables not set up yet</div><div class="empty-sub">Run the SQL migration in Supabase Studio first.<br><br><code style="font-size:11px;background:var(--surface2);padding:4px 8px;border-radius:4px;display:inline-block;margin-top:8px;">CREATE TABLE cleaning_tasks...</code><br><br>Ask Claude for the full SQL.</div></div>';
+    return;
+  }
   const sv=localStorage.getItem('cl_days');
   _clDays=sv?JSON.parse(sv):['Monday','Tuesday','Wednesday','Thursday','Friday'];
   clRenderTasks();clRenderWeek();clRenderToday();
