@@ -957,6 +957,7 @@ html, body {
       <button class="lib-filter" onclick="setDlFilter('Desserts',this)">Desserts</button>
       <button class="lib-filter" onclick="setDlFilter('Evening Grazing',this)">Grazing</button>
       <button class="lib-filter" onclick="setDlFilter('Sides',this)">Sides</button>
+      <button class="lib-filter" onclick="setDlFilter('Kids',this)">Kids</button>
       <div class="lib-space"></div>
       <input class="lib-search" id="dl-search" placeholder="Search dishes…" oninput="renderDishList()">
       <button class="btn btn-gold btn-sm" onclick="newDish()" style="margin-left:8px;">+ New dish</button>
@@ -1339,7 +1340,7 @@ const SUPA_URL='https://qfnwyooipwtfzikukztz.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbnd5b29pcHd0Znppa3VrenR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODY0MTcsImV4cCI6MjA5Mjk2MjQxN30.qzq30fT8L2bhX7kx46HZdco3rt7bN2zRGSKETCNgQqw';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 
-const CAT_ORDER=['Canapés','Starters','Mains','Desserts','Evening Grazing','Tasting Menu','Sides','Other'];
+const CAT_ORDER=['Canapés','Starters','Mains','Kids','Desserts','Evening Grazing','Tasting Menu','Sides','Other'];
 const ALLERGENS=['Gluten','Dairy','Egg','Fish','Shellfish','Nuts','Peanuts','Soya','Celery','Mustard','Sesame','Sulphites','Lupin','Molluscs'];
 const AL14=['Celery','Cereals containing gluten','Crustaceans','Eggs','Fish','Lupin','Milk','Molluscs','Mustard','Nuts','Peanuts','Sesame','Soya','Sulphites'];
 const AL_TO_FSA={'Gluten':'Cereals containing gluten','Dairy':'Milk','Egg':'Eggs','Fish':'Fish','Shellfish':'Crustaceans','Nuts':'Nuts','Peanuts':'Peanuts','Soya':'Soya','Celery':'Celery','Mustard':'Mustard','Sesame':'Sesame','Sulphites':'Sulphites','Lupin':'Lupin','Molluscs':'Molluscs'};
@@ -1575,7 +1576,7 @@ function ddGoStep(n){
 // ── Step 1: Info ─────────────────────────────
 function ddStep1(){
   const cats=['Canapés','Starters','Mains','Desserts','Evening Grazing','Tasting Menu','Sides','Other'];
-  const menuTypes=['Weddings','Wakes','Private Dining','Tasting Menu','Bespoke','Corporate','Restaurant'];
+  const menuTypes=['Weddings','Wakes','Private Dining','Tasting Menu','Bespoke','Corporate','Restaurant','Kids'];
   return`<div class="step">
     <div class="step-h">What's the dish?</div>
     <div class="step-sub">Category, menu types, and where it sits in the business.</div>
@@ -2302,7 +2303,7 @@ function fsAddGuest(data=null){
   div.innerHTML=`<button onclick="this.closest('[data-gsev]').remove()" style="position:absolute;top:7px;right:9px;background:none;border:none;color:var(--t4);cursor:pointer;font-size:16px;">×</button>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;">
       <div><div class="fld-label" style="margin-bottom:3px;">Guest name</div><input class="fld-inp g-name" placeholder="e.g. Table 3…" value="${h(g.name||'')}" style="font-size:12px;padding:6px 8px;"></div>
-      <div><div class="fld-label" style="margin-bottom:3px;">Severity</div><div style="display:flex;gap:4px;">${['Allergy','Intolerance','Dislike'].map(s=>`<button onclick="setGuestSev(this.closest('[data-gsev]'),'${s}')" style="font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid ${sev===s?'var(--rbd)':'var(--l1)'};background:${sev===s?'var(--rbg)':'transparent'};color:${sev===s?'var(--red)':'var(--t4)'};cursor:pointer;">${s}</button>`).join('')}<input type="hidden" class="g-sev" value="${sev}"></div></div>
+      <div><div class="fld-label" style="margin-bottom:3px;">Severity</div><div style="display:flex;gap:4px;">${['Allergy','Intolerance','Dislike'].map(s=>`<button onclick="setGuestSev(this.closest('[data-gsev]'),'${s}')" style="font-size:11px;padding:3px 9px;border-radius:20px;border:1px solid ${sev===s?'var(--red)':'var(--border)'};background:${sev===s?'var(--rbg)':'var(--surface)'};color:${sev===s?'var(--red)':'var(--ink3)'};font-weight:${sev===s?'600':'400'};cursor:pointer;">${s}</button>`).join('')}<input type="hidden" class="g-sev" value="${sev}"></div></div>
     </div>
     <div style="margin-bottom:7px;"><div class="fld-label" style="margin-bottom:3px;">FSA allergens</div><div style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;">${AL14.map(a=>{const on=(g.allergens||[]).includes(a);return`<div class="al-tog${on?' c':''}" onclick="this.classList.toggle('c')" data-al="${a}" style="font-size:9px;">${a.split(' ')[0]}</div>`}).join('')}</div></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
