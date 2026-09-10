@@ -1701,8 +1701,19 @@ function compHTML(comp,idx){
     <div class="comp-body">
       <div class="comp-meta-strip">
         <div class="comp-meta-f"><div class="comp-meta-label">Base portions</div><input class="comp-meta-inp" type="number" min="1" placeholder="10" value="${comp.base||10}" style="width:80px;" oninput="_ddComps[${idx}].base=parseInt(this.value)||10;refreshCompCost('${comp.id}',${idx});"></div>
-        <div class="comp-meta-f"><div class="comp-meta-label">Qty/cover</div><input class="comp-meta-inp" type="number" step="0.01" placeholder="—" value="${comp.qty||''}" style="width:70px;" oninput="_ddComps[${idx}].qty=this.value;"></div>
-        <div class="comp-meta-f"><div class="comp-meta-label">Unit</div><input class="comp-meta-inp" placeholder="e.g. fingers" value="${h(comp.unit||'')}" style="width:100px;" oninput="_ddComps[${idx}].unit=this.value;"></div>
+        <div class="comp-meta-f" style="display:flex;gap:4px;align-items:flex-end;flex-direction:column;">
+          <div class="comp-meta-label">Per person</div>
+          <div style="display:flex;gap:4px;">
+            <input class="comp-meta-inp" type="number" step="0.01" placeholder="—" value="${comp.qty||''}" style="width:60px;" oninput="_ddComps[${idx}].qty=this.value;">
+            <select class="comp-meta-inp" style="width:80px;" onchange="_ddComps[${idx}].unit=this.value;">
+              <option value="">—</option>
+              <optgroup label="Weight"><option${comp.unit==='g'?' selected':''}>g</option><option${comp.unit==='kg'?' selected':''}>kg</option></optgroup>
+              <optgroup label="Volume"><option${comp.unit==='ml'?' selected':''}>ml</option><option${comp.unit==='cl'?' selected':''}>cl</option><option${comp.unit==='litre'?' selected':''}>litre</option></optgroup>
+              <optgroup label="Count"><option${comp.unit==='each'?' selected':''}>each</option><option${comp.unit==='portion'?' selected':''}>portion</option><option${comp.unit==='slice'?' selected':''}>slice</option><option${comp.unit==='piece'?' selected':''}>piece</option></optgroup>
+              <optgroup label="Service"><option${comp.unit==='bhajis'?' selected':''}>bhajis</option><option${comp.unit==='fingers'?' selected':''}>fingers</option><option${comp.unit==='scoops'?' selected':''}>scoops</option></optgroup>
+            </select>
+          </div>
+        </div>
         <input class="comp-note-inp" style="flex:1;min-width:140px;" placeholder="Chef note — on prep list and labels…" value="${h(comp.note||'')}" oninput="_ddComps[${idx}].note=this.value;">
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;">
