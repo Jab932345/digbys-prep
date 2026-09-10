@@ -1718,12 +1718,7 @@ function compHTML(comp,idx){
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;">
       <div class="comp-col comp-ings">
-        <div class="comp-meta" style="margin-bottom:8px;">
-          <div class="comp-meta-f"><div class="comp-meta-l">Base portions</div><input class="comp-meta-inp" type="number" min="1" placeholder="10" value="${comp.base||10}" oninput="_ddComps[${idx}].base=parseInt(this.value)||10;refreshCompCost('${comp.id}',${idx});"></div>
-          <div class="comp-meta-f"><div class="comp-meta-l">Qty/cover</div><input class="comp-meta-inp" type="number" step="0.01" placeholder="—" value="${comp.qty||''}" oninput="_ddComps[${idx}].qty=this.value;"></div>
-          <div class="comp-meta-f"><div class="comp-meta-l">Unit</div><input class="comp-meta-inp" placeholder="e.g. fingers" value="${h(comp.unit||'')}" oninput="_ddComps[${idx}].unit=this.value;"></div>
-        </div>
-        <input class="comp-note-inp" placeholder="Chef note — shown on prep list and labels…" value="${h(comp.note||'')}" oninput="_ddComps[${idx}].note=this.value;">
+<input class="comp-note-inp" placeholder="Chef note — shown on prep list and labels…" value="${h(comp.note||'')}" oninput="_ddComps[${idx}].note=this.value;">
         <div class="comp-section-label">Ingredients<span class="comp-section-cost" id="ccost-${comp.id}"></span></div>
         <div class="ing-table-hd"><span>Ingredient</span><span>Qty</span><span>Unit</span><span>Cost/cv</span><span></span></div>
         <div id="ings-${comp.id}">${comp.ings.map((ing,j)=>ingRowHTML(comp.id,idx,ing,j)).join('')}</div>
