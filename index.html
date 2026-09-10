@@ -1839,10 +1839,12 @@ function refreshCompCost(cid,cidx){
   if(cidx<0)return;
   const comp=_ddComps[cidx];const base=comp.base||10;
   let total=0;let any=false;
-  comp.ings.forEach(ing=>{
+  comp.ings.forEach((ing,j)=>{
     const obj=findIngredient(ing.name||'');
     const lc=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj):null;
     if(lc!=null){total+=lc;any=true;}
+    const rowEl=document.getElementById('ircost-'+cid+'-'+j);
+    if(rowEl)rowEl.textContent=lc!=null?fmt$(lc/base)+'/cv':'';
   });
   const el=document.getElementById('ccost-'+cid);
   if(el)el.textContent=any?fmt$(total/base)+'/cv':'';
