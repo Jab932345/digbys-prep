@@ -1118,6 +1118,44 @@ html, body {
   .prep-task { page-break-inside: avoid; }
   .prep-bucket { page-break-inside: avoid; }
 }
+
+/* ── BOH INTEGRATION ─────────────────────────────────────────── */
+.boh-panel {
+  background: var(--dk2); border-radius: var(--r2);
+  border: 1px solid var(--dkbd); overflow: hidden; margin-top: 10px;
+}
+.boh-panel-hd {
+  padding: 10px 16px; display: flex; align-items: center;
+  gap: 8px; border-bottom: 1px solid var(--dkbd);
+}
+.boh-panel-title {
+  font-size: 10px; font-weight: 700; color: var(--dkt3);
+  text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--mono); flex: 1;
+}
+.boh-job-code {
+  font-size: 13px; font-weight: 700; color: var(--gold);
+  font-family: var(--mono); background: var(--goldbg);
+  border: 1px solid var(--goldbd); padding: 2px 10px;
+  border-radius: 20px;
+}
+.boh-panel-body { padding: 12px 16px; }
+.boh-shift-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--dkbd); font-size: 12px;
+}
+.boh-shift-row:last-child { border-bottom: none; }
+.boh-shift-name { color: var(--dkt1); font-weight: 500; flex: 1; }
+.boh-shift-role { color: var(--dkt3); font-family: var(--mono); font-size: 11px; }
+.boh-shift-time { color: var(--dkt3); font-family: var(--mono); font-size: 11px; }
+.boh-status-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ADE80; flex-shrink: 0; }
+.boh-open-btn {
+  font-size: 11px; padding: 4px 12px; border-radius: 20px;
+  background: rgba(255,255,255,0.08); border: 1px solid var(--dkbd);
+  color: var(--dkt2); cursor: pointer; font-family: var(--mono);
+  transition: all 0.1s; text-decoration: none; display: inline-block;
+}
+.boh-open-btn:hover { background: rgba(255,255,255,0.14); color: var(--dkt1); }
+.boh-no-link { font-size: 12px; color: var(--dkt3); font-style: italic; }
 </style>
 </head>
 <body>
@@ -1547,6 +1585,8 @@ html, body {
 const SUPA_URL='https://qfnwyooipwtfzikukztz.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbnd5b29pcHd0Znppa3VrenR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODY0MTcsImV4cCI6MjA5Mjk2MjQxN30.qzq30fT8L2bhX7kx46HZdco3rt7bN2zRGSKETCNgQqw';
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+// BOH rota app — secondary read client (anon, CPS project)
+const sbBOH=supabase.createClient('https://jaajrllkozknilvmdezt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphYWpybGxrb3prbmlsdm1kZXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQxNDAsImV4cCI6MjA5MjYwMDE0MH0.09U5cba3JxRmysrn2X3TxPqr-q6jJE4QhyeKQwEK03M');
 
 const CAT_ORDER=['Canapés','Starters','Mains','Kids','Desserts','Evening Grazing','Tasting Menu','Sides','Other'];
 const ALLERGENS=['Gluten','Dairy','Egg','Fish','Shellfish','Nuts','Peanuts','Soya','Celery','Mustard','Sesame','Sulphites','Lupin','Molluscs'];
@@ -2366,6 +2406,13 @@ function setEvTab(tab,el){
   el.classList.add('active');renderEventsList();
 }
 
+async function loadBOHForCard(ev) {
+  const panel = document.getElementById('boh-panel-' + ev.id);
+  if (!panel) return;
+  const bohData = await loadBOHShifts(ev.job_code, ev.event_date);
+  panel.innerHTML = bohPanelHTML(ev, bohData);
+}
+
 function renderEventsList(){
   const wrap=document.getElementById('events-list');if(!wrap)return;
   const sf=document.getElementById('ev-status-filter')?.value||'';
@@ -2427,7 +2474,8 @@ function renderFsCard(ev){
     ${[['kitchen_notes','Kitchen'],['service_notes','Service'],['chef_notes','Chef'],['client_notes','Client']].filter(([k])=>ev[k]).length?`<div class="fs-full" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">${[['kitchen_notes','Kitchen'],['service_notes','Service'],['chef_notes','Chef'],['client_notes','Client']].filter(([k])=>ev[k]).map(([k,l])=>`<div><div class="fs-sec">${l} notes</div><div class="fs-notes">${h(ev[k])}</div></div>`).join('')}</div>`:''}
     ${gAl.length?`<div class="fs-full"><div class="fs-sec">Dietary guests — ${gAl.length}</div><div style="display:flex;flex-direction:column;gap:5px;margin-top:8px;">${gAl.map(g=>{const gDishes=(g.dishes||[]).map(did=>dishes.find(d=>d.id===did)).filter(Boolean);return`<div class="guest-card ${(g.severity||'').toLowerCase()}"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">${h(g.name||'Guest')}</span><span class="badge badge-red" style="font-size:9px;">${g.severity||'Allergy'}</span>${gDishes.length?`<span style="font-size:11px;color:var(--g);">→ ${gDishes.map(d=>h(d.name)).join(', ')}</span>`:''}</div>${(g.allergens||[]).map(a=>`<span class="al-tag">${a}</span>`).join('')}${g.custom?`<div style="font-size:11px;color:var(--t3);margin-top:3px;font-style:italic;">${h(g.custom)}</div>`:''}</div>`;}).join('')}</div></div>`:''}
     ${evDishes.length?`<div class="fs-full"><div class="fs-sec">Menu · ${ev.covers} covers · ${bc} prepping</div><div class="fs-dish-grid">${evDishes.map(d=>{const al=getDishAl(d);const cost=calcDishCost(d);return`<div class="fs-dish-item"><div class="fs-dish-cat">${d.category}</div><div class="fs-dish-name">${h(d.name)}</div>${(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(c=>`<div class="fs-dish-comp"><span>${h(c.name)}</span><span style="font-family:var(--mono);font-size:10px;">${c.qty_per_cover?Math.ceil(c.qty_per_cover*bc):bc}${c.unit?' '+c.unit:''}</span></div>`).join('')}${al.length?`<div style="margin-top:4px;">${al.map(a=>`<span class="al-tag">${h(a.allergen)}</span>`).join('')}</div>`:''}${cost!=null?`<div style="margin-top:5px;"><span class="cost-pill" style="font-size:9px;">${fmt$(cost)}/cv</span></div>`:''}</div>`}).join('')}</div></div>`:''}
-    <div class="fs-actions">
+    <div id="boh-panel-${ev.id}"></div>
+  <div class="fs-actions">
       <button class="btn btn-sm btn-primary" onclick="editFunctionSheet('${ev.id}')">Edit</button>
       <button class="btn btn-sm" onclick="goPrep('${ev.id}')">Prep list</button>
       <button class="btn btn-sm" onclick="document.getElementById('al-ev-sel').value='${ev.id}';renderAllergenMatrix();nav('allergens',null)">Allergens</button>
@@ -3153,6 +3201,69 @@ function prepToggleDone(cid) {
   localStorage.setItem('prep-done-' + evId, JSON.stringify(_prepDone));
   // Update done count in header
   loadPrepList();
+}
+
+
+// ═══════════════════════════════════════════════
+// BOH INTEGRATION
+// ═══════════════════════════════════════════════
+async function loadBOHShifts(jobCode, eventDate) {
+  if (!jobCode) return null;
+  try {
+    // BOH requires auth — attempt anon read, fails gracefully if RLS blocks
+    const { data: bohEvs } = await sbBOH.from('events')
+      .select('id,name')
+      .eq('job_code', jobCode)
+      .limit(1);
+    
+    if (!bohEvs || !bohEvs.length) {
+      // Try matching by date as fallback
+      const { data: byDate } = await sbBOH.from('events')
+        .select('id,name')
+        .eq('event_date', eventDate)
+        .limit(1);
+      if (!byDate || !byDate.length) return null;
+      bohEvs.push(...byDate);
+    }
+    
+    const bohEvId = bohEvs[0].id;
+    const { data: shifts } = await sbBOH.from('shifts')
+      .select('title,start_time,end_time,status,assigned_user_id')
+      .eq('event_id', bohEvId)
+      .eq('status', 'ASSIGNED');
+    
+    return { bohEventId: bohEvId, shifts: shifts || [] };
+  } catch(e) {
+    return null; // BOH auth required — show link only
+  }
+}
+
+function bohPanelHTML(ev, bohData) {
+  const jobCode = ev.job_code || ev.id.slice(0,8).toUpperCase();
+  const bohUrl = 'https://digbys-boh.vercel.app'; // update when deployed
+  
+  let shiftsHTML;
+  if (!bohData) {
+    shiftsHTML = `<div class="boh-no-link">Not yet linked in BOH — open BOH and set job code to <strong style="color:var(--gold);font-family:var(--mono);">${jobCode}</strong> on the matching event.</div>`;
+  } else if (!bohData.shifts.length) {
+    shiftsHTML = `<div class="boh-no-link">BOH event linked — no shifts assigned yet.</div>`;
+  } else {
+    shiftsHTML = bohData.shifts.map(s => `
+      <div class="boh-shift-row">
+        <div class="boh-status-dot"></div>
+        <div class="boh-shift-name">${h(s.title)}</div>
+        <div class="boh-shift-time">${s.start_time}–${s.end_time}</div>
+      </div>`).join('');
+  }
+  
+  return `<div class="boh-panel">
+    <div class="boh-panel-hd">
+      <span class="boh-panel-title">Staff rota</span>
+      <span class="boh-job-code">${jobCode}</span>
+      <a class="boh-open-btn" href="${bohUrl}" target="_blank">Open BOH →</a>
+    </div>
+    <div class="boh-panel-body">${shiftsHTML}</div>
+  </div>`;
 }
 
 document.addEventListener('DOMContentLoaded',init);
