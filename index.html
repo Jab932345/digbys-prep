@@ -915,6 +915,209 @@ html, body {
 .cal-prep-for{font-size:10px;color:var(--ink4);font-family:var(--mono);margin-top:1px;}
 .cal-nothing{font-size:13px;color:var(--ink4);text-align:center;padding:24px 0;}
 .cal-upcoming-date{font-size:10px;color:var(--ink4);font-family:var(--mono);margin-bottom:2px;}
+
+/* ── PREP LIST ─────────────────────────────────────────────────── */
+.prep-ev-bar {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 0 24px; height: 46px; display: flex; align-items: center;
+  gap: 10px; flex-shrink: 0;
+}
+.prep-ev-sel {
+  font-size: 13px; padding: 6px 12px; border: 1px solid var(--border);
+  border-radius: var(--r2); background: var(--surface); color: var(--ink);
+  font-family: var(--sans); outline: none; min-width: 280px;
+}
+.prep-ev-sel:focus { border-color: var(--gold); }
+
+/* Event header */
+.prep-hd {
+  background: var(--dk); padding: 24px 28px; flex-shrink: 0;
+  border-bottom: 1px solid var(--dkbd);
+}
+.prep-hd-client {
+  font-family: var(--serif); font-size: 28px; font-weight: 400;
+  color: var(--dkt1); line-height: 1.1; margin-bottom: 6px;
+}
+.prep-hd-meta {
+  display: flex; gap: 20px; align-items: center; flex-wrap: wrap;
+}
+.prep-hd-pill {
+  font-size: 11px; color: var(--dkt3); font-family: var(--mono);
+  display: flex; align-items: center; gap: 5px;
+}
+.prep-hd-pill strong { color: var(--dkt1); font-weight: 500; }
+.prep-hd-stats {
+  display: flex; gap: 16px; margin-top: 14px;
+  padding-top: 14px; border-top: 1px solid var(--dkbd);
+}
+.prep-stat {
+  display: flex; flex-direction: column; gap: 2px;
+}
+.prep-stat-n {
+  font-size: 20px; font-weight: 700; color: var(--gold);
+  font-family: var(--mono);
+}
+.prep-stat-l {
+  font-size: 10px; color: var(--dkt3); text-transform: uppercase;
+  letter-spacing: 0.08em; font-family: var(--mono);
+}
+
+/* Body */
+.prep-body {
+  flex: 1; overflow-y: auto; padding: 24px 28px; display: flex;
+  flex-direction: column; gap: 20px;
+}
+.prep-body::-webkit-scrollbar { width: 4px; }
+.prep-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* Bucket */
+.prep-bucket { display: flex; flex-direction: column; gap: 0; }
+.prep-bucket-hd {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 16px; border-radius: var(--r2) var(--r2) 0 0;
+  border: 1px solid; border-bottom: none;
+}
+.prep-bucket-icon { font-size: 16px; }
+.prep-bucket-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.1em; font-family: var(--mono); flex: 1;
+}
+.prep-bucket-count {
+  font-size: 11px; font-family: var(--mono); font-weight: 400;
+}
+.pb-freeze .prep-bucket-hd { background: var(--bbg); border-color: var(--bbd); color: var(--blu); }
+.pb-fridge .prep-bucket-hd { background: var(--gbg); border-color: var(--gbd); color: var(--grn); }
+.pb-fresh  .prep-bucket-hd { background: var(--surface2); border-color: var(--border2); color: var(--ink2); }
+
+/* Tasks */
+.prep-tasks {
+  border: 1px solid; border-top: none;
+  border-radius: 0 0 var(--r2) var(--r2); overflow: hidden;
+}
+.pb-freeze .prep-tasks { border-color: var(--bbd); }
+.pb-fridge .prep-tasks { border-color: var(--gbd); }
+.pb-fresh  .prep-tasks { border-color: var(--border2); }
+
+.prep-task {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  border-left: 4px solid transparent;
+}
+.prep-task:last-child { border-bottom: none; }
+.pb-freeze .prep-task { border-left-color: var(--bbd); }
+.pb-fridge .prep-task { border-left-color: var(--gbd); }
+.pb-fresh  .prep-task { border-left-color: var(--border2); }
+.prep-task.done { opacity: 0.4; }
+.prep-task.done .prep-task-name { text-decoration: line-through; }
+
+/* Task header row */
+.prep-task-hd {
+  display: flex; align-items: flex-start; gap: 16px;
+  padding: 16px 20px; cursor: pointer;
+}
+.prep-task-hd:hover { background: var(--bg); }
+
+.prep-task-cb {
+  width: 22px; height: 22px; border-radius: 6px;
+  border: 1.5px solid var(--border2); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: 2px; transition: all 0.12s; cursor: pointer;
+}
+.prep-task.done .prep-task-cb {
+  background: var(--grn); border-color: var(--grn);
+}
+.prep-task.done .prep-task-cb::after {
+  content: '✓'; color: white; font-size: 12px; font-weight: 700;
+}
+
+.prep-task-info { flex: 1; min-width: 0; }
+.prep-task-name {
+  font-size: 15px; font-weight: 600; color: var(--ink);
+  margin-bottom: 2px; line-height: 1.2;
+}
+.prep-task-dish {
+  font-size: 11px; color: var(--ink4); font-family: var(--mono);
+  margin-bottom: 6px;
+}
+.prep-task-note {
+  font-size: 12px; color: var(--amb); font-style: italic;
+  background: var(--abg); border-left: 2px solid var(--abd);
+  padding: 4px 10px; border-radius: 0 3px 3px 0;
+  margin: 6px 0; line-height: 1.5;
+}
+.prep-task-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.prep-task-tag {
+  font-size: 10px; padding: 2px 8px; border-radius: 20px;
+  font-family: var(--mono); border: 1px solid;
+}
+.pt-batch { background: var(--goldbg); color: var(--gold-t); border-color: var(--goldbd); font-weight: 600; }
+.pt-al-c  { background: var(--rbg);   color: var(--red);    border-color: var(--rbd); }
+.pt-al-m  { background: var(--abg);   color: var(--amb);    border-color: var(--abd); }
+
+/* Task expand toggle */
+.prep-task-toggle {
+  font-size: 10px; color: var(--ink4); font-family: var(--mono);
+  flex-shrink: 0; display: flex; align-items: center; gap: 4px;
+  margin-top: 3px; transition: color 0.1s;
+}
+.prep-task-hd:hover .prep-task-toggle { color: var(--ink2); }
+.prep-task-toggle-arrow { transition: transform 0.15s; }
+.prep-task.expanded .prep-task-toggle-arrow { transform: rotate(90deg); }
+
+/* Ingredient detail */
+.prep-task-detail { display: none; border-top: 1px solid var(--border); }
+.prep-task.expanded .prep-task-detail { display: block; }
+.prep-ing-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 12px; background: var(--bg);
+}
+.prep-ing-table thead th {
+  padding: 8px 20px; text-align: left; font-size: 9px; font-weight: 700;
+  color: var(--ink4); text-transform: uppercase; letter-spacing: 0.1em;
+  font-family: var(--mono); border-bottom: 1px solid var(--border);
+}
+.prep-ing-table thead th:last-child { text-align: right; }
+.prep-ing-table tbody td {
+  padding: 9px 20px; border-bottom: 1px solid var(--border);
+  color: var(--ink2); vertical-align: middle;
+}
+.prep-ing-table tbody tr:last-child td { border-bottom: none; }
+.prep-ing-table tbody tr:hover { background: var(--surface); }
+.prep-ing-qty {
+  font-family: var(--mono); font-weight: 600; color: var(--ink);
+  text-align: right; white-space: nowrap;
+}
+.prep-ing-unit { font-family: var(--mono); color: var(--ink4); font-size: 11px; }
+
+/* Method */
+.prep-method {
+  padding: 12px 20px; background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+.prep-method-title {
+  font-size: 9px; font-weight: 700; color: var(--ink4);
+  text-transform: uppercase; letter-spacing: 0.1em; font-family: var(--mono);
+  margin-bottom: 8px;
+}
+.prep-step {
+  display: flex; gap: 12px; padding: 6px 0;
+  border-bottom: 1px dotted var(--border); font-size: 13px;
+  line-height: 1.5; color: var(--ink2);
+}
+.prep-step:last-child { border-bottom: none; }
+.prep-step-n {
+  font-family: var(--mono); font-size: 11px; color: var(--ink4);
+  flex-shrink: 0; width: 16px; margin-top: 2px;
+}
+
+/* Print */
+@media print {
+  .prep-ev-bar, .topnav { display: none !important; }
+  .prep-hd { background: #1A1714 !important; -webkit-print-color-adjust: exact; }
+  .prep-task-detail { display: block !important; }
+  .prep-task { page-break-inside: avoid; }
+  .prep-bucket { page-break-inside: avoid; }
+}
 </style>
 </head>
 <body>
@@ -1037,16 +1240,21 @@ html, body {
 
 <!-- PREP VIEW -->
 <div id="view-prep" class="view">
-  <div class="filter-strip">
-    <select class="fld-sel" id="prep-ev-sel" style="width:280px;height:30px;font-size:12px;padding:4px 10px;" onchange="loadPrepList()">
-      <option value="">— select an event —</option>
+  <div class="prep-ev-bar">
+    <select class="prep-ev-sel" id="prep-ev-sel" onchange="loadPrepList()">
+      <option value="">— Select an event —</option>
     </select>
     <div style="flex:1;"></div>
     <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
   </div>
-  <div id="prep-content" style="flex:1;overflow-y:auto;">
-    <div class="empty"><div class="empty-icon">✓</div><div class="empty-title">Select an event above</div></div>
+  <div id="prep-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
+    <div class="empty" style="margin:auto;">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">Select an event above</div>
+      <div class="empty-sub">Prep tasks will be grouped by when they need to be done.</div>
+    </div>
   </div>
+</div>
 </div>
 
 <!-- ALLERGENS VIEW -->
@@ -2344,59 +2552,9 @@ async function saveFunctionSheet(){
 // ═══════════════════════════════════════════════
 // PREP LIST
 // ═══════════════════════════════════════════════
-function loadPrepList(){
-  const id=document.getElementById('prep-ev-sel')?.value;if(!id)return;
-  const ev=events.find(x=>x.id===id);if(!ev)return;
-  const buf=1+(_settings.buffer||14)/100;const covers=Math.round(ev.covers*buf);
-  const evDishes=dishes.filter(d=>(ev.event_dishes||[]).map(x=>x.dish_id).includes(d.id));
-  _prepTasks=[];
-  evDishes.forEach(d=>(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).forEach(comp=>{
-    const qty=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*covers)+' '+(comp.unit||''):covers+' portions';
-    _prepTasks.push({id:d.id+'_'+comp.id,evId:id,dishId:d.id,dishName:d.name,dishCat:d.category,comp,al:getDishAl(d),qty,jobCode:ev.job_code,evDate:ev.event_date});
-  }));
-  renderPrepList(ev,covers);
-}
 
-function renderPrepList(ev,covers){
-  const wrap=document.getElementById('prep-content');if(!wrap)return;
-  if(!_prepTasks.length){wrap.innerHTML='<div class="empty"><div class="empty-title">No dishes on this event</div></div>';return;}
-  const done=_prepTasks.filter(t=>_prepDone.has(t.id)).length;
-  let html=`<div class="prep-prog"><div class="prep-prog-fill" style="width:${_prepTasks.length?Math.round(done/_prepTasks.length*100):0}%"></div></div>
-  <div style="padding:10px 20px;background:var(--sb);border-bottom:1px solid var(--l1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;">
-    <div style="font-size:13px;font-weight:600;">${h(ev.client_name)} · ${fmtDate(ev.event_date)}</div>
-    <div style="font-size:12px;color:var(--t4);">${done}/${_prepTasks.length} done · ${covers} covers</div>
-  </div>`;
-  Object.entries(BUCKETS).forEach(([,bucket])=>{
-    const tasks=_prepTasks.filter(t=>bucket.fn(t.comp));if(!tasks.length)return;
-    const bdone=tasks.filter(t=>_prepDone.has(t.id)).length;
-    html+=`<div class="bucket-hd ${bucket.cls}"><span class="bucket-lbl">${bucket.label}</span><span class="bucket-cnt">${tasks.length} tasks · ${bdone} done</span></div>`;
-    tasks.forEach(t=>{
-      const isDone=_prepDone.has(t.id);const st=t.comp.freeze_flag?'frz':t.comp.fridge_flag?'fri':'fsh';
-      const hasRecipe=(t.comp.recipe_ingredients||[]).length>0;
-      html+=`<div class="task${isDone?' done':''}" id="tr-${t.id}" onclick="toggleTask('${t.id}')">
-        <div class="task-check"><div class="task-cb"></div></div>
-        <div class="task-body">
-          <div class="task-name">${h(t.comp.name)}</div>
-          <div class="task-dish">${h(t.dishName)} · ${t.dishCat}</div>
-          ${t.comp.chef_note?`<div class="task-note">${h(t.comp.chef_note)}</div>`:''}
-          <div class="task-tags">
-            <span class="task-tag tag-qty">${t.qty}</span>
-            <span class="task-tag tag-${st}">${st==='frz'?'❄ Freeze':st==='fri'?'🧊 Fridge':'○ Fresh'}</span>
-            ${t.al.slice(0,3).map(a=>`<span class="task-tag tag-al">${h(a.allergen)}</span>`).join('')}
-            ${hasRecipe?`<span class="task-tag tag-qty" style="cursor:pointer;" onclick="event.stopPropagation();toggleRecipePanel('${t.id}')">📋 Recipe</span>`:''}
-          </div>
-        </div>
-        <div class="task-right">${t.comp.freeze_flag||t.comp.fridge_flag?`<button class="btn btn-xs" onclick="event.stopPropagation();sendLabel('${t.id}')">Label</button>`:''}
-        </div>
-      </div>
-      ${hasRecipe?`<div class="task-rp" id="rp-${t.id}">
-        <div class="trp-col"><div class="trp-lbl">Ingredients (per ${t.comp.base_portions||10})</div>${(t.comp.recipe_ingredients||[]).map(i=>`<div class="trp-row"><span>${h(i.ingredient_name||i.name||'')}</span><span style="font-family:var(--mono);">${i.quantity||''} ${i.unit||''}</span></div>`).join('')}</div>
-        <div class="trp-col"><div class="trp-lbl">Method</div>${(t.comp.recipe_steps||[]).sort((a,b)=>a.step_number-b.step_number).map(s=>`<div class="trp-row"><span style="font-family:var(--mono);color:var(--t4);flex-shrink:0;margin-right:8px;">${s.step_number}.</span><span>${h(s.instruction)}</span></div>`).join('')}</div>
-      </div>`:''}`;
-    });
-  });
-  wrap.innerHTML=html;
-}
+
+
 
 function toggleTask(id){
   if(_prepDone.has(id))_prepDone.delete(id);else _prepDone.add(id);
@@ -2816,6 +2974,185 @@ function calRenderRight(){
     </div>`).join('');
   }
   body.innerHTML=html;
+}
+
+
+// ═══════════════════════════════════════════════
+// PREP LIST — full rewrite
+// ═══════════════════════════════════════════════
+let _prepDone = {}; // { componentId: true }
+
+function fmtQty(qty, unit) {
+  if (!qty) return '—';
+  if (unit === 'g' && qty >= 1000) return (qty / 1000).toFixed(qty % 1000 === 0 ? 0 : 2).replace(/\.?0+$/, '') + 'kg';
+  if (unit === 'ml' && qty >= 1000) return (qty / 1000).toFixed(qty % 1000 === 0 ? 0 : 2).replace(/\.?0+$/, '') + 'L';
+  if (qty % 1 === 0) return qty + (unit ? ' ' + unit : '');
+  return qty.toFixed(1) + (unit ? ' ' + unit : '');
+}
+
+async function loadPrepList() {
+  const evId = document.getElementById('prep-ev-sel').value;
+  const wrap = document.getElementById('prep-content');
+  if (!evId) {
+    wrap.innerHTML = '<div class="empty" style="margin:auto;"><div class="empty-icon">📋</div><div class="empty-title">Select an event above</div></div>';
+    return;
+  }
+  wrap.innerHTML = '<div class="empty" style="margin:auto;"><span class="spin"></span></div>';
+  
+  const ev = events.find(e => e.id === evId);
+  if (!ev) return;
+  
+  // Load saved completion state
+  _prepDone = JSON.parse(localStorage.getItem('prep-done-' + evId) || '{}');
+  
+  // Get dishes for this event
+  const evDishIds = (ev.event_dishes || []).map(ed => ed.dish_id);
+  const evDishes = dishes.filter(d => evDishIds.includes(d.id));
+  
+  // Build task list
+  const tasks = [];
+  evDishes.forEach(dish => {
+    (dish.components || []).sort((a,b)=>a.sort_order-b.sort_order).forEach(comp => {
+      const covers = ev.covers || 0;
+      const base = comp.base_portions || 10;
+      const batches = Math.max(1, Math.ceil(covers / base));
+      const bucket = comp.freeze_flag ? 'freeze' : comp.fridge_flag ? 'fridge' : 'fresh';
+      tasks.push({ dish, comp, covers, base, batches, bucket });
+    });
+  });
+  
+  const freeze = tasks.filter(t => t.bucket === 'freeze');
+  const fridge = tasks.filter(t => t.bucket === 'fridge');
+  const fresh  = tasks.filter(t => t.bucket === 'fresh');
+  
+  const totalMins = tasks.reduce((s, t) => {
+    const mins = parseInt(t.comp.estimated_minutes) || 0;
+    return s + mins * t.batches;
+  }, 0);
+  
+  const doneCount = tasks.filter(t => _prepDone[t.comp.id]).length;
+  
+  // Render header
+  const hdHTML = `
+    <div class="prep-hd">
+      <div class="prep-hd-client">${h(ev.client_name)}</div>
+      <div class="prep-hd-meta">
+        <div class="prep-hd-pill">📅 <strong>${new Date(ev.event_date + 'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</strong></div>
+        <div class="prep-hd-pill">👥 <strong>${ev.covers || 0} covers</strong></div>
+        ${ev.start_time ? `<div class="prep-hd-pill">⏰ <strong>${ev.start_time}</strong></div>` : ''}
+        <div class="prep-hd-pill">${EV_TYPES[ev.event_type]||ev.event_type||''}</div>
+      </div>
+      <div class="prep-hd-stats">
+        <div class="prep-stat"><div class="prep-stat-n">${tasks.length}</div><div class="prep-stat-l">Total tasks</div></div>
+        <div class="prep-stat"><div class="prep-stat-n">${freeze.length}</div><div class="prep-stat-l">Freeze ahead</div></div>
+        <div class="prep-stat"><div class="prep-stat-n">${fridge.length}</div><div class="prep-stat-l">Fridge ahead</div></div>
+        <div class="prep-stat"><div class="prep-stat-n">${fresh.length}</div><div class="prep-stat-l">Day of</div></div>
+        ${totalMins ? `<div class="prep-stat"><div class="prep-stat-n">${totalMins >= 60 ? Math.floor(totalMins/60)+'h '+(totalMins%60||'') : totalMins+'m'}</div><div class="prep-stat-l">Est. time</div></div>` : ''}
+        <div class="prep-stat"><div class="prep-stat-n">${doneCount}/${tasks.length}</div><div class="prep-stat-l">Done</div></div>
+      </div>
+    </div>
+  `;
+  
+  // Render buckets
+  const buckets = [
+    { key: 'freeze', cls: 'pb-freeze', icon: '❄', label: 'Freeze ahead', sub: 'Make now — freeze until needed', tasks: freeze },
+    { key: 'fridge', cls: 'pb-fridge', icon: '🧊', label: 'Fridge ahead', sub: 'Make 1–3 days before event', tasks: fridge },
+    { key: 'fresh',  cls: 'pb-fresh',  icon: '○', label: 'Day of service', sub: 'Prepare fresh on the day', tasks: fresh },
+  ].filter(b => b.tasks.length);
+  
+  const bucketsHTML = buckets.map(b => `
+    <div class="prep-bucket ${b.cls}">
+      <div class="prep-bucket-hd">
+        <span class="prep-bucket-icon">${b.icon}</span>
+        <span class="prep-bucket-title">${b.label}</span>
+        <span class="prep-bucket-count">${b.tasks.length} task${b.tasks.length!==1?'s':''} &middot; ${b.sub}</span>
+      </div>
+      <div class="prep-tasks">
+        ${b.tasks.map(t => prepTaskHTML(t)).join('')}
+      </div>
+    </div>
+  `).join('');
+  
+  wrap.innerHTML = `
+    ${hdHTML}
+    <div class="prep-body">${bucketsHTML}</div>
+  `;
+}
+
+function prepTaskHTML(t) {
+  const { dish, comp, covers, base, batches } = t;
+  const done = !!_prepDone[comp.id];
+  const ings = comp.recipe_ingredients || [];
+  const steps = (comp.recipe_steps || []).sort((a,b) => (a.step_number||a.sort_order||0) - (b.step_number||b.sort_order||0));
+  const als = comp.component_allergens || [];
+  const hasDetail = ings.length > 0 || steps.length > 0;
+  
+  const alTags = als.map(a =>
+    `<span class="prep-task-tag ${a.status==='Contains'?'pt-al-c':'pt-al-m'}">${a.allergen} ${a.status==='May Contain'?'(MC)':''}</span>`
+  ).join('');
+  
+  const ingRows = ings.map(i => {
+    const scaledQty = ((i.qty || i.quantity || 0) * batches);
+    return `<tr>
+      <td>${h(i.ingredient_name || i.name)}</td>
+      <td class="prep-ing-qty">${fmtQty(scaledQty, i.unit)}</td>
+    </tr>`;
+  }).join('');
+  
+  const stepRows = steps.map((s,idx) =>
+    `<div class="prep-step"><span class="prep-step-n">${s.step_number||idx+1}.</span><span>${h(s.instruction||'')}</span></div>`
+  ).join('');
+  
+  return `
+    <div class="prep-task${done?' done':''}${hasDetail?' expanded':''}" id="ptask-${comp.id}">
+      <div class="prep-task-hd" onclick="prepToggleExpand('${comp.id}')">
+        <div class="prep-task-cb" onclick="event.stopPropagation();prepToggleDone('${comp.id}')"></div>
+        <div class="prep-task-info">
+          <div class="prep-task-name">${h(comp.name)}</div>
+          <div class="prep-task-dish">${h(dish.name)}</div>
+          ${comp.chef_note ? `<div class="prep-task-note">${h(comp.chef_note.slice(0,120))}${comp.chef_note.length>120?'…':''}</div>` : ''}
+          <div class="prep-task-tags">
+            <span class="prep-task-tag pt-batch">${batches === 1 ? '1 batch' : batches + ' batches'} &middot; ${covers} covers</span>
+            ${alTags}
+          </div>
+        </div>
+        ${hasDetail ? `<div class="prep-task-toggle"><span class="prep-task-toggle-arrow">▶</span></div>` : ''}
+      </div>
+      ${hasDetail ? `
+        <div class="prep-task-detail">
+          ${ings.length ? `
+            <table class="prep-ing-table">
+              <thead><tr><th>Ingredient</th><th style="text-align:right;">Quantity (${batches > 1 ? batches + ' batches' : 'scaled'})</th></tr></thead>
+              <tbody>${ingRows}</tbody>
+            </table>` : ''}
+          ${steps.length ? `
+            <div class="prep-method">
+              <div class="prep-method-title">Method</div>
+              ${stepRows}
+            </div>` : ''}
+        </div>` : ''}
+    </div>
+  `;
+}
+
+function prepToggleExpand(cid) {
+  document.getElementById('ptask-' + cid)?.classList.toggle('expanded');
+}
+
+function prepToggleDone(cid) {
+  const evId = document.getElementById('prep-ev-sel').value;
+  const el = document.getElementById('ptask-' + cid);
+  if (!el) return;
+  if (_prepDone[cid]) {
+    delete _prepDone[cid];
+    el.classList.remove('done');
+  } else {
+    _prepDone[cid] = true;
+    el.classList.add('done');
+  }
+  localStorage.setItem('prep-done-' + evId, JSON.stringify(_prepDone));
+  // Update done count in header
+  loadPrepList();
 }
 
 document.addEventListener('DOMContentLoaded',init);
