@@ -1306,6 +1306,105 @@ html, body {
   display: flex; align-items: center; gap: 5px;
 }
 .lib-stat strong { color: var(--ink2); font-weight: 600; }
+
+/* ── CALENDAR LAYOUT FIX ──────────────────────────────────────── */
+#view-calendar { display: flex; flex-direction: column; }
+.cal-shell { display: flex; flex: 1; overflow: hidden; min-height: 0; }
+.cal-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0; }
+.cal-nav {
+  padding: 12px 20px; display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.cal-month-label {
+  font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--ink); flex: 1;
+}
+.cal-dow {
+  display: grid; grid-template-columns: repeat(7,1fr);
+  background: var(--bg); border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.cal-dow-cell {
+  padding: 6px 10px; font-size: 10px; font-weight: 700; color: var(--ink4);
+  font-family: var(--mono); text-transform: uppercase; letter-spacing: .07em;
+}
+.cal-grid {
+  flex: 1; display: grid; grid-template-columns: repeat(7,1fr);
+  grid-auto-rows: 1fr; overflow: hidden; min-height: 0;
+}
+.cal-cell {
+  border-right: 1px solid var(--border); border-bottom: 1px solid var(--border);
+  padding: 6px 8px 4px; display: flex; flex-direction: column; gap: 2px;
+  cursor: pointer; transition: background .07s; overflow: hidden; min-height: 0;
+}
+.cal-cell:nth-child(7n) { border-right: none; }
+.cal-cell:hover { background: var(--goldbg); }
+.cal-cell.selected { background: rgba(201,168,76,.08); }
+.cal-cell.other-month { background: var(--bg); }
+.cal-cell.other-month .cal-dn { color: var(--ink5); }
+.cal-cell.weekend .cal-dn { color: var(--ink4); }
+.cal-dn {
+  font-size: 12px; font-weight: 500; color: var(--ink2); line-height: 1;
+  width: 24px; height: 24px; display: flex; align-items: center;
+  justify-content: center; border-radius: 50%; flex-shrink: 0;
+}
+.cal-cell.today .cal-dn { background: var(--gold); color: var(--dk); font-weight: 700; }
+.cal-pill {
+  font-size: 10px; padding: 1px 5px; border-radius: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  cursor: pointer; transition: opacity .1s; font-weight: 500;
+  width: 100%; line-height: 1.4; border-left: 2px solid; flex-shrink: 0;
+}
+.cal-pill.Confirmed { background: var(--gbg); color: var(--grn); border-left-color: var(--grn); }
+.cal-pill.Provisional { background: var(--abg); color: var(--amb); border-left-color: var(--amb); }
+.cal-pill.Enquiry { background: var(--surface2); color: var(--ink3); border-left-color: var(--border2); }
+.cal-pill.Completed { background: var(--goldbg); color: var(--gold-t); border-left-color: var(--gold); }
+.cal-pill.Cancelled { background: var(--rbg); color: var(--ink4); text-decoration: line-through; border-left-color: var(--rbd); }
+.cal-prep-tag {
+  font-size: 9px; padding: 1px 4px; border-radius: 2px;
+  color: var(--blu); background: var(--bbg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 0;
+}
+.cal-right {
+  width: 280px; flex-shrink: 0; background: var(--surface);
+  border-left: 1px solid var(--border); display: flex; flex-direction: column;
+  overflow: hidden; min-height: 0;
+}
+.cal-right-hd { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.cal-right-date { font-family: var(--serif); font-size: 18px; color: var(--ink); }
+.cal-right-day { font-size: 11px; color: var(--ink4); font-family: var(--mono); margin-top: 2px; }
+.cal-right-body { flex: 1; overflow-y: auto; padding: 12px 16px; }
+.cal-section-label {
+  font-size: 9px; font-weight: 700; color: var(--ink4); text-transform: uppercase;
+  letter-spacing: .12em; font-family: var(--mono); margin: 12px 0 6px;
+}
+.cal-section-label:first-child { margin-top: 0; }
+.cal-ev-card {
+  border: 1px solid var(--border); border-radius: var(--r2); padding: 10px 12px;
+  margin-bottom: 8px; cursor: pointer; transition: background .07s; border-left-width: 3px;
+}
+.cal-ev-card:hover { background: var(--bg); }
+.cal-ev-card.Confirmed { border-left-color: var(--grn); }
+.cal-ev-card.Provisional { border-left-color: var(--amb); }
+.cal-ev-card.Enquiry { border-left-color: var(--border2); }
+.cal-ev-card.Completed { border-left-color: var(--gold); }
+.cal-ev-card.Cancelled { border-left-color: var(--rbd); opacity: .5; }
+.cal-ev-name { font-size: 13px; font-weight: 600; color: var(--ink); margin-bottom: 3px; }
+.cal-ev-meta { font-size: 11px; color: var(--ink3); font-family: var(--mono); }
+.cal-upcoming-date { font-size: 10px; color: var(--ink4); font-family: var(--mono); margin-bottom: 2px; }
+.cal-nothing { font-size: 13px; color: var(--ink4); text-align: center; padding: 20px 0; }
+.cal-nav-btn {
+  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: var(--r1);
+  background: var(--surface); cursor: pointer; color: var(--ink3); font-size: 14px;
+  transition: all .1s;
+}
+.cal-nav-btn:hover { background: var(--bg); color: var(--ink); }
+.cal-today-btn {
+  font-size: 12px; padding: 5px 12px; border: 1px solid var(--border);
+  border-radius: var(--r1); background: var(--surface); cursor: pointer;
+  color: var(--ink3); font-family: var(--mono); transition: all .1s;
+}
+.cal-today-btn:hover { background: var(--bg); color: var(--ink); }
 </style>
 </head>
 <body>
@@ -1353,7 +1452,6 @@ html, body {
       <input class="lib-search" id="dl-search" placeholder="Search dishes…" oninput="renderDishList()">
       <button class="btn btn-gold btn-sm" onclick="newDish()" style="margin-left:8px;">+ New dish</button>
     </div>
-    <div class="lib-stats" id="lib-stats"></div>
     <div class="lib-body" id="dish-list"></div>
   </div>
 
@@ -1443,7 +1541,6 @@ html, body {
       <div class="empty-sub">Prep tasks will be grouped by when they need to be done.</div>
     </div>
   </div>
-</div>
 </div>
 
 <!-- ALLERGENS VIEW -->
@@ -1886,17 +1983,6 @@ function renderDishList(){
   if(_dlFilter!=='all')f=f.filter(d=>d.category===_dlFilter);
   f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
 
-  // Stats bar
-  const statsEl=document.getElementById('lib-stats');
-  if(statsEl){
-    const locked=f.filter(d=>d.locked).length;
-    const costed=f.filter(d=>calcDishCost(d)!=null).length;
-    const avgCost=f.reduce((s,d)=>{const c=calcDishCost(d);return c?s+c:s;},0)/(costed||1);
-    statsEl.innerHTML=
-      `<div class="lib-stat"><strong>${f.length}</strong> dish${f.length!==1?'es':''}</div>`+
-      (costed?`<div class="lib-stat"><strong>${costed}</strong> costed &middot; avg <strong>${fmt$(avgCost)}/cv</strong></div>`:'');
-  }
-
   if(!f.length){
     list.innerHTML=`<div class="lib-empty">
       <div class="lib-empty-mark">🍽</div>
@@ -1939,8 +2025,7 @@ function renderDishList(){
               ${hasFreeze?`<span class="lib-dish-chip freeze">❄ Freeze</span>`:''}
               ${isKids?`<span class="lib-dish-chip kids">Kids</span>`:''}
               ${isVariant?`<span class="lib-dish-chip">↳ alt</span>`:''}
-              ${contains.map(a=>`<span class="lib-dish-chip al-c">${a}</span>`).join('')}
-              ${mayContain.map(a=>`<span class="lib-dish-chip al-m">${a} (MC)</span>`).join('')}
+              ${contains.length?`<span class="lib-dish-chip al-c">⚠ ${contains.slice(0,2).join(', ')}${contains.length>2?' +'+( contains.length-2):''}</span>`:''}
             </div>
           </div>
           <div class="lib-dish-right">
