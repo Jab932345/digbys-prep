@@ -6,430 +6,7 @@
 <title>Digby's — Kitchen Ops</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-// ═══ FUNCTION SHEET WIZARD ═══════════════════════════════════════════
-
-let _wizStep = 1;
-let _wizData = {};        // form data being built
-let _wizSelDishes = [];   // array of dish ids selected in step 2
-let _wizCat = 'all';      // active category in step 2
-let _wizSearch = '';
-
-function openFsWizard(evId) {
-  // Populate _wizData from existing event if editing
-  _wizData = {};
-  _wizSelDishes = [];
-  _wizCat = 'all';
-  _wizSearch = '';
-  
-  if (evId) {
-    const ev = events.find(e => e.id === evId);
-    if (ev) {
-      _wizData = { ...ev };
-      _wizSelDishes = (ev.event_dishes || []).map(ed => ed.dish_id);
-      document.getElementById('wiz-title').textContent = ev.client_name || 'Edit event';
-    }
-  } else {
-    document.getElementById('wiz-title').textContent = 'New event';
-    // Default date to next Saturday
-    const d = new Date();
-    d.setDate(d.getDate() + (6 - d.getDay() + 7) % 7 || 7);
-    _wizData.event_date = d.toISOString().slice(0, 10);
-    _wizData.status = 'Provisional';
-    _wizData.start_time = '18:00';
-    _wizData.end_time = '23:00';
-    _wizData.extra_charges = [];
-    _wizData.run_of_day = [];
-    _wizData.guests = [];
-  }
-
-  // Navigate to wizard view
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-fs-wizard').classList.add('active');
-  fsWizStep(1);
-}
-
-// Replace the old openFunctionSheet
-function openFunctionSheet(evId) { openFsWizard(evId); }
-
-function closeFsWizard() {
-  document.getElementById('view-fs-wizard').classList.remove('active');
-  // Return to previous view
-  const prevView = _wizData.id ? 'events' : 'home';
-  const sbEl = document.querySelector(`.sb-item[data-view="${prevView === 'home' ? 'home' : 'events'}"]`);
-  sbNav(prevView === 'home' ? 'home' : 'events', sbEl);
-}
-
-function fsWizStep(n) {
-  if (n < 1 || n > 3) return;
-  // Collect current step data before moving
-  if (_wizStep === 1) collectStep1();
-  if (_wizStep === 3) collectStep3();
-  _wizStep = n;
-
-  // Update dots
-  for (let i = 1; i <= 3; i++) {
-    const dot = document.getElementById('wiz-dot-' + i);
-    if (!dot) continue;
-    dot.className = 'wiz-step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
-    dot.textContent = i < n ? '✓' : i;
-  }
-
-  document.getElementById('wiz-back-btn').style.display = n > 1 ? 'flex' : 'none';
-  document.getElementById('wiz-next-btn').textContent = n === 3 ? 'Save event' : 'Next →';
-
-  const body = document.getElementById('wiz-body');
-  if (n === 1) renderWizStep1(body);
-  else if (n === 2) renderWizStep2(body);
-  else if (n === 3) renderWizStep3(body);
-}
-
-function fsWizNext() {
-  if (_wizStep === 1) {
-    collectStep1();
-    if (!_wizData.client_name || !_wizData.event_date || !_wizData.covers) {
-      toast('Fill in client, date and covers first.', 'err'); return;
-    }
-    fsWizStep(2);
-  } else if (_wizStep === 2) {
-    fsWizStep(3);
-  } else if (_wizStep === 3) {
-    collectStep3();
-    saveFsWizard();
-  }
-}
-
-// ── Step 1: Event basics ─────────────────────────────────────────────
-function renderWizStep1(body) {
-  const d = _wizData;
-  body.innerHTML = `<div class="wiz-form-body">
-    <div class="wiz-section-label">The event</div>
-    <div class="g2">
-      <div class="fld" style="grid-column:1/-1;">
-        <label class="fld-label">Client name</label>
-        <input class="fld-inp" id="w-client" value="${h(d.client_name||'')}" placeholder="e.g. Smith Wedding, Jones Corporate" autofocus>
-      </div>
-    </div>
-    <div class="g3">
-      <div class="fld">
-        <label class="fld-label">Date</label>
-        <input class="fld-inp" id="w-date" type="date" value="${d.event_date||''}">
-      </div>
-      <div class="fld">
-        <label class="fld-label">Start</label>
-        <input class="fld-inp" id="w-start" type="time" value="${d.start_time||'18:00'}">
-      </div>
-      <div class="fld">
-        <label class="fld-label">End</label>
-        <input class="fld-inp" id="w-end" type="time" value="${d.end_time||'23:00'}">
-      </div>
-    </div>
-    <div class="g3">
-      <div class="fld">
-        <label class="fld-label">Covers</label>
-        <input class="fld-inp" id="w-covers" type="number" min="1" value="${d.covers||''}" placeholder="0">
-      </div>
-      <div class="fld">
-        <label class="fld-label">Event type</label>
-        <select class="fld-sel" id="w-type">
-          ${['Private Dining','Wedding','Tasting Menu','Canapés','Buffet','Corporate','Gala Dinner','Grazing','Wake'].map(t=>`<option value="${t}" ${d.event_type===t?'selected':''}>${t}</option>`).join('')}
-        </select>
-      </div>
-      <div class="fld">
-        <label class="fld-label">Job code</label>
-        <input class="fld-inp" id="w-jobcode" value="${h(d.job_code||'')}" placeholder="e.g. SMI251025" style="text-transform:uppercase">
-      </div>
-    </div>
-    <div class="g2">
-      <div class="fld">
-        <label class="fld-label">Status</label>
-        <select class="fld-sel" id="w-status">
-          ${['Enquiry','Provisional','Confirmed','Completed','Cancelled'].map(s=>`<option ${d.status===s?'selected':''}>${s}</option>`).join('')}
-        </select>
-      </div>
-      <div class="fld">
-        <label class="fld-label">Payment</label>
-        <select class="fld-sel" id="w-payment">
-          <option value="" ${!d.deposit_status?'selected':''}>Unpaid</option>
-          <option value="deposit" ${d.deposit_status==='deposit'?'selected':''}>Deposit taken</option>
-          <option value="invoiced" ${d.deposit_status==='invoiced'?'selected':''}>Invoice sent</option>
-          <option value="paid" ${d.deposit_status==='paid'?'selected':''}>Paid in full</option>
-        </select>
-      </div>
-    </div>
-    <div class="g2">
-      <div class="fld">
-        <label class="fld-label">Price agreed</label>
-        <div style="position:relative"><span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--t4);">£</span>
-        <input class="fld-inp" id="w-budget" type="number" step="0.01" value="${d.budget||''}" placeholder="0.00" style="padding-left:24px;"></div>
-      </div>
-      <div class="fld">
-        <label class="fld-label">Staffing</label>
-        <input class="fld-inp" id="w-staffing" value="${h(d.staffing||'')}">
-      </div>
-    </div>
-  </div>`;
-  document.getElementById('w-client')?.focus();
-}
-
-function collectStep1() {
-  _wizData.client_name = document.getElementById('w-client')?.value.trim() || _wizData.client_name;
-  _wizData.event_date = document.getElementById('w-date')?.value || _wizData.event_date;
-  _wizData.start_time = document.getElementById('w-start')?.value || _wizData.start_time;
-  _wizData.end_time = document.getElementById('w-end')?.value || _wizData.end_time;
-  _wizData.covers = parseInt(document.getElementById('w-covers')?.value) || _wizData.covers;
-  _wizData.event_type = document.getElementById('w-type')?.value || _wizData.event_type;
-  _wizData.job_code = (document.getElementById('w-jobcode')?.value || '').toUpperCase().trim() || _wizData.job_code || null;
-  _wizData.status = document.getElementById('w-status')?.value || _wizData.status;
-  _wizData.deposit_status = document.getElementById('w-payment')?.value || null;
-  _wizData.budget = document.getElementById('w-budget')?.value || _wizData.budget || null;
-  _wizData.staffing = document.getElementById('w-staffing')?.value.trim() || null;
-}
-
-// ── Step 2: Menu builder ─────────────────────────────────────────────
-function renderWizStep2(body) {
-  const cats = ['all', ...CAT_ORDER.filter(c => dishes.some(d => d.category === c))];
-  const catBtns = cats.map(c => `<button class="wiz-cat-btn ${_wizCat===c?'active':''}" onclick="wizSetCat('${c}')">
-    ${c==='all'?'All dishes':c}
-    <span class="wiz-cat-badge">${c==='all'?dishes.length:dishes.filter(d=>d.category===c).length}</span>
-  </button>`).join('');
-
-  body.innerHTML = `<div class="wiz-menu-shell">
-    <div class="wiz-cats">${catBtns}</div>
-    <div class="wiz-dish-grid-wrap">
-      <div class="wiz-search-bar">
-        <input class="wiz-search-inp" id="wiz-search" placeholder="Search dishes…" value="${h(_wizSearch)}" oninput="_wizSearch=this.value;renderWizGrid()">
-      </div>
-      <div class="wiz-dish-grid" id="wiz-grid"></div>
-    </div>
-    <div class="wiz-order">
-      <div class="wiz-order-hd">
-        <span class="wiz-order-title">Menu</span>
-        <span class="wiz-order-count" id="wiz-sel-count">${_wizSelDishes.length} dishes</span>
-      </div>
-      <div class="wiz-order-list" id="wiz-order-list"></div>
-      <div class="wiz-order-footer">
-        <div class="wiz-order-covers">${_wizData.covers||0} covers</div>
-        <div class="wiz-order-cost-total" id="wiz-order-total"></div>
-      </div>
-    </div>
-  </div>`;
-  renderWizGrid();
-  renderWizOrder();
-}
-
-function wizSetCat(cat) {
-  _wizCat = cat;
-  document.querySelectorAll('.wiz-cat-btn').forEach(b => b.classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  renderWizGrid();
-}
-
-function renderWizGrid() {
-  const grid = document.getElementById('wiz-grid');
-  if (!grid) return;
-  const q = _wizSearch.toLowerCase();
-  let f = [...dishes];
-  if (_wizCat !== 'all') f = f.filter(d => d.category === _wizCat);
-  if (q) f = f.filter(d => d.name.toLowerCase().includes(q));
-  f.sort((a,b) => a.name.localeCompare(b.name));
-
-  if (!f.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--t4);font-size:13px;">No dishes found</div>'; return; }
-
-  const col = d => CAT_COLORS[d.category] || 'var(--cat-ot)';
-  grid.innerHTML = f.map(d => {
-    const sel = _wizSelDishes.includes(d.id);
-    const cost = calcDishCost(d);
-    const comps = (d.components||[]).length;
-    return `<div class="wiz-dish-card ${sel?'selected':''}" onclick="wizToggleDish('${d.id}')" style="border-top-color:${col(d)};">
-      <div class="wiz-card-check">✓</div>
-      <div class="wiz-card-cat" style="color:${col(d)}">${d.category||'Other'}</div>
-      <div class="wiz-card-name">${h(d.name)}</div>
-      <div class="wiz-card-comps">${comps} component${comps!==1?'s':''}</div>
-      ${cost!=null?`<div class="wiz-card-cost">${fmt$(cost)}/cv</div>`:`<div class="wiz-card-cost none">Not costed</div>`}
-    </div>`;
-  }).join('');
-}
-
-function wizToggleDish(id) {
-  if (_wizSelDishes.includes(id)) {
-    _wizSelDishes = _wizSelDishes.filter(x => x !== id);
-  } else {
-    _wizSelDishes.push(id);
-  }
-  renderWizGrid();
-  renderWizOrder();
-}
-
-function renderWizOrder() {
-  const list = document.getElementById('wiz-order-list');
-  const count = document.getElementById('wiz-sel-count');
-  const total = document.getElementById('wiz-order-total');
-  if (!list) return;
-
-  if (count) count.textContent = _wizSelDishes.length + ' dish' + (_wizSelDishes.length!==1?'es':'');
-
-  if (!_wizSelDishes.length) {
-    list.innerHTML = '<div class="wiz-order-empty">Tap dishes to add them to the menu.</div>';
-    if (total) total.textContent = '';
-    return;
-  }
-
-  const sel = _wizSelDishes.map(id => dishes.find(d => d.id === id)).filter(Boolean);
-  list.innerHTML = sel.map(d => {
-    const col = CAT_COLORS[d.category] || 'var(--cat-ot)';
-    return `<div class="wiz-order-item">
-      <div class="wiz-order-dot" style="background:${col}"></div>
-      <span class="wiz-order-name">${h(d.name)}</span>
-      <button class="wiz-order-rm" onclick="wizToggleDish('${d.id}')">×</button>
-    </div>`;
-  }).join('');
-
-  const covers = _wizData.covers || 1;
-  const totalCost = sel.reduce((s, d) => { const c = calcDishCost(d); return c ? s + c * covers : s; }, 0);
-  if (total && totalCost > 0) total.textContent = `Est. food cost: ${fmt$(totalCost)}`;
-}
-
-// ── Step 3: Details ──────────────────────────────────────────────────
-function renderWizStep3(body) {
-  const d = _wizData;
-  const rod = (d.run_of_day || []);
-  const charges = (d.extra_charges || []);
-  const guests = (d.guests || []);
-
-  body.innerHTML = `<div class="wiz-form-body">
-    <div class="wiz-section-label">Venue</div>
-    <div class="g3">
-      <div class="fld"><label class="fld-label">Venue name</label><input class="fld-inp" id="w-venue" value="${h(d.venue||'')}"></div>
-      <div class="fld"><label class="fld-label">Location / area</label><input class="fld-inp" id="w-location" value="${h(d.location||'')}"></div>
-      <div class="fld"><label class="fld-label">Full address</label><input class="fld-inp" id="w-address" value="${h(d.address||'')}"></div>
-    </div>
-    <div class="wiz-section-label">Contact</div>
-    <div class="g3">
-      <div class="fld"><label class="fld-label">Name</label><input class="fld-inp" id="w-cname" value="${h(d.contact_name||'')}"></div>
-      <div class="fld"><label class="fld-label">Phone</label><input class="fld-inp" id="w-cphone" value="${h(d.contact_phone||'')}"></div>
-      <div class="fld"><label class="fld-label">Email</label><input class="fld-inp" id="w-cemail" type="email" value="${h(d.contact_email||'')}"></div>
-    </div>
-    <div class="wiz-section-label">Run of day <button class="btn btn-xs" onclick="wizAddRod()" style="margin-left:8px;">+ Add</button></div>
-    <div id="w-rod-list" style="display:flex;flex-direction:column;gap:5px;">
-      ${rod.map((r,i) => `<div class="g2" style="gap:8px;align-items:center;">
-        <input class="fld-inp" placeholder="Time" value="${h(r.time||'')}" oninput="_wizData.run_of_day[${i}].time=this.value">
-        <div style="display:flex;gap:5px;">
-          <input class="fld-inp" placeholder="Item" value="${h(r.item||'')}" oninput="_wizData.run_of_day[${i}].item=this.value">
-          <button class="btn btn-xs btn-danger" onclick="wizRmRod(${i})">×</button>
-        </div>
-      </div>`).join('')}
-    </div>
-    <div class="wiz-section-label">Dietary guests <button class="btn btn-xs" onclick="wizAddGuest()" style="margin-left:8px;">+ Add</button></div>
-    <div id="w-guests-list" style="display:flex;flex-direction:column;gap:7px;">
-      ${guests.map((g,i) => `<div style="display:flex;gap:7px;align-items:center;">
-        <input class="fld-inp" placeholder="Name / guest" value="${h(g.name||'')}" oninput="_wizData.guests[${i}].name=this.value" style="flex:1">
-        <input class="fld-inp" placeholder="Dietary requirement" value="${h(g.dietary||'')}" oninput="_wizData.guests[${i}].dietary=this.value" style="flex:2">
-        <select class="fld-sel" style="width:110px;" onchange="_wizData.guests[${i}].type=this.value">
-          <option value="allergy" ${g.type==='allergy'?'selected':''}>Allergy</option>
-          <option value="intolerance" ${g.type==='intolerance'?'selected':''}>Intolerance</option>
-          <option value="preference" ${g.type==='preference'?'selected':''}>Preference</option>
-        </select>
-        <button class="btn btn-xs btn-danger" onclick="wizRmGuest(${i})">×</button>
-      </div>`).join('')}
-    </div>
-    <div class="wiz-section-label">Extra charges <button class="btn btn-xs" onclick="wizAddCharge()" style="margin-left:8px;">+ Add</button></div>
-    <div id="w-charges-list" style="display:flex;flex-direction:column;gap:5px;">
-      ${charges.map((c,i) => `<div style="display:flex;gap:7px;align-items:center;">
-        <input class="fld-inp" placeholder="Description" value="${h(c.description||'')}" oninput="_wizData.extra_charges[${i}].description=this.value" style="flex:1">
-        <div style="position:relative;width:110px;"><span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--t4);">£</span>
-        <input class="fld-inp" type="number" step="0.01" value="${c.amount||''}" oninput="_wizData.extra_charges[${i}].amount=parseFloat(this.value)||0" style="padding-left:22px;"></div>
-        <button class="btn btn-xs btn-danger" onclick="wizRmCharge(${i})">×</button>
-      </div>`).join('')}
-    </div>
-    <div class="wiz-section-label">Notes</div>
-    <div class="g2">
-      <div class="fld"><label class="fld-label">Kitchen notes</label><textarea class="fld-ta" id="w-kitchen" style="min-height:80px;">${h(d.kitchen_notes||'')}</textarea></div>
-      <div class="fld"><label class="fld-label">Chef notes</label><textarea class="fld-ta" id="w-chef" style="min-height:80px;">${h(d.chef_notes||'')}</textarea></div>
-      <div class="fld"><label class="fld-label">Service notes</label><textarea class="fld-ta" id="w-service" style="min-height:80px;">${h(d.service_notes||'')}</textarea></div>
-      <div class="fld"><label class="fld-label">Client notes</label><textarea class="fld-ta" id="w-client-notes" style="min-height:80px;">${h(d.client_notes||'')}</textarea></div>
-    </div>
-  </div>`;
-}
-
-function collectStep3() {
-  _wizData.venue = document.getElementById('w-venue')?.value.trim() || null;
-  _wizData.location = document.getElementById('w-location')?.value.trim() || null;
-  _wizData.address = document.getElementById('w-address')?.value.trim() || null;
-  _wizData.contact_name = document.getElementById('w-cname')?.value.trim() || null;
-  _wizData.contact_phone = document.getElementById('w-cphone')?.value.trim() || null;
-  _wizData.contact_email = document.getElementById('w-cemail')?.value.trim() || null;
-  _wizData.kitchen_notes = document.getElementById('w-kitchen')?.value.trim() || null;
-  _wizData.chef_notes = document.getElementById('w-chef')?.value.trim() || null;
-  _wizData.service_notes = document.getElementById('w-service')?.value.trim() || null;
-  _wizData.client_notes = document.getElementById('w-client-notes')?.value.trim() || null;
-}
-
-function wizAddRod() { (_wizData.run_of_day = _wizData.run_of_day||[]).push({time:'',item:''}); fsWizStep(3); }
-function wizRmRod(i) { _wizData.run_of_day.splice(i,1); fsWizStep(3); }
-function wizAddGuest() { (_wizData.guests = _wizData.guests||[]).push({name:'',dietary:'',type:'allergy'}); fsWizStep(3); }
-function wizRmGuest(i) { _wizData.guests.splice(i,1); fsWizStep(3); }
-function wizAddCharge() { (_wizData.extra_charges = _wizData.extra_charges||[]).push({description:'',amount:0}); fsWizStep(3); }
-function wizRmCharge(i) { _wizData.extra_charges.splice(i,1); fsWizStep(3); }
-
-// ── Save ─────────────────────────────────────────────────────────────
-async function saveFsWizard() {
-  const btn = document.getElementById('wiz-next-btn');
-  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
-  try {
-    const payload = {
-      client_name: _wizData.client_name,
-      event_type: _wizData.event_type,
-      event_date: _wizData.event_date,
-      start_time: _wizData.start_time,
-      end_time: _wizData.end_time,
-      covers: _wizData.covers,
-      status: _wizData.status || 'Enquiry',
-      deposit_status: _wizData.deposit_status || null,
-      budget: _wizData.budget || null,
-      staffing: _wizData.staffing || null,
-      job_code: _wizData.job_code || null,
-      venue: _wizData.venue || null,
-      location: _wizData.location || null,
-      address: _wizData.address || null,
-      contact_name: _wizData.contact_name || null,
-      contact_phone: _wizData.contact_phone || null,
-      contact_email: _wizData.contact_email || null,
-      kitchen_notes: _wizData.kitchen_notes || null,
-      chef_notes: _wizData.chef_notes || null,
-      service_notes: _wizData.service_notes || null,
-      client_notes: _wizData.client_notes || null,
-      run_of_day: _wizData.run_of_day || [],
-      extra_charges: _wizData.extra_charges || [],
-      guests: _wizData.guests || [],
-    };
-
-    let evId = _wizData.id;
-    if (evId) {
-      const { error } = await sb.from('events').update(payload).eq('id', evId);
-      if (error) throw error;
-    } else {
-      const { data, error } = await sb.from('events').insert(payload).select().single();
-      if (error) throw error;
-      evId = data.id;
-    }
-
-    // Save dish links
-    await sb.from('event_dishes').delete().eq('event_id', evId);
-    if (_wizSelDishes.length) {
-      await sb.from('event_dishes').insert(_wizSelDishes.map((did, i) => ({ event_id: evId, dish_id: did, sort_order: i })));
-    }
-
-    toast(_wizData.id ? 'Event updated' : 'Event created', 'ok');
-    await loadEvents();
-    closeFsWizard();
-  } catch (e) {
-    toast(e.message || 'Save failed', 'err');
-    if (btn) { btn.disabled = false; btn.textContent = 'Save event'; }
-  }
-}
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -1267,155 +844,6 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 .toast.ok{border-left:3px solid var(--grn);}
 .toast.err{border-left:3px solid var(--red);}
 @media print{.sidebar,.ph-actions,.fs-actions,.toast,.modal-ov{display:none!important;}.shell{display:block!important;height:auto!important;overflow:visible!important;}.view{display:block!important;}.prep-task.expanded .prep-task-detail{display:block!important;}}
-
-/* ═══ FUNCTION SHEET WIZARD ═════════════════════════════════════════ */
-#view-fs-wizard { background: var(--bg); }
-
-/* Top bar */
-.wiz-bar {
-  background: var(--s1); border-bottom: 1px solid var(--bd);
-  padding: 0 20px; height: 52px; display: flex; align-items: center;
-  gap: 16px; flex-shrink: 0;
-}
-.wiz-back { color: var(--t3); background: none; border: none; cursor: pointer; font-size: 16px; padding: 0 4px; transition: color .1s; }
-.wiz-back:hover { color: var(--t1); }
-.wiz-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--t1); flex: 1; }
-.wiz-steps { display: flex; align-items: center; gap: 3px; }
-.wiz-step-dot {
-  width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--bd2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700; font-family: 'DM Mono', monospace;
-  color: var(--t4); cursor: pointer; transition: all .15s;
-}
-.wiz-step-dot.done { background: var(--grn); border-color: var(--grn); color: #fff; }
-.wiz-step-dot.active { background: var(--gold); border-color: var(--gold); color: #000; }
-.wiz-step-line { width: 24px; height: 1px; background: var(--bd2); }
-.wiz-actions { display: flex; gap: 7px; }
-
-/* Step 1 & 3: form layout */
-.wiz-form-body { flex: 1; overflow-y: auto; padding: 28px 32px; max-width: 720px; }
-.wiz-form-body::-webkit-scrollbar { width: 3px; }
-.wiz-form-body::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
-.wiz-section-label {
-  font-size: 10px; font-weight: 800; color: var(--t4);
-  text-transform: uppercase; letter-spacing: .12em;
-  font-family: 'DM Mono', monospace; margin: 22px 0 12px;
-  padding-top: 18px; border-top: 1px solid var(--bd);
-}
-.wiz-section-label:first-child { margin-top: 0; padding-top: 0; border-top: none; }
-
-/* Step 2: menu builder */
-.wiz-menu-shell { display: flex; flex: 1; overflow: hidden; }
-
-/* Category tabs — left */
-.wiz-cats {
-  width: 140px; flex-shrink: 0; background: var(--s1);
-  border-right: 1px solid var(--bd); overflow-y: auto;
-  display: flex; flex-direction: column; padding: 8px 0;
-}
-.wiz-cats::-webkit-scrollbar { display: none; }
-.wiz-cat-btn {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 9px 14px; cursor: pointer; border: none; background: none;
-  color: var(--t3); font-size: 12px; font-weight: 500; text-align: left;
-  transition: all .1s; border-left: 3px solid transparent;
-}
-.wiz-cat-btn:hover { color: var(--t2); background: var(--s2); }
-.wiz-cat-btn.active { color: var(--t1); background: var(--s2); border-left-color: var(--gold); }
-.wiz-cat-badge {
-  font-size: 10px; font-family: 'DM Mono', monospace;
-  color: var(--t4); background: var(--s3); padding: 1px 6px; border-radius: 20px;
-}
-.wiz-cat-btn.active .wiz-cat-badge { background: var(--goldfg); color: var(--gold); }
-
-/* Dish grid — centre */
-.wiz-dish-grid-wrap {
-  flex: 1; display: flex; flex-direction: column; overflow: hidden;
-}
-.wiz-search-bar {
-  padding: 10px 14px; background: var(--s1); border-bottom: 1px solid var(--bd);
-  flex-shrink: 0;
-}
-.wiz-search-inp {
-  width: 100%; font-size: 13px; padding: 8px 12px;
-  border: 1px solid var(--bd); border-radius: var(--r);
-  background: var(--s2); color: var(--t1); outline: none;
-}
-.wiz-search-inp::placeholder { color: var(--t4); }
-.wiz-search-inp:focus { border-color: var(--gold); }
-.wiz-dish-grid {
-  flex: 1; overflow-y: auto; padding: 14px;
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 10px; align-content: start;
-}
-.wiz-dish-grid::-webkit-scrollbar { width: 3px; }
-.wiz-dish-grid::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
-.wiz-dish-card {
-  background: var(--s1); border: 1px solid var(--bd); border-radius: 8px;
-  padding: 12px; cursor: pointer; transition: all .12s;
-  display: flex; flex-direction: column; gap: 6px;
-  border-top: 3px solid transparent;
-  position: relative;
-}
-.wiz-dish-card:hover { border-color: var(--bd2); background: var(--s2); }
-.wiz-dish-card.selected {
-  border-color: var(--gold); background: var(--goldfg);
-  border-top-color: var(--gold);
-}
-.wiz-dish-card.selected .wiz-card-check { opacity: 1; }
-.wiz-card-check {
-  position: absolute; top: 8px; right: 8px;
-  width: 18px; height: 18px; border-radius: 50%;
-  background: var(--gold); color: #000;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px; font-weight: 800; opacity: 0; transition: opacity .12s;
-}
-.wiz-card-cat {
-  font-size: 9px; font-weight: 700; text-transform: uppercase;
-  letter-spacing: .1em; font-family: 'DM Mono', monospace;
-}
-.wiz-card-name {
-  font-family: 'Playfair Display', serif; font-size: 14px;
-  color: var(--t1); line-height: 1.3;
-}
-.wiz-card-cost {
-  font-size: 11px; font-family: 'DM Mono', monospace;
-  color: var(--gold); font-weight: 600; margin-top: auto;
-}
-.wiz-card-cost.none { color: var(--t4); font-weight: 400; }
-.wiz-card-comps { font-size: 10px; color: var(--t4); font-family: 'DM Mono', monospace; }
-
-/* Order panel — right */
-.wiz-order {
-  width: 240px; flex-shrink: 0; background: var(--s1);
-  border-left: 1px solid var(--bd); display: flex; flex-direction: column;
-}
-.wiz-order-hd {
-  padding: 12px 14px; border-bottom: 1px solid var(--bd); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.wiz-order-title { font-size: 11px; font-weight: 700; color: var(--t2); text-transform: uppercase; letter-spacing: .08em; font-family: 'DM Mono', monospace; }
-.wiz-order-count { font-size: 11px; color: var(--gold); font-family: 'DM Mono', monospace; font-weight: 700; }
-.wiz-order-list { flex: 1; overflow-y: auto; padding: 8px 0; }
-.wiz-order-list::-webkit-scrollbar { width: 3px; }
-.wiz-order-list::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
-.wiz-order-item {
-  display: flex; align-items: flex-start; gap: 8px;
-  padding: 8px 14px; border-bottom: 1px solid var(--bd); cursor: pointer;
-  transition: background .07s;
-}
-.wiz-order-item:hover { background: var(--s2); }
-.wiz-order-item:last-child { border-bottom: none; }
-.wiz-order-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
-.wiz-order-name { font-size: 12px; color: var(--t2); flex: 1; line-height: 1.4; }
-.wiz-order-rm { background: none; border: none; color: var(--t4); cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0; transition: color .1s; }
-.wiz-order-rm:hover { color: var(--red); }
-.wiz-order-empty { padding: 20px 14px; font-size: 12px; color: var(--t4); text-align: center; line-height: 1.6; }
-.wiz-order-footer {
-  padding: 12px 14px; border-top: 1px solid var(--bd); flex-shrink: 0;
-}
-.wiz-order-covers { font-size: 11px; color: var(--t3); font-family: 'DM Mono', monospace; margin-bottom: 4px; }
-.wiz-order-cost-total { font-size: 13px; font-weight: 700; color: var(--gold); font-family: 'DM Mono', monospace; }
 </style>
 </head>
 <body>
@@ -1882,65 +1310,55 @@ const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 const sbBOH=supabase.createClient('https://jaajrllkozknilvmdezt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphYWpybGxrb3prbmlsdm1kZXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQxNDAsImV4cCI6MjA5MjYwMDE0MH0.09U5cba3JxRmysrn2X3TxPqr-q6jJE4QhyeKQwEK03M');
 
-// Category colours
-const CAT_COLORS={'Canapés':'var(--cat-c)','Starters':'var(--cat-st)','Mains':'var(--cat-ma)',
-  'Kids':'var(--cat-ki)','Desserts':'var(--cat-de)','Evening Grazing':'var(--cat-gr)',
-  'Tasting Menu':'var(--cat-gr)','Sides':'var(--cat-si)','Other':'var(--cat-ot)'};
+const CAT_COLORS={'Canapés':'var(--cat-c)','Starters':'var(--cat-st)','Mains':'var(--cat-ma)','Kids':'var(--cat-ki)','Desserts':'var(--cat-de)','Evening Grazing':'var(--cat-gr)','Tasting Menu':'var(--cat-gr)','Sides':'var(--cat-si)','Other':'var(--cat-ot)'};
 
-// ── Sidebar navigation ───────────────────────────────────────────────
-function sbNav(view, el) {
+function sbNav(view,el){
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  if(el) el.classList.add('active');
+  if(el)el.classList.add('active');
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const target = document.getElementById('view-'+view);
-  if(target) target.classList.add('active');
-  if(view==='home') renderPipeline();
-  else if(view==='events') { renderEventsList(); }
-  else if(view==='prep') renderPrepPlan();
-  else if(view==='library') { renderDishList(); renderIngredients(); populateAllergenEventSel(); }
-  else if(view==='cleaning') initCleaning();
+  const t=document.getElementById('view-'+view);
+  if(t)t.classList.add('active');
+  if(view==='home')renderPipeline();
+  else if(view==='events'){renderEventsList();}
+  else if(view==='prep')renderPrepPlan();
+  else if(view==='library'){renderDishList();renderIngredients();populateAllergenEventSel();}
+  else if(view==='cleaning')initCleaning();
 }
-
-// Also keep showView for backward compat with existing JS
 function showView(pg,el){
-  const MAP={dishes:'library',ingredients:'library',events:'events',
-    calendar:'events',prep:'prep','prep-list':'prep',allergens:'library',cleaning:'cleaning'};
+  const MAP={dishes:'library',ingredients:'library',events:'events',calendar:'events',prep:'prep','prep-list':'prep',allergens:'library',cleaning:'cleaning'};
   const target=MAP[pg]||pg;
-  const sbEl=document.querySelector('.sb-item[data-view="'+target+'"]');
-  sbNav(target,sbEl);
-  if(pg==='calendar') setEvTab('calendar',document.querySelector('.ev-subtab'));
-  if(pg==='allergens') libSubTab('allergens');
-  if(pg==='ingredients') libSubTab('ingredients');
-  if(pg==='dishes') libSubTab('dishes');
+  sbNav(target,document.querySelector('.sb-item[data-view="'+target+'"]'));
+  if(pg==='calendar')setEvTab('calendar',document.querySelector('.ev-subtab'));
+  if(pg==='allergens')libSubTab('allergens');
+  if(pg==='ingredients')libSubTab('ingredients');
 }
 function nav(pg,el){showView(pg,el);}
 
-// ── Lib sub-tabs ─────────────────────────────────────────────────────
-function libSubTab(tab) {
+function libSubTab(tab){
   document.getElementById('lib-dishes-wrap').style.display=tab==='dishes'?'flex':'none';
   document.getElementById('lib-ing-wrap').style.display=tab==='ingredients'?'flex':'none';
   document.getElementById('lib-al-wrap').style.display=tab==='allergens'?'flex':'none';
-  if(tab==='ingredients') renderIngredients();
-  if(tab==='allergens') renderAllergenMatrix();
+  if(tab==='ingredients')renderIngredients();
+  if(tab==='allergens')renderAllergenMatrix();
 }
 
-// ── Events sub-tabs ──────────────────────────────────────────────────
 let _evTab='upcoming';
-function setEvTab(tab, el) {
+function setEvTab(tab,el){
   _evTab=tab;
   document.querySelectorAll('.ev-subtab').forEach(t=>t.classList.remove('on'));
-  if(el) el.classList.add('on');
-  document.getElementById('events-list').style.display=tab!=='calendar'?'flex':'none';
-  document.getElementById('events-list').style.flexDirection='column';
+  if(el)el.classList.add('on');
+  const listEl=document.getElementById('events-list');
   const calWrap=document.getElementById('ev-calendar-wrap');
+  const detWrap=document.getElementById('ev-detail-wrap');
+  listEl.style.display=tab!=='calendar'?'flex':'none';
+  listEl.style.flexDirection='column';
   calWrap.style.display=tab==='calendar'?'flex':'none';
-  document.getElementById('ev-detail-wrap').style.display='none';
+  if(detWrap)detWrap.style.display='none';
   if(tab==='calendar'){calInit();return;}
   renderEventsList();
 }
 
-// ── Render events list ────────────────────────────────────────────────
-function renderEventsList() {
+function renderEventsList(){
   const wrap=document.getElementById('events-list');if(!wrap)return;
   const sf=document.getElementById('ev-status-filter')?.value||'';
   const now=new Date();now.setHours(0,0,0,0);
@@ -1951,15 +1369,12 @@ function renderEventsList() {
   f.sort((a,b)=>_evTab==='upcoming'?a.event_date?.localeCompare(b.event_date||'')||0:b.event_date?.localeCompare(a.event_date||'')||0);
   const countEl=document.getElementById('ev-count');
   if(countEl)countEl.textContent=f.length+' event'+(f.length!==1?'s':'');
-  if(!f.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">◈</div><div class="empty-t">No events</div><div class="empty-s">Create a function sheet to get started.</div></div>';return;}
+  if(!f.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">◈</div><div class="empty-t">No events</div></div>';return;}
   wrap.innerHTML=f.map(ev=>{
     const d=ev.event_date?new Date(ev.event_date+'T00:00:00'):null;
     const day=d?d.toLocaleDateString('en-GB',{day:'numeric'}):'—';
     const mon=d?d.toLocaleDateString('en-GB',{month:'short'}).toUpperCase():'';
     const yr=d?d.getFullYear():'';
-    const covers=ev.covers?ev.covers+' covers':'';
-    const venue=ev.location||ev.venue||'';
-    const budget=ev.budget?'£'+Number(ev.budget).toFixed(2):'';
     const payFlag=!ev.deposit_status?'<span class="ev-flag">⚠ Unpaid</span>':'';
     return`<div class="ev-row" onclick="showEventDetail('${ev.id}')">
       <div class="ev-row-date"><div class="ev-row-day">${day}</div><div class="ev-row-month">${mon} ${yr}</div></div>
@@ -1968,10 +1383,9 @@ function renderEventsList() {
         <div class="ev-row-client">${h(ev.client_name||'Unnamed event')}</div>
         <div class="ev-row-meta">
           ${ev.event_type?`<span>${h(ev.event_type)}</span>`:''}
-          ${covers?`<span>${covers}</span>`:''}
-          ${venue?`<span>${h(venue)}</span>`:''}
-          ${budget?`<span>${budget}</span>`:''}
-          ${ev.job_code?`<span style="font-weight:600;color:var(--gold)">${h(ev.job_code)}</span>`:''}
+          ${ev.covers?`<span>${ev.covers} covers</span>`:''}
+          ${ev.location||ev.venue?`<span>${h(ev.location||ev.venue)}</span>`:''}
+          ${ev.job_code?`<span style="color:var(--gold);font-weight:600">${h(ev.job_code)}</span>`:''}
         </div>
       </div>
       <div class="ev-row-right">
@@ -1982,215 +1396,108 @@ function renderEventsList() {
   }).join('');
 }
 
-// ── Show event detail ─────────────────────────────────────────────────
-async function showEventDetail(id) {
+async function showEventDetail(id){
   const ev=events.find(e=>e.id===id);if(!ev)return;
   document.getElementById('events-list').style.display='none';
   document.getElementById('ev-calendar-wrap').style.display='none';
-  const detailWrap=document.getElementById('ev-detail-wrap');
-  detailWrap.style.display='block';
+  const wrap=document.getElementById('ev-detail-wrap');
+  wrap.style.display='block';
   const d=ev.event_date?new Date(ev.event_date+'T00:00:00'):null;
   const fmtDate=d?d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'Date TBC';
-  const evDishes=(ev.event_dishes||[]);
-  const menuItems=evDishes.map(ed=>{
-    const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return'';
-    const col=CAT_COLORS[dish.category]||'var(--cat-ot)';
-    const cost=calcDishCost(dish);
-    return`<div class="ev-menu-item">
-      <div class="ev-menu-cat" style="background:${col}"></div>
-      <div class="ev-menu-name">${h(dish.name)}</div>
-      <div class="ev-menu-sub">${dish.category||''}${cost?` · ${fmt$(cost)}/cv`:''}</div>
-    </div>`;
-  }).join('');
-  const guests=(ev.guests||[]).map(g=>`<div class="guest-row ${g.type||''}">
-    <div class="guest-name">${h(g.name||'Guest')}</div>
-    <div class="guest-detail">${h(g.dietary||'')}${g.notes?' — '+h(g.notes):''}</div>
-  </div>`).join('');
-  const charges=(ev.extra_charges||[]);
-  const total=charges.reduce((s,c)=>s+(Number(c.amount)||0),ev.budget?Number(ev.budget):0);
+  const evDishes=ev.event_dishes||[];
+  const menuItems=evDishes.map(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return'';const col=CAT_COLORS[dish.category]||'var(--cat-ot)';const cost=calcDishCost(dish);return`<div class="ev-menu-item"><div class="ev-menu-cat" style="background:${col}"></div><div class="ev-menu-name">${h(dish.name)}</div><div class="ev-menu-sub">${dish.category||''}${cost?` · ${fmt$(cost)}/cv`:''}</div></div>`;}).join('');
+  const guests=(ev.guests||[]).map(g=>`<div class="guest-row ${g.type||''}"><div class="guest-name">${h(g.name||'Guest')}</div><div class="guest-detail">${h(g.dietary||'')}${g.notes?' — '+h(g.notes):''}</div></div>`).join('');
   const rod=(ev.run_of_day||[]);
-  // BOH panel
-  let bohHTML='';
-  if(ev.job_code){
-    bohHTML=`<div class="ev-boh-panel"><div class="ev-boh-hd">
-      <span class="ev-boh-title">BOH Staffing</span>
-      <span class="ev-boh-code">${h(ev.job_code)}</span>
-      <a class="boh-open-btn" href="https://digbys-staff.vercel.app" target="_blank">Open Staff →</a>
-    </div><div class="ev-boh-body" id="ev-boh-body">Loading…</div></div>`;
-  }
-  detailWrap.innerHTML=`
-    <div style="padding:18px 24px;border-bottom:1px solid var(--bd);background:var(--s1);display:flex;align-items:center;gap:12px;">
+  wrap.innerHTML=`
+    <div style="padding:16px 24px;border-bottom:1px solid var(--bd);background:var(--s1);display:flex;align-items:center;gap:12px;flex-shrink:0;">
       <button class="btn btn-ghost btn-sm" onclick="backToEventsList()">← Events</button>
-      <div style="flex:1;">
-        <div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--t1);">${h(ev.client_name||'Unnamed')}</div>
-        <div style="font-size:12px;color:var(--t3);font-family:'DM Mono',monospace;margin-top:2px;">${fmtDate}${ev.job_code?' · '+h(ev.job_code):''}</div>
-      </div>
+      <div style="flex:1"><div style="font-family:'Playfair Display',serif;font-size:22px;color:var(--t1)">${h(ev.client_name||'Unnamed')}</div>
+      <div style="font-size:12px;color:var(--t3);font-family:'DM Mono',monospace;margin-top:2px">${fmtDate}${ev.job_code?' · '+h(ev.job_code):''}</div></div>
       <span class="ev-status ${ev.status||'Enquiry'}">${ev.status||'Enquiry'}</span>
-      <button class="btn btn-sm" onclick="openFunctionSheet('${ev.id}')">Edit</button>
+      <button class="btn btn-sm" onclick="openFsWizard('${ev.id}')">Edit</button>
       <button class="btn btn-sm" onclick="sbNav('prep',document.querySelector('.sb-item[data-view=prep]'));prepSubTab('list',document.querySelector('.prep-subtab'));setTimeout(()=>{document.getElementById('prep-ev-sel').value='${ev.id}';loadPrepList();},100)">Prep list</button>
     </div>
     <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:18px;overflow-y:auto;flex:1;">
-      <div class="ev-section">
-        <div class="ev-section-hd">Details</div>
-        <div class="ev-section-body">
-          <div class="ev-field"><div class="ev-field-label">Event type</div><div class="ev-field-value">${h(ev.event_type||'—')}</div></div>
-          <div class="ev-field"><div class="ev-field-label">Time</div><div class="ev-field-value">${ev.start_time||'—'} – ${ev.end_time||'—'}</div></div>
-          <div class="ev-field"><div class="ev-field-label">Covers</div><div class="ev-field-value">${ev.covers||'—'}</div></div>
-          <div class="ev-field"><div class="ev-field-label">Venue</div><div class="ev-field-value ${ev.venue?'':'muted'}">${h(ev.venue||ev.location||'—')}</div></div>
-          <div class="ev-field"><div class="ev-field-label">Address</div><div class="ev-field-value ${ev.address?'':'muted'}">${h(ev.address||'—')}</div></div>
-          <div class="ev-field"><div class="ev-field-label">Staffing</div><div class="ev-field-value ${ev.staffing?'':'muted'}">${h(ev.staffing||'—')}</div></div>
-        </div>
-      </div>
-      <div class="ev-section">
-        <div class="ev-section-hd">Financials & contact</div>
-        <div class="ev-section-body">
-          <div class="ev-field"><div class="ev-field-label">Price agreed</div><div class="ev-field-value" style="color:var(--gold);font-family:'DM Mono',monospace;">${ev.budget?'£'+Number(ev.budget).toFixed(2):'—'}</div></div>
-          <div class="ev-field"><div class="ev-field-label">Payment</div><div class="ev-field-value">${{deposit:'Deposit taken',invoiced:'Invoice sent',paid:'Paid in full'}[ev.deposit_status]||'Unpaid'}</div></div>
-          <div class="ev-field"><div class="ev-field-label">Contact</div><div class="ev-field-value ${ev.contact_name?'':'muted'}">${h(ev.contact_name||'—')}</div></div>
-          <div class="ev-field"><div class="ev-field-label">Phone</div><div class="ev-field-value ${ev.contact_phone?'':'muted'}">${h(ev.contact_phone||'—')}</div></div>
-          <div class="ev-field"><div class="ev-field-label">Email</div><div class="ev-field-value ${ev.contact_email?'':'muted'}">${h(ev.contact_email||'—')}</div></div>
-        </div>
-      </div>
-      ${menuItems?`<div class="ev-section"><div class="ev-section-hd">Menu (${evDishes.length} dish${evDishes.length!==1?'es':''})</div><div class="ev-section-body" style="padding:0 16px;">${menuItems}</div></div>`:''}
-      ${guests?`<div class="ev-section"><div class="ev-section-hd">Dietary guests</div><div class="ev-section-body" style="padding:0 16px;">${guests}</div></div>`:''}
-      ${rod.length?`<div class="ev-section"><div class="ev-section-hd">Run of day</div><div class="ev-section-body" style="padding:0;"><table class="rod-table"><thead><tr><th>Time</th><th>Item</th></tr></thead><tbody>${rod.map(r=>`<tr><td style="width:80px;font-family:'DM Mono',monospace;">${r.time||''}</td><td>${h(r.item||'')}</td></tr>`).join('')}</tbody></table></div></div>`:''}
-      ${ev.kitchen_notes||ev.chef_notes||ev.service_notes?`<div class="ev-section ev-section-full"><div class="ev-section-hd">Notes</div><div class="ev-section-body">
+      <div class="ev-section"><div class="ev-section-hd">Details</div><div class="ev-section-body">
+        <div class="ev-field"><div class="ev-field-label">Type</div><div class="ev-field-value">${h(ev.event_type||'—')}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Time</div><div class="ev-field-value">${ev.start_time||'—'} – ${ev.end_time||'—'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Covers</div><div class="ev-field-value">${ev.covers||'—'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Venue</div><div class="ev-field-value ${ev.venue?'':'muted'}">${h(ev.venue||ev.location||'—')}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Address</div><div class="ev-field-value ${ev.address?'':'muted'}">${h(ev.address||'—')}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Staffing</div><div class="ev-field-value ${ev.staffing?'':'muted'}">${h(ev.staffing||'—')}</div></div>
+      </div></div>
+      <div class="ev-section"><div class="ev-section-hd">Financials</div><div class="ev-section-body">
+        <div class="ev-field"><div class="ev-field-label">Price</div><div class="ev-field-value" style="color:var(--gold);font-family:'DM Mono',monospace;">${ev.budget?'£'+Number(ev.budget).toFixed(2):'—'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Payment</div><div class="ev-field-value">${{deposit:'Deposit taken',invoiced:'Invoice sent',paid:'Paid in full'}[ev.deposit_status]||'Unpaid'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Contact</div><div class="ev-field-value ${ev.contact_name?'':'muted'}">${h(ev.contact_name||'—')}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Phone</div><div class="ev-field-value ${ev.contact_phone?'':'muted'}">${h(ev.contact_phone||'—')}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Email</div><div class="ev-field-value ${ev.contact_email?'':'muted'}">${h(ev.contact_email||'—')}</div></div>
+      </div></div>
+      ${menuItems?`<div class="ev-section"><div class="ev-section-hd">Menu (${evDishes.length} dishes)</div><div class="ev-section-body" style="padding:0 16px">${menuItems}</div></div>`:''}
+      ${guests?`<div class="ev-section"><div class="ev-section-hd">Dietary guests</div><div class="ev-section-body" style="padding:0 16px">${guests}</div></div>`:''}
+      ${rod.length?`<div class="ev-section"><div class="ev-section-hd">Run of day</div><div class="ev-section-body" style="padding:0"><table class="rod-table"><thead><tr><th>Time</th><th>Item</th></tr></thead><tbody>${rod.map(r=>`<tr><td style="width:80px;font-family:'DM Mono',monospace">${r.time||''}</td><td>${h(r.item||'')}</td></tr>`).join('')}</tbody></table></div></div>`:''}
+      ${ev.kitchen_notes||ev.chef_notes?`<div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd">Notes</div><div class="ev-section-body">
         ${ev.kitchen_notes?`<div class="ev-field"><div class="ev-field-label">Kitchen</div><div class="ev-field-value">${h(ev.kitchen_notes)}</div></div>`:''}
         ${ev.chef_notes?`<div class="ev-field"><div class="ev-field-label">Chef</div><div class="ev-field-value">${h(ev.chef_notes)}</div></div>`:''}
         ${ev.service_notes?`<div class="ev-field"><div class="ev-field-label">Service</div><div class="ev-field-value">${h(ev.service_notes)}</div></div>`:''}
       </div></div>`:''}
-      <div style="grid-column:1/-1;">${bohHTML}</div>
     </div>`;
-  // Load BOH shifts
-  if(ev.job_code){
-    try{
-      const{data:bohEvs}=await sbBOH.from('events').select('id').eq('job_code',ev.job_code).limit(1);
-      const bohBody=document.getElementById('ev-boh-body');
-      if(bohEvs&&bohEvs.length){
-        const{data:shifts}=await sbBOH.from('shifts').select('*,profiles(name)').eq('event_id',bohEvs[0].id).order('start_time');
-        if(bohBody)bohBody.innerHTML=shifts&&shifts.length
-          ?shifts.map(s=>`<div class="boh-no-link" style="color:var(--t2);font-style:normal;padding:5px 0;border-bottom:1px solid var(--bd);">${h(s.title)} · ${s.start_time}–${s.end_time}${s.profiles?.name?' — '+h(s.profiles.name):' — Open'}</div>`).join('')
-          :'<span class="boh-no-link">No shifts assigned yet.</span>';
-      }else if(bohBody){bohBody.innerHTML='<span class="boh-no-link">No matching BOH event found for this job code.</span>';}
-    }catch(e){}
-  }
 }
 
 function backToEventsList(){
-  document.getElementById('ev-detail-wrap').style.display='none';
-  document.getElementById('events-list').style.display='flex';
-  document.getElementById('events-list').style.flexDirection='column';
+  const w=document.getElementById('ev-detail-wrap');if(w)w.style.display='none';
+  const l=document.getElementById('events-list');if(l){l.style.display='flex';l.style.flexDirection='column';}
 }
 
-// ── Pipeline / Home ──────────────────────────────────────────────────
-async function renderPipeline() {
+async function renderPipeline(){
   const wrap=document.getElementById('pipeline-body');if(!wrap)return;
   const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled')
-    .sort((a,b)=>a.event_date.localeCompare(b.event_date));
-  // Greeting
+  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
   const hr=new Date().getHours();
   const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
-  document.getElementById('home-greeting').textContent=greet+', James';
-  if(!upcoming.length){
-    wrap.innerHTML='<div class="empty"><div class="empty-icon">◈</div><div class="empty-t">No upcoming events</div><div class="empty-s">Create a function sheet to get started.</div></div>';
-    return;
-  }
-  // Load prepped_stock
-  let stock=[];
-  try{const{data}=await sb.from('prepped_stock').select('*');stock=data||[];}catch(e){}
-  // Build pipeline cards
+  const greetEl=document.getElementById('home-greeting');
+  if(greetEl)greetEl.textContent=greet+', James';
+  if(!upcoming.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">◈</div><div class="empty-t">No upcoming events</div><div class="empty-s">Create a function sheet to get started.</div></div>';return;}
+  let stock=[];try{const{data}=await sb.from('prepped_stock').select('*');stock=data||[];}catch(e){}
+  const msPerDay=86400000;
   const cards=upcoming.map(ev=>{
     const d=new Date(ev.event_date+'T00:00:00');
-    const msPerDay=86400000;
     const daysAway=Math.round((d-now)/msPerDay);
     const urgencyClass=daysAway<=7?'urgent':daysAway<=21?'soon':'ok';
-    const daysColour=daysAway<=7?'red':daysAway<=21?'amb':'grn';
+    const daysCol=daysAway<=7?'red':daysAway<=21?'amb':'grn';
     const evDishes=ev.event_dishes||[];
-    // Find freeze-ahead components needed
-    const compsNeeded=[];
-    evDishes.forEach(ed=>{
-      const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;
-      (dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{
-        const stocked=stock.filter(s=>s.component_id===c.id&&(s.portions_remaining||0)>0);
-        const portionsHave=stocked.reduce((s,r)=>s+(r.portions_remaining||0),0);
-        const portionsNeed=ev.covers||0;
-        compsNeeded.push({comp:c,dish,have:portionsHave,need:portionsNeed});
-      });
-    });
-    const prepItems=compsNeeded.slice(0,4).map(({comp,have,need})=>{
-      const done=have>=need;
-      return`<div class="pipe-prep-item ${done?'done':'todo'}">
-        <div class="pipe-prep-dot ${done?'done':'todo'}"></div>
-        <span>${h(comp.name||'Component')}</span>
-        ${!done?`<span style="font-size:10px;color:var(--t4);font-family:'DM Mono',monospace;">${have}/${need}</span>`:''}
-      </div>`;
-    }).join('');
+    const comps=[];
+    evDishes.forEach(ed=>{const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;(dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{const have=stock.filter(s=>s.component_id===c.id).reduce((s,r)=>s+(r.portions_remaining||0),0);comps.push({comp:c,have,need:ev.covers||0});});});
+    const prepItems=comps.slice(0,4).map(({comp,have,need})=>{const done=have>=need;return`<div class="pipe-prep-item ${done?'done':'todo'}"><div class="pipe-prep-dot ${done?'done':'todo'}"></div><span>${h(comp.name||'Component')}</span>${!done?`<span style="font-size:10px;color:var(--t4);font-family:'DM Mono',monospace">${have}/${need}</span>`:''}</div>`;}).join('');
     const dateStr=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
     const payLabel={deposit:'Deposit ✓',invoiced:'Invoiced',paid:'Paid ✓'}[ev.deposit_status]||'⚠ Unpaid';
-    const payColour=ev.deposit_status==='paid'?'var(--grn)':ev.deposit_status?'var(--amb)':'var(--red)';
+    const payCol=ev.deposit_status==='paid'?'var(--grn)':ev.deposit_status?'var(--amb)':'var(--red)';
     return`<div class="pipe-card ${urgencyClass}" onclick="showEventDetail('${ev.id}')">
       <div class="pipe-card-top">
         <div class="pipe-card-info">
           <div class="pipe-card-client">${h(ev.client_name||'Unnamed')}</div>
-          <div class="pipe-card-meta">
-            <span>${dateStr}</span>
-            ${ev.event_type?`<span>${h(ev.event_type)}</span>`:''}
-            ${ev.covers?`<span>${ev.covers} covers</span>`:''}
-            ${ev.venue||ev.location?`<span>${h(ev.venue||ev.location)}</span>`:''}
-            <span style="color:${payColour}">${payLabel}</span>
-          </div>
+          <div class="pipe-card-meta"><span>${dateStr}</span>${ev.event_type?`<span>${h(ev.event_type)}</span>`:''} ${ev.covers?`<span>${ev.covers} covers</span>`:''} <span style="color:${payCol}">${payLabel}</span></div>
         </div>
-        <div class="pipe-card-right">
-          <div class="pipe-days ${daysColour}">${daysAway}</div>
-          <div class="pipe-days-label">day${daysAway!==1?'s':''} away</div>
-        </div>
+        <div class="pipe-card-right"><div class="pipe-days ${daysCol}">${daysAway}</div><div class="pipe-days-label">day${daysAway!==1?'s':''} away</div></div>
       </div>
-      ${compsNeeded.length?`<div class="pipe-card-prep">${prepItems}${compsNeeded.length>4?`<span style="font-size:11px;color:var(--t4);">+${compsNeeded.length-4} more</span>`:''}</div>`:''}
+      ${comps.length?`<div class="pipe-card-prep">${prepItems}${comps.length>4?`<span style="font-size:11px;color:var(--t4)">+${comps.length-4} more</span>`:''}</div>`:''}
       <div class="pipe-card-actions">
         <button class="btn btn-xs" onclick="event.stopPropagation();showEventDetail('${ev.id}')">View sheet</button>
+        <button class="btn btn-xs" onclick="event.stopPropagation();openFsWizard('${ev.id}')">Edit</button>
         <button class="btn btn-xs" onclick="event.stopPropagation();sbNav('prep',document.querySelector('.sb-item[data-view=prep]'));prepSubTab('list',document.querySelector('.prep-subtab'));setTimeout(()=>{document.getElementById('prep-ev-sel').value='${ev.id}';loadPrepList();},100)">Prep list</button>
-        <button class="btn btn-xs" onclick="event.stopPropagation();openFunctionSheet('${ev.id}')">Edit</button>
       </div>
     </div>`;
   });
-  // Smart batch suggestions
   const batchSuggs=getBatchSuggestions(upcoming,stock);
-  const batchHTML=batchSuggs.length?`
-    <div class="pipeline-section">
-      <div class="pipeline-section-label">Smart batching</div>
-      ${batchSuggs.map(s=>`<div class="batch-card">
-        <div class="batch-card-title"><span class="batch-card-label">Batch opportunity</span>${h(s.compName)}</div>
-        <div class="batch-card-desc">Needed for ${s.events.map(e=>h(e.client_name)).join(' &amp; ')} — make <strong>${s.totalPortions} portions</strong> in one batch to cover both.</div>
-        <div class="batch-card-actions"><button class="btn btn-xs btn-gold" onclick="addToPrepPlan('${s.compId}',${s.totalPortions})">Add to prep plan</button></div>
-      </div>`).join('')}
-    </div>`:'';
-  wrap.innerHTML=`
-    <div class="pipeline-section">
-      <div class="pipeline-section-label">Upcoming events — ${upcoming.length} total</div>
-      ${cards.join('')}
-    </div>
-    ${batchHTML}`;
+  wrap.innerHTML=`<div class="pipeline-section"><div class="pipeline-section-label">Upcoming — ${upcoming.length} event${upcoming.length!==1?'s':''}</div>${cards.join('')}</div>${batchSuggs.length?`<div class="pipeline-section"><div class="pipeline-section-label">Smart batching</div>${batchSuggs.map(s=>`<div class="batch-card"><div class="batch-card-title"><span class="batch-card-label">Batch opportunity</span>${h(s.compName)}</div><div class="batch-card-desc">Needed for ${s.events.map(e=>h(e.client_name)).join(' & ')} — make <strong>${s.totalPortions} portions</strong> in one batch.</div></div>`).join('')}</div>`:''}`;
 }
 
-function getBatchSuggestions(upcoming, stock) {
-  const compEventMap={};
-  upcoming.forEach(ev=>{
-    (ev.event_dishes||[]).forEach(ed=>{
-      const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;
-      (dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{
-        if(!compEventMap[c.id])compEventMap[c.id]={compName:c.name,compId:c.id,events:[],totalPortions:0};
-        compEventMap[c.id].events.push(ev);
-        compEventMap[c.id].totalPortions+=(ev.covers||0);
-      });
-    });
-  });
-  return Object.values(compEventMap).filter(s=>s.events.length>=2).slice(0,3);
+function getBatchSuggestions(upcoming,stock){
+  const map={};
+  upcoming.forEach(ev=>{(ev.event_dishes||[]).forEach(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;(dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{if(!map[c.id])map[c.id]={compName:c.name,compId:c.id,events:[],totalPortions:0};map[c.id].events.push(ev);map[c.id].totalPortions+=(ev.covers||0);});});});
+  return Object.values(map).filter(s=>s.events.length>=2).slice(0,3);
 }
 
-function addToPrepPlan(compId,portions){toast('Batch added to prep plan');}
-
-// ── Prep sub-tabs ─────────────────────────────────────────────────────
 function prepSubTab(tab,el){
   document.querySelectorAll('.prep-subtab').forEach(t=>t.classList.remove('on'));
   if(el)el.classList.add('on');
@@ -2199,168 +1506,90 @@ function prepSubTab(tab,el){
   if(tab==='plan')renderPrepPlan();
 }
 
-// ── Prep planning view ────────────────────────────────────────────────
 async function renderPrepPlan(){
   const wrap=document.getElementById('prep-plan-body');if(!wrap)return;
   const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled')
-    .sort((a,b)=>a.event_date.localeCompare(b.event_date));
-  if(!upcoming.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">▣</div><div class="empty-t">No upcoming events</div><div class="empty-s">Add events to see what needs prepping.</div></div>';return;}
-  let stock=[];
-  try{const{data}=await sb.from('prepped_stock').select('*');stock=data||[];}catch(e){}
+  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
+  if(!upcoming.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">▣</div><div class="empty-t">No upcoming events</div></div>';return;}
+  let stock=[];try{const{data}=await sb.from('prepped_stock').select('*');stock=data||[];}catch(e){}
   const msPerDay=86400000;
+  const icons={frz:'❄',fri:'🧊',fsh:'○'};
   wrap.innerHTML=upcoming.map(ev=>{
     const d=new Date(ev.event_date+'T00:00:00');
     const daysAway=Math.round((d-now)/msPerDay);
-    const evDishes=ev.event_dishes||[];
     const comps=[];
-    evDishes.forEach(ed=>{
-      const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;
-      (dish.components||[]).forEach(c=>{
-        const stocked=stock.filter(s=>s.component_id===c.id);
-        const have=stocked.reduce((s,r)=>s+(r.portions_remaining||0),0);
-        comps.push({comp:c,dish,have,need:ev.covers||0,storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh'});
-      });
-    });
+    (ev.event_dishes||[]).forEach(ed=>{const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;(dish.components||[]).forEach(c=>{const have=stock.filter(s=>s.component_id===c.id).reduce((s,r)=>s+(r.portions_remaining||0),0);comps.push({comp:c,dish,have,need:ev.covers||0,storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh'});});});
     if(!comps.length)return'';
-    const urgencyClass=daysAway<=7?'red':'amb';
-    const storageIcon={frz:'❄',fri:'🧊',fsh:'○'};
     return`<div class="prep-event-block">
       <div class="prep-event-hd">
         <span class="prep-event-name">${h(ev.client_name||'Unnamed')}</span>
         <span class="prep-event-date">${d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span>
-        ${daysAway<=14?`<span class="prep-event-urgency ${urgencyClass}">${daysAway}d away</span>`:''}
-        <span style="flex:1;"></span>
-        <span style="font-size:11px;color:var(--t3);font-family:'DM Mono',monospace;">${ev.covers||0} covers</span>
+        ${daysAway<=14?`<span class="prep-event-urgency ${daysAway<=7?'red':'amb'}">${daysAway}d away</span>`:''}
+        <span style="flex:1"></span>
+        <span style="font-size:11px;color:var(--t3);font-family:'DM Mono',monospace">${ev.covers||0} covers</span>
       </div>
-      ${comps.map(({comp,dish,have,need,storage})=>`
-        <div class="prep-comp-row">
-          <div class="prep-comp-storage ${storage}">${storageIcon[storage]}</div>
-          <div class="prep-comp-info">
-            <div class="prep-comp-name">${h(comp.name||'Unnamed component')}</div>
-            <div class="prep-comp-dish">${h(dish.name)}</div>
-          </div>
-          <span class="prep-comp-stock ${have>=need?'have':have>0?'partial':'none'}">${have>=need?'Stocked':have>0?have+' made':'Not started'}</span>
-          <div class="prep-comp-portions"><strong>${need}</strong><br>portions</div>
-        </div>`).join('')}
+      ${comps.map(({comp,dish,have,need,storage})=>`<div class="prep-comp-row">
+        <div class="prep-comp-storage ${storage}">${icons[storage]}</div>
+        <div class="prep-comp-info"><div class="prep-comp-name">${h(comp.name||'Component')}</div><div class="prep-comp-dish">${h(dish.name)}</div></div>
+        <span class="prep-comp-stock ${have>=need?'have':have>0?'partial':'none'}">${have>=need?'Stocked':have>0?have+' made':'Not started'}</span>
+        <div class="prep-comp-portions"><strong>${need}</strong> portions</div>
+      </div>`).join('')}
     </div>`;
   }).filter(Boolean).join('');
 }
 
-// ── Floor mode ────────────────────────────────────────────────────────
 let _floorTasks=[];
-let _floorMode='all'; // 'all' or 'lead'
-
 function enterFloorMode(){
-  // Build task list from upcoming events' freeze-ahead components
   const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled')
-    .sort((a,b)=>a.event_date.localeCompare(b.event_date));
+  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
   _floorTasks=[];
-  upcoming.forEach(ev=>{
-    (ev.event_dishes||[]).forEach(ed=>{
-      const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;
-      (dish.components||[]).forEach(c=>{
-        _floorTasks.push({
-          id:c.id+'_'+ev.id,compId:c.id,dishId:dish.id,eventId:ev.id,
-          compName:c.name||'Component',dishName:dish.name,
-          eventClient:ev.client_name,eventDate:ev.event_date,
-          portions:ev.covers||1,storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',
-          steps:c.steps||[],ingredients:c.ingredients||[],
-          status:'pending',assignedTo:'',
-        });
-      });
-    });
-  });
-  const sbEl=document.querySelector('.sb-item[data-view="prep"]');
+  upcoming.forEach(ev=>{(ev.event_dishes||[]).forEach(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;(dish.components||[]).forEach(c=>{_floorTasks.push({id:c.id+'_'+ev.id,compId:c.id,dishId:dish.id,eventId:ev.id,compName:c.name||'Component',dishName:dish.name,eventClient:ev.client_name,eventDate:ev.event_date,portions:ev.covers||1,storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',steps:c.steps||[],ingredients:c.ingredients||[],status:'pending'});});});});
   document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  if(sbEl)sbEl.classList.add('active');
+  document.querySelector('.sb-item[data-view="prep"]')?.classList.add('active');
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-floor').classList.add('active');
   renderFloorTasks();
 }
-
 function floorTab(tab,el){
-  _floorMode=tab;
-  document.querySelectorAll('.prep-subtab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('#view-floor .prep-subtab').forEach(t=>t.classList.remove('on'));
   if(el)el.classList.add('on');
   document.getElementById('floor-tasks-wrap').style.display=tab==='all'?'block':'none';
   document.getElementById('floor-lead-wrap').style.display=tab==='lead'?'block':'none';
   if(tab==='lead')renderLeadView();
 }
-
 function renderFloorTasks(){
   const wrap=document.getElementById('floor-tasks-wrap');if(!wrap)return;
   const done=_floorTasks.filter(t=>t.status==='done').length;
-  const prog=document.getElementById('floor-progress-label');
-  if(prog)prog.textContent=`${done}/${_floorTasks.length} done`;
-  if(!_floorTasks.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">▣</div><div class="empty-t">No prep tasks</div><div class="empty-s">Add upcoming events with dishes to generate tasks.</div></div>';return;}
-  const storageIcon={frz:'❄',fri:'🧊',fsh:'○'};
-  wrap.innerHTML=_floorTasks.map((t,i)=>`
-    <div class="floor-task-card ${t.status==='done'?'done-task':t.status==='in_progress'?'active-task':''}" id="ftask-${i}">
-      <div class="floor-task-hd" onclick="toggleFloorTask(${i})">
-        <div class="floor-task-icon ${t.storage}">${storageIcon[t.storage]}</div>
-        <div class="floor-task-body">
-          <div class="floor-task-name">${h(t.compName)}</div>
-          <div class="floor-task-dish">${h(t.dishName)} · ${h(t.eventClient||'')} · ${t.eventDate?new Date(t.eventDate+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}):''}</div>
-        </div>
-        <div class="floor-task-state">
-          ${t.status==='pending'?`<button class="floor-task-btn start" onclick="event.stopPropagation();startFloorTask(${i})">Start</button>`:''}
-          ${t.status==='in_progress'?`<button class="floor-task-btn done-btn" onclick="event.stopPropagation();doneFloorTask(${i})">Done</button>`:''}
-          ${t.status==='done'?`<span style="color:var(--grn);font-size:20px;">✓</span>`:''}
-          <span class="floor-task-portions">${t.portions} portions</span>
-        </div>
+  const prog=document.getElementById('floor-progress-label');if(prog)prog.textContent=`${done}/${_floorTasks.length} done`;
+  const icons={frz:'❄',fri:'🧊',fsh:'○'};
+  if(!_floorTasks.length){wrap.innerHTML='<div class="empty"><div class="empty-t">No prep tasks</div></div>';return;}
+  wrap.innerHTML=_floorTasks.map((t,i)=>`<div class="floor-task-card ${t.status==='done'?'done-task':t.status==='in_progress'?'active-task':''}" id="ftask-${i}">
+    <div class="floor-task-hd" onclick="toggleFloorTask(${i})">
+      <div class="floor-task-icon ${t.storage}">${icons[t.storage]}</div>
+      <div class="floor-task-body"><div class="floor-task-name">${h(t.compName)}</div><div class="floor-task-dish">${h(t.dishName)} · ${h(t.eventClient||'')} · ${t.eventDate?new Date(t.eventDate+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}):''}</div></div>
+      <div class="floor-task-state">
+        ${t.status==='pending'?`<button class="floor-task-btn start" onclick="event.stopPropagation();startFloorTask(${i})">Start</button>`:''}
+        ${t.status==='in_progress'?`<button class="floor-task-btn done-btn" onclick="event.stopPropagation();doneFloorTask(${i})">Done</button>`:''}
+        ${t.status==='done'?`<span style="color:var(--grn);font-size:20px">✓</span>`:''}
+        <span class="floor-task-portions">${t.portions} portions</span>
       </div>
-      ${t.status==='in_progress'||t._expanded?`
-      <div class="floor-task-recipe">
-        ${t.ingredients&&t.ingredients.length?`<div class="floor-recipe-ings">
-          <div class="floor-ings-label">Ingredients for ${t.portions} portions</div>
-          ${t.ingredients.map(ir=>{const ing=ingredients.find(i=>i.id===ir.ingredient_id);const name=ing?.name||ir.ingredient_id||'Ingredient';
-            const qty=ir.quantity_g||(ir.quantity&&ir.unit?ir.quantity+' '+ir.unit:ir.quantity);
-            return`<div class="floor-ing-row"><span class="floor-ing-name">${h(name)}</span><span class="floor-ing-qty">${qty||'—'}</span></div>`}).join('')}
-        </div>`:''}
-        ${t.steps&&t.steps.length?t.steps.map((s,si)=>`<div class="floor-recipe-step">
-          <div class="floor-step-n">${si+1}</div>
-          <div class="floor-step-text">${h(s.text||s)}</div>
-        </div>`).join(''):`<div style="font-size:13px;color:var(--t4);padding:8px 0;">No recipe steps saved yet.</div>`}
-      </div>
-      <div class="floor-task-actions">
-        <button class="floor-print-btn" onclick="printLabel_floor(${i})">🖨 Print label</button>
-        ${t.status==='in_progress'?`<button class="floor-task-btn done-btn" onclick="doneFloorTask(${i})">Mark done</button>`:''}
-      </div>`:''}
-    </div>`).join('');
+    </div>
+    ${t.status==='in_progress'||t._expanded?`<div class="floor-task-recipe">
+      ${t.ingredients?.length?`<div class="floor-recipe-ings"><div class="floor-ings-label">Ingredients</div>${t.ingredients.map(ir=>{const ing=ingredients.find(x=>x.id===ir.ingredient_id);return`<div class="floor-ing-row"><span class="floor-ing-name">${h(ing?.name||'Ingredient')}</span><span class="floor-ing-qty">${ir.quantity_g||ir.quantity||'—'}</span></div>`;}).join('')}</div>`:''}
+      ${t.steps?.length?t.steps.map((s,si)=>`<div class="floor-recipe-step"><div class="floor-step-n">${si+1}</div><div class="floor-step-text">${h(s.text||s)}</div></div>`).join(''):`<div style="font-size:13px;color:var(--t4);padding:8px 0">No recipe steps saved yet.</div>`}
+    </div>
+    <div class="floor-task-actions">
+      <button class="floor-print-btn" onclick="printLabel_floor(${i})">🖨 Print label</button>
+      ${t.status==='in_progress'?`<button class="floor-task-btn done-btn" onclick="doneFloorTask(${i})">Mark done</button>`:''}
+    </div>`:''}
+  </div>`).join('');
 }
-
 function toggleFloorTask(i){_floorTasks[i]._expanded=!_floorTasks[i]._expanded;renderFloorTasks();}
 function startFloorTask(i){_floorTasks[i].status='in_progress';_floorTasks[i]._expanded=true;renderFloorTasks();}
 function doneFloorTask(i){_floorTasks[i].status='done';_floorTasks[i]._expanded=false;renderFloorTasks();}
-function printLabel_floor(i){
-  const t=_floorTasks[i];
-  toast('Sending label to CPS printer…');
-  // CPS integration — open CPS with pre-filled label data
-  const params=new URLSearchParams({name:t.compName,dish:t.dishName,portions:t.portions,event:t.eventClient,date:t.eventDate||''});
-  window.open('https://digbys-cps.vercel.app?label='+encodeURIComponent(JSON.stringify({name:t.compName,dish:t.dishName,portions:t.portions,event:t.eventClient})),'_blank');
-}
+function printLabel_floor(i){const t=_floorTasks[i];toast('Sending to CPS printer…');window.open(`https://digbys-cps.vercel.app?label=${encodeURIComponent(JSON.stringify({name:t.compName,dish:t.dishName,portions:t.portions,event:t.eventClient}))}`);}
+function renderLeadView(){const wrap=document.getElementById('floor-lead-wrap');if(!wrap)return;const chefs=[...new Set(_floorTasks.map(t=>t.assignedTo||'Unassigned'))];wrap.innerHTML=`<div class="lead-grid">${chefs.map(chef=>{const tasks=_floorTasks.filter(t=>(t.assignedTo||'Unassigned')===chef);const done=tasks.filter(t=>t.status==='done').length;const pct=tasks.length?Math.round(done/tasks.length*100):0;return`<div class="lead-chef-card"><div class="lead-chef-name">${h(chef)}</div>${tasks.map(t=>`<div class="lead-task-mini"><div class="lead-task-dot ${t.status==='done'?'done':t.status==='in_progress'?'in':'pend'}"></div><span>${h(t.compName)}</span></div>`).join('')}<div class="lead-prog"><div class="lead-prog-fill" style="width:${pct}%"></div></div></div>`;}).join('')}</div>`;}
 
-function renderLeadView(){
-  const wrap=document.getElementById('floor-lead-wrap');if(!wrap)return;
-  const chefs=[...new Set(_floorTasks.map(t=>t.assignedTo||'Unassigned'))];
-  wrap.innerHTML=`<div class="lead-grid">${chefs.map(chef=>{
-    const tasks=_floorTasks.filter(t=>(t.assignedTo||'Unassigned')===chef);
-    const done=tasks.filter(t=>t.status==='done').length;
-    const pct=tasks.length?Math.round(done/tasks.length*100):0;
-    return`<div class="lead-chef-card">
-      <div class="lead-chef-name">${h(chef)}</div>
-      ${tasks.map(t=>`<div class="lead-task-mini">
-        <div class="lead-task-dot ${t.status==='done'?'done':t.status==='in_progress'?'in':'pend'}"></div>
-        <span>${h(t.compName)}</span>
-      </div>`).join('')}
-      <div class="lead-prog"><div class="lead-prog-fill" style="width:${pct}%"></div></div>
-    </div>`;
-  }).join('')}</div>`;
-}
-
-// ── Render dish list with new classes ─────────────────────────────────
 function renderDishList(){
   const list=document.getElementById('dish-list');if(!list)return;
   const q=(document.getElementById('dl-search')?.value||'').toLowerCase();
@@ -2368,43 +1597,16 @@ function renderDishList(){
   if(q)f=f.filter(d=>d.name.toLowerCase().includes(q));
   if(_dlFilter!=='all')f=f.filter(d=>d.category===_dlFilter);
   f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
-  if(!f.length){
-    list.innerHTML=`<div class="lib-empty"><div class="lib-empty-t">${q?'No dishes match "'+h(q)+'"':'No dishes yet'}</div><div class="lib-empty-s">${q?'Try a different search.':'Hit + New dish to start building your library.'}</div></div>`;
-    return;
-  }
-  const groups={};
-  f.forEach(d=>{const cat=d.category||'Other';if(!groups[cat])groups[cat]=[];groups[cat].push(d);});
+  if(!f.length){list.innerHTML=`<div class="lib-empty"><div class="lib-empty-t">${q?'No dishes match "'+h(q)+'"':'No dishes yet'}</div><div class="lib-empty-s">${q?'Try a different search.':'Hit + New dish to start building.'}</div></div>`;return;}
+  const groups={};f.forEach(d=>{const cat=d.category||'Other';if(!groups[cat])groups[cat]=[];groups[cat].push(d);});
   list.innerHTML=CAT_ORDER.filter(cat=>groups[cat]).map(cat=>{
     const col=CAT_COLORS[cat]||'var(--cat-ot)';
-    return`<div class="lib-section">
-      <div class="lib-cat-hd">
-        <span class="lib-cat-name" style="color:${col}">${cat}</span>
-        <span class="lib-cat-count">${groups[cat].length}</span>
-      </div>
-      ${groups[cat].map(d=>{
-        const cost=calcDishCost(d);
-        return`<div class="dish-row" style="border-left-color:${col};" onclick="openDish('${d.id}')">
-          <div class="dish-name">${h(d.name)}</div>
-          ${cost!=null?`<div class="dish-cost">${fmt$(cost)}/cv</div>`:`<div class="dish-cost none">—</div>`}
-        </div>`;
-      }).join('')}
-    </div>`;
+    return`<div class="lib-section"><div class="lib-cat-hd"><span class="lib-cat-name" style="color:${col}">${cat}</span><span class="lib-cat-count">${groups[cat].length}</span></div>${groups[cat].map(d=>{const cost=calcDishCost(d);return`<div class="dish-row" style="border-left-color:${col}" onclick="openDish('${d.id}')"><div class="dish-name">${h(d.name)}</div>${cost!=null?`<div class="dish-cost">${fmt$(cost)}/cv</div>`:`<div class="dish-cost none">—</div>`}</div>`;}).join('')}</div>`;
   }).join('');
 }
 
-// ── Patch openDish to show builder ───────────────────────────────────
-const _origOpenDish=typeof openDish!=='undefined'?openDish:null;
-// Override: ensure library panel is in correct state
-function showBuilder(){
-  document.getElementById('builder-panel').classList.remove('hidden');
-}
-function backToLibrary(){
-  document.getElementById('builder-panel').classList.add('hidden');
-  renderDishList();
-}
 
-
-// ═══ CORE JS ════════════════
+// ── CORE ──
 
 
 
@@ -2412,11 +1614,11 @@ function backToLibrary(){
 // ═══════════════════════════════════════════════
 // CONSTANTS & INIT
 // ═══════════════════════════════════════════════
-// SUPA_URL defined above
-// SUPA_KEY defined above
-// sb defined above
+
+
+
 // BOH rota app — secondary read client (anon, CPS project)
-// sbBOH defined above //OLD: supabase.createClient('https://jaajrllkozknilvmdezt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphYWpybGxrb3prbmlsdm1kZXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQxNDAsImV4cCI6MjA5MjYwMDE0MH0.09U5cba3JxRmysrn2X3TxPqr-q6jJE4QhyeKQwEK03M');
+
 
 const CAT_ORDER=['Canapés','Starters','Mains','Kids','Desserts','Evening Grazing','Tasting Menu','Sides','Other'];
 const ALLERGENS=['Gluten','Dairy','Egg','Fish','Shellfish','Nuts','Peanuts','Soya','Celery','Mustard','Sesame','Sulphites','Lupin','Molluscs'];
@@ -2433,7 +1635,7 @@ const BUCKETS={advance:{label:'Advance prep — ❄ Freeze',cls:'adv',fn:c=>c.fr
 // State
 let dishes=[],events=[],ingredients=[],stock=[],production_runs=[];
 let _ddStep=1,_ddAlState={},_ddComps=[],_ddData={};
-let _dlFilter='all',_ingFilter='all'; // _evTab already declared above
+let _dlFilter='all',_ingFilter='all';
 let _prepDone={},_prepTasks=[];
 let _settings={buffer:14,ngrok:'https://palatable-shack-scallion.ngrok-free.dev'};
 let _formDirty=false;
@@ -2449,11 +1651,13 @@ function closeModal(id){document.getElementById(id).classList.remove('open');_fo
 function openModal(id){document.getElementById(id).classList.add('open');}
 
 
-// showView replaced above
 
-/* nav replaced above */
 
-/* backToLibrary replaced above */
+function backToLibrary(){
+  if(_formDirty&&!confirm('Unsaved changes. Leave?'))return;
+  document.getElementById('builder-panel').classList.add('hidden');
+  _formDirty=false;renderDishList();
+}
 
 function toggleSidebar(){}
 
@@ -2498,8 +1702,8 @@ async function init(){
   try{
     const{error}=await sb.from('dishes').select('id').limit(1);
     if(error)throw error;
-    if(dot){dot.className='conn-dot live';}if(conn)conn.textContent='live';
-  }catch(e){if(dot){dot.className='conn-dot err';}if(conn)conn.textContent='error';toast('Database error','err');return;}
+    dot.className='sb-dot live';conn.textContent='live';
+  }catch(e){dot.className='sb-dot err';conn.textContent='error';toast('Database error','err');return;}
   await Promise.all([loadDishes(),loadEvents(),loadIngredients()]);
   buildIngAlGrid();
   renderDishList();
@@ -2507,8 +1711,6 @@ async function init(){
   // ensure builder hidden on load
   const bp=document.getElementById('builder-panel');
   if(bp)bp.classList.add('hidden');
-
-  renderPipeline();
 }
 
 async function loadDishes(){
@@ -2546,8 +1748,38 @@ function setDlFilter(f,el){
 }
 
 
-// renderDishList replaced by new version above
 
+// ═══════════════════════════════════════════════
+// DISH BUILDER
+// ═══════════════════════════════════════════════
+function openDish(id){
+  const d=dishes.find(x=>x.id===id);if(!d)return;
+  _ddAlState={};_ddComps=[];
+  _ddData={
+    name:d.name,category:d.category||'Canapés',station:d.station||'',
+    description:d.description||'',notes:d.notes||'',
+    menu_type:d.menu_type||[],variant_of:d.variant_of||'',
+    target_food_cost:d.target_food_cost||''
+  };
+  document.getElementById('dd-id').value=d.id;
+  const _ni=document.getElementById('dd-hd-name');if(_ni){_ni.value=d.name;_ni.placeholder=d.name;}
+  document.getElementById('dd-hd-cat').textContent=d.category+(d.station?' · '+d.station:'');
+  const lb=document.getElementById('dd-lock-btn');if(lb){lb.style.display='';lb.textContent=d.locked?'Unlock':'Lock';}
+  const db=document.getElementById('dd-del-btn');if(db)db.style.display='';
+  getDishAl(d).forEach(a=>{_ddAlState[a.allergen]=a.status==='May Contain'?'may':'contains';});
+  _ddComps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(c=>({
+    id:'c'+c.id,dbId:c.id,name:c.name,
+    storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',
+    base:c.base_portions||10,qty:c.qty_per_cover||'',unit:c.unit||'',note:c.chef_note||'',
+    ings:(c.recipe_ingredients||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>({name:i.ingredient_name||i.name||'',qty:i.quantity||i.qty||'',unit:i.unit||'g'})),
+    steps:(c.recipe_steps||[]).sort((a,b)=>(a.step_number||0)-(b.step_number||0)).map(s=>s.instruction||'')
+  }));
+  if(!_ddComps.length)_ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',ings:[],steps:[]}];
+  showBuilder();
+  ddGoStep(1);
+  renderDishList();
+  _formDirty=false;
+}
 
 function newDish(){
   _ddAlState={};_ddData={name:'',category:'Canapés',station:'',description:'',notes:'',menu_type:[],variant_of:'',target_food_cost:''};
@@ -2560,7 +1792,9 @@ function newDish(){
   showBuilder();ddGoStep(1);_formDirty=false;
 }
 
-/* showBuilder replaced above */
+function showBuilder(){
+  document.getElementById('builder-panel').classList.remove('hidden');
+}
 
 function ddGoStep(n){
   _ddStep=n;
@@ -3157,7 +2391,7 @@ async function saveIngredient(){
 // ═══════════════════════════════════════════════
 // EVENTS / FUNCTION SHEETS
 // ═══════════════════════════════════════════════
-/* setEvTab replaced above */
+
 
 async function loadBOHForCard(ev) {
   const panel = document.getElementById('boh-panel-' + ev.id);
@@ -3166,8 +2400,6 @@ async function loadBOHForCard(ev) {
   panel.innerHTML = bohPanelHTML(ev, bohData);
 }
 
-
-// renderEventsList replaced above
 
 
 function renderFsCard(ev){
@@ -3238,15 +2470,7 @@ function goPrep(evId){document.getElementById('prep-ev-sel').value=evId;loadPrep
 
 function genJobCode(evType,date){const d=new Date(date);return'DF'+String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+String(d.getFullYear()).slice(2)+(evType||'EV');}
 
-function openFunctionSheet(){
-  document.getElementById('fs-modal-title').textContent='New function sheet';
-  document.getElementById('fs-id').value='';document.getElementById('fs-jobcode').value='';
-  ['fs-client','fs-venue','fs-location','fs-address','fs-contact-name','fs-contact-phone','fs-contact-email','fs-contact-2','fs-kitchen-notes','fs-service-notes','fs-chef-notes','fs-client-notes','fs-budget','fs-staffing','fs-covers'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('fs-type').value='WED';document.getElementById('fs-status').value='Enquiry';document.getElementById('fs-deposit').value='';
-  document.getElementById('fs-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('fs-rod-list').innerHTML='';document.getElementById('fs-charges-list').innerHTML='';document.getElementById('fs-guests-list').innerHTML='';
-  renderFsDishPicker([]);openModal('fs-modal');
-}
+
 
 function editFunctionSheet(id){
   const ev=events.find(x=>x.id===id);if(!ev)return;
@@ -4009,6 +3233,148 @@ function bohPanelHTML(ev, bohData) {
 document.addEventListener('DOMContentLoaded',init);
 
 
+
+
+// ── WIZARD ──
+
+let _wizStep=1,_wizData={},_wizSelDishes=[],_wizCat='all',_wizSearch='';
+function openFsWizard(evId){
+  _wizData={};_wizSelDishes=[];_wizCat='all';_wizSearch='';
+  if(evId){const ev=events.find(e=>e.id===evId);if(ev){_wizData={...ev};_wizSelDishes=(ev.event_dishes||[]).map(ed=>ed.dish_id);document.getElementById('wiz-title').textContent=ev.client_name||'Edit event';}}
+  else{document.getElementById('wiz-title').textContent='New event';const d=new Date();d.setDate(d.getDate()+(6-d.getDay()+7)%7||7);_wizData.event_date=d.toISOString().slice(0,10);_wizData.status='Provisional';_wizData.start_time='18:00';_wizData.end_time='23:00';_wizData.extra_charges=[];_wizData.run_of_day=[];_wizData.guests=[];}
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-fs-wizard').classList.add('active');
+  fsWizStep(1);
+}
+function openFunctionSheet(evId){openFsWizard(evId);}
+function closeFsWizard(){
+  document.getElementById('view-fs-wizard').classList.remove('active');
+  const go=_wizData.id?'events':'home';
+  sbNav(go,document.querySelector(`.sb-item[data-view="${go}"]`));
+}
+function fsWizStep(n){
+  if(n<1||n>3)return;
+  if(_wizStep===1)collectStep1();if(_wizStep===3)collectStep3();
+  _wizStep=n;
+  for(let i=1;i<=3;i++){const dot=document.getElementById('wiz-dot-'+i);if(!dot)continue;dot.className='wiz-step-dot'+(i<n?' done':i===n?' active':'');dot.textContent=i<n?'✓':i;}
+  document.getElementById('wiz-back-btn').style.display=n>1?'flex':'none';
+  document.getElementById('wiz-next-btn').textContent=n===3?'Save event':'Next →';
+  const body=document.getElementById('wiz-body');
+  if(n===1)renderWizStep1(body);else if(n===2)renderWizStep2(body);else renderWizStep3(body);
+}
+function fsWizNext(){
+  if(_wizStep===1){collectStep1();if(!_wizData.client_name||!_wizData.event_date||!_wizData.covers){toast('Fill in client, date and covers.','err');return;}fsWizStep(2);}
+  else if(_wizStep===2)fsWizStep(3);
+  else{collectStep3();saveFsWizard();}
+}
+function renderWizStep1(body){
+  const d=_wizData;
+  body.innerHTML=`<div class="wiz-form-body">
+    <div class="wiz-section-label">The event</div>
+    <div class="fld"><label class="fld-label">Client name</label><input class="fld-inp" id="w-client" value="${h(d.client_name||'')}" placeholder="e.g. Smith Wedding" autofocus style="font-size:16px"></div>
+    <div class="g3"><div class="fld"><label class="fld-label">Date</label><input class="fld-inp" id="w-date" type="date" value="${d.event_date||''}"></div><div class="fld"><label class="fld-label">Start</label><input class="fld-inp" id="w-start" type="time" value="${d.start_time||'18:00'}"></div><div class="fld"><label class="fld-label">End</label><input class="fld-inp" id="w-end" type="time" value="${d.end_time||'23:00'}"></div></div>
+    <div class="g3"><div class="fld"><label class="fld-label">Covers</label><input class="fld-inp" id="w-covers" type="number" min="1" value="${d.covers||''}"></div><div class="fld"><label class="fld-label">Type</label><select class="fld-sel" id="w-type">${['Private Dining','Wedding','Tasting Menu','Canapés','Buffet','Corporate','Gala Dinner','Grazing','Wake'].map(t=>`<option ${d.event_type===t?'selected':''}>${t}</option>`).join('')}</select></div><div class="fld"><label class="fld-label">Job code</label><input class="fld-inp" id="w-jobcode" value="${h(d.job_code||'')}" style="text-transform:uppercase"></div></div>
+    <div class="g3"><div class="fld"><label class="fld-label">Status</label><select class="fld-sel" id="w-status">${['Enquiry','Provisional','Confirmed','Completed','Cancelled'].map(s=>`<option ${d.status===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="fld"><label class="fld-label">Payment</label><select class="fld-sel" id="w-payment"><option value="" ${!d.deposit_status?'selected':''}>Unpaid</option><option value="deposit" ${d.deposit_status==='deposit'?'selected':''}>Deposit taken</option><option value="invoiced" ${d.deposit_status==='invoiced'?'selected':''}>Invoice sent</option><option value="paid" ${d.deposit_status==='paid'?'selected':''}>Paid in full</option></select></div><div class="fld"><label class="fld-label">Price agreed</label><div style="position:relative"><span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--t4)">£</span><input class="fld-inp" id="w-budget" type="number" step="0.01" value="${d.budget||''}" style="padding-left:22px"></div></div></div>
+    <div class="g2"><div class="fld"><label class="fld-label">Staffing</label><input class="fld-inp" id="w-staffing" value="${h(d.staffing||'')}"></div></div>
+  </div>`;
+  document.getElementById('w-client')?.focus();
+}
+function collectStep1(){
+  const g=id=>document.getElementById(id);if(!g('w-client'))return;
+  _wizData.client_name=g('w-client').value.trim()||_wizData.client_name;
+  _wizData.event_date=g('w-date').value||_wizData.event_date;
+  _wizData.start_time=g('w-start').value||_wizData.start_time;
+  _wizData.end_time=g('w-end').value||_wizData.end_time;
+  _wizData.covers=parseInt(g('w-covers').value)||_wizData.covers;
+  _wizData.event_type=g('w-type').value||_wizData.event_type;
+  _wizData.job_code=(g('w-jobcode').value||'').toUpperCase().trim()||null;
+  _wizData.status=g('w-status').value||_wizData.status;
+  _wizData.deposit_status=g('w-payment').value||null;
+  _wizData.budget=g('w-budget').value||null;
+  _wizData.staffing=g('w-staffing')?.value.trim()||null;
+}
+function renderWizStep2(body){
+  const cats=['all',...CAT_ORDER.filter(c=>dishes.some(d=>d.category===c))];
+  body.innerHTML=`<div class="wiz-menu-shell">
+    <div class="wiz-cats">${cats.map(c=>`<button class="wiz-cat-btn ${_wizCat===c?'active':''}" onclick="wizSetCat('${c}',this)"><span>${c==='all'?'All dishes':c}</span><span class="wiz-cat-badge">${c==='all'?dishes.length:dishes.filter(d=>d.category===c).length}</span></button>`).join('')}</div>
+    <div class="wiz-dish-grid-wrap">
+      <div class="wiz-search-bar"><input class="wiz-search-inp" id="wiz-search" placeholder="Search dishes…" value="${h(_wizSearch)}" oninput="_wizSearch=this.value;renderWizGrid()"></div>
+      <div class="wiz-dish-grid" id="wiz-grid"></div>
+    </div>
+    <div class="wiz-order">
+      <div class="wiz-order-hd"><span class="wiz-order-title">Menu</span><span class="wiz-order-count" id="wiz-sel-count">${_wizSelDishes.length} dishes</span></div>
+      <div class="wiz-order-list" id="wiz-order-list"></div>
+      <div class="wiz-order-footer"><div class="wiz-order-covers">${_wizData.covers||0} covers</div><div class="wiz-order-cost-total" id="wiz-order-total"></div></div>
+    </div>
+  </div>`;
+  renderWizGrid();renderWizOrder();
+}
+function wizSetCat(cat,el){_wizCat=cat;document.querySelectorAll('.wiz-cat-btn').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');renderWizGrid();}
+function renderWizGrid(){
+  const grid=document.getElementById('wiz-grid');if(!grid)return;
+  const q=_wizSearch.toLowerCase();
+  let f=[...dishes];if(_wizCat!=='all')f=f.filter(d=>d.category===_wizCat);if(q)f=f.filter(d=>d.name.toLowerCase().includes(q));f.sort((a,b)=>a.name.localeCompare(b.name));
+  if(!f.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--t4)">No dishes found</div>';return;}
+  grid.innerHTML=f.map(d=>{const sel=_wizSelDishes.includes(d.id);const col=CAT_COLORS[d.category]||'var(--cat-ot)';const cost=calcDishCost(d);return`<div class="wiz-dish-card ${sel?'selected':''}" onclick="wizToggleDish('${d.id}')" style="border-top-color:${col}"><div class="wiz-card-check">✓</div><div class="wiz-card-cat" style="color:${col}">${d.category||'Other'}</div><div class="wiz-card-name">${h(d.name)}</div><div class="wiz-card-comps">${(d.components||[]).length} components</div><div class="wiz-card-cost ${cost==null?'none':''}">${cost!=null?fmt$(cost)+'/cv':'Not costed'}</div></div>`;}).join('');
+}
+function wizToggleDish(id){_wizSelDishes=_wizSelDishes.includes(id)?_wizSelDishes.filter(x=>x!==id):[..._wizSelDishes,id];renderWizGrid();renderWizOrder();}
+function renderWizOrder(){
+  const list=document.getElementById('wiz-order-list');if(!list)return;
+  const count=document.getElementById('wiz-sel-count');const total=document.getElementById('wiz-order-total');
+  if(count)count.textContent=_wizSelDishes.length+' dish'+(_wizSelDishes.length!==1?'es':'');
+  if(!_wizSelDishes.length){list.innerHTML='<div class="wiz-order-empty">Tap dishes to add them.</div>';if(total)total.textContent='';return;}
+  const sel=_wizSelDishes.map(id=>dishes.find(d=>d.id===id)).filter(Boolean);
+  list.innerHTML=sel.map(d=>`<div class="wiz-order-item"><div class="wiz-order-dot" style="background:${CAT_COLORS[d.category]||'var(--cat-ot)'}"></div><span class="wiz-order-name">${h(d.name)}</span><button class="wiz-order-rm" onclick="wizToggleDish('${d.id}')">×</button></div>`).join('');
+  const tc=sel.reduce((s,d)=>{const c=calcDishCost(d);return c?s+c*(_wizData.covers||1):s;},0);
+  if(total&&tc>0)total.textContent='Est. food cost: '+fmt$(tc);
+}
+function renderWizStep3(body){
+  const d=_wizData,rod=d.run_of_day||[],guests=d.guests||[],charges=d.extra_charges||[];
+  body.innerHTML=`<div class="wiz-form-body">
+    <div class="wiz-section-label">Venue</div>
+    <div class="g3"><div class="fld"><label class="fld-label">Venue name</label><input class="fld-inp" id="w-venue" value="${h(d.venue||'')}"></div><div class="fld"><label class="fld-label">Location</label><input class="fld-inp" id="w-location" value="${h(d.location||'')}"></div><div class="fld"><label class="fld-label">Address</label><input class="fld-inp" id="w-address" value="${h(d.address||'')}"></div></div>
+    <div class="wiz-section-label">Contact</div>
+    <div class="g3"><div class="fld"><label class="fld-label">Name</label><input class="fld-inp" id="w-cname" value="${h(d.contact_name||'')}"></div><div class="fld"><label class="fld-label">Phone</label><input class="fld-inp" id="w-cphone" value="${h(d.contact_phone||'')}"></div><div class="fld"><label class="fld-label">Email</label><input class="fld-inp" id="w-cemail" type="email" value="${h(d.contact_email||'')}"></div></div>
+    <div class="wiz-section-label">Run of day <button class="btn btn-xs" onclick="wizAddRod()" style="margin-left:8px">+ Add</button></div>
+    <div id="w-rod-list" style="display:flex;flex-direction:column;gap:5px">${rod.map((r,i)=>`<div style="display:flex;gap:7px;align-items:center"><input class="fld-inp" placeholder="Time" value="${h(r.time||'')}" oninput="_wizData.run_of_day[${i}].time=this.value" style="width:90px"><input class="fld-inp" placeholder="Item" value="${h(r.item||'')}" oninput="_wizData.run_of_day[${i}].item=this.value" style="flex:1"><button class="btn btn-xs btn-danger" onclick="wizRmRod(${i})">×</button></div>`).join('')}</div>
+    <div class="wiz-section-label">Dietary guests <button class="btn btn-xs" onclick="wizAddGuest()" style="margin-left:8px">+ Add</button></div>
+    <div style="display:flex;flex-direction:column;gap:6px">${guests.map((g,i)=>`<div style="display:flex;gap:7px;align-items:center"><input class="fld-inp" placeholder="Guest" value="${h(g.name||'')}" oninput="_wizData.guests[${i}].name=this.value" style="width:110px"><input class="fld-inp" placeholder="Dietary requirement" value="${h(g.dietary||'')}" oninput="_wizData.guests[${i}].dietary=this.value" style="flex:1"><select class="fld-sel" style="width:120px" onchange="_wizData.guests[${i}].type=this.value"><option value="allergy" ${g.type==='allergy'?'selected':''}>Allergy</option><option value="intolerance" ${g.type==='intolerance'?'selected':''}>Intolerance</option><option value="preference" ${g.type==='preference'?'selected':''}>Preference</option></select><button class="btn btn-xs btn-danger" onclick="wizRmGuest(${i})">×</button></div>`).join('')}</div>
+    <div class="wiz-section-label">Extra charges <button class="btn btn-xs" onclick="wizAddCharge()" style="margin-left:8px">+ Add</button></div>
+    <div style="display:flex;flex-direction:column;gap:5px">${charges.map((c,i)=>`<div style="display:flex;gap:7px;align-items:center"><input class="fld-inp" placeholder="Description" value="${h(c.description||'')}" oninput="_wizData.extra_charges[${i}].description=this.value" style="flex:1"><div style="position:relative;width:100px"><span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--t4)">£</span><input class="fld-inp" type="number" step="0.01" value="${c.amount||''}" oninput="_wizData.extra_charges[${i}].amount=parseFloat(this.value)||0" style="padding-left:22px"></div><button class="btn btn-xs btn-danger" onclick="wizRmCharge(${i})">×</button></div>`).join('')}</div>
+    <div class="wiz-section-label">Notes</div>
+    <div class="g2">
+      <div class="fld"><label class="fld-label">Kitchen notes</label><textarea class="fld-ta" id="w-kitchen" style="min-height:80px">${h(d.kitchen_notes||'')}</textarea></div>
+      <div class="fld"><label class="fld-label">Chef notes</label><textarea class="fld-ta" id="w-chef" style="min-height:80px">${h(d.chef_notes||'')}</textarea></div>
+      <div class="fld"><label class="fld-label">Service notes</label><textarea class="fld-ta" id="w-service" style="min-height:80px">${h(d.service_notes||'')}</textarea></div>
+      <div class="fld"><label class="fld-label">Client notes</label><textarea class="fld-ta" id="w-client-notes" style="min-height:80px">${h(d.client_notes||'')}</textarea></div>
+    </div>
+  </div>`;
+}
+function collectStep3(){
+  const g=id=>document.getElementById(id);if(!g('w-venue'))return;
+  _wizData.venue=g('w-venue').value.trim()||null;_wizData.location=g('w-location').value.trim()||null;_wizData.address=g('w-address').value.trim()||null;
+  _wizData.contact_name=g('w-cname').value.trim()||null;_wizData.contact_phone=g('w-cphone').value.trim()||null;_wizData.contact_email=g('w-cemail').value.trim()||null;
+  _wizData.kitchen_notes=g('w-kitchen').value.trim()||null;_wizData.chef_notes=g('w-chef').value.trim()||null;_wizData.service_notes=g('w-service').value.trim()||null;_wizData.client_notes=g('w-client-notes').value.trim()||null;
+}
+function wizAddRod(){(_wizData.run_of_day=_wizData.run_of_day||[]).push({time:'',item:''});fsWizStep(3);}
+function wizRmRod(i){_wizData.run_of_day.splice(i,1);fsWizStep(3);}
+function wizAddGuest(){(_wizData.guests=_wizData.guests||[]).push({name:'',dietary:'',type:'allergy'});fsWizStep(3);}
+function wizRmGuest(i){_wizData.guests.splice(i,1);fsWizStep(3);}
+function wizAddCharge(){(_wizData.extra_charges=_wizData.extra_charges||[]).push({description:'',amount:0});fsWizStep(3);}
+function wizRmCharge(i){_wizData.extra_charges.splice(i,1);fsWizStep(3);}
+async function saveFsWizard(){
+  const btn=document.getElementById('wiz-next-btn');if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  try{
+    const p={client_name:_wizData.client_name,event_type:_wizData.event_type,event_date:_wizData.event_date,start_time:_wizData.start_time,end_time:_wizData.end_time,covers:_wizData.covers,status:_wizData.status||'Enquiry',deposit_status:_wizData.deposit_status||null,budget:_wizData.budget||null,staffing:_wizData.staffing||null,job_code:_wizData.job_code||null,venue:_wizData.venue||null,location:_wizData.location||null,address:_wizData.address||null,contact_name:_wizData.contact_name||null,contact_phone:_wizData.contact_phone||null,contact_email:_wizData.contact_email||null,kitchen_notes:_wizData.kitchen_notes||null,chef_notes:_wizData.chef_notes||null,service_notes:_wizData.service_notes||null,client_notes:_wizData.client_notes||null,run_of_day:_wizData.run_of_day||[],extra_charges:_wizData.extra_charges||[],guests:_wizData.guests||[]};
+    let evId=_wizData.id;
+    if(evId){const{error}=await sb.from('events').update(p).eq('id',evId);if(error)throw error;}
+    else{const{data,error}=await sb.from('events').insert(p).select().single();if(error)throw error;evId=data.id;}
+    await sb.from('event_dishes').delete().eq('event_id',evId);
+    if(_wizSelDishes.length)await sb.from('event_dishes').insert(_wizSelDishes.map((did,i)=>({event_id:evId,dish_id:did,sort_order:i})));
+    toast(_wizData.id?'Event updated':'Event created','ok');
+    await loadEvents();closeFsWizard();
+  }catch(e){toast(e.message||'Save failed','err');if(btn){btn.disabled=false;btn.textContent='Save event';}}
+}
 
 </script>
 </body>
