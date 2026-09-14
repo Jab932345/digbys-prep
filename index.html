@@ -7,66 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-// ── Photo upload helpers ──────────────────────────────────────────────
-async function uploadDishPhoto(file, dishId) {
-  const ext = file.name.split('.').pop().toLowerCase();
-  const path = `${dishId}.${ext}`;
-  // Remove old photo first
-  await sb.storage.from('dish-photos').remove([path]);
-  const { data, error } = await sb.storage.from('dish-photos').upload(path, file, {
-    upsert: true, contentType: file.type
-  });
-  if (error) { toast('Photo upload failed: ' + error.message, 'err'); return null; }
-  const { data: urlData } = sb.storage.from('dish-photos').getPublicUrl(path);
-  return urlData.publicUrl;
-}
-
-function renderPhotoSection(dishId, currentUrl) {
-  return `<div class="fld">
-    <label class="fld-label">Dish photo</label>
-    <div class="photo-upload-area" id="photo-drop-area">
-      <input type="file" accept="image/*" id="photo-file-input" onchange="handlePhotoSelect(event,'${dishId}')">
-      ${currentUrl
-        ? `<img class="photo-preview" id="photo-preview" src="${currentUrl}" alt="">`
-        : `<div id="photo-preview" style="display:none" class="photo-preview-wrap"></div>`}
-      <div class="photo-upload-label">
-        ${currentUrl ? '<strong>Click to replace photo</strong>' : '<strong>Click to upload a photo</strong> or drag & drop'}
-        <div style="font-size:11px;margin-top:4px;color:var(--t4)">JPG or PNG, max 5MB</div>
-      </div>
-    </div>
-    ${currentUrl ? `<button class="btn btn-xs btn-danger" style="margin-top:7px" onclick="removeDishPhoto('${dishId}')">Remove photo</button>` : ''}
-  </div>`;
-}
-
-async function handlePhotoSelect(evt, dishId) {
-  const file = evt.target.files[0];
-  if (!file) return;
-  if (file.size > 5 * 1024 * 1024) { toast('Photo must be under 5MB', 'err'); return; }
-  toast('Uploading…');
-  const url = await uploadDishPhoto(file, dishId || 'tmp-' + Date.now());
-  if (!url) return;
-  _ddData.photo_url = url;
-  // Update preview
-  let prev = document.getElementById('photo-preview');
-  if (prev) { prev.src = url; prev.style.display = 'block'; }
-  else {
-    prev = document.createElement('img');
-    prev.id = 'photo-preview'; prev.className = 'photo-preview'; prev.src = url;
-    document.getElementById('photo-drop-area').prepend(prev);
-  }
-  toast('Photo uploaded', 'ok');
-}
-
-async function removeDishPhoto(dishId) {
-  if (!confirm('Remove dish photo?')) return;
-  const ext = _ddData.photo_url?.split('.').pop()?.split('?')[0] || 'jpg';
-  await sb.storage.from('dish-photos').remove([`${dishId}.${ext}`]);
-  _ddData.photo_url = null;
-  toast('Photo removed');
-  ddGoStep(1); // re-render step 1
-}
-
-</script>
+// ── Photo upload helpers ──────────────────────────────────────────────</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -3562,6 +3503,59 @@ async function saveFsWizard(){
     toast(_wizData.id?'Event updated':'Event created','ok');
     await loadEvents();closeFsWizard();
   }catch(e){toast(e.message||'Save failed','err');if(btn){btn.disabled=false;btn.textContent='Save event';}}
+}
+
+
+// ── Photo upload ──────────────────────────────────────────────────────
+async function uploadDishPhoto(file, dishId) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const path = `${dishId}.${ext}`;
+  await sb.storage.from('dish-photos').remove([path]);
+  const { data, error } = await sb.storage.from('dish-photos').upload(path, file, { upsert: true, contentType: file.type });
+  if (error) { toast('Upload failed: ' + error.message, 'err'); return null; }
+  const { data: urlData } = sb.storage.from('dish-photos').getPublicUrl(path);
+  return urlData.publicUrl + '?t=' + Date.now();
+}
+
+async function handlePhotoSelect(evt, dishId) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast('Photo must be under 5MB', 'err'); return; }
+  if (!dishId) { toast('Save the dish first before adding a photo', 'err'); return; }
+  toast('Uploading…');
+  const url = await uploadDishPhoto(file, dishId);
+  if (!url) return;
+  _ddData.photo_url = url;
+  // Update preview inline without re-rendering step
+  const wrap = document.getElementById('photo-preview-wrap');
+  if (wrap) wrap.innerHTML = `<img class="photo-preview" id="photo-preview" src="${url}" alt="">`;
+  const label = document.querySelector('.photo-upload-label');
+  if (label) label.innerHTML = '<strong>Click to replace</strong>';
+  // Update the local dish object
+  const d = dishes.find(x => x.id === dishId);
+  if (d) d.photo_url = url;
+  // Save photo_url to DB immediately
+  await sb.from('dishes').update({ photo_url: url }).eq('id', dishId);
+  toast('Photo saved', 'ok');
+  renderDishList();
+}
+
+async function removeDishPhoto() {
+  if (!confirm('Remove this photo?')) return;
+  const dishId = document.getElementById('dd-id').value;
+  if (_ddData.photo_url) {
+    const path = _ddData.photo_url.split('/dish-photos/')[1]?.split('?')[0];
+    if (path) await sb.storage.from('dish-photos').remove([path]);
+  }
+  _ddData.photo_url = null;
+  if (dishId) {
+    await sb.from('dishes').update({ photo_url: null }).eq('id', dishId);
+    const d = dishes.find(x => x.id === dishId);
+    if (d) d.photo_url = null;
+  }
+  toast('Photo removed');
+  ddGoStep(1);
+  renderDishList();
 }
 
 </script>
