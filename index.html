@@ -6,7 +6,430 @@
 <title>Digby's — Kitchen Ops</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// ═══ FUNCTION SHEET WIZARD ═══════════════════════════════════════════
+
+let _wizStep = 1;
+let _wizData = {};        // form data being built
+let _wizSelDishes = [];   // array of dish ids selected in step 2
+let _wizCat = 'all';      // active category in step 2
+let _wizSearch = '';
+
+function openFsWizard(evId) {
+  // Populate _wizData from existing event if editing
+  _wizData = {};
+  _wizSelDishes = [];
+  _wizCat = 'all';
+  _wizSearch = '';
+  
+  if (evId) {
+    const ev = events.find(e => e.id === evId);
+    if (ev) {
+      _wizData = { ...ev };
+      _wizSelDishes = (ev.event_dishes || []).map(ed => ed.dish_id);
+      document.getElementById('wiz-title').textContent = ev.client_name || 'Edit event';
+    }
+  } else {
+    document.getElementById('wiz-title').textContent = 'New event';
+    // Default date to next Saturday
+    const d = new Date();
+    d.setDate(d.getDate() + (6 - d.getDay() + 7) % 7 || 7);
+    _wizData.event_date = d.toISOString().slice(0, 10);
+    _wizData.status = 'Provisional';
+    _wizData.start_time = '18:00';
+    _wizData.end_time = '23:00';
+    _wizData.extra_charges = [];
+    _wizData.run_of_day = [];
+    _wizData.guests = [];
+  }
+
+  // Navigate to wizard view
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-fs-wizard').classList.add('active');
+  fsWizStep(1);
+}
+
+// Replace the old openFunctionSheet
+function openFunctionSheet(evId) { openFsWizard(evId); }
+
+function closeFsWizard() {
+  document.getElementById('view-fs-wizard').classList.remove('active');
+  // Return to previous view
+  const prevView = _wizData.id ? 'events' : 'home';
+  const sbEl = document.querySelector(`.sb-item[data-view="${prevView === 'home' ? 'home' : 'events'}"]`);
+  sbNav(prevView === 'home' ? 'home' : 'events', sbEl);
+}
+
+function fsWizStep(n) {
+  if (n < 1 || n > 3) return;
+  // Collect current step data before moving
+  if (_wizStep === 1) collectStep1();
+  if (_wizStep === 3) collectStep3();
+  _wizStep = n;
+
+  // Update dots
+  for (let i = 1; i <= 3; i++) {
+    const dot = document.getElementById('wiz-dot-' + i);
+    if (!dot) continue;
+    dot.className = 'wiz-step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+    dot.textContent = i < n ? '✓' : i;
+  }
+
+  document.getElementById('wiz-back-btn').style.display = n > 1 ? 'flex' : 'none';
+  document.getElementById('wiz-next-btn').textContent = n === 3 ? 'Save event' : 'Next →';
+
+  const body = document.getElementById('wiz-body');
+  if (n === 1) renderWizStep1(body);
+  else if (n === 2) renderWizStep2(body);
+  else if (n === 3) renderWizStep3(body);
+}
+
+function fsWizNext() {
+  if (_wizStep === 1) {
+    collectStep1();
+    if (!_wizData.client_name || !_wizData.event_date || !_wizData.covers) {
+      toast('Fill in client, date and covers first.', 'err'); return;
+    }
+    fsWizStep(2);
+  } else if (_wizStep === 2) {
+    fsWizStep(3);
+  } else if (_wizStep === 3) {
+    collectStep3();
+    saveFsWizard();
+  }
+}
+
+// ── Step 1: Event basics ─────────────────────────────────────────────
+function renderWizStep1(body) {
+  const d = _wizData;
+  body.innerHTML = `<div class="wiz-form-body">
+    <div class="wiz-section-label">The event</div>
+    <div class="g2">
+      <div class="fld" style="grid-column:1/-1;">
+        <label class="fld-label">Client name</label>
+        <input class="fld-inp" id="w-client" value="${h(d.client_name||'')}" placeholder="e.g. Smith Wedding, Jones Corporate" autofocus>
+      </div>
+    </div>
+    <div class="g3">
+      <div class="fld">
+        <label class="fld-label">Date</label>
+        <input class="fld-inp" id="w-date" type="date" value="${d.event_date||''}">
+      </div>
+      <div class="fld">
+        <label class="fld-label">Start</label>
+        <input class="fld-inp" id="w-start" type="time" value="${d.start_time||'18:00'}">
+      </div>
+      <div class="fld">
+        <label class="fld-label">End</label>
+        <input class="fld-inp" id="w-end" type="time" value="${d.end_time||'23:00'}">
+      </div>
+    </div>
+    <div class="g3">
+      <div class="fld">
+        <label class="fld-label">Covers</label>
+        <input class="fld-inp" id="w-covers" type="number" min="1" value="${d.covers||''}" placeholder="0">
+      </div>
+      <div class="fld">
+        <label class="fld-label">Event type</label>
+        <select class="fld-sel" id="w-type">
+          ${['Private Dining','Wedding','Tasting Menu','Canapés','Buffet','Corporate','Gala Dinner','Grazing','Wake'].map(t=>`<option value="${t}" ${d.event_type===t?'selected':''}>${t}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fld">
+        <label class="fld-label">Job code</label>
+        <input class="fld-inp" id="w-jobcode" value="${h(d.job_code||'')}" placeholder="e.g. SMI251025" style="text-transform:uppercase">
+      </div>
+    </div>
+    <div class="g2">
+      <div class="fld">
+        <label class="fld-label">Status</label>
+        <select class="fld-sel" id="w-status">
+          ${['Enquiry','Provisional','Confirmed','Completed','Cancelled'].map(s=>`<option ${d.status===s?'selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fld">
+        <label class="fld-label">Payment</label>
+        <select class="fld-sel" id="w-payment">
+          <option value="" ${!d.deposit_status?'selected':''}>Unpaid</option>
+          <option value="deposit" ${d.deposit_status==='deposit'?'selected':''}>Deposit taken</option>
+          <option value="invoiced" ${d.deposit_status==='invoiced'?'selected':''}>Invoice sent</option>
+          <option value="paid" ${d.deposit_status==='paid'?'selected':''}>Paid in full</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="fld">
+        <label class="fld-label">Price agreed</label>
+        <div style="position:relative"><span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--t4);">£</span>
+        <input class="fld-inp" id="w-budget" type="number" step="0.01" value="${d.budget||''}" placeholder="0.00" style="padding-left:24px;"></div>
+      </div>
+      <div class="fld">
+        <label class="fld-label">Staffing</label>
+        <input class="fld-inp" id="w-staffing" value="${h(d.staffing||'')}">
+      </div>
+    </div>
+  </div>`;
+  document.getElementById('w-client')?.focus();
+}
+
+function collectStep1() {
+  _wizData.client_name = document.getElementById('w-client')?.value.trim() || _wizData.client_name;
+  _wizData.event_date = document.getElementById('w-date')?.value || _wizData.event_date;
+  _wizData.start_time = document.getElementById('w-start')?.value || _wizData.start_time;
+  _wizData.end_time = document.getElementById('w-end')?.value || _wizData.end_time;
+  _wizData.covers = parseInt(document.getElementById('w-covers')?.value) || _wizData.covers;
+  _wizData.event_type = document.getElementById('w-type')?.value || _wizData.event_type;
+  _wizData.job_code = (document.getElementById('w-jobcode')?.value || '').toUpperCase().trim() || _wizData.job_code || null;
+  _wizData.status = document.getElementById('w-status')?.value || _wizData.status;
+  _wizData.deposit_status = document.getElementById('w-payment')?.value || null;
+  _wizData.budget = document.getElementById('w-budget')?.value || _wizData.budget || null;
+  _wizData.staffing = document.getElementById('w-staffing')?.value.trim() || null;
+}
+
+// ── Step 2: Menu builder ─────────────────────────────────────────────
+function renderWizStep2(body) {
+  const cats = ['all', ...CAT_ORDER.filter(c => dishes.some(d => d.category === c))];
+  const catBtns = cats.map(c => `<button class="wiz-cat-btn ${_wizCat===c?'active':''}" onclick="wizSetCat('${c}')">
+    ${c==='all'?'All dishes':c}
+    <span class="wiz-cat-badge">${c==='all'?dishes.length:dishes.filter(d=>d.category===c).length}</span>
+  </button>`).join('');
+
+  body.innerHTML = `<div class="wiz-menu-shell">
+    <div class="wiz-cats">${catBtns}</div>
+    <div class="wiz-dish-grid-wrap">
+      <div class="wiz-search-bar">
+        <input class="wiz-search-inp" id="wiz-search" placeholder="Search dishes…" value="${h(_wizSearch)}" oninput="_wizSearch=this.value;renderWizGrid()">
+      </div>
+      <div class="wiz-dish-grid" id="wiz-grid"></div>
+    </div>
+    <div class="wiz-order">
+      <div class="wiz-order-hd">
+        <span class="wiz-order-title">Menu</span>
+        <span class="wiz-order-count" id="wiz-sel-count">${_wizSelDishes.length} dishes</span>
+      </div>
+      <div class="wiz-order-list" id="wiz-order-list"></div>
+      <div class="wiz-order-footer">
+        <div class="wiz-order-covers">${_wizData.covers||0} covers</div>
+        <div class="wiz-order-cost-total" id="wiz-order-total"></div>
+      </div>
+    </div>
+  </div>`;
+  renderWizGrid();
+  renderWizOrder();
+}
+
+function wizSetCat(cat) {
+  _wizCat = cat;
+  document.querySelectorAll('.wiz-cat-btn').forEach(b => b.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  renderWizGrid();
+}
+
+function renderWizGrid() {
+  const grid = document.getElementById('wiz-grid');
+  if (!grid) return;
+  const q = _wizSearch.toLowerCase();
+  let f = [...dishes];
+  if (_wizCat !== 'all') f = f.filter(d => d.category === _wizCat);
+  if (q) f = f.filter(d => d.name.toLowerCase().includes(q));
+  f.sort((a,b) => a.name.localeCompare(b.name));
+
+  if (!f.length) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--t4);font-size:13px;">No dishes found</div>'; return; }
+
+  const col = d => CAT_COLORS[d.category] || 'var(--cat-ot)';
+  grid.innerHTML = f.map(d => {
+    const sel = _wizSelDishes.includes(d.id);
+    const cost = calcDishCost(d);
+    const comps = (d.components||[]).length;
+    return `<div class="wiz-dish-card ${sel?'selected':''}" onclick="wizToggleDish('${d.id}')" style="border-top-color:${col(d)};">
+      <div class="wiz-card-check">✓</div>
+      <div class="wiz-card-cat" style="color:${col(d)}">${d.category||'Other'}</div>
+      <div class="wiz-card-name">${h(d.name)}</div>
+      <div class="wiz-card-comps">${comps} component${comps!==1?'s':''}</div>
+      ${cost!=null?`<div class="wiz-card-cost">${fmt$(cost)}/cv</div>`:`<div class="wiz-card-cost none">Not costed</div>`}
+    </div>`;
+  }).join('');
+}
+
+function wizToggleDish(id) {
+  if (_wizSelDishes.includes(id)) {
+    _wizSelDishes = _wizSelDishes.filter(x => x !== id);
+  } else {
+    _wizSelDishes.push(id);
+  }
+  renderWizGrid();
+  renderWizOrder();
+}
+
+function renderWizOrder() {
+  const list = document.getElementById('wiz-order-list');
+  const count = document.getElementById('wiz-sel-count');
+  const total = document.getElementById('wiz-order-total');
+  if (!list) return;
+
+  if (count) count.textContent = _wizSelDishes.length + ' dish' + (_wizSelDishes.length!==1?'es':'');
+
+  if (!_wizSelDishes.length) {
+    list.innerHTML = '<div class="wiz-order-empty">Tap dishes to add them to the menu.</div>';
+    if (total) total.textContent = '';
+    return;
+  }
+
+  const sel = _wizSelDishes.map(id => dishes.find(d => d.id === id)).filter(Boolean);
+  list.innerHTML = sel.map(d => {
+    const col = CAT_COLORS[d.category] || 'var(--cat-ot)';
+    return `<div class="wiz-order-item">
+      <div class="wiz-order-dot" style="background:${col}"></div>
+      <span class="wiz-order-name">${h(d.name)}</span>
+      <button class="wiz-order-rm" onclick="wizToggleDish('${d.id}')">×</button>
+    </div>`;
+  }).join('');
+
+  const covers = _wizData.covers || 1;
+  const totalCost = sel.reduce((s, d) => { const c = calcDishCost(d); return c ? s + c * covers : s; }, 0);
+  if (total && totalCost > 0) total.textContent = `Est. food cost: ${fmt$(totalCost)}`;
+}
+
+// ── Step 3: Details ──────────────────────────────────────────────────
+function renderWizStep3(body) {
+  const d = _wizData;
+  const rod = (d.run_of_day || []);
+  const charges = (d.extra_charges || []);
+  const guests = (d.guests || []);
+
+  body.innerHTML = `<div class="wiz-form-body">
+    <div class="wiz-section-label">Venue</div>
+    <div class="g3">
+      <div class="fld"><label class="fld-label">Venue name</label><input class="fld-inp" id="w-venue" value="${h(d.venue||'')}"></div>
+      <div class="fld"><label class="fld-label">Location / area</label><input class="fld-inp" id="w-location" value="${h(d.location||'')}"></div>
+      <div class="fld"><label class="fld-label">Full address</label><input class="fld-inp" id="w-address" value="${h(d.address||'')}"></div>
+    </div>
+    <div class="wiz-section-label">Contact</div>
+    <div class="g3">
+      <div class="fld"><label class="fld-label">Name</label><input class="fld-inp" id="w-cname" value="${h(d.contact_name||'')}"></div>
+      <div class="fld"><label class="fld-label">Phone</label><input class="fld-inp" id="w-cphone" value="${h(d.contact_phone||'')}"></div>
+      <div class="fld"><label class="fld-label">Email</label><input class="fld-inp" id="w-cemail" type="email" value="${h(d.contact_email||'')}"></div>
+    </div>
+    <div class="wiz-section-label">Run of day <button class="btn btn-xs" onclick="wizAddRod()" style="margin-left:8px;">+ Add</button></div>
+    <div id="w-rod-list" style="display:flex;flex-direction:column;gap:5px;">
+      ${rod.map((r,i) => `<div class="g2" style="gap:8px;align-items:center;">
+        <input class="fld-inp" placeholder="Time" value="${h(r.time||'')}" oninput="_wizData.run_of_day[${i}].time=this.value">
+        <div style="display:flex;gap:5px;">
+          <input class="fld-inp" placeholder="Item" value="${h(r.item||'')}" oninput="_wizData.run_of_day[${i}].item=this.value">
+          <button class="btn btn-xs btn-danger" onclick="wizRmRod(${i})">×</button>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="wiz-section-label">Dietary guests <button class="btn btn-xs" onclick="wizAddGuest()" style="margin-left:8px;">+ Add</button></div>
+    <div id="w-guests-list" style="display:flex;flex-direction:column;gap:7px;">
+      ${guests.map((g,i) => `<div style="display:flex;gap:7px;align-items:center;">
+        <input class="fld-inp" placeholder="Name / guest" value="${h(g.name||'')}" oninput="_wizData.guests[${i}].name=this.value" style="flex:1">
+        <input class="fld-inp" placeholder="Dietary requirement" value="${h(g.dietary||'')}" oninput="_wizData.guests[${i}].dietary=this.value" style="flex:2">
+        <select class="fld-sel" style="width:110px;" onchange="_wizData.guests[${i}].type=this.value">
+          <option value="allergy" ${g.type==='allergy'?'selected':''}>Allergy</option>
+          <option value="intolerance" ${g.type==='intolerance'?'selected':''}>Intolerance</option>
+          <option value="preference" ${g.type==='preference'?'selected':''}>Preference</option>
+        </select>
+        <button class="btn btn-xs btn-danger" onclick="wizRmGuest(${i})">×</button>
+      </div>`).join('')}
+    </div>
+    <div class="wiz-section-label">Extra charges <button class="btn btn-xs" onclick="wizAddCharge()" style="margin-left:8px;">+ Add</button></div>
+    <div id="w-charges-list" style="display:flex;flex-direction:column;gap:5px;">
+      ${charges.map((c,i) => `<div style="display:flex;gap:7px;align-items:center;">
+        <input class="fld-inp" placeholder="Description" value="${h(c.description||'')}" oninput="_wizData.extra_charges[${i}].description=this.value" style="flex:1">
+        <div style="position:relative;width:110px;"><span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--t4);">£</span>
+        <input class="fld-inp" type="number" step="0.01" value="${c.amount||''}" oninput="_wizData.extra_charges[${i}].amount=parseFloat(this.value)||0" style="padding-left:22px;"></div>
+        <button class="btn btn-xs btn-danger" onclick="wizRmCharge(${i})">×</button>
+      </div>`).join('')}
+    </div>
+    <div class="wiz-section-label">Notes</div>
+    <div class="g2">
+      <div class="fld"><label class="fld-label">Kitchen notes</label><textarea class="fld-ta" id="w-kitchen" style="min-height:80px;">${h(d.kitchen_notes||'')}</textarea></div>
+      <div class="fld"><label class="fld-label">Chef notes</label><textarea class="fld-ta" id="w-chef" style="min-height:80px;">${h(d.chef_notes||'')}</textarea></div>
+      <div class="fld"><label class="fld-label">Service notes</label><textarea class="fld-ta" id="w-service" style="min-height:80px;">${h(d.service_notes||'')}</textarea></div>
+      <div class="fld"><label class="fld-label">Client notes</label><textarea class="fld-ta" id="w-client-notes" style="min-height:80px;">${h(d.client_notes||'')}</textarea></div>
+    </div>
+  </div>`;
+}
+
+function collectStep3() {
+  _wizData.venue = document.getElementById('w-venue')?.value.trim() || null;
+  _wizData.location = document.getElementById('w-location')?.value.trim() || null;
+  _wizData.address = document.getElementById('w-address')?.value.trim() || null;
+  _wizData.contact_name = document.getElementById('w-cname')?.value.trim() || null;
+  _wizData.contact_phone = document.getElementById('w-cphone')?.value.trim() || null;
+  _wizData.contact_email = document.getElementById('w-cemail')?.value.trim() || null;
+  _wizData.kitchen_notes = document.getElementById('w-kitchen')?.value.trim() || null;
+  _wizData.chef_notes = document.getElementById('w-chef')?.value.trim() || null;
+  _wizData.service_notes = document.getElementById('w-service')?.value.trim() || null;
+  _wizData.client_notes = document.getElementById('w-client-notes')?.value.trim() || null;
+}
+
+function wizAddRod() { (_wizData.run_of_day = _wizData.run_of_day||[]).push({time:'',item:''}); fsWizStep(3); }
+function wizRmRod(i) { _wizData.run_of_day.splice(i,1); fsWizStep(3); }
+function wizAddGuest() { (_wizData.guests = _wizData.guests||[]).push({name:'',dietary:'',type:'allergy'}); fsWizStep(3); }
+function wizRmGuest(i) { _wizData.guests.splice(i,1); fsWizStep(3); }
+function wizAddCharge() { (_wizData.extra_charges = _wizData.extra_charges||[]).push({description:'',amount:0}); fsWizStep(3); }
+function wizRmCharge(i) { _wizData.extra_charges.splice(i,1); fsWizStep(3); }
+
+// ── Save ─────────────────────────────────────────────────────────────
+async function saveFsWizard() {
+  const btn = document.getElementById('wiz-next-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
+  try {
+    const payload = {
+      client_name: _wizData.client_name,
+      event_type: _wizData.event_type,
+      event_date: _wizData.event_date,
+      start_time: _wizData.start_time,
+      end_time: _wizData.end_time,
+      covers: _wizData.covers,
+      status: _wizData.status || 'Enquiry',
+      deposit_status: _wizData.deposit_status || null,
+      budget: _wizData.budget || null,
+      staffing: _wizData.staffing || null,
+      job_code: _wizData.job_code || null,
+      venue: _wizData.venue || null,
+      location: _wizData.location || null,
+      address: _wizData.address || null,
+      contact_name: _wizData.contact_name || null,
+      contact_phone: _wizData.contact_phone || null,
+      contact_email: _wizData.contact_email || null,
+      kitchen_notes: _wizData.kitchen_notes || null,
+      chef_notes: _wizData.chef_notes || null,
+      service_notes: _wizData.service_notes || null,
+      client_notes: _wizData.client_notes || null,
+      run_of_day: _wizData.run_of_day || [],
+      extra_charges: _wizData.extra_charges || [],
+      guests: _wizData.guests || [],
+    };
+
+    let evId = _wizData.id;
+    if (evId) {
+      const { error } = await sb.from('events').update(payload).eq('id', evId);
+      if (error) throw error;
+    } else {
+      const { data, error } = await sb.from('events').insert(payload).select().single();
+      if (error) throw error;
+      evId = data.id;
+    }
+
+    // Save dish links
+    await sb.from('event_dishes').delete().eq('event_id', evId);
+    if (_wizSelDishes.length) {
+      await sb.from('event_dishes').insert(_wizSelDishes.map((did, i) => ({ event_id: evId, dish_id: did, sort_order: i })));
+    }
+
+    toast(_wizData.id ? 'Event updated' : 'Event created', 'ok');
+    await loadEvents();
+    closeFsWizard();
+  } catch (e) {
+    toast(e.message || 'Save failed', 'err');
+    if (btn) { btn.disabled = false; btn.textContent = 'Save event'; }
+  }
+}
+
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -844,6 +1267,155 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 .toast.ok{border-left:3px solid var(--grn);}
 .toast.err{border-left:3px solid var(--red);}
 @media print{.sidebar,.ph-actions,.fs-actions,.toast,.modal-ov{display:none!important;}.shell{display:block!important;height:auto!important;overflow:visible!important;}.view{display:block!important;}.prep-task.expanded .prep-task-detail{display:block!important;}}
+
+/* ═══ FUNCTION SHEET WIZARD ═════════════════════════════════════════ */
+#view-fs-wizard { background: var(--bg); }
+
+/* Top bar */
+.wiz-bar {
+  background: var(--s1); border-bottom: 1px solid var(--bd);
+  padding: 0 20px; height: 52px; display: flex; align-items: center;
+  gap: 16px; flex-shrink: 0;
+}
+.wiz-back { color: var(--t3); background: none; border: none; cursor: pointer; font-size: 16px; padding: 0 4px; transition: color .1s; }
+.wiz-back:hover { color: var(--t1); }
+.wiz-title { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--t1); flex: 1; }
+.wiz-steps { display: flex; align-items: center; gap: 3px; }
+.wiz-step-dot {
+  width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--bd2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; font-family: 'DM Mono', monospace;
+  color: var(--t4); cursor: pointer; transition: all .15s;
+}
+.wiz-step-dot.done { background: var(--grn); border-color: var(--grn); color: #fff; }
+.wiz-step-dot.active { background: var(--gold); border-color: var(--gold); color: #000; }
+.wiz-step-line { width: 24px; height: 1px; background: var(--bd2); }
+.wiz-actions { display: flex; gap: 7px; }
+
+/* Step 1 & 3: form layout */
+.wiz-form-body { flex: 1; overflow-y: auto; padding: 28px 32px; max-width: 720px; }
+.wiz-form-body::-webkit-scrollbar { width: 3px; }
+.wiz-form-body::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
+.wiz-section-label {
+  font-size: 10px; font-weight: 800; color: var(--t4);
+  text-transform: uppercase; letter-spacing: .12em;
+  font-family: 'DM Mono', monospace; margin: 22px 0 12px;
+  padding-top: 18px; border-top: 1px solid var(--bd);
+}
+.wiz-section-label:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+
+/* Step 2: menu builder */
+.wiz-menu-shell { display: flex; flex: 1; overflow: hidden; }
+
+/* Category tabs — left */
+.wiz-cats {
+  width: 140px; flex-shrink: 0; background: var(--s1);
+  border-right: 1px solid var(--bd); overflow-y: auto;
+  display: flex; flex-direction: column; padding: 8px 0;
+}
+.wiz-cats::-webkit-scrollbar { display: none; }
+.wiz-cat-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; cursor: pointer; border: none; background: none;
+  color: var(--t3); font-size: 12px; font-weight: 500; text-align: left;
+  transition: all .1s; border-left: 3px solid transparent;
+}
+.wiz-cat-btn:hover { color: var(--t2); background: var(--s2); }
+.wiz-cat-btn.active { color: var(--t1); background: var(--s2); border-left-color: var(--gold); }
+.wiz-cat-badge {
+  font-size: 10px; font-family: 'DM Mono', monospace;
+  color: var(--t4); background: var(--s3); padding: 1px 6px; border-radius: 20px;
+}
+.wiz-cat-btn.active .wiz-cat-badge { background: var(--goldfg); color: var(--gold); }
+
+/* Dish grid — centre */
+.wiz-dish-grid-wrap {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+}
+.wiz-search-bar {
+  padding: 10px 14px; background: var(--s1); border-bottom: 1px solid var(--bd);
+  flex-shrink: 0;
+}
+.wiz-search-inp {
+  width: 100%; font-size: 13px; padding: 8px 12px;
+  border: 1px solid var(--bd); border-radius: var(--r);
+  background: var(--s2); color: var(--t1); outline: none;
+}
+.wiz-search-inp::placeholder { color: var(--t4); }
+.wiz-search-inp:focus { border-color: var(--gold); }
+.wiz-dish-grid {
+  flex: 1; overflow-y: auto; padding: 14px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px; align-content: start;
+}
+.wiz-dish-grid::-webkit-scrollbar { width: 3px; }
+.wiz-dish-grid::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
+.wiz-dish-card {
+  background: var(--s1); border: 1px solid var(--bd); border-radius: 8px;
+  padding: 12px; cursor: pointer; transition: all .12s;
+  display: flex; flex-direction: column; gap: 6px;
+  border-top: 3px solid transparent;
+  position: relative;
+}
+.wiz-dish-card:hover { border-color: var(--bd2); background: var(--s2); }
+.wiz-dish-card.selected {
+  border-color: var(--gold); background: var(--goldfg);
+  border-top-color: var(--gold);
+}
+.wiz-dish-card.selected .wiz-card-check { opacity: 1; }
+.wiz-card-check {
+  position: absolute; top: 8px; right: 8px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--gold); color: #000;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; font-weight: 800; opacity: 0; transition: opacity .12s;
+}
+.wiz-card-cat {
+  font-size: 9px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .1em; font-family: 'DM Mono', monospace;
+}
+.wiz-card-name {
+  font-family: 'Playfair Display', serif; font-size: 14px;
+  color: var(--t1); line-height: 1.3;
+}
+.wiz-card-cost {
+  font-size: 11px; font-family: 'DM Mono', monospace;
+  color: var(--gold); font-weight: 600; margin-top: auto;
+}
+.wiz-card-cost.none { color: var(--t4); font-weight: 400; }
+.wiz-card-comps { font-size: 10px; color: var(--t4); font-family: 'DM Mono', monospace; }
+
+/* Order panel — right */
+.wiz-order {
+  width: 240px; flex-shrink: 0; background: var(--s1);
+  border-left: 1px solid var(--bd); display: flex; flex-direction: column;
+}
+.wiz-order-hd {
+  padding: 12px 14px; border-bottom: 1px solid var(--bd); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.wiz-order-title { font-size: 11px; font-weight: 700; color: var(--t2); text-transform: uppercase; letter-spacing: .08em; font-family: 'DM Mono', monospace; }
+.wiz-order-count { font-size: 11px; color: var(--gold); font-family: 'DM Mono', monospace; font-weight: 700; }
+.wiz-order-list { flex: 1; overflow-y: auto; padding: 8px 0; }
+.wiz-order-list::-webkit-scrollbar { width: 3px; }
+.wiz-order-list::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
+.wiz-order-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  padding: 8px 14px; border-bottom: 1px solid var(--bd); cursor: pointer;
+  transition: background .07s;
+}
+.wiz-order-item:hover { background: var(--s2); }
+.wiz-order-item:last-child { border-bottom: none; }
+.wiz-order-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.wiz-order-name { font-size: 12px; color: var(--t2); flex: 1; line-height: 1.4; }
+.wiz-order-rm { background: none; border: none; color: var(--t4); cursor: pointer; font-size: 14px; padding: 0; flex-shrink: 0; transition: color .1s; }
+.wiz-order-rm:hover { color: var(--red); }
+.wiz-order-empty { padding: 20px 14px; font-size: 12px; color: var(--t4); text-align: center; line-height: 1.6; }
+.wiz-order-footer {
+  padding: 12px 14px; border-top: 1px solid var(--bd); flex-shrink: 0;
+}
+.wiz-order-covers { font-size: 11px; color: var(--t3); font-family: 'DM Mono', monospace; margin-bottom: 4px; }
+.wiz-order-cost-total { font-size: 13px; font-weight: 700; color: var(--gold); font-family: 'DM Mono', monospace; }
 </style>
 </head>
 <body>
@@ -1126,6 +1698,26 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
   </div>
 </div>
 
+
+<!-- ══ FUNCTION SHEET WIZARD ═══════════════════════════════════════ -->
+<div id="view-fs-wizard" class="view">
+  <div class="wiz-bar">
+    <button class="wiz-back" onclick="closeFsWizard()">←</button>
+    <span class="wiz-title" id="wiz-title">New event</span>
+    <div class="wiz-steps">
+      <div class="wiz-step-dot active" id="wiz-dot-1" onclick="fsWizStep(1)">1</div>
+      <div class="wiz-step-line"></div>
+      <div class="wiz-step-dot" id="wiz-dot-2" onclick="fsWizStep(2)">2</div>
+      <div class="wiz-step-line"></div>
+      <div class="wiz-step-dot" id="wiz-dot-3" onclick="fsWizStep(3)">3</div>
+    </div>
+    <div class="wiz-actions">
+      <button class="btn btn-sm" id="wiz-back-btn" onclick="fsWizStep(_wizStep-1)" style="display:none">← Back</button>
+      <button class="btn btn-gold btn-sm" id="wiz-next-btn" onclick="fsWizNext()">Next →</button>
+    </div>
+  </div>
+  <div id="wiz-body" style="flex:1;overflow:hidden;display:flex;flex-direction:column;"></div>
+</div>
 </div><!-- .main -->
 </div><!-- .shell -->
 <div class="toast" id="toast"></div>
