@@ -844,6 +844,67 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 .toast.ok{border-left:3px solid var(--grn);}
 .toast.err{border-left:3px solid var(--red);}
 @media print{.sidebar,.ph-actions,.fs-actions,.toast,.modal-ov{display:none!important;}.shell{display:block!important;height:auto!important;overflow:visible!important;}.view{display:block!important;}.prep-task.expanded .prep-task-detail{display:block!important;}}
+
+/* ═══ FUNCTION SHEET WIZARD ════════════════════════════════════════ */
+.wiz-bar{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 20px;height:52px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
+.wiz-back{color:var(--t3);background:none;border:none;cursor:pointer;font-size:16px;padding:0 4px;transition:color .1s;}
+.wiz-back:hover{color:var(--t1);}
+.wiz-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--t1);flex:1;}
+.wiz-steps{display:flex;align-items:center;gap:3px;}
+.wiz-step-dot{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--bd2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'DM Mono',monospace;color:var(--t4);cursor:pointer;transition:all .15s;}
+.wiz-step-dot.done{background:var(--grn);border-color:var(--grn);color:#fff;}
+.wiz-step-dot.active{background:var(--gold);border-color:var(--gold);color:#000;}
+.wiz-step-line{width:24px;height:1px;background:var(--bd2);}
+.wiz-actions{display:flex;gap:7px;}
+.wiz-form-body{flex:1;overflow-y:auto;padding:28px 32px;max-width:720px;}
+.wiz-form-body::-webkit-scrollbar{width:3px;}
+.wiz-form-body::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+.wiz-section-label{font-size:10px;font-weight:800;color:var(--t4);text-transform:uppercase;letter-spacing:.12em;font-family:'DM Mono',monospace;margin:22px 0 12px;padding-top:18px;border-top:1px solid var(--bd);}
+.wiz-section-label:first-child{margin-top:0;padding-top:0;border-top:none;}
+.wiz-menu-shell{display:flex;flex:1;overflow:hidden;}
+.wiz-cats{width:140px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--bd);overflow-y:auto;display:flex;flex-direction:column;padding:8px 0;}
+.wiz-cats::-webkit-scrollbar{display:none;}
+.wiz-cat-btn{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;cursor:pointer;border:none;background:none;color:var(--t3);font-size:12px;font-weight:500;text-align:left;transition:all .1s;border-left:3px solid transparent;width:100%;}
+.wiz-cat-btn:hover{color:var(--t2);background:var(--s2);}
+.wiz-cat-btn.active{color:var(--t1);background:var(--s2);border-left-color:var(--gold);}
+.wiz-cat-badge{font-size:10px;font-family:'DM Mono',monospace;color:var(--t4);background:var(--s3);padding:1px 6px;border-radius:20px;}
+.wiz-cat-btn.active .wiz-cat-badge{background:var(--goldfg);color:var(--gold);}
+.wiz-dish-grid-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.wiz-search-bar{padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;}
+.wiz-search-inp{width:100%;font-size:13px;padding:8px 12px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s2);color:var(--t1);outline:none;}
+.wiz-search-inp::placeholder{color:var(--t4);}
+.wiz-search-inp:focus{border-color:var(--gold);}
+.wiz-dish-grid{flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;align-content:start;}
+.wiz-dish-grid::-webkit-scrollbar{width:3px;}
+.wiz-dish-grid::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+.wiz-dish-card{background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:12px;cursor:pointer;transition:all .12s;display:flex;flex-direction:column;gap:6px;border-top:3px solid transparent;position:relative;}
+.wiz-dish-card:hover{border-color:var(--bd2);background:var(--s2);}
+.wiz-dish-card.selected{border-color:var(--gold);background:var(--goldfg);border-top-color:var(--gold);}
+.wiz-dish-card.selected .wiz-card-check{opacity:1;}
+.wiz-card-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;opacity:0;transition:opacity .12s;}
+.wiz-card-cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-family:'DM Mono',monospace;}
+.wiz-card-name{font-family:'Playfair Display',serif;font-size:14px;color:var(--t1);line-height:1.3;}
+.wiz-card-cost{font-size:11px;font-family:'DM Mono',monospace;color:var(--gold);font-weight:600;margin-top:auto;}
+.wiz-card-cost.none{color:var(--t4);font-weight:400;}
+.wiz-card-comps{font-size:10px;color:var(--t4);font-family:'DM Mono',monospace;}
+.wiz-order{width:240px;flex-shrink:0;background:var(--s1);border-left:1px solid var(--bd);display:flex;flex-direction:column;}
+.wiz-order-hd{padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
+.wiz-order-title{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;font-family:'DM Mono',monospace;}
+.wiz-order-count{font-size:11px;color:var(--gold);font-family:'DM Mono',monospace;font-weight:700;}
+.wiz-order-list{flex:1;overflow-y:auto;}
+.wiz-order-list::-webkit-scrollbar{width:3px;}
+.wiz-order-list::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+.wiz-order-item{display:flex;align-items:flex-start;gap:8px;padding:8px 14px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .07s;}
+.wiz-order-item:hover{background:var(--s2);}
+.wiz-order-item:last-child{border-bottom:none;}
+.wiz-order-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.wiz-order-name{font-size:12px;color:var(--t2);flex:1;line-height:1.4;}
+.wiz-order-rm{background:none;border:none;color:var(--t4);cursor:pointer;font-size:14px;padding:0;flex-shrink:0;transition:color .1s;}
+.wiz-order-rm:hover{color:var(--red);}
+.wiz-order-empty{padding:20px 14px;font-size:12px;color:var(--t4);text-align:center;line-height:1.6;}
+.wiz-order-footer{padding:12px 14px;border-top:1px solid var(--bd);flex-shrink:0;}
+.wiz-order-covers{font-size:11px;color:var(--t3);font-family:'DM Mono',monospace;margin-bottom:4px;}
+.wiz-order-cost-total{font-size:13px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace;}
 </style>
 </head>
 <body>
