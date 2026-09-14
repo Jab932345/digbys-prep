@@ -6,7 +6,67 @@
 <title>Digby's — Kitchen Ops</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+// ── Photo upload helpers ──────────────────────────────────────────────
+async function uploadDishPhoto(file, dishId) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  const path = `${dishId}.${ext}`;
+  // Remove old photo first
+  await sb.storage.from('dish-photos').remove([path]);
+  const { data, error } = await sb.storage.from('dish-photos').upload(path, file, {
+    upsert: true, contentType: file.type
+  });
+  if (error) { toast('Photo upload failed: ' + error.message, 'err'); return null; }
+  const { data: urlData } = sb.storage.from('dish-photos').getPublicUrl(path);
+  return urlData.publicUrl;
+}
+
+function renderPhotoSection(dishId, currentUrl) {
+  return `<div class="fld">
+    <label class="fld-label">Dish photo</label>
+    <div class="photo-upload-area" id="photo-drop-area">
+      <input type="file" accept="image/*" id="photo-file-input" onchange="handlePhotoSelect(event,'${dishId}')">
+      ${currentUrl
+        ? `<img class="photo-preview" id="photo-preview" src="${currentUrl}" alt="">`
+        : `<div id="photo-preview" style="display:none" class="photo-preview-wrap"></div>`}
+      <div class="photo-upload-label">
+        ${currentUrl ? '<strong>Click to replace photo</strong>' : '<strong>Click to upload a photo</strong> or drag & drop'}
+        <div style="font-size:11px;margin-top:4px;color:var(--t4)">JPG or PNG, max 5MB</div>
+      </div>
+    </div>
+    ${currentUrl ? `<button class="btn btn-xs btn-danger" style="margin-top:7px" onclick="removeDishPhoto('${dishId}')">Remove photo</button>` : ''}
+  </div>`;
+}
+
+async function handlePhotoSelect(evt, dishId) {
+  const file = evt.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { toast('Photo must be under 5MB', 'err'); return; }
+  toast('Uploading…');
+  const url = await uploadDishPhoto(file, dishId || 'tmp-' + Date.now());
+  if (!url) return;
+  _ddData.photo_url = url;
+  // Update preview
+  let prev = document.getElementById('photo-preview');
+  if (prev) { prev.src = url; prev.style.display = 'block'; }
+  else {
+    prev = document.createElement('img');
+    prev.id = 'photo-preview'; prev.className = 'photo-preview'; prev.src = url;
+    document.getElementById('photo-drop-area').prepend(prev);
+  }
+  toast('Photo uploaded', 'ok');
+}
+
+async function removeDishPhoto(dishId) {
+  if (!confirm('Remove dish photo?')) return;
+  const ext = _ddData.photo_url?.split('.').pop()?.split('?')[0] || 'jpg';
+  await sb.storage.from('dish-photos').remove([`${dishId}.${ext}`]);
+  _ddData.photo_url = null;
+  toast('Photo removed');
+  ddGoStep(1); // re-render step 1
+}
+
+</script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -905,6 +965,49 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
 .wiz-order-footer{padding:12px 14px;border-top:1px solid var(--bd);flex-shrink:0;}
 .wiz-order-covers{font-size:11px;color:var(--t3);font-family:'DM Mono',monospace;margin-bottom:4px;}
 .wiz-order-cost-total{font-size:13px;font-weight:700;color:var(--gold);font-family:'DM Mono',monospace;}
+
+/* ── DISH PHOTOS ──────────────────────────────────────────────── */
+.dish-thumb {
+  width: 36px; height: 36px; border-radius: 5px; flex-shrink: 0;
+  background: var(--s3); object-fit: cover; display: block;
+}
+.dish-thumb-placeholder {
+  width: 36px; height: 36px; border-radius: 5px; flex-shrink: 0;
+  background: var(--s3); display: flex; align-items: center;
+  justify-content: center; font-size: 14px; opacity: .4;
+}
+.photo-upload-area {
+  border: 2px dashed var(--bd2); border-radius: var(--r);
+  padding: 20px; text-align: center; cursor: pointer;
+  transition: border-color .12s; position: relative; overflow: hidden;
+}
+.photo-upload-area:hover { border-color: var(--gold); }
+.photo-upload-area input[type=file] {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+}
+.photo-preview {
+  width: 100%; max-height: 220px; object-fit: cover;
+  border-radius: var(--r); display: block; margin-bottom: 8px;
+}
+.photo-upload-label { font-size: 12px; color: var(--t3); }
+.photo-upload-label strong { color: var(--gold); }
+/* Wizard card with photo */
+.wiz-dish-card.has-photo {
+  padding: 0; overflow: hidden;
+}
+.wiz-card-img {
+  width: 100%; height: 90px; object-fit: cover; display: block;
+  flex-shrink: 0;
+}
+.wiz-dish-card.has-photo .wiz-card-cat,
+.wiz-dish-card.has-photo .wiz-card-name,
+.wiz-dish-card.has-photo .wiz-card-comps,
+.wiz-dish-card.has-photo .wiz-card-cost,
+.wiz-dish-card.has-photo .wiz-card-check {
+  padding: 0 10px;
+}
+.wiz-dish-card.has-photo .wiz-card-cat { padding-top: 8px; }
+.wiz-dish-card.has-photo .wiz-card-cost { padding-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -1662,7 +1765,13 @@ function renderDishList(){
   const groups={};f.forEach(d=>{const cat=d.category||'Other';if(!groups[cat])groups[cat]=[];groups[cat].push(d);});
   list.innerHTML=CAT_ORDER.filter(cat=>groups[cat]).map(cat=>{
     const col=CAT_COLORS[cat]||'var(--cat-ot)';
-    return`<div class="lib-section"><div class="lib-cat-hd"><span class="lib-cat-name" style="color:${col}">${cat}</span><span class="lib-cat-count">${groups[cat].length}</span></div>${groups[cat].map(d=>{const cost=calcDishCost(d);return`<div class="dish-row" style="border-left-color:${col}" onclick="openDish('${d.id}')"><div class="dish-name">${h(d.name)}</div>${cost!=null?`<div class="dish-cost">${fmt$(cost)}/cv</div>`:`<div class="dish-cost none">—</div>`}</div>`;}).join('')}</div>`;
+    return`<div class="lib-section"><div class="lib-cat-hd"><span class="lib-cat-name" style="color:${col}">${cat}</span><span class="lib-cat-count">${groups[cat].length}</span></div>${groups[cat].map(d=>{const cost=calcDishCost(d);return`<div class="dish-row" style="border-left-color:${col}" onclick="openDish('${d.id}')">
+        ${d.photo_url
+          ?`<img class="dish-thumb" src="${d.photo_url}" alt="" loading="lazy" onerror="this.style.display='none'">`
+          :`<div class="dish-thumb-placeholder">🍽</div>`}
+        <div class="dish-name">${h(d.name)}</div>
+        ${cost!=null?`<div class="dish-cost">${fmt$(cost)}/cv</div>`:`<div class="dish-cost none">—</div>`}
+      </div>`;}).join('')}</div>`;
   }).join('');
 }
 
@@ -1820,7 +1929,8 @@ function openDish(id){
     name:d.name,category:d.category||'Canapés',station:d.station||'',
     description:d.description||'',notes:d.notes||'',
     menu_type:d.menu_type||[],variant_of:d.variant_of||'',
-    target_food_cost:d.target_food_cost||''
+    target_food_cost:d.target_food_cost||'',
+    photo_url:d.photo_url||null
   };
   document.getElementById('dd-id').value=d.id;
   const _ni=document.getElementById('dd-hd-name');if(_ni){_ni.value=d.name;_ni.placeholder=d.name;}
@@ -1923,7 +2033,16 @@ function ddStep1(){
       <div></div>
       <button class="btn btn-primary" onclick="s1Next()">Allergens →</button>
     </div>
-  </div>`;
+  </div>
+    <div class="fld" style="margin-top:18px;">
+      <label class="fld-label">Dish photo</label>
+      <div class="photo-upload-area" id="photo-drop-area">
+        <input type="file" accept="image/*" id="photo-file-input" onchange="handlePhotoSelect(event,document.getElementById('dd-id').value)">
+        ${_ddData.photo_url?`<img class="photo-preview" id="photo-preview" src="${_ddData.photo_url}" alt="">`:''}
+        <div class="photo-upload-label">${_ddData.photo_url?'<strong>Click to replace</strong>':'<strong>Click to add a photo</strong><div style="font-size:11px;margin-top:3px;color:var(--t4)">JPG or PNG · max 5MB</div>'}</div>
+      </div>
+      ${_ddData.photo_url?`<button class="btn btn-xs btn-danger" style="margin-top:6px" onclick="removeDishPhoto()">Remove photo</button>`:''}
+    </div>`;
 }
 
 function s1Next(){
@@ -2303,6 +2422,7 @@ async function saveDish(){
   const dishData={name:_ddData.name,category:_ddData.category||'Canapés',station:_ddData.station||null,
     description:_ddData.description||null,notes:_ddData.notes||null,menu_type:_ddData.menu_type||[],
     variant_of:_ddData.variant_of||null,target_food_cost:parseFloat(_ddData.target_food_cost)||null,
+    photo_url:_ddData.photo_url||null,
     updated_at:new Date().toISOString()};
   try{
     let did=id;
@@ -3376,7 +3496,14 @@ function renderWizGrid(){
   const q=_wizSearch.toLowerCase();
   let f=[...dishes];if(_wizCat!=='all')f=f.filter(d=>d.category===_wizCat);if(q)f=f.filter(d=>d.name.toLowerCase().includes(q));f.sort((a,b)=>a.name.localeCompare(b.name));
   if(!f.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--t4)">No dishes found</div>';return;}
-  grid.innerHTML=f.map(d=>{const sel=_wizSelDishes.includes(d.id);const col=CAT_COLORS[d.category]||'var(--cat-ot)';const cost=calcDishCost(d);return`<div class="wiz-dish-card ${sel?'selected':''}" onclick="wizToggleDish('${d.id}')" style="border-top-color:${col}"><div class="wiz-card-check">✓</div><div class="wiz-card-cat" style="color:${col}">${d.category||'Other'}</div><div class="wiz-card-name">${h(d.name)}</div><div class="wiz-card-comps">${(d.components||[]).length} components</div><div class="wiz-card-cost ${cost==null?'none':''}">${cost!=null?fmt$(cost)+'/cv':'Not costed'}</div></div>`;}).join('');
+  grid.innerHTML=f.map(d=>{const sel=_wizSelDishes.includes(d.id);const col=CAT_COLORS[d.category]||'var(--cat-ot)';const cost=calcDishCost(d);return`<div class="wiz-dish-card ${sel?'selected':''}${d.photo_url?' has-photo':''}" onclick="wizToggleDish('${d.id}')" style="border-top-color:${col}">
+    <div class="wiz-card-check">✓</div>
+    ${d.photo_url?`<img class="wiz-card-img" src="${d.photo_url}" alt="" loading="lazy">` :''}
+    <div class="wiz-card-cat" style="color:${col}">${d.category||'Other'}</div>
+    <div class="wiz-card-name">${h(d.name)}</div>
+    <div class="wiz-card-comps">${(d.components||[]).length} components</div>
+    <div class="wiz-card-cost ${cost==null?'none':''}">${cost!=null?fmt$(cost)+'/cv':'Not costed'}</div>
+  </div>`;}).join('');
 }
 function wizToggleDish(id){_wizSelDishes=_wizSelDishes.includes(id)?_wizSelDishes.filter(x=>x!==id):[..._wizSelDishes,id];renderWizGrid();renderWizOrder();}
 function renderWizOrder(){
