@@ -869,7 +869,7 @@ html,body{height:100%;overflow:hidden;font-family:'Inter',system-ui,sans-serif;f
       ⊡<span class="sb-tooltip">Cleaning</span>
     </button>
   </div>
-  <div class="sb-conn"><div class="conn-dot" id="sb-dot"></div></div>
+  <div class="sb-conn"><div class="conn-dot" id="sb-dot"></div><span id="sb-conn" style="display:none"></span></div>
 </nav>
 
 <!-- MAIN -->
@@ -1906,8 +1906,8 @@ async function init(){
   try{
     const{error}=await sb.from('dishes').select('id').limit(1);
     if(error)throw error;
-    dot.className='sb-dot live';conn.textContent='live';
-  }catch(e){dot.className='sb-dot err';conn.textContent='error';toast('Database error','err');return;}
+    if(dot){dot.className='conn-dot live';}if(conn)conn.textContent='live';
+  }catch(e){if(dot){dot.className='conn-dot err';}if(conn)conn.textContent='error';toast('Database error','err');return;}
   await Promise.all([loadDishes(),loadEvents(),loadIngredients()]);
   buildIngAlGrid();
   renderDishList();
