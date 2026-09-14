@@ -1914,7 +1914,9 @@ async function init(){
   populateSelects();
   // ensure builder hidden on load
   const bp=document.getElementById('builder-panel');
-  if(bp)bp.style.display='none';
+  if(bp)bp.classList.add('hidden');
+
+  renderPipeline();
 }
 
 async function loadDishes(){
