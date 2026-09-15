@@ -2072,6 +2072,14 @@ async function init(){
   // ensure builder hidden on load
   const bp=document.getElementById('builder-panel');
   if(bp)bp.classList.add('hidden');
+  // Activate home view and render pipeline on load
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const homeView=document.getElementById('view-home');
+  if(homeView)homeView.classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  const homeBtn=document.querySelector('.sb-item[data-view="home"]');
+  if(homeBtn)homeBtn.classList.add('active');
+  renderPipeline();
 }
 
 async function loadDishes(){
