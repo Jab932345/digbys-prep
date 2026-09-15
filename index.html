@@ -192,6 +192,630 @@ async function handlePhotoSelect(evt,dishId){
   openCropModal(file,dishId);
 }
 
+
+// ═══ FUNCTION SHEET WIZARD ═══════════════════════════════════════════
+
+let _wizStep=1,_wizData={},_wizSelDishes=[],_wizCat='all',_wizSearch='';
+
+function openFsWizard(evId){
+  _wizData={};_wizSelDishes=[];_wizCat='all';_wizSearch='';
+  if(evId){
+    const ev=events.find(e=>e.id===evId);
+    if(ev){_wizData={...ev};_wizSelDishes=(ev.event_dishes||[]).map(ed=>ed.dish_id);document.getElementById('wiz-title').textContent=ev.client_name||'Edit event';}
+  }else{
+    document.getElementById('wiz-title').textContent='New event';
+    const d=new Date();d.setDate(d.getDate()+(6-d.getDay()+7)%7||7);
+    _wizData.event_date=d.toISOString().slice(0,10);_wizData.status='Provisional';
+    _wizData.start_time='18:00';_wizData.end_time='23:00';
+    _wizData.extra_charges=[];_wizData.run_of_day=[];_wizData.guests=[];_wizData.guest_allergens=[];
+  }
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-fs-wizard').classList.add('active');
+  fsWizStep(1);
+}
+function openFunctionSheet(evId){openFsWizard(evId);}
+function closeFsWizard(){
+  document.getElementById('view-fs-wizard').classList.remove('active');
+  const pv=_wizData.id?'events':'home';
+  sbNav(pv,document.querySelector('.sb-item[data-view="'+pv+'"]'));
+}
+
+function fsWizStep(n){
+  if(n<1||n>3)return;
+  if(_wizStep===1)collectStep1();if(_wizStep===3)collectStep3();
+  _wizStep=n;
+  for(let i=1;i<=3;i++){const dot=document.getElementById('wiz-dot-'+i);if(!dot)continue;dot.className='wiz-step-dot'+(i<n?' done':i===n?' active':'');dot.textContent=i<n?'✓':i;}
+  document.getElementById('wiz-back-btn').style.display=n>1?'flex':'none';
+  document.getElementById('wiz-next-btn').textContent=n===3?'Save event':'Next →';
+  const body=document.getElementById('wiz-body');
+  if(n===1)renderWizStep1(body);else if(n===2)renderWizStep2(body);else renderWizStep3(body);
+}
+function fsWizNext(){
+  if(_wizStep===1){collectStep1();if(!_wizData.client_name||!_wizData.event_date||!_wizData.covers){toast('Fill in client, date and covers.','err');return;}fsWizStep(2);}
+  else if(_wizStep===2)fsWizStep(3);
+  else{collectStep3();saveFsWizard();}
+}
+
+function renderWizStep1(body){
+  const d=_wizData;
+  body.innerHTML=`<div class="wiz-form-body">
+    <div class="wiz-section-label">The event</div>
+    <div class="fld"><label class="fld-label">Client name</label><input class="fld-inp" id="w-client" value="${h(d.client_name||'')}" placeholder="e.g. Smith Wedding" autofocus style="font-size:16px"></div>
+    <div class="g3"><div class="fld"><label class="fld-label">Date</label><input class="fld-inp" id="w-date" type="date" value="${d.event_date||''}"></div><div class="fld"><label class="fld-label">Start</label><input class="fld-inp" id="w-start" type="time" value="${d.start_time||'18:00'}"></div><div class="fld"><label class="fld-label">End</label><input class="fld-inp" id="w-end" type="time" value="${d.end_time||'23:00'}"></div></div>
+    <div class="g3"><div class="fld"><label class="fld-label">Covers</label><input class="fld-inp" id="w-covers" type="number" min="1" value="${d.covers||''}"></div><div class="fld"><label class="fld-label">Type</label><select class="fld-sel" id="w-type">${['Private Dining','Wedding','Tasting Menu','Canapés','Buffet','Corporate','Gala Dinner','Grazing','Wake'].map(t=>`<option ${d.event_type===t?'selected':''}>${t}</option>`).join('')}</select></div><div class="fld"><label class="fld-label">Job code</label><input class="fld-inp" id="w-jobcode" value="${h(d.job_code||'')}" style="text-transform:uppercase"></div></div>
+    <div class="g3"><div class="fld"><label class="fld-label">Status</label><select class="fld-sel" id="w-status">${['Enquiry','Provisional','Confirmed','Completed','Cancelled'].map(s=>`<option ${d.status===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="fld"><label class="fld-label">Payment</label><select class="fld-sel" id="w-payment"><option value="" ${!d.deposit_status?'selected':''}>Unpaid</option><option value="deposit" ${d.deposit_status==='deposit'?'selected':''}>Deposit taken</option><option value="invoiced" ${d.deposit_status==='invoiced'?'selected':''}>Invoice sent</option><option value="paid" ${d.deposit_status==='paid'?'selected':''}>Paid in full</option></select></div><div class="fld"><label class="fld-label">Price agreed</label><div style="position:relative"><span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--t4)">£</span><input class="fld-inp" id="w-budget" type="number" step="0.01" value="${d.budget||''}" style="padding-left:22px"></div></div></div>
+    <div class="g2"><div class="fld"><label class="fld-label">Staffing</label><input class="fld-inp" id="w-staffing" value="${h(d.staffing||'')}"></div></div>
+    <div class="wiz-section-label" style="margin-top:20px">Dietary guests <button class="btn btn-xs" onclick="wizAddGuest()" style="margin-left:8px">+ Add</button></div>
+    <div id="w-guests-list" style="display:flex;flex-direction:column;gap:6px">
+      ${(d.guest_allergens||[]).map((g,i)=>`<div style="display:flex;gap:7px;align-items:center">
+        <input class="fld-inp" placeholder="Guest" value="${h(g.name||'')}" oninput="_wizData.guest_allergens[${i}].name=this.value" style="width:110px">
+        <input class="fld-inp" placeholder="Dietary requirement" value="${h(g.dietary||'')}" oninput="_wizData.guest_allergens[${i}].dietary=this.value" style="flex:1">
+        <select class="fld-sel" style="width:130px" onchange="_wizData.guest_allergens[${i}].type=this.value">
+          <option value="allergy" ${g.type==='allergy'?'selected':''}>Allergy</option>
+          <option value="intolerance" ${g.type==='intolerance'?'selected':''}>Intolerance</option>
+          <option value="preference" ${g.type==='preference'?'selected':''}>Preference</option>
+        </select>
+        <button class="btn btn-xs btn-danger" onclick="wizRmGuest(${i})">×</button>
+      </div>`).join('')}
+    </div>
+  </div>`;
+  document.getElementById('w-client')?.focus();
+}
+
+function collectStep1(){
+  const g=id=>document.getElementById(id);if(!g('w-client'))return;
+  _wizData.client_name=g('w-client').value.trim()||_wizData.client_name;
+  _wizData.event_date=g('w-date').value||_wizData.event_date;
+  _wizData.start_time=g('w-start').value||_wizData.start_time;
+  _wizData.end_time=g('w-end').value||_wizData.end_time;
+  _wizData.covers=parseInt(g('w-covers').value)||_wizData.covers;
+  _wizData.event_type=g('w-type').value||_wizData.event_type;
+  _wizData.job_code=(g('w-jobcode').value||'').toUpperCase().trim()||null;
+  _wizData.status=g('w-status').value||_wizData.status;
+  _wizData.deposit_status=g('w-payment').value||null;
+  _wizData.budget=g('w-budget').value||null;
+  _wizData.staffing=g('w-staffing')?.value.trim()||null;
+}
+
+function renderWizStep2(body){
+  const cats=['all',...CAT_ORDER.filter(c=>dishes.some(d=>d.category===c))];
+  body.innerHTML=`<div class="wiz-menu-shell">
+    <div class="wiz-cats">${cats.map(c=>`<button class="wiz-cat-btn ${_wizCat===c?'active':''}" onclick="wizSetCat('${c}',this)"><span>${c==='all'?'All dishes':c}</span><span class="wiz-cat-badge">${c==='all'?dishes.length:dishes.filter(d=>d.category===c).length}</span></button>`).join('')}</div>
+    <div class="wiz-dish-grid-wrap">
+      <div class="wiz-search-bar"><input class="wiz-search-inp" id="wiz-search" placeholder="Search dishes…" value="${h(_wizSearch)}" oninput="_wizSearch=this.value;renderWizGrid()"></div>
+      <div class="wiz-dish-grid" id="wiz-grid"></div>
+    </div>
+    <div class="wiz-order">
+      <div class="wiz-order-hd"><span class="wiz-order-title">Menu</span><span class="wiz-order-count" id="wiz-sel-count">${_wizSelDishes.length} dishes</span></div>
+      <div class="wiz-order-list" id="wiz-order-list"></div>
+      <div class="wiz-order-footer"><div class="wiz-order-covers">${_wizData.covers||0} covers</div><div class="wiz-order-cost-total" id="wiz-order-total"></div></div>
+    </div>
+  </div>`;
+  renderWizGrid();renderWizOrder();
+}
+function wizSetCat(cat,el){_wizCat=cat;document.querySelectorAll('.wiz-cat-btn').forEach(b=>b.classList.remove('active'));if(el)el.classList.add('active');renderWizGrid();}
+function renderWizGrid(){
+  const grid=document.getElementById('wiz-grid');if(!grid)return;
+  const q=_wizSearch.toLowerCase();
+  let f=[...dishes];if(_wizCat!=='all')f=f.filter(d=>d.category===_wizCat);if(q)f=f.filter(d=>d.name.toLowerCase().includes(q));f.sort((a,b)=>a.name.localeCompare(b.name));
+  if(!f.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--t4)">No dishes found</div>';return;}
+  grid.innerHTML=f.map(d=>{const sel=_wizSelDishes.includes(d.id);const col=CAT_COLORS[d.category]||'var(--cat-ot)';const cost=calcDishCost(d);return`<div class="wiz-dish-card ${sel?'selected':''}${d.photo_url?' has-photo':''}" onclick="wizToggleDish('${d.id}')" style="border-top-color:${col}"><div class="wiz-card-check">✓</div>${d.photo_url?`<img class="wiz-card-img" src="${d.photo_url}" alt="" loading="lazy">` :''}<div class="wiz-card-cat" style="color:${col}">${d.category||'Other'}</div><div class="wiz-card-name">${h(d.name)}</div><div class="wiz-card-comps">${(d.components||[]).length} components</div><div class="wiz-card-cost ${cost==null?'none':''}">${cost!=null?fmt$(cost)+'/cv':'Not costed'}</div></div>`;}).join('');
+}
+function wizToggleDish(id){_wizSelDishes=_wizSelDishes.includes(id)?_wizSelDishes.filter(x=>x!==id):[..._wizSelDishes,id];renderWizGrid();renderWizOrder();}
+function renderWizOrder(){
+  const list=document.getElementById('wiz-order-list');if(!list)return;
+  const count=document.getElementById('wiz-sel-count'),total=document.getElementById('wiz-order-total');
+  if(count)count.textContent=_wizSelDishes.length+' dish'+(_wizSelDishes.length!==1?'es':'');
+  if(!_wizSelDishes.length){list.innerHTML='<div class="wiz-order-empty">Tap dishes to add them.</div>';if(total)total.textContent='';return;}
+  const sel=_wizSelDishes.map(id=>dishes.find(d=>d.id===id)).filter(Boolean);
+  list.innerHTML=sel.map(d=>`<div class="wiz-order-item"><div class="wiz-order-dot" style="background:${CAT_COLORS[d.category]||'var(--cat-ot)'}"></div><span class="wiz-order-name">${h(d.name)}</span><button class="wiz-order-rm" onclick="wizToggleDish('${d.id}')">×</button></div>`).join('');
+  const tc=sel.reduce((s,d)=>{const c=calcDishCost(d);return c?s+c*(_wizData.covers||1):s;},0);
+  if(total&&tc>0)total.textContent='Est. food cost: '+fmt$(tc);
+}
+
+function renderWizStep3(body){
+  const d=_wizData,rod=d.run_of_day||[],charges=d.extra_charges||[];
+  body.innerHTML=`<div class="wiz-form-body">
+    <div class="wiz-section-label">Venue</div>
+    <div class="g3"><div class="fld"><label class="fld-label">Venue name</label><input class="fld-inp" id="w-venue" value="${h(d.venue||'')}"></div><div class="fld"><label class="fld-label">Location</label><input class="fld-inp" id="w-location" value="${h(d.location||'')}"></div><div class="fld"><label class="fld-label">Address</label><input class="fld-inp" id="w-address" value="${h(d.address||'')}"></div></div>
+    <div class="wiz-section-label">Contact</div>
+    <div class="g3"><div class="fld"><label class="fld-label">Name</label><input class="fld-inp" id="w-cname" value="${h(d.contact_name||'')}"></div><div class="fld"><label class="fld-label">Phone</label><input class="fld-inp" id="w-cphone" value="${h(d.contact_phone||'')}"></div><div class="fld"><label class="fld-label">Email</label><input class="fld-inp" id="w-cemail" type="email" value="${h(d.contact_email||'')}"></div></div>
+    <div class="wiz-section-label">Run of day <button class="btn btn-xs" onclick="wizAddRod()" style="margin-left:8px">+ Add</button></div>
+    <div id="w-rod-list" style="display:flex;flex-direction:column;gap:5px">${rod.map((r,i)=>`<div style="display:flex;gap:7px;align-items:center"><input class="fld-inp" placeholder="Time" value="${h(r.time||'')}" oninput="_wizData.run_of_day[${i}].time=this.value" style="width:90px"><input class="fld-inp" placeholder="Item" value="${h(r.item||'')}" oninput="_wizData.run_of_day[${i}].item=this.value" style="flex:1"><button class="btn btn-xs btn-danger" onclick="wizRmRod(${i})">×</button></div>`).join('')}</div>
+    <div class="wiz-section-label">Extra charges <button class="btn btn-xs" onclick="wizAddCharge()" style="margin-left:8px">+ Add</button></div>
+    <div style="display:flex;flex-direction:column;gap:5px">${charges.map((c,i)=>`<div style="display:flex;gap:7px;align-items:center"><input class="fld-inp" placeholder="Description" value="${h(c.description||'')}" oninput="_wizData.extra_charges[${i}].description=this.value" style="flex:1"><div style="position:relative;width:100px"><span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--t4)">£</span><input class="fld-inp" type="number" step="0.01" value="${c.amount||''}" oninput="_wizData.extra_charges[${i}].amount=parseFloat(this.value)||0" style="padding-left:22px"></div><button class="btn btn-xs btn-danger" onclick="wizRmCharge(${i})">×</button></div>`).join('')}</div>
+    <div class="wiz-section-label">Notes</div>
+    <div class="g2">
+      <div class="fld"><label class="fld-label">Kitchen notes</label><textarea class="fld-ta" id="w-kitchen" style="min-height:80px">${h(d.kitchen_notes||'')}</textarea></div>
+      <div class="fld"><label class="fld-label">Chef notes</label><textarea class="fld-ta" id="w-chef" style="min-height:80px">${h(d.chef_notes||'')}</textarea></div>
+      <div class="fld"><label class="fld-label">Service notes</label><textarea class="fld-ta" id="w-service" style="min-height:80px">${h(d.service_notes||'')}</textarea></div>
+      <div class="fld"><label class="fld-label">Client notes</label><textarea class="fld-ta" id="w-client-notes" style="min-height:80px">${h(d.client_notes||'')}</textarea></div>
+    </div>
+  </div>`;
+}
+
+function collectStep3(){
+  const g=id=>document.getElementById(id);if(!g('w-venue'))return;
+  _wizData.venue=g('w-venue').value.trim()||null;_wizData.location=g('w-location').value.trim()||null;_wizData.address=g('w-address').value.trim()||null;
+  _wizData.contact_name=g('w-cname').value.trim()||null;_wizData.contact_phone=g('w-cphone').value.trim()||null;_wizData.contact_email=g('w-cemail').value.trim()||null;
+  _wizData.kitchen_notes=g('w-kitchen').value.trim()||null;_wizData.chef_notes=g('w-chef').value.trim()||null;_wizData.service_notes=g('w-service').value.trim()||null;_wizData.client_notes=g('w-client-notes').value.trim()||null;
+}
+
+function wizAddRod(){(_wizData.run_of_day=_wizData.run_of_day||[]).push({time:'',item:''});fsWizStep(3);}
+function wizRmRod(i){_wizData.run_of_day.splice(i,1);fsWizStep(3);}
+function wizAddGuest(){if(!_wizData.guest_allergens)_wizData.guest_allergens=[];_wizData.guest_allergens.push({name:'',dietary:'',type:'allergy'});fsWizStep(_wizStep);}
+function wizRmGuest(i){(_wizData.guest_allergens||[]).splice(i,1);fsWizStep(_wizStep);}
+function wizAddCharge(){(_wizData.extra_charges=_wizData.extra_charges||[]).push({description:'',amount:0});fsWizStep(3);}
+function wizRmCharge(i){_wizData.extra_charges.splice(i,1);fsWizStep(3);}
+
+async function saveFsWizard(){
+  const btn=document.getElementById('wiz-next-btn');if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  try{
+    const p={client_name:_wizData.client_name,event_type:_wizData.event_type,event_date:_wizData.event_date,start_time:_wizData.start_time,end_time:_wizData.end_time,covers:_wizData.covers,status:_wizData.status||'Enquiry',deposit_status:_wizData.deposit_status||null,budget:_wizData.budget||null,staffing:_wizData.staffing||null,job_code:_wizData.job_code||null,venue:_wizData.venue||null,location:_wizData.location||null,address:_wizData.address||null,contact_name:_wizData.contact_name||null,contact_phone:_wizData.contact_phone||null,contact_email:_wizData.contact_email||null,kitchen_notes:_wizData.kitchen_notes||null,chef_notes:_wizData.chef_notes||null,service_notes:_wizData.service_notes||null,client_notes:_wizData.client_notes||null,run_of_day:_wizData.run_of_day||[],extra_charges:_wizData.extra_charges||[],guest_allergens:_wizData.guest_allergens||[]};
+    let evId=_wizData.id;
+    if(evId){const{error}=await sb.from('events').update(p).eq('id',evId);if(error)throw error;}
+    else{const{data,error}=await sb.from('events').insert(p).select().single();if(error)throw error;evId=data.id;}
+    await sb.from('event_dishes').delete().eq('event_id',evId);
+    if(_wizSelDishes.length)await sb.from('event_dishes').insert(_wizSelDishes.map(did=>({event_id:evId,dish_id:did})));
+    toast(_wizData.id?'Event updated':'Event created','ok');
+    await loadEvents();closeFsWizard();
+  }catch(e){toast(e.message||'Save failed','err');if(btn){btn.disabled=false;btn.textContent='Save event';}}
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PHOTO CROP
+// ═══════════════════════════════════════════════════════════════════
+let _cropDishId=null,_cropDrag=null;
+function openCropModal(file,dishId){
+  _cropDishId=dishId;
+  const url=URL.createObjectURL(file);
+  const img=document.getElementById('crop-img-el');
+  img.onload=()=>{
+    const maxW=Math.min(window.innerWidth-64,720),maxH=Math.min(window.innerHeight-220,500);
+    const scale=Math.min(maxW/img.naturalWidth,maxH/img.naturalHeight,1);
+    const vw=Math.round(img.naturalWidth*scale),vh=Math.round(img.naturalHeight*scale);
+    const vp=document.getElementById('crop-viewport');
+    vp.style.width=vw+'px';vp.style.height=vh+'px';
+    img.style.width=vw+'px';img.style.height=vh+'px';
+    const side=Math.round(Math.min(vw,vh)*0.8);
+    setCropBox(Math.round((vw-side)/2),Math.round((vh-side)/2),side,side);
+    document.getElementById('crop-modal').classList.add('open');
+    bindCropDrag(vp);
+  };
+  img.src=url;
+}
+function setCropBox(x,y,w,h){const b=document.getElementById('crop-box');b.style.cssText=`left:${x}px;top:${y}px;width:${w}px;height:${h}px`;}
+function getCropBox(){const b=document.getElementById('crop-box');return{x:parseInt(b.style.left)||0,y:parseInt(b.style.top)||0,w:parseInt(b.style.width)||100,h:parseInt(b.style.height)||100};}
+function bindCropDrag(vp){
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const gxy=(e)=>[e.touches?.[0]?.clientX??e.clientX,e.touches?.[0]?.clientY??e.clientY];
+  const dn=(e)=>{e.preventDefault();const[cx,cy]=gxy(e);_cropDrag={type:e.target.dataset?.handle||'move',sx:cx,sy:cy,ob:{...getCropBox()}};};
+  const mv=(e)=>{if(!_cropDrag)return;e.preventDefault();const[cx,cy]=gxy(e);const dx=cx-_cropDrag.sx,dy=cy-_cropDrag.sy,ob=_cropDrag.ob,W=vp.offsetWidth,H=vp.offsetHeight,mn=40;let{x,y,w,h}=ob;if(_cropDrag.type==='move'){x=clamp(ob.x+dx,0,W-w);y=clamp(ob.y+dy,0,H-h);}else{if(_cropDrag.type.includes('r')){w=clamp(ob.w+dx,mn,W-ob.x);}if(_cropDrag.type.includes('l')){x=clamp(ob.x+dx,0,ob.x+ob.w-mn);w=ob.w-(x-ob.x);}if(_cropDrag.type.includes('b')){h=clamp(ob.h+dy,mn,H-ob.y);}if(_cropDrag.type.includes('t')){y=clamp(ob.y+dy,0,ob.y+ob.h-mn);h=ob.h-(y-ob.y);}}setCropBox(x,y,w,h);};
+  const up=()=>{_cropDrag=null;};
+  vp.onmousedown=dn;vp.ontouchstart=dn;
+  window.addEventListener('mousemove',mv);window.addEventListener('touchmove',mv,{passive:false});
+  window.addEventListener('mouseup',up);window.addEventListener('touchend',up);
+}
+function cancelCrop(){document.getElementById('crop-modal').classList.remove('open');URL.revokeObjectURL(document.getElementById('crop-img-el').src);}
+async function applyCrop(){
+  const img=document.getElementById('crop-img-el'),vp=document.getElementById('crop-viewport'),box=getCropBox();
+  const sx=img.naturalWidth/vp.offsetWidth,sy=img.naturalHeight/vp.offsetHeight;
+  const cv=document.createElement('canvas');cv.width=800;cv.height=800;
+  cv.getContext('2d').drawImage(img,box.x*sx,box.y*sy,box.w*sx,box.h*sy,0,0,800,800);
+  cancelCrop();
+  cv.toBlob(async(blob)=>{
+    const file=new File([blob],'dish.jpg',{type:'image/jpeg'});
+    toast('Uploading…');
+    const url=await uploadDishPhoto(file,_cropDishId);
+    if(!url)return;
+    _ddData.photo_url=url;
+    const w=document.getElementById('photo-preview-wrap');
+    if(w)w.innerHTML=`<img class="photo-preview" src="${url}" alt="">`;
+    const d=dishes.find(x=>x.id===_cropDishId);if(d)d.photo_url=url;
+    if(_cropDishId)await sb.from('dishes').update({photo_url:url}).eq('id',_cropDishId);
+    renderDishList();toast('Photo saved','ok');
+  },'image/jpeg',0.9);
+}
+async function handlePhotoSelect(evt,dishId){
+  const file=evt.target.files[0];if(!file)return;
+  if(file.size>10*1024*1024){toast('Max 10MB','err');return;}
+  if(!dishId){toast('Save the dish first','err');return;}
+  openCropModal(file,dishId);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DIETARY VARIANT SYSTEM
+// ═══════════════════════════════════════════════════════════════════
+const DIETARY_LABELS=['Vegetarian','Vegan','GF','DF','Coeliac','Nut-free'];
+// Severity order — higher index is more restrictive
+const DIETARY_SEVERITY={
+  'standard':0,'Vegetarian':1,'Vegan':2,'GF':3,'DF':4,
+  'Coeliac':5,'GF+DF':6,'Vegan+GF':7,'Vegan+GF+DF':8,'Nut-free':9
+};
+
+// Render dietary tags section in dish builder step 2
+function renderDietaryTagsSection(step2El){
+  if(!step2El)return;
+  const tags=_ddData.dietary_tags||[];
+  const removed=_ddData.allergens_removed||[];
+  const added=_ddData.allergens_added||[];
+  const isVariant=!!_ddData.variant_of;
+
+  const el=document.createElement('div');
+  el.className='wiz-section-label';el.style.marginTop='20px';
+  el.textContent='This dish is suitable for';
+  step2El.appendChild(el);
+
+  const chipWrap=document.createElement('div');chipWrap.className='diet-tags';
+  DIETARY_LABELS.forEach(d=>{
+    const chip=document.createElement('button');
+    chip.className='diet-chip'+(tags.includes(d)?' on':'');
+    chip.dataset.diet=d;chip.textContent=d;
+    chip.onclick=()=>{
+      const t=_ddData.dietary_tags||[];
+      _ddData.dietary_tags=t.includes(d)?t.filter(x=>x!==d):[...t,d];
+      chip.classList.toggle('on',_ddData.dietary_tags.includes(d));
+    };
+    chipWrap.appendChild(chip);
+  });
+  step2El.appendChild(chipWrap);
+
+  if(isVariant){
+    const alSection=document.createElement('div');
+    alSection.innerHTML=`
+      <div class="wiz-section-label" style="margin-top:16px">Allergen changes vs parent dish</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
+        <div>
+          <div style="font-size:11px;color:var(--t4);margin-bottom:6px;font-family:'DM Mono',monospace">REMOVES</div>
+          <div class="diet-tags" id="al-removed-wrap">${['Gluten','Egg','Dairy','Celery','Fish','Shellfish','Soya','Nuts','Peanuts','Lupin','Molluscs','Mustard','Sesame','Sulphites'].map(a=>`<button class="diet-chip${removed.includes(a)?' on':''}" onclick="toggleAllergenChange('removed','${a}',this)">${a}</button>`).join('')}</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:var(--t4);margin-bottom:6px;font-family:'DM Mono',monospace">ADDS</div>
+          <div class="diet-tags" id="al-added-wrap">${['Gluten','Egg','Dairy','Celery','Fish','Shellfish','Soya','Nuts','Peanuts','Lupin','Molluscs','Mustard','Sesame','Sulphites'].map(a=>`<button class="diet-chip${added.includes(a)?' on':''}" onclick="toggleAllergenChange('added','${a}',this)">${a}</button>`).join('')}</div>
+        </div>
+      </div>
+      <div class="fld" style="margin-top:12px">
+        <label class="fld-label">Variant reason (brief)</label>
+        <input class="fld-inp" id="variant-reason-inp" value="${h(_ddData.variant_reason||'')}" placeholder="e.g. Dairy-free version — Violife instead of cream cheese" oninput="_ddData.variant_reason=this.value">
+      </div>`;
+    step2El.appendChild(alSection);
+  }
+}
+
+function toggleAllergenChange(type,allergen,el){
+  const key=type==='removed'?'allergens_removed':'allergens_added';
+  const arr=_ddData[key]||[];
+  _ddData[key]=arr.includes(allergen)?arr.filter(x=>x!==allergen):[...arr,allergen];
+  el.classList.toggle('on',_ddData[key].includes(allergen));
+}
+
+// Save dietary fields with dish
+function collectDietaryFromBuilder(){
+  // variant_reason collected inline via oninput
+  // dietary_tags, allergens_removed, allergens_added tracked on _ddData directly
+}
+
+// ── Dietary intelligence for wizard ──────────────────────────────────
+const ALLERGEN_NAMES=['Gluten','Egg','Dairy','Celery','Fish','Shellfish','Soya','Nuts','Peanuts','Lupin','Molluscs','Mustard','Sesame','Sulphites'];
+
+// What allergens does a dish "contain" based on component_allergens
+function getDishAllergens(dish){
+  const comps=dish.components||[];
+  const al=new Set();
+  comps.forEach(c=>(c.component_allergens||[]).forEach(ca=>{
+    if(ca.status==='Contains')al.add(ca.allergen);
+  }));
+  return al;
+}
+
+// Does a guest's dietary need require a variant for this dish?
+function guestNeedsVariant(guestDietary,dish){
+  const dt=guestDietary.toLowerCase();
+  const al=getDishAllergens(dish);
+  // Check against common mappings
+  if((dt.includes('vegan')||dt.includes('vegetarian'))&&dish.category!=='Desserts'){
+    // Check if dish contains meat — not from allergens, from category/name heuristic
+    // For now, check if the dish has no vegetarian tag and guest is veggie
+    const dishTags=(dish.dietary_tags||[]).map(t=>t.toLowerCase());
+    if(dt.includes('vegan')&&!dishTags.includes('vegan'))return true;
+    if(dt.includes('vegetarian')&&!dishTags.includes('vegetarian')&&!dishTags.includes('vegan'))return true;
+  }
+  if((dt.includes('coeliac')||dt.includes('gf')||dt.includes('gluten'))&&al.has('Gluten'))return true;
+  if((dt.includes('dairy')||dt.includes('df'))&&al.has('Dairy'))return true;
+  if((dt.includes('egg'))&&al.has('Egg'))return true;
+  if(dt.includes('nut')&&(al.has('Nuts')||al.has('Peanuts')))return true;
+  // Check allergens_removed on variants (they explicitly remove things)
+  return false;
+}
+
+// Find best variant for a set of dietary needs combined
+function findBestVariant(dish,dietaryNeeds){
+  const variants=dishes.filter(d=>d.variant_of===dish.id&&(d.dietary_tags||[]).length>0);
+  if(!variants.length)return null;
+  // Score each variant: how many of the needs does it cover?
+  const scored=variants.map(v=>{
+    const vTags=(v.dietary_tags||[]).map(t=>t.toLowerCase());
+    let score=0;
+    dietaryNeeds.forEach(need=>{
+      const nl=need.toLowerCase();
+      if(vTags.some(vt=>nl.includes(vt)||vt.includes(nl.split(/[+\s]/)[0])))score++;
+    });
+    // Severity bonus — prefer more inclusive variant
+    const sev=Math.max(...(v.dietary_tags||[]).map(t=>DIETARY_SEVERITY[t]||0));
+    return{v,score,sev};
+  });
+  scored.sort((a,b)=>b.score-a.score||b.sev-a.sev);
+  return scored[0]?.score>0?scored[0].v:variants[0];
+}
+
+// ── Wizard dietary assignment step ───────────────────────────────────
+let _wizVariantAssignments=[]; // [{dish_id, variant_id, portions, dietary_tags, auto, guests}]
+
+async function renderWizDietaryStep(body){
+  body.style.overflow='auto';
+  const guests=(_wizData.guest_allergens||[]);
+  const evDishes=_wizSelDishes.map(id=>dishes.find(d=>d.id===id)).filter(Boolean);
+  _wizVariantAssignments=[];
+
+  if(!guests.length){
+    body.innerHTML='<div class="diet-step-wrap"><div class="empty"><div class="empty-icon">✓</div><div class="empty-t">No dietary guests</div><div class="empty-s">Add dietary guests in step 1 to see variant assignments.</div></div></div>';
+    return;
+  }
+  if(!evDishes.length){
+    body.innerHTML='<div class="diet-step-wrap"><div class="empty"><div class="empty-icon">◈</div><div class="empty-t">No menu yet</div><div class="empty-s">Select dishes in step 2 first.</div></div></div>';
+    return;
+  }
+
+  // For each dish, work out which guests need a variant and what
+  const blocks=[];
+  for(const dish of evDishes){
+    const needingVariant=guests.filter(g=>guestNeedsVariant(g.dietary||'',dish));
+    const safe=guests.length-needingVariant.length;
+    const allNeedTypes=[...new Set(needingVariant.map(g=>g.dietary))];
+
+    // Upgrade rule: find single variant that covers all needs
+    const bestVariant=needingVariant.length?findBestVariant(dish,allNeedTypes):null;
+    const variants=dishes.filter(d=>d.variant_of===dish.id);
+
+    // Standard portions = covers - all needing variants
+    const stdPortions=(+(_wizData.covers||0))-needingVariant.length;
+    const varPortions=needingVariant.length;
+
+    if(needingVariant.length){
+      _wizVariantAssignments.push({
+        dish_id:dish.id,
+        variant_id:bestVariant?.id||null,
+        portions:varPortions,
+        dietary_tags:allNeedTypes,
+        guests:needingVariant.map(g=>g.name||g.dietary),
+        auto:true,
+        std_portions:stdPortions,
+        dish_name:dish.name,
+        variant_name:bestVariant?.name||'No variant found'
+      });
+    }
+
+    const upgradeNote=needingVariant.length>0&&allNeedTypes.length>1?
+      `Auto-upgraded to most inclusive variant covering all ${needingVariant.length} affected guest${needingVariant.length!==1?'s':''}`:null;
+
+    blocks.push(`<div class="diet-dish-block">
+      <div class="diet-dish-hd">
+        <div class="diet-dish-name">${h(dish.name)}</div>
+        <span class="diet-dish-safe ${needingVariant.length?'warn':'ok'}">${needingVariant.length?`${needingVariant.length} need variant`:'All guests OK'}</span>
+      </div>
+      ${upgradeNote?`<div class="diet-upgrade-banner">⟳ ${upgradeNote}</div>`:''}
+      ${needingVariant.map((g,gi)=>{
+        const assignIdx=_wizVariantAssignments.findIndex(a=>a.dish_id===dish.id);
+        const varOpts=variants.map(v=>`<option value="${v.id}" ${bestVariant?.id===v.id?'selected':''}>${h(v.name)}</option>`).join('');
+        return`<div class="diet-guest-row">
+          <span class="diet-guest-tag ${g.type||'preference'}">${h(g.name||'Guest')}</span>
+          <span style="flex:1;color:var(--t2)">${h(g.dietary||'')}</span>
+          ${variants.length?`<select class="diet-variant-sel" onchange="updateVariantAssign('${dish.id}',this.value)">
+            <option value="">— No variant —</option>${varOpts}
+          </select>`:`<span style="font-size:12px;color:var(--red)">No variants in library</span>`}
+        </div>`;
+      }).join('')}
+      ${!needingVariant.length?guests.map(g=>`<div class="diet-guest-row"><span class="diet-guest-tag">${h(g.name||'Guest')}</span><span style="color:var(--t3);font-size:12px">${h(g.dietary||'')}</span><span style="color:#4ac177;font-size:12px;margin-left:auto">✓ OK with standard</span></div>`).join(''):''}
+      <div class="diet-guest-row" style="background:var(--s2)">
+        <span style="font-size:12px;color:var(--t3);font-family:'DM Mono',monospace">Portions</span>
+        <span style="flex:1"></span>
+        ${stdPortions>0?`<span class="diet-portions-badge">Standard ×${stdPortions}</span>`:''}
+        ${varPortions>0&&bestVariant?`<span class="diet-portions-badge" style="color:var(--gold)">Variant ×${varPortions}</span>`:''}
+      </div>
+    </div>`);
+  }
+
+  body.innerHTML=`<div class="diet-step-wrap">${blocks.join('')}
+    ${_wizVariantAssignments.length?`<div style="padding:10px 0;font-size:12px;color:var(--t3);font-family:'DM Mono',monospace;text-align:center">Variant assignments saved with the event. Edit any time from the function sheet.</div>`:''}
+  </div>`;
+}
+
+function updateVariantAssign(dishId,variantId){
+  const a=_wizVariantAssignments.find(x=>x.dish_id===dishId);
+  if(a)a.variant_id=variantId||null;
+}
+
+async function saveVariantAssignments(eventId){
+  if(!_wizVariantAssignments.length)return;
+  await sb.from('event_variant_assignments').delete().eq('event_id',eventId);
+  const rows=_wizVariantAssignments.filter(a=>a.variant_id).map(a=>({
+    event_id:eventId,dish_id:a.dish_id,variant_id:a.variant_id,
+    portions:a.portions,dietary_tags:a.dietary_tags,auto_assigned:a.auto
+  }));
+  if(rows.length)await sb.from('event_variant_assignments').insert(rows);
+}
+
+// ── Wizard step count now 4 ───────────────────────────────────────────
+function fsWizStep(n){
+  if(n<1||n>4)return;
+  if(_wizStep===1)collectStep1();if(_wizStep===4)collectStep3();
+  _wizStep=n;
+  for(let i=1;i<=4;i++){
+    const dot=document.getElementById('wiz-dot-'+i);if(!dot)continue;
+    dot.className='wiz-step-dot'+(i<n?' done':i===n?' active':'');dot.textContent=i<n?'✓':i;
+  }
+  document.getElementById('wiz-back-btn').style.display=n>1?'flex':'none';
+  document.getElementById('wiz-next-btn').textContent=n===4?'Save event':'Next →';
+  const body=document.getElementById('wiz-body');
+  if(n===1)renderWizStep1(body);
+  else if(n===2)renderWizStep2(body);
+  else if(n===3)renderWizDietaryStep(body);
+  else renderWizStep3(body);
+}
+
+function fsWizNext(){
+  if(_wizStep===1){collectStep1();if(!_wizData.client_name||!_wizData.event_date||!_wizData.covers){toast('Fill in client, date and covers.','err');return;}fsWizStep(2);}
+  else if(_wizStep===2)fsWizStep(3);
+  else if(_wizStep===3)fsWizStep(4);
+  else{collectStep3();saveFsWizard();}
+}
+
+// Patch saveFsWizard to also save variant assignments
+const _origSaveFsWizard=saveFsWizard;
+saveFsWizard=async function(){
+  // Call original then save variants
+  const btn=document.getElementById('wiz-next-btn');
+  if(btn){btn.disabled=true;btn.textContent='Saving…';}
+  try{
+    const p={client_name:_wizData.client_name,event_type:_wizData.event_type,event_date:_wizData.event_date,start_time:_wizData.start_time,end_time:_wizData.end_time,covers:_wizData.covers,status:_wizData.status||'Enquiry',deposit_status:_wizData.deposit_status||null,budget:_wizData.budget||null,staffing:_wizData.staffing||null,job_code:_wizData.job_code||null,venue:_wizData.venue||null,location:_wizData.location||null,address:_wizData.address||null,contact_name:_wizData.contact_name||null,contact_phone:_wizData.contact_phone||null,contact_email:_wizData.contact_email||null,kitchen_notes:_wizData.kitchen_notes||null,chef_notes:_wizData.chef_notes||null,service_notes:_wizData.service_notes||null,client_notes:_wizData.client_notes||null,run_of_day:_wizData.run_of_day||[],extra_charges:_wizData.extra_charges||[],guest_allergens:_wizData.guest_allergens||[]};
+    let evId=_wizData.id;
+    if(evId){const{error}=await sb.from('events').update(p).eq('id',evId);if(error)throw error;}
+    else{const{data,error}=await sb.from('events').insert(p).select().single();if(error)throw error;evId=data.id;}
+    await sb.from('event_dishes').delete().eq('event_id',evId);
+    if(_wizSelDishes.length)await sb.from('event_dishes').insert(_wizSelDishes.map((did)=>({event_id:evId,dish_id:did})));
+    await saveVariantAssignments(evId);
+    toast(_wizData.id?'Event updated':'Event created','ok');
+    await loadEvents();closeFsWizard();
+  }catch(e){toast(e.message||'Save failed','err');if(btn){btn.disabled=false;btn.textContent='Save event';}}
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// HACCP TEMPLATE BUILDER (per component in dish builder step 3)
+// ═══════════════════════════════════════════════════════════════════
+const HACCP_STEP_TYPES=[
+  {key:'raw_intake',label:'Raw intake',icon:'📦'},
+  {key:'fridge',label:'Fridge',icon:'🧊'},
+  {key:'freezer',label:'Freezer',icon:'❄'},
+  {key:'cook',label:'Cook',icon:'🔥'},
+  {key:'sv',label:'Sous vide',icon:'💧'},
+  {key:'blast_chill',label:'Blast chill',icon:'⬇'},
+  {key:'hold',label:'Hold',icon:'⏱'},
+  {key:'probe',label:'Probe',icon:'🌡'},
+  {key:'transport',label:'Transport',icon:'🚐'},
+];
+const HACCP_DEFAULTS={
+  raw_intake:{min:null,max:8},fridge:{min:null,max:8},freezer:{min:null,max:-18},
+  cook:{min:75,max:null},sv:{min:63,max:74},blast_chill:{min:null,max:8},
+  hold:{min:63,max:null},probe:{min:75,max:null},transport:{min:null,max:8}
+};
+
+let _haccpSteps={}; // keyed by component_id
+
+async function loadHaccpSteps(compId){
+  if(_haccpSteps[compId])return _haccpSteps[compId];
+  const{data}=await sb.from('haccp_templates').select('*').eq('component_id',compId).order('step_order');
+  _haccpSteps[compId]=data||[];
+  return _haccpSteps[compId];
+}
+
+function renderHaccpSection(compId,steps,containerId){
+  const container=document.getElementById(containerId);if(!container)return;
+  const typeIcons=Object.fromEntries(HACCP_STEP_TYPES.map(t=>[t.key,t.icon]));
+  container.innerHTML=`<div class="haccp-section">
+    <div class="haccp-section-hd">🌡 Temperature journey
+      <button class="haccp-add-btn" onclick="addHaccpStep('${compId}','${containerId}')">+ Add step</button>
+    </div>
+    ${steps.length?steps.map((s,i)=>`<div class="haccp-step-row" id="hstep-${s.id}">
+      <span class="haccp-step-type ${s.critical?'critical':''}">${typeIcons[s.step_type]||''} ${s.label||s.step_type}</span>
+      <span class="haccp-step-label">${s.tms_unit_hint?`<span style="font-size:10px;color:var(--t4);font-family:'DM Mono',monospace">TMS: ${s.tms_unit_hint}</span>`:''}</span>
+      <span class="haccp-step-temp">${s.target_temp_min!=null?s.target_temp_min+'°C':''} ${s.target_temp_min!=null&&s.target_temp_max!=null?'–':''} ${s.target_temp_max!=null?s.target_temp_max+'°C':''}</span>
+      <button class="btn btn-xs btn-danger" onclick="deleteHaccpStep('${s.id}','${compId}','${containerId}')">×</button>
+    </div>`).join(''):'<div style="font-size:12px;color:var(--t4);padding:8px 0">No steps yet — add the temperature journey for this component.</div>'}
+  </div>`;
+}
+
+async function addHaccpStep(compId,containerId){
+  const type=prompt('Step type:\n'+HACCP_STEP_TYPES.map(t=>t.key).join(', '));
+  if(!type||!HACCP_STEP_TYPES.find(t=>t.key===type))return;
+  const defaults=HACCP_DEFAULTS[type]||{};
+  const label=prompt('Label (e.g. "Blast chill to <3°C"):',HACCP_STEP_TYPES.find(t=>t.key===type)?.label||type)||type;
+  const tms=prompt('TMS unit hint (leave blank if none):','')||null;
+  const steps=await loadHaccpSteps(compId);
+  const{data,error}=await sb.from('haccp_templates').insert({
+    component_id:compId,step_order:steps.length+1,step_type:type,label,
+    target_temp_min:defaults.min,target_temp_max:defaults.max,
+    tms_unit_hint:tms,critical:['cook','probe','blast_chill'].includes(type)
+  }).select().single();
+  if(error){toast(error.message,'err');return;}
+  _haccpSteps[compId]=[...steps,data];
+  renderHaccpSection(compId,_haccpSteps[compId],containerId);
+}
+
+async function deleteHaccpStep(stepId,compId,containerId){
+  await sb.from('haccp_templates').delete().eq('id',stepId);
+  _haccpSteps[compId]=(_haccpSteps[compId]||[]).filter(s=>s.id!==stepId);
+  renderHaccpSection(compId,_haccpSteps[compId],containerId);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// EVENT P&L VIEW
+// ═══════════════════════════════════════════════════════════════════
+async function renderEventPnL(eventId,container){
+  container.innerHTML='<div style="padding:20px;color:var(--t4);font-size:13px">Loading costs…</div>';
+  const ev=events.find(e=>e.id===eventId);if(!ev)return;
+  const{data:lines}=await sb.from('event_cost_lines').select('*').eq('event_id',eventId).order('date');
+  const costLines=lines||[];
+
+  const revenue=parseFloat(ev.budget)||0;
+  const byCat={food:0,labour:0,mileage:0,overhead:0,other:0};
+  costLines.forEach(l=>byCat[l.category]=(byCat[l.category]||0)+parseFloat(l.amount||0));
+  const totalCost=Object.values(byCat).reduce((s,v)=>s+v,0);
+  const gp=revenue-totalCost;
+  const gpPct=revenue?Math.round(gp/revenue*100):0;
+
+  const foodCostPct=revenue?Math.round(byCat.food/revenue*100):0;
+
+  container.innerHTML=`
+    <div class="pnl-summary-bar" style="margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid var(--bd)">
+      <div class="pnl-summary-cell"><div class="pnl-summary-label">Revenue</div><div class="pnl-summary-val gold">${fmt$(revenue)}</div></div>
+      <div class="pnl-summary-cell"><div class="pnl-summary-label">Total cost</div><div class="pnl-summary-val ${totalCost>revenue?'red':'gold'}">${fmt$(totalCost)}</div></div>
+      <div class="pnl-summary-cell"><div class="pnl-summary-label">Gross profit</div><div class="pnl-summary-val ${gp>=0?'green':'red'}">${fmt$(gp)}</div></div>
+      <div class="pnl-summary-cell"><div class="pnl-summary-label">GP %</div><div class="pnl-summary-val ${gpPct>=40?'green':gpPct>=20?'gold':'red'}">${gpPct}%</div></div>
+    </div>
+    <div class="pnl-section">
+      <div class="pnl-hd"><span class="pnl-hd-title">Cost lines</span>
+        <button class="btn btn-xs" onclick="addCostLine('${eventId}')">+ Add</button>
+      </div>
+      ${costLines.length?costLines.map(l=>`<div class="pnl-row">
+        <span class="pnl-cat ${l.category}">${l.category}</span>
+        <span class="pnl-desc">${h(l.description)}</span>
+        <span style="font-size:11px;color:var(--t4);font-family:'DM Mono',monospace">${l.source!=='manual'?l.source:''}</span>
+        <span class="pnl-amount">£${parseFloat(l.amount).toFixed(2)}</span>
+        <button class="btn btn-xs btn-danger" onclick="deleteCostLine('${l.id}','${eventId}')">×</button>
+      </div>`).join(''):'<div style="padding:16px;color:var(--t4);font-size:13px;text-align:center">No cost lines yet</div>'}
+      <div class="pnl-add-row" style="background:var(--s2);border-top:1px solid var(--bd);flex-wrap:wrap;gap:6px;padding:10px 16px">
+        ${Object.keys(byCat).map(cat=>`<span class="pnl-cat ${cat}">${cat}: £${byCat[cat].toFixed(2)}</span>`).join('')}
+        ${revenue?`<span class="pnl-cat food">Food FC%: ${foodCostPct}%</span>`:''}
+      </div>
+    </div>`;
+}
+
+async function addCostLine(eventId){
+  const cat=prompt('Category (food/labour/mileage/overhead/other):','food');
+  if(!cat)return;
+  const desc=prompt('Description:','');if(!desc)return;
+  const amount=parseFloat(prompt('Amount £:','0')||0);if(!amount)return;
+  await sb.from('event_cost_lines').insert({event_id:eventId,category:cat,description:desc,amount,job_code:events.find(e=>e.id===eventId)?.job_code||null});
+  const container=document.getElementById('pnl-container-'+eventId);
+  if(container)renderEventPnL(eventId,container);
+}
+
+async function deleteCostLine(lineId,eventId){
+  await sb.from('event_cost_lines').delete().eq('id',lineId);
+  const container=document.getElementById('pnl-container-'+eventId);
+  if(container)renderEventPnL(eventId,container);
+}
+
 </script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
