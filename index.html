@@ -3493,6 +3493,8 @@ async function handlePhotoSelect(evt,dishId){
   if(!dishId){toast('Save the dish first','err');return;}
   openCropModal(file,dishId);
 }
+
+document.addEventListener("DOMContentLoaded", init);
 </script>
 
 <div class="crop-modal-ov" id="crop-modal">
