@@ -1237,6 +1237,23 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
   </div>
 </div>
 
+<!-- ══ BUTCHERY ════════════════════════════════════════ -->
+<div id="view-butchery" class="view">
+  <div class="b-topbar">
+    <div class="b-tabs" id="b-tabs">
+      <button class="b-tab on" data-btab="dashboard" onclick="bNav('dashboard',this)">Dashboard</button>
+      <button class="b-tab" data-btab="intake"    onclick="bNav('intake',this)">Intake</button>
+      <button class="b-tab" data-btab="scan"      onclick="bNav('scan',this)">Scan</button>
+      <button class="b-tab" data-btab="freezer"   onclick="bNav('freezer',this)">Freezer</button>
+      <button class="b-tab" data-btab="yield"     onclick="bNav('yield',this)">Yield</button>
+      <button class="b-tab" data-btab="cleans"    onclick="bNav('cleans',this)">Cleans</button>
+      <button class="b-tab" data-btab="schedule"  onclick="bNav('schedule',this)">Schedule</button>
+    </div>
+    <span class="b-staff-chip" onclick="bChangeStaff()"><span id="b-staff-lbl">— set name</span></span>
+  </div>
+  <div id="b-content" class="b-content"></div>
+</div>
+
 </div><!-- .main -->
 </div><!-- .shell -->
 <div class="toast" id="toast"></div>
@@ -1509,6 +1526,7 @@ async function init(){
   buildIngAlGrid();
   renderDishList();
   populateSelects();
+  renderPipeline();
   // ensure builder hidden on load
   const bp=document.getElementById('builder-panel');
   if(bp)bp.style.display='none';
@@ -4189,23 +4207,6 @@ async function addCostLine(eventId){
 document.addEventListener('DOMContentLoaded',init);
 
 </script>
-
-<!-- ══ BUTCHERY ════════════════════════════════════════ -->
-<div id="view-butchery" class="view">
-  <div class="b-topbar">
-    <div class="b-tabs" id="b-tabs">
-      <button class="b-tab on" data-btab="dashboard" onclick="bNav('dashboard',this)">Dashboard</button>
-      <button class="b-tab" data-btab="intake"    onclick="bNav('intake',this)">Intake</button>
-      <button class="b-tab" data-btab="scan"      onclick="bNav('scan',this)">Scan</button>
-      <button class="b-tab" data-btab="freezer"   onclick="bNav('freezer',this)">Freezer</button>
-      <button class="b-tab" data-btab="yield"     onclick="bNav('yield',this)">Yield</button>
-      <button class="b-tab" data-btab="cleans"    onclick="bNav('cleans',this)">Cleans</button>
-      <button class="b-tab" data-btab="schedule"  onclick="bNav('schedule',this)">Schedule</button>
-    </div>
-    <span class="b-staff-chip" onclick="bChangeStaff()"><span id="b-staff-lbl">— set name</span></span>
-  </div>
-  <div id="b-content" class="b-content"></div>
-</div>
 
 <div id="view-fs-wizard" class="view">
   <div class="wiz-bar">
