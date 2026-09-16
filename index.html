@@ -11,13 +11,16 @@
 function maybeShowBrineBtn(dishId) {
   const dish = dishes.find(d=>d.id===dishId);
   if(!dish || !dish.name.toLowerCase().includes('injection')) return;
-  const hd = document.querySelector('.dd-hd-actions') || document.querySelector('.bs-tabs');
-  if(!hd) return;
   if(document.getElementById('brine-calc-btn')) return;
+  // Find the Save button row and insert before it
+  const saveBtn = document.querySelector('#builder-panel .btn');
+  if(!saveBtn) return;
   const btn = document.createElement('button');
-  btn.id='brine-calc-btn';btn.className='btn btn-sm';btn.textContent='🧮 Brine calc';
+  btn.id='brine-calc-btn';btn.className='btn btn-sm';
+  btn.style.cssText='background:var(--goldfg);border-color:var(--goldbd);color:var(--gold);font-weight:600;';
+  btn.textContent='🧮 Brine calc';
   btn.onclick=openBrineCalc;
-  hd.parentNode.insertBefore(btn, hd.nextSibling);
+  saveBtn.parentNode.insertBefore(btn, saveBtn);
 }
 
 </script>
