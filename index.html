@@ -895,6 +895,63 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
 .diet-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
 .diet-chip{padding:5px 12px;border-radius:20px;border:1.5px solid var(--bd2);font-size:12px;font-weight:600;cursor:pointer;background:var(--s2);color:var(--t3);font-family:'IBM Plex Mono',monospace;}
 .diet-chip.on{border-color:var(--gold);background:var(--goldfg);color:var(--t1);}
+
+/* ═══ BUTCHERY MODULE ════════════════════════════════ */
+.b-topbar{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--bd);background:var(--s2);flex-shrink:0;overflow-x:auto;scrollbar-width:none;}
+.b-topbar::-webkit-scrollbar{display:none;}
+.b-tabs{display:flex;gap:0;}
+.b-tab{padding:0 16px;height:42px;border:none;background:none;font-size:13px;font-weight:500;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .1s;}
+.b-tab:hover{color:var(--t1);}
+.b-tab.on{color:var(--t1);border-bottom-color:var(--t1);}
+.b-staff-chip{margin-left:auto;padding:0 14px;font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--t4);cursor:pointer;white-space:nowrap;height:42px;line-height:42px;border-left:1px solid var(--bd);}
+.b-staff-chip:hover{color:var(--t1);}
+.b-content{flex:1;overflow-y:auto;padding:20px 24px 60px;max-width:900px;}
+#view-butchery{flex-direction:column;}
+.b-card{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:12px;}
+.b-card-hd{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:10px;}
+.b-stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:16px;}
+.b-stat{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:12px;text-align:center;}
+.b-stat-val{font-size:24px;font-weight:700;color:var(--t1);}
+.b-stat-lbl{font-size:11px;color:var(--t4);margin-top:2px;font-family:'IBM Plex Mono',monospace;}
+.b-code{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--gold);}
+.b-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;font-family:'IBM Plex Mono',monospace;}
+.b-badge-active{background:var(--grnbg);color:var(--grn);}
+.b-badge-done{background:var(--s3);color:var(--t4);}
+.b-badge-packed{background:#FFF9E6;color:#8B6914;}
+.b-badge-crate{background:#E0F2FE;color:#0369A1;}
+.b-badge-market{background:#EDE9FE;color:#5B21B6;}
+.b-badge-sold{background:var(--grnbg);color:var(--grn);}
+.b-badge-freezer{background:#E0E7FF;color:#3730A3;}
+.b-badge-used{background:var(--s3);color:var(--t4);}
+.b-yield-bar{height:10px;border-radius:5px;background:var(--s3);overflow:hidden;display:flex;margin:6px 0;}
+.b-yield-packed{background:var(--grn);}
+.b-yield-trim{background:var(--amb);}
+.b-yield-meta{display:flex;gap:12px;font-size:11px;color:var(--t4);}
+.b-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px;vertical-align:middle;}
+.b-checklist-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);cursor:pointer;}
+.b-checklist-item:last-child{border-bottom:none;}
+.b-checklist-item input[type=checkbox]{width:17px;height:17px;margin-top:2px;flex-shrink:0;accent-color:var(--grn);cursor:pointer;}
+.b-checklist-item span{font-size:14px;line-height:1.4;}
+.b-scan-wrap{border:2px solid var(--t1);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.b-scan-wrap input{border:none;font-size:16px;padding:14px;border-radius:0;background:var(--s1);width:100%;}
+.b-scan-result{background:var(--s2);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:12px;}
+.b-scan-empty{color:var(--t4);font-size:13px;text-align:center;padding:28px;}
+.b-mvt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.b-mvt-btn{padding:11px 6px;border-radius:var(--r);border:1.5px solid var(--bd);font-size:12px;font-weight:600;cursor:pointer;text-align:center;background:var(--s2);transition:all .1s;}
+.b-mvt-btn:hover{border-color:var(--t2);background:var(--s1);}
+.b-mvt-btn.b-mvt-ok{border-color:transparent;background:var(--grn);color:#fff;}
+.b-mvt-btn.b-mvt-danger{border-color:transparent;background:var(--red);color:#fff;}
+.b-mvt-btn:disabled{opacity:.3;cursor:not-allowed;}
+.b-tbl-wrap{overflow-x:auto;}
+.b-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.b-tbl th{text-align:left;font-size:11px;font-weight:600;color:var(--t4);padding:7px 10px;border-bottom:1px solid var(--bd);font-family:'IBM Plex Mono',monospace;}
+.b-tbl td{padding:9px 10px;border-bottom:1px solid var(--bd);vertical-align:top;}
+.b-tbl tr:last-child td{border-bottom:none;}
+.b-tbl tr:hover td{background:var(--s1);}
+.b-back{font-size:13px;color:var(--t4);cursor:pointer;margin-bottom:14px;display:inline-block;}
+.b-back:hover{color:var(--t1);}
+.b-confirm-btn{width:100%;padding:14px;border:none;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;background:var(--grn);color:#fff;margin-top:10px;transition:opacity .15s;}
+.b-confirm-btn:disabled{opacity:.3;cursor:not-allowed;}
 </style>
 </head>
 <body>
@@ -919,8 +976,11 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
     <button class="sb-item" data-view="cleaning" onclick="sbNav('cleaning',this)" title="Cleaning">
       ⊡<span class="sb-tooltip">Cleaning</span>
     </button>
+    <button class="sb-item" data-view="butchery" onclick="sbNav('butchery',this)" title="Butchery">
+      ✦<span class="sb-tooltip">Butchery</span>
+    </button>
   </div>
-  <div class="sb-conn"><div class="conn-dot" id="sb-dot"></div></div>
+  <div class="sb-conn"><div class="conn-dot" id="sb-dot"></div><span id="sb-conn" style="display:none"></span></div>
 </nav>
 
 <!-- MAIN -->
@@ -1443,8 +1503,8 @@ async function init(){
   try{
     const{error}=await sb.from('dishes').select('id').limit(1);
     if(error)throw error;
-    dot.className='sb-dot live';conn.textContent='live';
-  }catch(e){dot.className='sb-dot err';conn.textContent='error';toast('Database error','err');return;}
+    dot.className='sb-dot live';if(conn)conn.textContent='live';
+  }catch(e){dot.className='sb-dot err';if(conn)conn.textContent='error';toast('Database error','err');return;}
   await Promise.all([loadDishes(),loadEvents(),loadIngredients()]);
   buildIngAlGrid();
   renderDishList();
@@ -3739,6 +3799,7 @@ function sbNav(view,el){
   else if(view==='prep')renderPrepPlan();
   else if(view==='library'){renderDishList();}
   else if(view==='cleaning')initCleaning();
+  else if(view==='butchery')bDashboard();
 }
 
 // _evTab declared in core
@@ -4129,6 +4190,23 @@ document.addEventListener('DOMContentLoaded',init);
 
 </script>
 
+<!-- ══ BUTCHERY ════════════════════════════════════════ -->
+<div id="view-butchery" class="view">
+  <div class="b-topbar">
+    <div class="b-tabs" id="b-tabs">
+      <button class="b-tab on" data-btab="dashboard" onclick="bNav('dashboard',this)">Dashboard</button>
+      <button class="b-tab" data-btab="intake"    onclick="bNav('intake',this)">Intake</button>
+      <button class="b-tab" data-btab="scan"      onclick="bNav('scan',this)">Scan</button>
+      <button class="b-tab" data-btab="freezer"   onclick="bNav('freezer',this)">Freezer</button>
+      <button class="b-tab" data-btab="yield"     onclick="bNav('yield',this)">Yield</button>
+      <button class="b-tab" data-btab="cleans"    onclick="bNav('cleans',this)">Cleans</button>
+      <button class="b-tab" data-btab="schedule"  onclick="bNav('schedule',this)">Schedule</button>
+    </div>
+    <span class="b-staff-chip" onclick="bChangeStaff()"><span id="b-staff-lbl">— set name</span></span>
+  </div>
+  <div id="b-content" class="b-content"></div>
+</div>
+
 <div id="view-fs-wizard" class="view">
   <div class="wiz-bar">
     <button class="wiz-back" onclick="closeFsWizard()">&#8592;</button>
@@ -4222,5 +4300,521 @@ document.addEventListener('DOMContentLoaded',init);
     <div style="font-size:11px;color:var(--t4);margin-top:10px;font-family:'IBM Plex Mono',monospace;line-height:1.6">Raw: cook by +24hrs &nbsp;|&nbsp; Cooked: use by +72hrs, storage 1-3C</div>
   </div>
 </div>
+<script>
+// ═══════════════════════════════════════════════════════════
+// BUTCHERY MODULE — uses existing `sb` client (Kitchen Prep)
+// ═══════════════════════════════════════════════════════════
+const B_SPECIES  = ['beef','pork','lamb','chicken','venison','game'];
+const B_LOCS     = ['Fridge 1','Fridge 2','Freezer 1','Freezer 2','Walk-in','Blast chiller'];
+const B_STATUS_L = {packed:'Packed',in_crate:'In crate',at_market:'At market',sold:'Sold',in_freezer:'In freezer',used:'Used'};
+const B_CLEAN_STEPS = ['Overheads and walls wiped if needed','Surfaces and boards cleaned and sanitised','Equipment and blades changed or cleaned','Floor scrubbed and squeegeed','Waste and offcuts cleared','Hands washed and gloves changed'];
+const B_CLEAN_KEYS  = ['check_overhead_walls','check_surfaces_boards','check_equipment_blades','check_floor','check_waste_offcuts','check_hands_gloves'];
+let _bStaff = localStorage.getItem('butchery_staff') || '';
+let _bScanPack = null;
+
+function bStaffInit(){
+  const el = document.getElementById('b-staff-lbl');
+  if(el) el.textContent = _bStaff || '— set name';
+}
+function bChangeStaff(){
+  const n = prompt('Your name:', _bStaff);
+  if(n && n.trim()){ _bStaff=n.trim(); localStorage.setItem('butchery_staff',_bStaff); bStaffInit(); }
+}
+function bRequireStaff(){ if(!_bStaff){ bChangeStaff(); return !!_bStaff; } return true; }
+
+function bNav(tab, el){
+  document.querySelectorAll('.b-tab').forEach(t=>t.classList.remove('on'));
+  if(el) el.classList.add('on');
+  if(tab==='dashboard') bDashboard();
+  else if(tab==='intake')   bIntake();
+  else if(tab==='scan')     bScanView();
+  else if(tab==='freezer')  bFreezer();
+  else if(tab==='yield')    bYield();
+  else if(tab==='cleans')   bCleans();
+  else if(tab==='schedule') bSchedule();
+}
+
+function bEl(){ return document.getElementById('b-content'); }
+function bH(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function bFmt(n,d=3){ return parseFloat(n||0).toFixed(d); }
+function bDate(s){ return s?new Date(s).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'; }
+function bDT(s){ return s?new Date(s).toLocaleString('en-GB',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}):'—'; }
+function bCap(s){ return s?(s[0].toUpperCase()+s.slice(1)):''; }
+function bSI(sp){ return {beef:'🐄',pork:'🐷',lamb:'🐑',chicken:'🐔',venison:'🦌',game:'🦚'}[sp]||'🥩'; }
+function bBadge(s){ const m={packed:'packed',in_crate:'crate',at_market:'market',sold:'sold',in_freezer:'freezer',used:'used'}; return `<span class="b-badge b-badge-${m[s]||'packed'}">${B_STATUS_L[s]||s}</span>`; }
+function bSuggestCode(sup, dt){
+  const initials = (sup||'').trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,4);
+  const d = dt?new Date(dt):new Date();
+  return `${initials}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getFullYear()).slice(-2)}`;
+}
+
+// ── DASHBOARD ──────────────────────────────────────────────
+async function bDashboard(){
+  bStaffInit();
+  const el = bEl(); el.innerHTML='<div style="color:var(--t4);padding:40px;text-align:center">Loading…</div>';
+  const [{data:cars},{data:packs}] = await Promise.all([
+    sb.from('butchery_carcasses').select('*').eq('status','active').order('created_at',{ascending:false}),
+    sb.from('butchery_packs').select('current_status')
+  ]);
+  const cnt = (packs||[]).reduce((a,p)=>{a[p.current_status]=(a[p.current_status]||0)+1;return a;},{});
+  el.innerHTML=`
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;">
+      <h2 style="font-size:18px;font-weight:700;">Butchery</h2>
+      <button class="btn btn-sm" onclick="bNav('intake',document.querySelector('.b-tab[data-btab=intake]'))">+ Intake</button>
+    </div>
+    <div class="b-stats">
+      <div class="b-stat"><div class="b-stat-val">${(cars||[]).length}</div><div class="b-stat-lbl">Active</div></div>
+      <div class="b-stat"><div class="b-stat-val">${cnt.at_market||0}</div><div class="b-stat-lbl">At market</div></div>
+      <div class="b-stat"><div class="b-stat-val">${cnt.in_freezer||0}</div><div class="b-stat-lbl">Freezer</div></div>
+      <div class="b-stat"><div class="b-stat-val">${cnt.sold||0}</div><div class="b-stat-lbl">Sold</div></div>
+    </div>
+    ${(cars||[]).length===0?'<div style="color:var(--t4);padding:40px;text-align:center;">No active carcasses</div>':
+      (cars||[]).map(c=>`
+        <div class="b-card" style="cursor:pointer" onclick="bCarcass('${c.id}')">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span class="b-code">${bSI(c.species)} ${bH(c.tracking_code)}</span>
+            <span class="b-badge b-badge-active">Active</span>
+          </div>
+          <div style="font-size:12px;color:var(--t4);margin-top:3px;">${bCap(c.species)} · ${bH(c.supplier)} · ${bDate(c.intake_date)} · ${bFmt(c.intake_weight_kg,1)} kg in</div>
+        </div>`).join('')}`;
+}
+
+// ── INTAKE ─────────────────────────────────────────────────
+function bIntake(){
+  const today = new Date().toISOString().slice(0,10);
+  bEl().innerHTML=`
+    <span class="b-back" onclick="bDashboard()">← Dashboard</span>
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:14px;">New carcass intake</h2>
+    <div class="b-card">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="fld"><label class="fld-label">Species</label>
+          <select class="fld-inp" id="bi-sp" onchange="bUpdateCode()">${B_SPECIES.map(s=>`<option value="${s}">${bCap(s)}</option>`).join('')}</select></div>
+        <div class="fld"><label class="fld-label">Intake date</label>
+          <input class="fld-inp" type="date" id="bi-date" value="${today}" onchange="bUpdateCode()"></div>
+      </div>
+      <div class="fld"><label class="fld-label">Supplier</label>
+        <input class="fld-inp" type="text" id="bi-supplier" placeholder="e.g. Primrose Hill Farm" oninput="bUpdateCode()" autocomplete="off"></div>
+      <div class="fld"><label class="fld-label">Tracking code</label>
+        <input class="fld-inp" type="text" id="bi-code" placeholder="e.g. MJ1026" autocomplete="off" style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--gold);font-size:15px;" oninput="this._edited=true"></div>
+      <div class="fld"><label class="fld-label">Intake weight (kg)</label>
+        <input class="fld-inp" type="number" id="bi-wt" step="0.001" placeholder="e.g. 120.000"></div>
+      <div class="fld"><label class="fld-label">Notes</label>
+        <textarea class="fld-inp" id="bi-notes" rows="2" placeholder="Optional"></textarea></div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center;" onclick="bSubmitIntake()">Log carcass</button>
+    </div>`;
+  bUpdateCode();
+}
+function bUpdateCode(){
+  const el=document.getElementById('bi-code'); if(!el||el._edited)return;
+  el.value=bSuggestCode(document.getElementById('bi-supplier')?.value,document.getElementById('bi-date')?.value);
+}
+async function bSubmitIntake(){
+  if(!bRequireStaff())return;
+  const code=document.getElementById('bi-code').value.trim().toUpperCase();
+  const sp=document.getElementById('bi-sp').value;
+  const sup=document.getElementById('bi-supplier').value.trim();
+  const dt=document.getElementById('bi-date').value;
+  const wt=parseFloat(document.getElementById('bi-wt').value);
+  const notes=document.getElementById('bi-notes').value.trim();
+  if(!code||!sup||!dt||isNaN(wt)||wt<=0){alert('Code, supplier, date and weight required.');return;}
+  const{data,error}=await sb.from('butchery_carcasses').insert({tracking_code:code,species:sp,supplier:sup,intake_date:dt,intake_weight_kg:wt,notes:notes||null,created_by:_bStaff}).select().single();
+  if(error){alert(error.message);return;}
+  bCarcass(data.id);
+}
+
+// ── CARCASS DETAIL ─────────────────────────────────────────
+async function bCarcass(id){
+  bEl().innerHTML='<div style="color:var(--t4);padding:40px;text-align:center">Loading…</div>';
+  const[{data:c},{data:packs},{data:temps},{data:trims}]=await Promise.all([
+    sb.from('butchery_carcasses').select('*').eq('id',id).single(),
+    sb.from('butchery_packs').select('*').eq('carcass_id',id).order('packed_at',{ascending:false}),
+    sb.from('butchery_temperature_logs').select('*').eq('carcass_id',id).order('logged_at',{ascending:false}).limit(10),
+    sb.from('butchery_trim_logs').select('*').eq('carcass_id',id)
+  ]);
+  if(!c){bEl().innerHTML='<div style="color:var(--red);padding:40px;text-align:center;">Carcass not found</div>';return;}
+  const packed=parseFloat(((packs||[]).reduce((s,p)=>s+parseFloat(p.weight_kg||0),0)).toFixed(3));
+  const trim=parseFloat(((trims||[]).reduce((s,t)=>s+parseFloat(t.trim_weight_kg||0),0)).toFixed(3));
+  const intake=parseFloat(c.intake_weight_kg||0);
+  const unaccounted=Math.max(0,intake-packed-trim);
+  const yPct=intake>0?(packed/intake*100).toFixed(1):0;
+  const packedPct=intake>0?(packed/intake*100):0;
+  const trimPct=intake>0?(trim/intake*100):0;
+  const byProd={};
+  (packs||[]).forEach(p=>{if(!byProd[p.product_name])byProd[p.product_name]=[];byProd[p.product_name].push(p);});
+  bEl().innerHTML=`
+    <span class="b-back" onclick="bDashboard()">← Dashboard</span>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;">
+      <span class="b-code" style="font-size:20px;">${bSI(c.species)} ${bH(c.tracking_code)}</span>
+      <span class="b-badge ${c.status==='active'?'b-badge-active':'b-badge-done'}">${c.status}</span>
+    </div>
+    <div style="font-size:12px;color:var(--t4);margin-bottom:16px;">${bCap(c.species)} · ${bH(c.supplier)} · ${bDate(c.intake_date)} · ${bFmt(intake,1)} kg in</div>
+    <div class="b-card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><strong>Yield</strong><span style="font-weight:700;color:var(--grn);">${yPct}%</span></div>
+      <div class="b-yield-bar"><div class="b-yield-packed" style="width:${packedPct}%"></div><div class="b-yield-trim" style="width:${trimPct}%"></div></div>
+      <div class="b-yield-meta">
+        <span><span class="b-dot" style="background:var(--grn)"></span>Packed ${bFmt(packed,2)} kg</span>
+        <span><span class="b-dot" style="background:var(--amb)"></span>Trim ${bFmt(trim,2)} kg</span>
+        <span><span class="b-dot" style="background:var(--s3)"></span>Gap ${bFmt(unaccounted,2)} kg</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+      <button class="btn btn-sm btn-gold" onclick="bOpenPackModal('${id}')">+ Pack</button>
+      <button class="btn btn-sm" onclick="bOpenTempModal('${id}')">+ Temp</button>
+      <button class="btn btn-sm" onclick="bOpenTrimModal('${id}')">+ Trim</button>
+      <button class="btn btn-sm" onclick="bPrintLabel(${JSON.stringify(c).replace(/"/g,'&quot;')})">🖨 Label</button>
+      ${c.status==='active'?`
+      <button class="btn btn-sm" onclick="bTriggerClean('${id}','species_change')">Species changeover clean</button>
+      <button class="btn btn-sm" onclick="bTriggerClean('${id}','end_of_night')">End of night clean</button>
+      <button class="btn btn-sm" style="background:var(--s3);color:var(--t3);" onclick="bCompleteCarcass('${id}')">Mark complete</button>`:''}
+    </div>
+    <div class="b-card">
+      <div class="b-card-hd"><strong>Packs (${(packs||[]).length})</strong></div>
+      ${Object.keys(byProd).length===0?'<div style="color:var(--t4);font-size:13px;">No packs logged</div>':
+        Object.entries(byProd).map(([prod,ps])=>`
+          <div style="margin-bottom:14px;">
+            <div style="font-weight:600;font-size:13px;margin-bottom:6px;">${bH(prod)}</div>
+            <div class="b-tbl-wrap"><table class="b-tbl">
+              <tr><th>Weight</th><th>Status</th><th>Location</th><th>By</th></tr>
+              ${ps.map(p=>`<tr><td style="font-family:'IBM Plex Mono',monospace;">${bFmt(p.weight_kg,3)} kg</td><td>${bBadge(p.current_status)}</td><td>${bH(p.current_location||'—')}</td><td>${bH(p.packed_by)}</td></tr>`).join('')}
+              <tr style="background:var(--s1);"><td><strong>${bFmt(ps.reduce((s,p)=>s+parseFloat(p.weight_kg||0),0),3)} kg</strong></td><td colspan="3" style="color:var(--t4);font-size:11px;">${ps.length} packs</td></tr>
+            </table></div>
+          </div>`).join('')}
+    </div>
+    <div class="b-card">
+      <div class="b-card-hd"><strong>Temperature log</strong></div>
+      ${(temps||[]).length===0?'<div style="color:var(--t4);font-size:13px;">No readings</div>':
+        `<div class="b-tbl-wrap"><table class="b-tbl"><tr><th>Temp</th><th>Location</th><th>By</th><th>When</th></tr>
+          ${(temps||[]).map(t=>`<tr><td style="font-family:'IBM Plex Mono',monospace;font-weight:700;color:${parseFloat(t.temperature_c)>4?'var(--red)':'var(--grn)'};">${t.temperature_c}°C</td><td>${bH(t.location||'—')}</td><td>${bH(t.logged_by)}</td><td>${bDT(t.logged_at)}</td></tr>`).join('')}
+        </table></div>`}
+    </div>
+    <div class="b-card">
+      <div class="b-card-hd"><strong>Trim / waste</strong></div>
+      ${(trims||[]).length===0?'<div style="color:var(--t4);font-size:13px;">Not logged yet</div>':
+        `<div class="b-tbl-wrap"><table class="b-tbl"><tr><th>Weight</th><th>Notes</th><th>By</th></tr>
+          ${(trims||[]).map(t=>`<tr><td style="font-family:'IBM Plex Mono',monospace;">${bFmt(t.trim_weight_kg,3)} kg</td><td>${bH(t.notes||'—')}</td><td>${bH(t.logged_by)}</td></tr>`).join('')}
+        </table></div>`}
+    </div>
+    ${bPackModal(id)}${bTempModal(id)}${bTrimModal(id)}`;
+}
+
+// ── PACK MODAL ─────────────────────────────────────────────
+const B_PRODUCTS=['Ribeye steak','Sirloin steak','Fillet steak','Rump steak','Flat iron steak','Mince','Brisket','Short rib','Chuck','Shin','Topside','Silverside','Shoulder','Leg','Rack','Loin chop','Belly','Haunch','Saddle','Whole bird','Crown','Breast','Leg quarter','Offcuts'];
+function bPackModal(id){return`
+  <div class="modal-overlay" id="bm-pack" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-title">Add pack<button class="modal-close" onclick="document.getElementById('bm-pack').classList.remove('open')">×</button></div>
+      <div class="fld"><label class="fld-label">Product</label>
+        <input class="fld-inp" type="text" id="bp-prod" placeholder="e.g. Ribeye steak" autocomplete="off" list="bprod-list">
+        <datalist id="bprod-list">${B_PRODUCTS.map(p=>`<option>${p}</option>`).join('')}</datalist></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="fld"><label class="fld-label">Weight (kg)</label><input class="fld-inp" type="number" id="bp-wt" step="0.001" placeholder="0.000"></div>
+        <div class="fld"><label class="fld-label">Location</label>
+          <select class="fld-inp" id="bp-loc"><option value="">—</option>${B_LOCS.map(l=>`<option>${l}</option>`).join('')}</select></div>
+      </div>
+      <button class="btn btn-gold" style="width:100%;justify-content:center;margin-top:6px;" onclick="bSubmitPack('${id}')">Save pack</button>
+    </div>
+  </div>`;}
+function bTempModal(id){return`
+  <div class="modal-overlay" id="bm-temp" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-title">Log temperature<button class="modal-close" onclick="document.getElementById('bm-temp').classList.remove('open')">×</button></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="fld"><label class="fld-label">Temperature (°C)</label><input class="fld-inp" type="number" id="bt-temp" step="0.1" placeholder="2.4"></div>
+        <div class="fld"><label class="fld-label">Location</label>
+          <select class="fld-inp" id="bt-loc"><option value="">—</option>${B_LOCS.map(l=>`<option>${l}</option>`).join('')}</select></div>
+      </div>
+      <button class="btn" style="width:100%;justify-content:center;margin-top:6px;" onclick="bSubmitTemp('${id}')">Save</button>
+    </div>
+  </div>`;}
+function bTrimModal(id){return`
+  <div class="modal-overlay" id="bm-trim" onclick="if(event.target===this)this.classList.remove('open')">
+    <div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-title">Log trim &amp; waste<button class="modal-close" onclick="document.getElementById('bm-trim').classList.remove('open')">×</button></div>
+      <div class="fld"><label class="fld-label">Trim weight (kg) — bones + fat binned</label><input class="fld-inp" type="number" id="btr-wt" step="0.001" placeholder="0.000"></div>
+      <div class="fld"><label class="fld-label">Notes</label><input class="fld-inp" type="text" id="btr-notes" placeholder="Optional" autocomplete="off"></div>
+      <button class="btn" style="width:100%;justify-content:center;margin-top:6px;" onclick="bSubmitTrim('${id}')">Save</button>
+    </div>
+  </div>`;}
+function bOpenPackModal(){ document.getElementById('bm-pack').classList.add('open'); }
+function bOpenTempModal(){ document.getElementById('bm-temp').classList.add('open'); }
+function bOpenTrimModal(){ document.getElementById('bm-trim').classList.add('open'); }
+
+async function bSubmitPack(cid){
+  if(!bRequireStaff())return;
+  const prod=document.getElementById('bp-prod').value.trim();
+  const wt=parseFloat(document.getElementById('bp-wt').value);
+  const loc=document.getElementById('bp-loc').value;
+  if(!prod||isNaN(wt)||wt<=0){alert('Product and weight required.');return;}
+  const{data:pack,error}=await sb.from('butchery_packs').insert({carcass_id:cid,product_name:prod,weight_kg:wt,current_status:'packed',current_location:loc||null,packed_by:_bStaff}).select().single();
+  if(error){alert(error.message);return;}
+  await sb.from('butchery_pack_movements').insert({pack_id:pack.id,movement_type:'packed',location:loc||null,moved_by:_bStaff});
+  document.getElementById('bm-pack').classList.remove('open');
+  bCarcass(cid);
+}
+async function bSubmitTemp(cid){
+  if(!bRequireStaff())return;
+  const temp=parseFloat(document.getElementById('bt-temp').value);
+  const loc=document.getElementById('bt-loc').value;
+  if(isNaN(temp)){alert('Temperature required.');return;}
+  const{error}=await sb.from('butchery_temperature_logs').insert({carcass_id:cid,temperature_c:temp,location:loc||null,logged_by:_bStaff});
+  if(error){alert(error.message);return;}
+  document.getElementById('bm-temp').classList.remove('open');
+  bCarcass(cid);
+}
+async function bSubmitTrim(cid){
+  if(!bRequireStaff())return;
+  const wt=parseFloat(document.getElementById('btr-wt').value);
+  const notes=document.getElementById('btr-notes').value.trim();
+  if(isNaN(wt)||wt<0){alert('Weight required.');return;}
+  const{error}=await sb.from('butchery_trim_logs').insert({carcass_id:cid,trim_weight_kg:wt,notes:notes||null,logged_by:_bStaff});
+  if(error){alert(error.message);return;}
+  document.getElementById('bm-trim').classList.remove('open');
+  bCarcass(cid);
+}
+async function bCompleteCarcass(id){
+  if(!confirm('Mark complete?'))return;
+  await sb.from('butchery_carcasses').update({status:'complete'}).eq('id',id);
+  bCarcass(id);
+}
+async function bPrintLabel(c){
+  try{
+    const r=await fetch('https://palatable-shack-scallion.ngrok-free.app/butchery/label',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(c)});
+    if(!r.ok)throw new Error(await r.text());
+    alert('Label sent to printer');
+  }catch(e){alert('Print failed: '+e.message);}
+}
+
+// ── CLEAN CONFIRMATION ─────────────────────────────────────
+function bTriggerClean(fromId, type){
+  bEl().innerHTML=`
+    <span class="b-back" onclick="bCarcass('${fromId}')">← Carcass</span>
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:4px;">${type==='species_change'?'Species changeover clean':'End of night clean'}</h2>
+    <p style="font-size:13px;color:var(--t4);margin-bottom:16px;">Tick every item before confirming.</p>
+    <div class="b-card">
+      ${B_CLEAN_STEPS.map((s,i)=>`
+        <label class="b-checklist-item">
+          <input type="checkbox" id="bchk${i}" onchange="bUpdateCleanBtn()">
+          <span>${s}</span>
+        </label>`).join('')}
+    </div>
+    <div class="b-card">
+      <div class="fld"><label class="fld-label">Confirmed by</label>
+        <input class="fld-inp" type="text" id="bclean-by" value="${_bStaff}" placeholder="Name" autocomplete="off"></div>
+      <div class="fld"><label class="fld-label">Notes</label>
+        <textarea class="fld-inp" id="bclean-notes" rows="2" placeholder="Optional"></textarea></div>
+      <button class="b-confirm-btn" id="bclean-btn" disabled onclick="bSubmitClean('${type}','${fromId}')">Confirm clean complete</button>
+    </div>`;
+}
+function bUpdateCleanBtn(){
+  const all=B_CLEAN_STEPS.every((_,i)=>document.getElementById('bchk'+i)?.checked);
+  const btn=document.getElementById('bclean-btn');if(btn)btn.disabled=!all;
+}
+async function bSubmitClean(type,fromId){
+  if(!bRequireStaff())return;
+  const by=document.getElementById('bclean-by')?.value.trim()||_bStaff;
+  const notes=document.getElementById('bclean-notes')?.value.trim();
+  if(!by){alert('Name required.');return;}
+  const row={clean_type:type,from_carcass_id:fromId||null,confirmed_by:by,notes:notes||null};
+  B_CLEAN_KEYS.forEach((k,i)=>{row[k]=document.getElementById('bchk'+i).checked;});
+  const{error}=await sb.from('butchery_changeover_cleans').insert(row);
+  if(error){alert(error.message);return;}
+  if(fromId)bCarcass(fromId);else bDashboard();
+}
+
+// ── SCAN STATION ───────────────────────────────────────────
+function bScanView(){
+  bEl().innerHTML=`
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:4px;">Scan station</h2>
+    <p style="font-size:13px;color:var(--t4);margin-bottom:14px;">USB/Bluetooth scanner or paste pack ID.</p>
+    <div class="b-scan-wrap">
+      <input id="bscan-in" type="text" placeholder="Scan or paste pack ID…" autocomplete="off" autocorrect="off" spellcheck="false"
+        onkeydown="if(event.key==='Enter')bScanLookup()" style="outline:none;">
+    </div>
+    <div id="bscan-result"><div class="b-scan-empty">Awaiting scan…</div></div>
+    <div id="bscan-mvt" style="display:none;"><h3 style="font-size:14px;font-weight:600;margin-bottom:8px;">Move to:</h3><div class="b-mvt-grid" id="bscan-btns"></div></div>`;
+  document.getElementById('bscan-in').focus();
+}
+async function bScanLookup(){
+  const val=document.getElementById('bscan-in').value.trim();
+  if(!val)return;
+  let{data:pack}=await sb.from('butchery_packs').select('*,butchery_carcasses(tracking_code,species,supplier)').eq('id',val).single();
+  if(!pack){
+    ({data:pack}=await sb.from('butchery_packs').select('*,butchery_carcasses(tracking_code,species,supplier)').ilike('id','%'+val+'%').single());
+  }
+  const res=document.getElementById('bscan-result');
+  const mvt=document.getElementById('bscan-mvt');
+  if(!pack){res.innerHTML='<div class="b-scan-result" style="color:var(--red);">Pack not found.</div>';mvt.style.display='none';_bScanPack=null;return;}
+  _bScanPack=pack;
+  const c=pack.butchery_carcasses;
+  res.innerHTML=`<div class="b-scan-result"><div style="display:flex;justify-content:space-between;align-items:flex-start;">
+    <div><div class="b-code">${bH(c?.tracking_code||'—')} / ${bH(pack.product_name)}</div>
+    <div style="font-size:12px;color:var(--t4);margin-top:2px;">${bFmt(pack.weight_kg,3)} kg · ${c?.species||''}</div>
+    <div style="margin-top:6px;">${bBadge(pack.current_status)}</div></div>
+    </div></div>`;
+  mvt.style.display='block';
+  const s=pack.current_status;
+  const moves=[
+    {type:'to_crate',   label:'To crate',   cls:'',             show:s==='packed'},
+    {type:'to_market',  label:'To market',  cls:'',             show:s==='packed'||s==='in_crate'},
+    {type:'to_freezer', label:'To freezer', cls:'',             show:['packed','in_crate','at_market'].includes(s)},
+    {type:'from_freezer',label:'From freezer',cls:'',           show:s==='in_freezer'},
+    {type:'sold',       label:'Sold',       cls:'b-mvt-ok',    show:['at_market','in_freezer'].includes(s)},
+    {type:'used',       label:'Used (kitchen)',cls:'b-mvt-danger',show:true},
+  ].filter(m=>m.show);
+  document.getElementById('bscan-btns').innerHTML=moves.map(m=>`<button class="b-mvt-btn ${m.cls}" onclick="bDoMove('${m.type}')">${m.label}</button>`).join('');
+}
+async function bDoMove(type){
+  if(!bRequireStaff()||!_bScanPack)return;
+  const sm={to_crate:'in_crate',to_market:'at_market',sold:'sold',to_freezer:'in_freezer',from_freezer:'packed',used:'used'};
+  const ns=sm[type];
+  const{error:ue}=await sb.from('butchery_packs').update({current_status:ns}).eq('id',_bScanPack.id);
+  if(ue){alert(ue.message);return;}
+  await sb.from('butchery_pack_movements').insert({pack_id:_bScanPack.id,movement_type:type,moved_by:_bStaff});
+  _bScanPack=null;
+  document.getElementById('bscan-in').value='';
+  document.getElementById('bscan-in').focus();
+  document.getElementById('bscan-result').innerHTML='<div class="b-scan-empty">Awaiting scan…</div>';
+  document.getElementById('bscan-mvt').style.display='none';
+}
+
+// ── FREEZER ────────────────────────────────────────────────
+async function bFreezer(){
+  bEl().innerHTML='<div style="color:var(--t4);padding:40px;text-align:center">Loading…</div>';
+  const{data:packs}=await sb.from('butchery_freezer_stock').select('*');
+  if(!packs||packs.length===0){bEl().innerHTML='<h2 style="font-size:17px;font-weight:700;margin-bottom:14px;">Freezer stock</h2><div style="color:var(--t4);padding:40px;text-align:center;">Nothing in the freezer</div>';return;}
+  const byS={};
+  packs.forEach(p=>{if(!byS[p.species])byS[p.species]=[];byS[p.species].push(p);});
+  const totalKg=packs.reduce((s,p)=>s+parseFloat(p.weight_kg||0),0);
+  bEl().innerHTML=`
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;">
+      <h2 style="font-size:17px;font-weight:700;">Freezer stock</h2>
+      <span style="font-size:12px;color:var(--t4);">${packs.length} packs · ${bFmt(totalKg,2)} kg</span>
+    </div>
+    ${Object.entries(byS).map(([sp,ps])=>`
+      <div class="b-card">
+        <div class="b-card-hd"><strong>${bSI(sp)} ${bCap(sp)}</strong></div>
+        <div class="b-tbl-wrap"><table class="b-tbl">
+          <tr><th>Product</th><th>Weight</th><th>Carcass</th><th>Location</th><th>Packed</th></tr>
+          ${ps.map(p=>`<tr>
+            <td>${bH(p.product_name)}</td>
+            <td style="font-family:'IBM Plex Mono',monospace;">${bFmt(p.weight_kg,3)} kg</td>
+            <td class="b-code">${bH(p.tracking_code)}</td>
+            <td>${bH(p.current_location||'—')}</td>
+            <td>${bDate(p.packed_at)}</td>
+          </tr>`).join('')}
+          <tr style="background:var(--s1);"><td><strong>${ps.length} packs</strong></td><td><strong>${bFmt(ps.reduce((s,p)=>s+parseFloat(p.weight_kg||0),0),2)} kg</strong></td><td colspan="3"></td></tr>
+        </table></div>
+      </div>`).join('')}`;
+}
+
+// ── YIELD ──────────────────────────────────────────────────
+async function bYield(){
+  bEl().innerHTML='<div style="color:var(--t4);padding:40px;text-align:center">Loading…</div>';
+  const[{data:sums},{data:prods}]=await Promise.all([
+    sb.from('butchery_yield_summary').select('*').order('intake_date',{ascending:false}),
+    sb.from('butchery_product_yield').select('*')
+  ]);
+  const pi={};(prods||[]).forEach(r=>{if(!pi[r.tracking_code])pi[r.tracking_code]=[];pi[r.tracking_code].push(r);});
+  bEl().innerHTML=`
+    <h2 style="font-size:17px;font-weight:700;margin-bottom:16px;">Yield &amp; wastage</h2>
+    ${(sums||[]).length===0?'<div style="color:var(--t4);padding:40px;text-align:center;">No carcasses logged</div>':
+      (sums||[]).map(s=>`<div class="b-card">
+        <div class="b-card-hd">
+          <span><span class="b-code">${bSI(s.species)} ${bH(s.tracking_code)}</span> <span style="font-size:11px;color:var(--t4);">${bH(s.supplier)} · ${bDate(s.intake_date)}</span></span>
+          <span style="font-weight:700;color:var(--grn);">${s.yield_pct}%</span>
+        </div>
+        <div class="b-yield-bar">
+          <div class="b-yield-packed" style="width:${s.intake_weight_kg>0?s.total_packed_kg/s.intake_weight_kg*100:0}%"></div>
+          <div class="b-yield-trim" style="width:${s.intake_weight_kg>0?s.trim_weight_kg/s.intake_weight_kg*100:0}%"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:12px;margin-top:8px;font-family:'IBM Plex Mono',monospace;">
+          <div><div style="font-weight:700;">${bFmt(s.intake_weight_kg,1)} kg</div><div style="color:var(--t4);">In</div></div>
+          <div><div style="font-weight:700;color:var(--grn);">${bFmt(s.total_packed_kg,2)} kg</div><div style="color:var(--t4);">Packed</div></div>
+          <div><div style="font-weight:700;color:var(--amb);">${bFmt(s.trim_weight_kg,2)} kg</div><div style="color:var(--t4);">Trim</div></div>
+          <div><div style="font-weight:700;color:var(--t4);">${bFmt(s.unaccounted_kg,2)} kg</div><div style="color:var(--t4);">Gap</div></div>
+        </div>
+        ${(pi[s.tracking_code]||[]).length?`<details style="margin-top:10px;"><summary style="font-size:12px;cursor:pointer;color:var(--t4);">Product breakdown</summary>
+          <div class="b-tbl-wrap" style="margin-top:8px;"><table class="b-tbl">
+            <tr><th>Product</th><th>Packs</th><th>Weight</th><th>% of carcass</th></tr>
+            ${(pi[s.tracking_code]||[]).map(p=>`<tr><td>${bH(p.product_name)}</td><td>${p.pack_count}</td><td style="font-family:'IBM Plex Mono',monospace;">${bFmt(p.total_weight_kg,2)} kg</td><td>${p.pct_of_carcass}%</td></tr>`).join('')}
+          </table></div></details>`:''}
+      </div>`).join('')}`;
+}
+
+// ── CLEANS ─────────────────────────────────────────────────
+async function bCleans(){
+  bEl().innerHTML='<div style="color:var(--t4);padding:40px;text-align:center">Loading…</div>';
+  const{data:cleans}=await sb.from('butchery_changeover_cleans').select('*,from_carc:from_carcass_id(tracking_code)').order('confirmed_at',{ascending:false}).limit(50);
+  bEl().innerHTML=`
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:16px;">
+      <h2 style="font-size:17px;font-weight:700;">Clean log</h2>
+      <button class="btn btn-sm" onclick="bTriggerClean(null,'end_of_night')">+ End of night clean</button>
+    </div>
+    ${(cleans||[]).length===0?'<div style="color:var(--t4);padding:40px;text-align:center;">No cleans recorded</div>':
+      `<div class="b-card"><div class="b-tbl-wrap"><table class="b-tbl">
+        <tr><th>Type</th><th>Carcass</th><th>By</th><th>When</th></tr>
+        ${(cleans||[]).map(c=>`<tr>
+          <td>${c.clean_type==='end_of_night'?'End of night':'Species change'}</td>
+          <td class="b-code">${bH(c.from_carc?.tracking_code||'—')}</td>
+          <td>${bH(c.confirmed_by)}</td>
+          <td>${bDT(c.confirmed_at)}</td>
+        </tr>`).join('')}
+      </table></div></div>`}`;
+}
+
+// ── SCHEDULE ───────────────────────────────────────────────
+async function bSchedule(){
+  bEl().innerHTML='<div style="color:var(--t4);padding:40px;text-align:center">Loading…</div>';
+  const now=new Date(),day=now.getDay(),diff=now.getDate()-day+(day===0?-6:1);
+  const wc=new Date(now.setDate(diff)).toISOString().slice(0,10);
+  const{data:items}=await sb.from('butchery_schedule').select('*,carcass:carcass_id(tracking_code)').eq('week_commencing',wc).order('scheduled_date');
+  bEl().innerHTML=`
+    <div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;">
+      <h2 style="font-size:17px;font-weight:700;">Processing schedule</h2>
+      <button class="btn btn-sm btn-gold" onclick="bOpenSchedModal('${wc}')">+ Add</button>
+    </div>
+    <p style="font-size:12px;color:var(--t4);margin-bottom:14px;">Week commencing ${bDate(wc)}</p>
+    ${(items||[]).length===0?'<div style="color:var(--t4);padding:40px;text-align:center;">Nothing scheduled this week</div>':
+      `<div class="b-card"><div class="b-tbl-wrap"><table class="b-tbl">
+        <tr><th>Date</th><th>Species</th><th>Est. weight</th><th>Supplier</th><th>Who</th></tr>
+        ${(items||[]).map(i=>`<tr>
+          <td>${bDate(i.scheduled_date)}</td>
+          <td>${i.species?`${bSI(i.species)} ${bCap(i.species)}`:'—'}</td>
+          <td style="font-family:'IBM Plex Mono',monospace;">${i.estimated_weight_kg?bFmt(i.estimated_weight_kg,1)+' kg':'—'}</td>
+          <td>${bH(i.supplier||'—')}</td>
+          <td>${bH(i.assigned_to||'—')}</td>
+        </tr>`).join('')}
+      </table></div></div>`}
+    <div class="modal-overlay" id="bm-sched" onclick="if(event.target===this)this.classList.remove('open')">
+      <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-title">Add to schedule<button class="modal-close" onclick="document.getElementById('bm-sched').classList.remove('open')">×</button></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="fld"><label class="fld-label">Date</label><input class="fld-inp" type="date" id="bsc-date" value="${wc}"></div>
+          <div class="fld"><label class="fld-label">Species</label>
+            <select class="fld-inp" id="bsc-sp"><option value="">—</option>${B_SPECIES.map(s=>`<option value="${s}">${bCap(s)}</option>`).join('')}</select></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="fld"><label class="fld-label">Est. weight (kg)</label><input class="fld-inp" type="number" id="bsc-wt" step="0.1"></div>
+          <div class="fld"><label class="fld-label">Supplier</label><input class="fld-inp" type="text" id="bsc-sup" autocomplete="off"></div>
+        </div>
+        <div class="fld"><label class="fld-label">Assigned to</label><input class="fld-inp" type="text" id="bsc-who" autocomplete="off"></div>
+        <div class="fld"><label class="fld-label">Notes</label><textarea class="fld-inp" id="bsc-notes" rows="2"></textarea></div>
+        <button class="btn" style="width:100%;justify-content:center;margin-top:6px;" onclick="bSubmitSched('${wc}')">Save</button>
+      </div>
+    </div>`;
+}
+function bOpenSchedModal(){ document.getElementById('bm-sched').classList.add('open'); }
+async function bSubmitSched(wc){
+  if(!bRequireStaff())return;
+  const dt=document.getElementById('bsc-date').value;
+  if(!dt){alert('Date required.');return;}
+  const{error}=await sb.from('butchery_schedule').insert({week_commencing:wc,scheduled_date:dt,species:document.getElementById('bsc-sp').value||null,estimated_weight_kg:parseFloat(document.getElementById('bsc-wt').value)||null,supplier:document.getElementById('bsc-sup').value.trim()||null,assigned_to:document.getElementById('bsc-who').value.trim()||null,notes:document.getElementById('bsc-notes').value.trim()||null});
+  if(error){alert(error.message);return;}
+  document.getElementById('bm-sched').classList.remove('open');
+  bSchedule();
+}
+bStaffInit();
+</script>
+
 </body>
 </html>
