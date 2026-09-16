@@ -96,6 +96,18 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
 .ph-sub{font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-left:8px;}
 .ph-actions{display:flex;gap:6px;align-items:center;}
 
+/* ═══ NEW EVENT WIZARD ════════════════════════════════ */
+.wiz-bar{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 20px;height:54px;display:flex;align-items:center;gap:14px;flex-shrink:0;}
+.wiz-back{background:none;border:none;cursor:pointer;font-size:18px;color:var(--t2);padding:4px 8px;border-radius:6px;line-height:1;transition:background .15s;}
+.wiz-back:hover{background:var(--s2);}
+.wiz-title{font-family:'IBM Plex Serif',Georgia,serif;font-size:18px;font-weight:400;color:var(--t1);flex:1;}
+.wiz-steps{display:flex;align-items:center;gap:6px;}
+.wiz-step-dot{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--bd);background:var(--bg);color:var(--t3);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-family:'IBM Plex Mono',monospace;}
+.wiz-step-dot.active{background:var(--gold);border-color:var(--gold);color:#fff;}
+.wiz-step-dot.done{background:var(--s2);border-color:var(--bd);color:var(--t2);}
+.wiz-step-line{width:24px;height:1.5px;background:var(--bd);}
+.wiz-actions{display:flex;gap:8px;align-items:center;margin-left:auto;}
+
 /* ═══ HOME / PIPELINE ════════════════════════════════ */
 .pipeline-body{flex:1;overflow-y:auto;padding:24px;}
 .pipeline-body::-webkit-scrollbar{width:3px;}
@@ -1254,6 +1266,24 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
   <div id="b-content" class="b-content"></div>
 </div>
 
+<div id="view-fs-wizard" class="view">
+  <div class="wiz-bar">
+    <button class="wiz-back" onclick="closeFsWizard()">&#8592;</button>
+    <span class="wiz-title" id="wiz-title">New event</span>
+    <div class="wiz-steps">
+      <div class="wiz-step-dot active" id="wiz-dot-1" onclick="fsWizStep(1)">1</div>
+      <div class="wiz-step-line"></div>
+      <div class="wiz-step-dot" id="wiz-dot-2" onclick="fsWizStep(2)">2</div>
+      <div class="wiz-step-line"></div>
+      <div class="wiz-step-dot" id="wiz-dot-3" onclick="fsWizStep(3)">3</div>
+    </div>
+    <div class="wiz-actions">
+      <button class="btn btn-sm" id="wiz-back-btn" onclick="fsWizStep(_wizStep-1)" style="display:none">&#8592; Back</button>
+      <button class="btn btn-gold btn-sm" id="wiz-next-btn" onclick="fsWizNext()">Next &#8594;</button>
+    </div>
+  </div>
+  <div id="wiz-body" style="flex:1;overflow:hidden;display:flex;flex-direction:column;"></div>
+</div>
 </div><!-- .main -->
 </div><!-- .shell -->
 <div class="toast" id="toast"></div>
@@ -2559,24 +2589,6 @@ function printFunctionSheet(evId){
   <table style="border-collapse:collapse;font-size:10px;"><thead><tr><th style="border:1px solid #ddd;padding:5px 8px;text-align:left;min-width:150px;background:#f5f5f3;">Dish</th>${AL14p.map(a=>`<th style="border:1px solid #ddd;padding:3px;text-align:center;font-size:9px;background:#f5f5f3;min-width:40px;">${AL_SH[a]||a}</th>`).join('')}</tr></thead>
   <tbody>${evDishes.map((d,di)=>{const al=getDishAl(d);const cS=new Set();const mS=new Set();al.forEach(a=>{const f=AL_TO_FSA[a.allergen]||a.allergen;if(a.status==='May Contain')mS.add(f);else cS.add(f);});return`<tr><td style="border:1px solid #eee;padding:6px 8px;font-weight:500;background:${di%2?'#f9f9f7':'#fff'};">${h(d.name)}</td>${AL14p.map(a=>{if(cS.has(a))return`<td style="background:#fff0f0;border:1px solid #eee;text-align:center;">●</td>`;if(mS.has(a))return`<td style="background:#fff8ee;border:1px solid #eee;text-align:center;opacity:0.5;font-size:9px;color:#8A5200;">MC</td>`;return`<td style="border:1px solid #eee;background:${di%2?'#f9f9f7':'#fff'};">&nbsp;</td>`;}).join('')}</tr>`;}).join('')}</tbody></table>`:''}
   <div class="footer"><span>Digby's Events Co</span><span>Printed ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</span></div>
-<div id="view-fs-wizard" class="view">
-  <div class="wiz-bar">
-    <button class="wiz-back" onclick="closeFsWizard()">&#8592;</button>
-    <span class="wiz-title" id="wiz-title">New event</span>
-    <div class="wiz-steps">
-      <div class="wiz-step-dot active" id="wiz-dot-1" onclick="fsWizStep(1)">1</div>
-      <div class="wiz-step-line"></div>
-      <div class="wiz-step-dot" id="wiz-dot-2" onclick="fsWizStep(2)">2</div>
-      <div class="wiz-step-line"></div>
-      <div class="wiz-step-dot" id="wiz-dot-3" onclick="fsWizStep(3)">3</div>
-    </div>
-    <div class="wiz-actions">
-      <button class="btn btn-sm" id="wiz-back-btn" onclick="fsWizStep(_wizStep-1)" style="display:none">&#8592; Back</button>
-      <button class="btn btn-gold btn-sm" id="wiz-next-btn" onclick="fsWizNext()">Next &#8594;</button>
-    </div>
-  </div>
-  <div id="wiz-body" style="flex:1;overflow:hidden;display:flex;flex-direction:column;"></div>
-</div>
 <div class="crop-modal-ov" id="crop-modal">
   <div class="crop-hint">Drag to move &middot; Drag corners to resize</div>
   <div class="crop-viewport" id="crop-viewport">
@@ -3398,7 +3410,7 @@ function wizRmCharge(i){_wizData.extra_charges.splice(i,1);fsWizStep(3);}
 async function saveFsWizard(){
   const btn=document.getElementById('wiz-next-btn');if(btn){btn.disabled=true;btn.textContent='Saving…';}
   try{
-    const p={client_name:_wizData.client_name,event_type:_wizData.event_type,event_date:_wizData.event_date,start_time:_wizData.start_time,end_time:_wizData.end_time,covers:_wizData.covers,status:_wizData.status||'Enquiry',deposit_status:_wizData.deposit_status||null,budget:_wizData.budget||null,staffing:_wizData.staffing||null,job_code:_wizData.job_code||null,venue:_wizData.venue||null,location:_wizData.location||null,address:_wizData.address||null,contact_name:_wizData.contact_name||null,contact_phone:_wizData.contact_phone||null,contact_email:_wizData.contact_email||null,kitchen_notes:_wizData.kitchen_notes||null,chef_notes:_wizData.chef_notes||null,service_notes:_wizData.service_notes||null,client_notes:_wizData.client_notes||null,run_of_day:_wizData.run_of_day||[],extra_charges:_wizData.extra_charges||[],guest_allergens:_wizData.guest_allergens||[]};
+    const p={client_name:_wizData.client_name,event_type:_wizData.event_type,event_date:_wizData.event_date,start_time:_wizData.start_time,end_time:_wizData.end_time,covers:_wizData.covers,status:_wizData.status||'Enquiry',deposit_status:_wizData.deposit_status||null,budget:_wizData.budget||null,staffing:_wizData.staffing||null,job_code:_wizData.job_code||null,venue_name:_wizData.venue||null,location:_wizData.location||null,address:_wizData.address||null,contact_name:_wizData.contact_name||null,contact_phone:_wizData.contact_phone||null,contact_email:_wizData.contact_email||null,kitchen_notes:_wizData.kitchen_notes||null,chef_notes:_wizData.chef_notes||null,service_notes:_wizData.service_notes||null,client_notes:_wizData.client_notes||null,run_of_day:_wizData.run_of_day||[],extra_charges:_wizData.extra_charges||[],guest_allergens:_wizData.guest_allergens||[]};
     let evId=_wizData.id;
     if(evId){const{error}=await sb.from('events').update(p).eq('id',evId);if(error)throw error;}
     else{const{data,error}=await sb.from('events').insert(p).select().single();if(error)throw error;evId=data.id;}
@@ -3663,7 +3675,7 @@ saveFsWizard=async function(){
   const btn=document.getElementById('wiz-next-btn');
   if(btn){btn.disabled=true;btn.textContent='Saving…';}
   try{
-    const p={client_name:_wizData.client_name,event_type:_wizData.event_type,event_date:_wizData.event_date,start_time:_wizData.start_time,end_time:_wizData.end_time,covers:_wizData.covers,status:_wizData.status||'Enquiry',deposit_status:_wizData.deposit_status||null,budget:_wizData.budget||null,staffing:_wizData.staffing||null,job_code:_wizData.job_code||null,venue:_wizData.venue||null,location:_wizData.location||null,address:_wizData.address||null,contact_name:_wizData.contact_name||null,contact_phone:_wizData.contact_phone||null,contact_email:_wizData.contact_email||null,kitchen_notes:_wizData.kitchen_notes||null,chef_notes:_wizData.chef_notes||null,service_notes:_wizData.service_notes||null,client_notes:_wizData.client_notes||null,run_of_day:_wizData.run_of_day||[],extra_charges:_wizData.extra_charges||[],guest_allergens:_wizData.guest_allergens||[]};
+    const p={client_name:_wizData.client_name,event_type:_wizData.event_type,event_date:_wizData.event_date,start_time:_wizData.start_time,end_time:_wizData.end_time,covers:_wizData.covers,status:_wizData.status||'Enquiry',deposit_status:_wizData.deposit_status||null,budget:_wizData.budget||null,staffing:_wizData.staffing||null,job_code:_wizData.job_code||null,venue_name:_wizData.venue||null,location:_wizData.location||null,address:_wizData.address||null,contact_name:_wizData.contact_name||null,contact_phone:_wizData.contact_phone||null,contact_email:_wizData.contact_email||null,kitchen_notes:_wizData.kitchen_notes||null,chef_notes:_wizData.chef_notes||null,service_notes:_wizData.service_notes||null,client_notes:_wizData.client_notes||null,run_of_day:_wizData.run_of_day||[],extra_charges:_wizData.extra_charges||[],guest_allergens:_wizData.guest_allergens||[]};
     let evId=_wizData.id;
     if(evId){const{error}=await sb.from('events').update(p).eq('id',evId);if(error)throw error;}
     else{const{data,error}=await sb.from('events').insert(p).select().single();if(error)throw error;evId=data.id;}
@@ -4208,24 +4220,6 @@ document.addEventListener('DOMContentLoaded',init);
 
 </script>
 
-<div id="view-fs-wizard" class="view">
-  <div class="wiz-bar">
-    <button class="wiz-back" onclick="closeFsWizard()">&#8592;</button>
-    <span class="wiz-title" id="wiz-title">New event</span>
-    <div class="wiz-steps">
-      <div class="wiz-step-dot active" id="wiz-dot-1" onclick="fsWizStep(1)">1</div>
-      <div class="wiz-step-line"></div>
-      <div class="wiz-step-dot" id="wiz-dot-2" onclick="fsWizStep(2)">2</div>
-      <div class="wiz-step-line"></div>
-      <div class="wiz-step-dot" id="wiz-dot-3" onclick="fsWizStep(3)">3</div>
-    </div>
-    <div class="wiz-actions">
-      <button class="btn btn-sm" id="wiz-back-btn" onclick="fsWizStep(_wizStep-1)" style="display:none">&#8592; Back</button>
-      <button class="btn btn-gold btn-sm" id="wiz-next-btn" onclick="fsWizNext()">Next &#8594;</button>
-    </div>
-  </div>
-  <div id="wiz-body" style="flex:1;overflow:hidden;display:flex;flex-direction:column;"></div>
-</div>
 <div class="crop-modal-ov" id="crop-modal">
   <div class="crop-hint">Drag to move &middot; Drag corners to resize</div>
   <div class="crop-viewport" id="crop-viewport">
