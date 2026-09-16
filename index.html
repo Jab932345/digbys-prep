@@ -1395,6 +1395,11 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
           <span class="brine-slider-val" id="bc-weight-val">2.2<span style="font-size:13px"> kg</span></span>
         </div>
         <input class="brine-slider" type="range" id="bc-weight" min="1.4" max="3.5" step="0.1" value="2.2" oninput="brineCalc()">
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="btn btn-xs" onclick="setBirdSize(1.8,4.00)">Small 1.8kg £4</button>
+          <button class="btn btn-xs btn-gold" onclick="setBirdSize(2.2,5.50)">Medium 2.2kg £5.50</button>
+          <button class="btn btn-xs" onclick="setBirdSize(2.6,6.75)">Large 2.6kg £6.75</button>
+        </div>
       </div>
     </div>
     <div class="brine-results">
@@ -1413,6 +1418,14 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
       <div class="brine-result-card">
         <div class="brine-result-label">Total chicken weight</div>
         <div><span class="brine-result-val" id="bc-chicken">22.0</span><span class="brine-result-unit">kg</span></div>
+      </div>
+      <div class="brine-result-card gold">
+        <div class="brine-result-label">Cost per bird (est.)</div>
+        <div><span class="brine-result-val" id="bc-cost-bird">£5.56</span></div>
+      </div>
+      <div class="brine-result-card gold">
+        <div class="brine-result-label">Cost per portion (half)</div>
+        <div><span class="brine-result-val" id="bc-cost-portion">£2.78</span></div>
       </div>
     </div>
     <div class="brine-section-hd">Brine ingredients for this batch</div>
@@ -3666,6 +3679,39 @@ function brineCalc() {
   document.getElementById('bc-oil').textContent = fmt1(brineL * BRINE.OIL_PER_LITRE) + ' ml';
   document.getElementById('bc-pepper').textContent = fmt1(brineL * BRINE.PEPPER_PER_LITRE) + ' g';
   document.getElementById('bc-paprika').textContent = fmt1(brineL * BRINE.PAPRIKA_PER_LITRE) + ' g';
+
+  // Cost per bird: chicken price + brine ingredient costs
+  const chickenPrice = parseFloat(document.getElementById('bc-chicken-price')?.value || 5.50);
+  // Brine cost per 1000ml (approximate from ingredient prices)
+  const brineCostPer1000 = (
+    (blendG/1000) * (72/1000) * 35 +   // STPP ~£35/kg
+    (blendG/1000) * (210/1000) * 3 +   // Cornflour £3/kg
+    (blendG/1000) * (210/1000) * 8.95 + // Maltodextrin £8.95/kg
+    (blendG/1000) * (170/1000) * 6.99 + // Dextrose £6.99/kg
+    (blendG/1000) * (110/1000) * 2 +   // Sugar £2/kg
+    (blendG/1000) * (80/1000) * 2.25 + // Caramel sugar £2.25/kg
+    (blendG/1000) * (140/1000) * 12 +  // Knorr £12/kg
+    (brineL * 16/1000) * 1.5 +         // Salt £1.5/kg
+    (brineL * 8/1000) * 8 +            // Marmite £8/kg
+    (brineL * 10/1000) * 2.75 +        // Rapeseed £2.75/L
+    (brineL * 2/1000) * 15 +           // Pepper £15/kg
+    (brineL * 3/1000) * 10             // Paprika £10/kg
+  );
+  const brineCostPerBird = brineCostPer1000 / birds;
+  const totalPerBird = chickenPrice + brineCostPerBird;
+  document.getElementById('bc-cost-bird').textContent = '£' + totalPerBird.toFixed(2);
+  document.getElementById('bc-cost-portion').textContent = '£' + (totalPerBird/2).toFixed(2);
+}
+
+let _bcChickenPrice = 5.50;
+function setBirdSize(weight, price) {
+  _bcChickenPrice = price;
+  document.getElementById('bc-weight').value = weight;
+  // Store price for cost calc
+  let pi = document.getElementById('bc-chicken-price');
+  if(!pi){ pi=document.createElement('input'); pi.type='hidden'; pi.id='bc-chicken-price'; document.body.appendChild(pi); }
+  pi.value = price;
+  brineCalc();
 }
 
 async function printBrineLabel(type) {
