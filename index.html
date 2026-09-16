@@ -6,24 +6,7 @@
 <title>Digby's — Kitchen Ops</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Serif:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
-// Add brine calc button to injection chicken dish
-function maybeShowBrineBtn(dishId) {
-  const dish = dishes.find(d=>d.id===dishId);
-  if(!dish || !dish.name.toLowerCase().includes('injection')) return;
-  if(document.getElementById('brine-calc-btn')) return;
-  // Find the Save button row and insert before it
-  const saveBtn = document.querySelector('#builder-panel .btn');
-  if(!saveBtn) return;
-  const btn = document.createElement('button');
-  btn.id='brine-calc-btn';btn.className='btn btn-sm';
-  btn.style.cssText='background:var(--goldfg);border-color:var(--goldbd);color:var(--gold);font-weight:600;';
-  btn.textContent='🧮 Brine calc';
-  btn.onclick=openBrineCalc;
-  saveBtn.parentNode.insertBefore(btn, saveBtn);
-}
-
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -862,125 +845,12 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
 .toast.err{border-left:3px solid var(--red);}
 @media print{.sidebar,.ph-actions,.fs-actions,.toast,.modal-ov{display:none!important;}.shell{display:block!important;height:auto!important;overflow:visible!important;}.view{display:block!important;}.prep-task.expanded .prep-task-detail{display:block!important;}}
 
-/* ═══ FUNCTION SHEET WIZARD ════════════════════════════════════════ */
-.wiz-bar{background:var(--s1);border-bottom:1px solid var(--bd);padding:0 20px;height:52px;display:flex;align-items:center;gap:16px;flex-shrink:0;}
-.wiz-back{color:var(--t3);background:none;border:none;cursor:pointer;font-size:16px;padding:0 4px;transition:color .1s;}
-.wiz-back:hover{color:var(--t1);}
-.wiz-title{font-family:'IBM Plex Serif',serif;font-size:18px;color:var(--t1);flex:1;}
-.wiz-steps{display:flex;align-items:center;gap:3px;}
-.wiz-step-dot{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--bd2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--t4);cursor:pointer;transition:all .15s;}
-.wiz-step-dot.done{background:var(--grn);border-color:var(--grn);color:#fff;}
-.wiz-step-dot.active{background:var(--gold);border-color:var(--gold);color:#000;}
-.wiz-step-line{width:24px;height:1px;background:var(--bd2);}
-.wiz-actions{display:flex;gap:7px;}
-.wiz-form-body{flex:1;overflow-y:auto;padding:28px 32px;max-width:720px;}
-.wiz-form-body::-webkit-scrollbar{width:3px;}
-.wiz-form-body::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
-.wiz-section-label{font-size:10px;font-weight:800;color:var(--t4);text-transform:uppercase;letter-spacing:.12em;font-family:'IBM Plex Mono',monospace;margin:22px 0 12px;padding-top:18px;border-top:1px solid var(--bd);}
-.wiz-section-label:first-child{margin-top:0;padding-top:0;border-top:none;}
-.wiz-menu-shell{display:flex;flex:1;overflow:hidden;}
-.wiz-cats{width:140px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--bd);overflow-y:auto;display:flex;flex-direction:column;padding:8px 0;}
-.wiz-cats::-webkit-scrollbar{display:none;}
-.wiz-cat-btn{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;cursor:pointer;border:none;background:none;color:var(--t3);font-size:12px;font-weight:500;text-align:left;transition:all .1s;border-left:3px solid transparent;width:100%;}
-.wiz-cat-btn:hover{color:var(--t2);background:var(--s2);}
-.wiz-cat-btn.active{color:var(--t1);background:var(--s2);border-left-color:var(--gold);}
-.wiz-cat-badge{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--t4);background:var(--s3);padding:1px 6px;border-radius:20px;}
-.wiz-cat-btn.active .wiz-cat-badge{background:var(--goldfg);color:var(--gold);}
-.wiz-dish-grid-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.wiz-search-bar{padding:10px 14px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;}
-.wiz-search-inp{width:100%;font-size:13px;padding:8px 12px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s2);color:var(--t1);outline:none;}
-.wiz-search-inp::placeholder{color:var(--t4);}
-.wiz-search-inp:focus{border-color:var(--gold);}
-.wiz-dish-grid{flex:1;overflow-y:auto;padding:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;align-content:start;}
-.wiz-dish-grid::-webkit-scrollbar{width:3px;}
-.wiz-dish-grid::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
-.wiz-dish-card{background:var(--s1);border:1px solid var(--bd);border-radius:8px;padding:12px;cursor:pointer;transition:all .12s;display:flex;flex-direction:column;gap:6px;border-top:3px solid transparent;position:relative;}
-.wiz-dish-card:hover{border-color:var(--bd2);background:var(--s2);}
-.wiz-dish-card.selected{border-color:var(--gold);background:var(--goldfg);border-top-color:var(--gold);}
-.wiz-dish-card.selected .wiz-card-check{opacity:1;}
-.wiz-card-check{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--gold);color:#000;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;opacity:0;transition:opacity .12s;}
-.wiz-card-cat{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;font-family:'IBM Plex Mono',monospace;}
-.wiz-card-name{font-family:'IBM Plex Serif',serif;font-size:14px;color:var(--t1);line-height:1.3;}
-.wiz-card-cost{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--gold);font-weight:600;margin-top:auto;}
-.wiz-card-cost.none{color:var(--t4);font-weight:400;}
-.wiz-card-comps{font-size:10px;color:var(--t4);font-family:'IBM Plex Mono',monospace;}
-.wiz-order{width:240px;flex-shrink:0;background:var(--s1);border-left:1px solid var(--bd);display:flex;flex-direction:column;}
-.wiz-order-hd{padding:12px 14px;border-bottom:1px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;}
-.wiz-order-title{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;}
-.wiz-order-count{font-size:11px;color:var(--gold);font-family:'IBM Plex Mono',monospace;font-weight:700;}
-.wiz-order-list{flex:1;overflow-y:auto;}
-.wiz-order-list::-webkit-scrollbar{width:3px;}
-.wiz-order-list::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
-.wiz-order-item{display:flex;align-items:flex-start;gap:8px;padding:8px 14px;border-bottom:1px solid var(--bd);cursor:pointer;transition:background .07s;}
-.wiz-order-item:hover{background:var(--s2);}
-.wiz-order-item:last-child{border-bottom:none;}
-.wiz-order-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px;}
-.wiz-order-name{font-size:12px;color:var(--t2);flex:1;line-height:1.4;}
-.wiz-order-rm{background:none;border:none;color:var(--t4);cursor:pointer;font-size:14px;padding:0;flex-shrink:0;transition:color .1s;}
-.wiz-order-rm:hover{color:var(--red);}
-.wiz-order-empty{padding:20px 14px;font-size:12px;color:var(--t4);text-align:center;line-height:1.6;}
-.wiz-order-footer{padding:12px 14px;border-top:1px solid var(--bd);flex-shrink:0;}
-.wiz-order-covers{font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-bottom:4px;}
-.wiz-order-cost-total{font-size:13px;font-weight:700;color:var(--gold);font-family:'IBM Plex Mono',monospace;}
-
-/* ── DISH PHOTOS ──────────────────────────────────────────────── */
-.dish-thumb {
-  width: 36px; height: 36px; border-radius: 5px; flex-shrink: 0;
-  background: var(--s3); object-fit: cover; display: block;
-}
-.dish-thumb-placeholder {
-  width: 36px; height: 36px; border-radius: 5px; flex-shrink: 0;
-  background: var(--s3); display: flex; align-items: center;
-  justify-content: center; font-size: 14px; opacity: .4;
-}
-.photo-upload-area {
-  border: 2px dashed var(--bd2); border-radius: var(--r);
-  padding: 20px; text-align: center; cursor: pointer;
-  transition: border-color .12s; position: relative; overflow: hidden;
-}
-.photo-upload-area:hover { border-color: var(--gold); }
-.photo-upload-area input[type=file] {
-  position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
-}
-.photo-preview {
-  width: 100%; max-height: 220px; object-fit: cover;
-  border-radius: var(--r); display: block; margin-bottom: 8px;
-}
-.photo-upload-label { font-size: 12px; color: var(--t3); }
-.photo-upload-label strong { color: var(--gold); }
-/* Wizard card with photo */
-.wiz-dish-card.has-photo {
-  padding: 0; overflow: hidden;
-}
-.wiz-card-img {
-  width: 100%; height: 90px; object-fit: cover; display: block;
-  flex-shrink: 0;
-}
-.wiz-dish-card.has-photo .wiz-card-cat,
-.wiz-dish-card.has-photo .wiz-card-name,
-.wiz-dish-card.has-photo .wiz-card-comps,
-.wiz-dish-card.has-photo .wiz-card-cost,
-.wiz-dish-card.has-photo .wiz-card-check {
-  padding: 0 10px;
-}
-.wiz-dish-card.has-photo .wiz-card-cat { padding-top: 8px; }
-.wiz-dish-card.has-photo .wiz-card-cost { padding-bottom: 10px; }
-
-/* ── PHOTO CROP ───────────────────────────────────────────── */
-.crop-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:300;display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;}
-.crop-modal-ov.open{display:flex;}
-.crop-viewport{position:relative;overflow:hidden;cursor:crosshair;background:#000;border-radius:8px;border:2px solid var(--gold);}
-.crop-img-el{display:block;max-width:none;max-height:none;user-select:none;pointer-events:none;}
-.crop-box{position:absolute;border:2px solid var(--gold);box-shadow:0 0 0 9999px rgba(0,0,0,.5);cursor:move;box-sizing:border-box;}
-.crop-handle{position:absolute;width:10px;height:10px;background:var(--gold);border-radius:2px;}
-.crop-handle.tl{top:-5px;left:-5px;cursor:nw-resize;}
-.crop-handle.tr{top:-5px;right:-5px;cursor:ne-resize;}
-.crop-handle.bl{bottom:-5px;left:-5px;cursor:sw-resize;}
-.crop-handle.br{bottom:-5px;right:-5px;cursor:se-resize;}
-.crop-actions{display:flex;gap:10px;}
-.crop-hint{font-size:12px;color:var(--t3);font-family:'IBM Plex Mono',monospace;}
-
-/* ── PHOTO CROP ─────────────────────────────────────────── */
+.dish-thumb{width:36px;height:36px;border-radius:5px;flex-shrink:0;background:var(--s3);object-fit:cover;display:block;}
+.dish-thumb-placeholder{width:36px;height:36px;border-radius:5px;flex-shrink:0;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:14px;opacity:.4;}
+.photo-upload-area{border:2px dashed var(--bd2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;transition:border-color .12s;position:relative;overflow:hidden;}
+.photo-upload-area:hover{border-color:var(--gold);}.photo-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;}
+.photo-preview{width:100%;max-height:220px;object-fit:cover;border-radius:var(--r);display:block;margin-bottom:8px;}
+.photo-upload-label{font-size:12px;color:var(--t3);}.photo-upload-label strong{color:var(--gold);}
 .crop-modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:400;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
 .crop-modal-ov.open{display:flex;}
 .crop-viewport{position:relative;overflow:hidden;background:#111;border-radius:8px;border:2px solid var(--gold);touch-action:none;}
@@ -989,67 +859,20 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
 .crop-handle{position:absolute;width:12px;height:12px;background:var(--gold);border-radius:2px;}
 .crop-handle.tl{top:-6px;left:-6px;cursor:nw-resize;}.crop-handle.tr{top:-6px;right:-6px;cursor:ne-resize;}
 .crop-handle.bl{bottom:-6px;left:-6px;cursor:sw-resize;}.crop-handle.br{bottom:-6px;right:-6px;cursor:se-resize;}
-.crop-bar{display:flex;gap:10px;align-items:center;}
-.crop-hint{font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;text-align:center;}
-/* ── DIETARY TAGS ───────────────────────────────────────── */
-.diet-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
-.diet-chip{padding:5px 12px;border-radius:20px;border:1.5px solid var(--bd2);font-size:12px;font-weight:600;cursor:pointer;transition:all .12s;background:var(--s2);color:var(--t3);font-family:'IBM Plex Mono',monospace;}
-.diet-chip.on{border-color:var(--gold);background:var(--goldfg);color:var(--t1);}
-.diet-chip[data-diet="Vegetarian"].on{border-color:#4caf50;background:rgba(76,175,80,.12);color:#4caf50;}
-.diet-chip[data-diet="Vegan"].on{border-color:#8bc34a;background:rgba(139,195,74,.12);color:#8bc34a;}
-.diet-chip[data-diet="GF"].on{border-color:#ff9800;background:rgba(255,152,0,.12);color:#ff9800;}
-.diet-chip[data-diet="DF"].on{border-color:#03a9f4;background:rgba(3,169,244,.12);color:#03a9f4;}
-.diet-chip[data-diet="Coeliac"].on{border-color:#f44336;background:rgba(244,67,54,.12);color:#f44336;}
-.diet-chip[data-diet="Nut-free"].on{border-color:#9c27b0;background:rgba(156,39,176,.12);color:#9c27b0;}
-/* ── DIETARY WIZARD STEP ────────────────────────────────── */
-.diet-step-wrap{flex:1;overflow-y:auto;padding:24px 28px;display:flex;flex-direction:column;gap:18px;}
-.diet-dish-block{background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
-.diet-dish-hd{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;}
-.diet-dish-name{font-family:'IBM Plex Serif',serif;font-size:16px;color:var(--t1);flex:1;}
-.diet-dish-safe{font-size:11px;font-family:'IBM Plex Mono',monospace;padding:3px 9px;border-radius:20px;}
-.diet-dish-safe.ok{background:rgba(74,193,119,.15);color:#4ac177;}
-.diet-dish-safe.warn{background:rgba(255,168,44,.15);color:var(--gold);}
-.diet-guest-row{padding:10px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;font-size:13px;}
-.diet-guest-row:last-child{border-bottom:none;}
-.diet-guest-tag{font-size:11px;font-family:'IBM Plex Mono',monospace;padding:2px 8px;border-radius:12px;background:var(--s3);color:var(--t3);white-space:nowrap;}
-.diet-guest-tag.allergy{background:rgba(244,67,54,.12);color:#f44336;}
-.diet-guest-tag.intolerance{background:rgba(255,152,0,.12);color:#ff9800;}
-.diet-variant-sel{font-size:12px;padding:5px 10px;border:1px solid var(--bd);border-radius:var(--r);background:var(--s2);color:var(--t1);font-family:'IBM Plex Mono',monospace;min-width:180px;}
-.diet-upgrade-banner{padding:10px 16px;background:rgba(255,168,44,.08);border-bottom:1px solid rgba(255,168,44,.2);font-size:12px;color:var(--gold);font-family:'IBM Plex Mono',monospace;}
-.diet-portions-badge{font-size:11px;font-family:'IBM Plex Mono',monospace;color:var(--t4);white-space:nowrap;}
-/* ── HACCP TEMPLATE ─────────────────────────────────────── */
-.haccp-section{border-top:1px solid var(--bd);margin-top:14px;padding-top:14px;}
-.haccp-section-hd{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--t4);font-family:'IBM Plex Mono',monospace;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.haccp-step-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--bd);}
-.haccp-step-row:last-child{border-bottom:none;}
-.haccp-step-type{padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;white-space:nowrap;background:var(--s3);color:var(--t3);}
-.haccp-step-type.critical{background:rgba(244,67,54,.15);color:#f44336;}
-.haccp-step-label{flex:1;font-size:13px;color:var(--t2);}
-.haccp-step-temp{font-size:12px;font-family:'IBM Plex Mono',monospace;color:var(--gold);white-space:nowrap;}
-.haccp-add-btn{font-size:11px;padding:4px 10px;border:1px dashed var(--bd2);border-radius:var(--r);background:none;color:var(--t4);cursor:pointer;transition:all .1s;}
-.haccp-add-btn:hover{border-color:var(--gold);color:var(--gold);}
-/* ── EVENT P&L ──────────────────────────────────────────── */
-.pnl-section{background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
-.pnl-hd{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
-.pnl-hd-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);font-family:'IBM Plex Mono',monospace;}
-.pnl-total{font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--gold);}
-.pnl-row{padding:9px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;font-size:13px;}
-.pnl-row:last-child{border-bottom:none;}
-.pnl-cat{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:2px 8px;border-radius:10px;background:var(--s3);color:var(--t3);white-space:nowrap;}
-.pnl-cat.food{background:rgba(255,168,44,.12);color:var(--gold);}
-.pnl-cat.labour{background:rgba(3,169,244,.12);color:#03a9f4;}
-.pnl-cat.mileage{background:rgba(76,175,80,.12);color:#4caf50;}
-.pnl-cat.overhead{background:rgba(156,39,176,.12);color:#9c27b0;}
-.pnl-desc{flex:1;color:var(--t2);}
-.pnl-amount{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--t1);}
-.pnl-add-row{padding:10px 16px;display:flex;gap:8px;}
+.crop-bar{display:flex;gap:10px;align-items:center;}.crop-hint{font-size:11px;color:rgba(255,255,255,.5);text-align:center;}
 .pnl-summary-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bd);}
 .pnl-summary-cell{padding:12px 14px;background:var(--s1);text-align:center;}
 .pnl-summary-label{font-size:10px;font-family:'IBM Plex Mono',monospace;color:var(--t4);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
 .pnl-summary-val{font-size:15px;font-weight:700;font-family:'IBM Plex Mono',monospace;}
-.pnl-summary-val.green{color:#4ac177;}.pnl-summary-val.red{color:#f44336;}.pnl-summary-val.gold{color:var(--gold);}
-
-/* ── BRINE CALCULATOR ───────────────────────────────────────────── */
+.pnl-summary-val.green{color:#16A34A;}.pnl-summary-val.red{color:#DC2626;}.pnl-summary-val.gold{color:var(--gold);}
+.pnl-section{background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden;}
+.pnl-hd{padding:12px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.pnl-hd-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);font-family:'IBM Plex Mono',monospace;}
+.pnl-row{padding:9px 16px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;font-size:13px;}
+.pnl-cat{font-size:10px;font-family:'IBM Plex Mono',monospace;padding:2px 8px;border-radius:10px;background:var(--s3);color:var(--t3);white-space:nowrap;}
+.pnl-cat.food{background:rgba(255,168,44,.12);color:var(--gold);}.pnl-cat.labour{background:rgba(3,169,244,.12);color:#0891B2;}
+.pnl-cat.mileage{background:rgba(76,175,80,.12);color:#16A34A;}.pnl-cat.overhead{background:rgba(156,39,176,.12);color:#7C3AED;}
+.pnl-desc{flex:1;color:var(--t2);}.pnl-amount{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:600;color:var(--t1);}
 .brine-calc-wrap{flex:1;overflow-y:auto;padding:28px 32px;max-width:680px;}
 .brine-inputs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}
 .brine-slider-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;}
@@ -1061,15 +884,17 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
 .brine-result-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t4);font-family:'IBM Plex Mono',monospace;margin-bottom:4px;}
 .brine-result-val{font-size:22px;font-weight:700;color:var(--t1);font-family:'IBM Plex Mono',monospace;}
 .brine-result-unit{font-size:12px;color:var(--t3);margin-left:4px;}
-.brine-result-card.gold{border-color:var(--goldbd);background:var(--goldfg);}
-.brine-result-card.gold .brine-result-val{color:var(--gold);}
+.brine-result-card.gold{border-color:var(--goldbd);background:var(--goldfg);}.brine-result-card.gold .brine-result-val{color:var(--gold);}
 .brine-section-hd{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin:20px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
 .brine-ing-table{width:100%;border-collapse:collapse;font-size:13px;}
-.brine-ing-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t4);font-family:'IBM Plex Mono',monospace;padding:6px 10px;background:var(--s3);}
+.brine-ing-table th{text-align:left;font-size:10px;font-weight:700;text-transform:uppercase;color:var(--t4);font-family:'IBM Plex Mono',monospace;padding:6px 10px;background:var(--s3);}
 .brine-ing-table td{padding:8px 10px;border-bottom:1px solid var(--bd);color:var(--t2);}
 .brine-ing-table td:last-child{font-family:'IBM Plex Mono',monospace;color:var(--t1);font-weight:600;text-align:right;}
 .brine-ing-table tr:last-child td{border-bottom:none;}
 .brine-cps-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.diet-tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+.diet-chip{padding:5px 12px;border-radius:20px;border:1.5px solid var(--bd2);font-size:12px;font-weight:600;cursor:pointer;background:var(--s2);color:var(--t3);font-family:'IBM Plex Mono',monospace;}
+.diet-chip.on{border-color:var(--gold);background:var(--goldfg);color:var(--t1);}
 </style>
 </head>
 <body>
@@ -1095,7 +920,7 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
       ⊡<span class="sb-tooltip">Cleaning</span>
     </button>
   </div>
-  <div class="sb-conn"><div class="conn-dot" id="sb-dot"></div><span id="sb-conn" style="display:none"></span></div>
+  <div class="sb-conn"><div class="conn-dot" id="sb-dot"></div></div>
 </nav>
 
 <!-- MAIN -->
@@ -1352,127 +1177,6 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
   </div>
 </div>
 
-
-<!-- ══ FUNCTION SHEET WIZARD ═══════════════════════════════════════ -->
-<div id="view-fs-wizard" class="view">
-  <div class="wiz-bar">
-    <button class="wiz-back" onclick="closeFsWizard()">←</button>
-    <span class="wiz-title" id="wiz-title">New event</span>
-    <div class="wiz-steps">
-      <div class="wiz-step-dot active" id="wiz-dot-1" onclick="fsWizStep(1)">1</div>
-      <div class="wiz-step-line"></div>
-      <div class="wiz-step-dot" id="wiz-dot-2" onclick="fsWizStep(2)">2</div>
-      <div class="wiz-step-line"></div>
-      <div class="wiz-step-dot" id="wiz-dot-3" onclick="fsWizStep(3)">3</div>
-      <div class="wiz-step-line"></div>
-      <div class="wiz-step-dot" id="wiz-dot-4" onclick="fsWizStep(4)">4</div>
-    </div>
-    <div class="wiz-actions">
-      <button class="btn btn-sm" id="wiz-back-btn" onclick="fsWizStep(_wizStep-1)" style="display:none">← Back</button>
-      <button class="btn btn-gold btn-sm" id="wiz-next-btn" onclick="fsWizNext()">Next →</button>
-    </div>
-  </div>
-  <div id="wiz-body" style="flex:1;overflow:hidden;display:flex;flex-direction:column;"></div>
-</div>
-
-<div id="view-brine-calc" class="view">
-  <div style="background:var(--s1);border-bottom:1px solid var(--bd);padding:14px 24px;flex-shrink:0;display:flex;align-items:center;gap:12px;">
-    <button class="btn btn-ghost btn-sm" onclick="sbNav('library',document.querySelector('.sb-item[data-view=library]'))">← Library</button>
-    <div>
-      <div style="font-family:'IBM Plex Serif',serif;font-size:20px;color:var(--t1)">Brine calculator</div>
-      <div style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:2px">Injection-brined spatchcock chicken</div>
-    </div>
-  </div>
-  <div class="brine-calc-wrap">
-    <div class="brine-inputs">
-      <div>
-        <div class="brine-slider-label">
-          <span class="brine-slider-title">Number of birds</span>
-          <span class="brine-slider-val" id="bc-birds-val">10</span>
-        </div>
-        <input class="brine-slider" type="range" id="bc-birds" min="1" max="100" value="10" oninput="brineCalc()">
-      </div>
-      <div>
-        <div class="brine-slider-label">
-          <span class="brine-slider-title">Avg bird weight</span>
-          <span class="brine-slider-val" id="bc-weight-val">2.2<span style="font-size:13px"> kg</span></span>
-        </div>
-        <input class="brine-slider" type="range" id="bc-weight" min="1.4" max="3.5" step="0.1" value="2.2" oninput="brineCalc()">
-        <div style="display:flex;gap:6px;margin-top:8px">
-          <button class="btn btn-xs" onclick="setBirdSize(1.8,4.00)">Small 1.8kg £4</button>
-          <button class="btn btn-xs btn-gold" onclick="setBirdSize(2.2,5.50)">Medium 2.2kg £5.50</button>
-          <button class="btn btn-xs" onclick="setBirdSize(2.6,6.75)">Large 2.6kg £6.75</button>
-        </div>
-      </div>
-    </div>
-    <div class="brine-results">
-      <div class="brine-result-card gold">
-        <div class="brine-result-label">Total brine to make</div>
-        <div><span class="brine-result-val" id="bc-brine-total">2,750</span><span class="brine-result-unit">ml</span></div>
-      </div>
-      <div class="brine-result-card gold">
-        <div class="brine-result-label">Injection per bird</div>
-        <div><span class="brine-result-val" id="bc-per-bird">220</span><span class="brine-result-unit">ml</span></div>
-      </div>
-      <div class="brine-result-card">
-        <div class="brine-result-label">Combined blend</div>
-        <div><span class="brine-result-val" id="bc-blend">198</span><span class="brine-result-unit">g</span></div>
-      </div>
-      <div class="brine-result-card">
-        <div class="brine-result-label">Total chicken weight</div>
-        <div><span class="brine-result-val" id="bc-chicken">22.0</span><span class="brine-result-unit">kg</span></div>
-      </div>
-      <div class="brine-result-card gold">
-        <div class="brine-result-label">Cost per bird (est.)</div>
-        <div><span class="brine-result-val" id="bc-cost-bird">£5.56</span></div>
-      </div>
-      <div class="brine-result-card gold">
-        <div class="brine-result-label">Cost per portion (half)</div>
-        <div><span class="brine-result-val" id="bc-cost-portion">£2.78</span></div>
-      </div>
-    </div>
-    <div class="brine-section-hd">Brine ingredients for this batch</div>
-    <table class="brine-ing-table">
-      <thead><tr><th>Ingredient</th><th>Quantity</th></tr></thead>
-      <tbody>
-        <tr><td>Water</td><td id="bc-water">2,750 ml</td></tr>
-        <tr><td>Combined brine blend</td><td id="bc-blend2">198 g</td></tr>
-        <tr><td>— STPP E451</td><td id="bc-stpp" style="color:var(--t4)">15.8 g</td></tr>
-        <tr><td>— Cornflour</td><td id="bc-cornflour" style="color:var(--t4)">41.6 g</td></tr>
-        <tr><td>— Maltodextrin</td><td id="bc-maltodextrin" style="color:var(--t4)">41.6 g</td></tr>
-        <tr><td>— Dextrose</td><td id="bc-dextrose" style="color:var(--t4)">33.7 g</td></tr>
-        <tr><td>— White sugar</td><td id="bc-sugar" style="color:var(--t4)">21.8 g</td></tr>
-        <tr><td>— Caramelised sugar powder</td><td id="bc-caramel" style="color:var(--t4)">15.8 g</td></tr>
-        <tr><td>— Knorr chicken stock powder</td><td id="bc-knorr" style="color:var(--t4)">27.7 g</td></tr>
-        <tr><td>Fine salt</td><td id="bc-salt">44.0 g</td></tr>
-        <tr><td>Marmite</td><td id="bc-marmite">22.0 g</td></tr>
-        <tr><td>Rapeseed oil</td><td id="bc-oil">27.5 ml</td></tr>
-        <tr><td>Black pepper</td><td id="bc-pepper">5.5 g</td></tr>
-        <tr><td>Sweet paprika</td><td id="bc-paprika">8.3 g</td></tr>
-      </tbody>
-    </table>
-    <div class="brine-section-hd" style="margin-top:24px">CPS labels</div>
-    <div class="brine-cps-btns">
-      <div class="fld" style="margin:0;flex:1;min-width:180px">
-        <label class="fld-label">Job code</label>
-        <input class="fld-inp" id="bc-jobcode" placeholder="e.g. MJ071126" style="text-transform:uppercase">
-      </div>
-      <div class="fld" style="margin:0;width:130px">
-        <label class="fld-label">Staff name</label>
-        <input class="fld-inp" id="bc-staff" value="James Brierley">
-      </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
-      <button class="btn btn-sm" onclick="printBrineLabel('raw')">🖨 Print raw label (post-injection)</button>
-      <button class="btn btn-sm" onclick="printBrineLabel('cooked')">🖨 Print cooked label (post-SV)</button>
-    </div>
-    <div style="font-size:11px;color:var(--t4);margin-top:10px;font-family:'IBM Plex Mono',monospace;line-height:1.6">
-      Raw label: "Raw — injected [today] — cook by [+24hrs]"<br>
-      Cooked label: "Cooked — chilled [today] — use by [+72hrs]" | Storage: 1–3°C
-    </div>
-  </div>
-</div>
-
 </div><!-- .main -->
 </div><!-- .shell -->
 <div class="toast" id="toast"></div>
@@ -1631,319 +1335,7 @@ html,body{height:100%;overflow:hidden;font-family:'IBM Plex Sans',system-ui,sans
 </div>
 
 <script>
-const SUPA_URL='https://qfnwyooipwtfzikukztz.supabase.co';
-const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbnd5b29pcHd0Znppa3VrenR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODY0MTcsImV4cCI6MjA5Mjk2MjQxN30.qzq30fT8L2bhX7kx46HZdco3rt7bN2zRGSKETCNgQqw';
-const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
-const sbBOH=supabase.createClient('https://jaajrllkozknilvmdezt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphYWpybGxrb3prbmlsdm1kZXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQxNDAsImV4cCI6MjA5MjYwMDE0MH0.09U5cba3JxRmysrn2X3TxPqr-q6jJE4QhyeKQwEK03M');
 
-const CAT_COLORS={'Canapés':'var(--cat-c)','Starters':'var(--cat-st)','Mains':'var(--cat-ma)','Kids':'var(--cat-ki)','Desserts':'var(--cat-de)','Evening Grazing':'var(--cat-gr)','Tasting Menu':'var(--cat-gr)','Sides':'var(--cat-si)','Other':'var(--cat-ot)'};
-
-function sbNav(view,el){
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  if(el)el.classList.add('active');
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const t=document.getElementById('view-'+view);
-  if(t)t.classList.add('active');
-  if(view==='home')renderPipeline();
-  else if(view==='events'){renderEventsList();}
-  else if(view==='prep')renderPrepPlan();
-  else if(view==='library'){renderDishList();renderIngredients();populateAllergenEventSel();}
-  else if(view==='cleaning')initCleaning();
-}
-function showView(pg,el){
-  const MAP={dishes:'library',ingredients:'library',events:'events',calendar:'events',prep:'prep','prep-list':'prep',allergens:'library',cleaning:'cleaning'};
-  const target=MAP[pg]||pg;
-  sbNav(target,document.querySelector('.sb-item[data-view="'+target+'"]'));
-  if(pg==='calendar')setEvTab('calendar',document.querySelector('.ev-subtab'));
-  if(pg==='allergens')libSubTab('allergens');
-  if(pg==='ingredients')libSubTab('ingredients');
-}
-function nav(pg,el){showView(pg,el);}
-
-function libSubTab(tab){
-  document.getElementById('lib-dishes-wrap').style.display=tab==='dishes'?'flex':'none';
-  document.getElementById('lib-ing-wrap').style.display=tab==='ingredients'?'flex':'none';
-  document.getElementById('lib-al-wrap').style.display=tab==='allergens'?'flex':'none';
-  if(tab==='ingredients')renderIngredients();
-  if(tab==='allergens')renderAllergenMatrix();
-}
-
-let _evTab='upcoming';
-function setEvTab(tab,el){
-  _evTab=tab;
-  document.querySelectorAll('.ev-subtab').forEach(t=>t.classList.remove('on'));
-  if(el)el.classList.add('on');
-  const listEl=document.getElementById('events-list');
-  const calWrap=document.getElementById('ev-calendar-wrap');
-  const detWrap=document.getElementById('ev-detail-wrap');
-  listEl.style.display=tab!=='calendar'?'flex':'none';
-  listEl.style.flexDirection='column';
-  calWrap.style.display=tab==='calendar'?'flex':'none';
-  if(detWrap)detWrap.style.display='none';
-  if(tab==='calendar'){calInit();return;}
-  renderEventsList();
-}
-
-function renderEventsList(){
-  const wrap=document.getElementById('events-list');if(!wrap)return;
-  const sf=document.getElementById('ev-status-filter')?.value||'';
-  const now=new Date();now.setHours(0,0,0,0);
-  let f=[...events];
-  if(sf)f=f.filter(e=>e.status===sf);
-  if(_evTab==='upcoming')f=f.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now);
-  else f=f.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')<now);
-  f.sort((a,b)=>_evTab==='upcoming'?a.event_date?.localeCompare(b.event_date||'')||0:b.event_date?.localeCompare(a.event_date||'')||0);
-  const countEl=document.getElementById('ev-count');
-  if(countEl)countEl.textContent=f.length+' event'+(f.length!==1?'s':'');
-  if(!f.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">◈</div><div class="empty-t">No events</div></div>';return;}
-  wrap.innerHTML=f.map(ev=>{
-    const d=ev.event_date?new Date(ev.event_date+'T00:00:00'):null;
-    const day=d?d.toLocaleDateString('en-GB',{day:'numeric'}):'—';
-    const mon=d?d.toLocaleDateString('en-GB',{month:'short'}).toUpperCase():'';
-    const yr=d?d.getFullYear():'';
-    const payFlag=!ev.deposit_status?'<span class="ev-flag">⚠ Unpaid</span>':'';
-    return`<div class="ev-row" onclick="showEventDetail('${ev.id}')">
-      <div class="ev-row-date"><div class="ev-row-day">${day}</div><div class="ev-row-month">${mon} ${yr}</div></div>
-      <div class="ev-row-divider"></div>
-      <div class="ev-row-info">
-        <div class="ev-row-client">${h(ev.client_name||'Unnamed event')}</div>
-        <div class="ev-row-meta">
-          ${ev.event_type?`<span>${h(ev.event_type)}</span>`:''}
-          ${ev.covers?`<span>${ev.covers} covers</span>`:''}
-          ${ev.location||ev.venue?`<span>${h(ev.location||ev.venue)}</span>`:''}
-          ${ev.job_code?`<span style="color:var(--gold);font-weight:600">${h(ev.job_code)}</span>`:''}
-        </div>
-      </div>
-      <div class="ev-row-right">
-        <span class="ev-status ${ev.status||'Enquiry'}">${ev.status||'Enquiry'}</span>
-        ${payFlag}
-      </div>
-    </div>`;
-  }).join('');
-}
-
-async function showEventDetail(id){
-  const ev=events.find(e=>e.id===id);if(!ev)return;
-  document.getElementById('events-list').style.display='none';
-  document.getElementById('ev-calendar-wrap').style.display='none';
-  const wrap=document.getElementById('ev-detail-wrap');
-  wrap.style.display='block';
-  const d=ev.event_date?new Date(ev.event_date+'T00:00:00'):null;
-  const fmtDate=d?d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'Date TBC';
-  const evDishes=ev.event_dishes||[];
-  const menuItems=evDishes.map(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return'';const col=CAT_COLORS[dish.category]||'var(--cat-ot)';const cost=calcDishCost(dish);return`<div class="ev-menu-item"><div class="ev-menu-cat" style="background:${col}"></div><div class="ev-menu-name">${h(dish.name)}</div><div class="ev-menu-sub">${dish.category||''}${cost?` · ${fmt$(cost)}/cv`:''}</div></div>`;}).join('');
-  const guests=(ev.guests||[]).map(g=>`<div class="guest-row ${g.type||''}"><div class="guest-name">${h(g.name||'Guest')}</div><div class="guest-detail">${h(g.dietary||'')}${g.notes?' — '+h(g.notes):''}</div></div>`).join('');
-  const rod=(ev.run_of_day||[]);
-  wrap.innerHTML=`
-    <div style="padding:16px 24px;border-bottom:1px solid var(--bd);background:var(--s1);display:flex;align-items:center;gap:12px;flex-shrink:0;">
-      <button class="btn btn-ghost btn-sm" onclick="backToEventsList()">← Events</button>
-      <div style="flex:1"><div style="font-family:'IBM Plex Serif',serif;font-size:22px;color:var(--t1)">${h(ev.client_name||'Unnamed')}</div>
-      <div style="font-size:12px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:2px">${fmtDate}${ev.job_code?' · '+h(ev.job_code):''}</div></div>
-      <span class="ev-status ${ev.status||'Enquiry'}">${ev.status||'Enquiry'}</span>
-      <button class="btn btn-sm" onclick="openFsWizard('${ev.id}')">Edit</button>
-      <button class="btn btn-sm" onclick="sbNav('prep',document.querySelector('.sb-item[data-view=prep]'));prepSubTab('list',document.querySelector('.prep-subtab'));setTimeout(()=>{document.getElementById('prep-ev-sel').value='${ev.id}';loadPrepList();},100)">Prep list</button>
-    </div>
-    <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:18px;overflow-y:auto;flex:1;">
-      <div class="ev-section"><div class="ev-section-hd">Details</div><div class="ev-section-body">
-        <div class="ev-field"><div class="ev-field-label">Type</div><div class="ev-field-value">${h(ev.event_type||'—')}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Time</div><div class="ev-field-value">${ev.start_time||'—'} – ${ev.end_time||'—'}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Covers</div><div class="ev-field-value">${ev.covers||'—'}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Venue</div><div class="ev-field-value ${ev.venue?'':'muted'}">${h(ev.venue||ev.location||'—')}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Address</div><div class="ev-field-value ${ev.address?'':'muted'}">${h(ev.address||'—')}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Staffing</div><div class="ev-field-value ${ev.staffing?'':'muted'}">${h(ev.staffing||'—')}</div></div>
-      </div></div>
-      <div class="ev-section"><div class="ev-section-hd">Financials</div><div class="ev-section-body">
-        <div class="ev-field"><div class="ev-field-label">Price</div><div class="ev-field-value" style="color:var(--gold);font-family:'IBM Plex Mono',monospace;">${ev.budget?'£'+Number(ev.budget).toFixed(2):'—'}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Payment</div><div class="ev-field-value">${{deposit:'Deposit taken',invoiced:'Invoice sent',paid:'Paid in full'}[ev.deposit_status]||'Unpaid'}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Contact</div><div class="ev-field-value ${ev.contact_name?'':'muted'}">${h(ev.contact_name||'—')}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Phone</div><div class="ev-field-value ${ev.contact_phone?'':'muted'}">${h(ev.contact_phone||'—')}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Email</div><div class="ev-field-value ${ev.contact_email?'':'muted'}">${h(ev.contact_email||'—')}</div></div>
-      </div></div>
-      ${menuItems?`<div class="ev-section"><div class="ev-section-hd">Menu (${evDishes.length} dishes)</div><div class="ev-section-body" style="padding:0 16px">${menuItems}</div></div>`:''}
-      ${guests?`<div class="ev-section"><div class="ev-section-hd">Dietary guests</div><div class="ev-section-body" style="padding:0 16px">${guests}</div></div>`:''}
-      ${rod.length?`<div class="ev-section"><div class="ev-section-hd">Run of day</div><div class="ev-section-body" style="padding:0"><table class="rod-table"><thead><tr><th>Time</th><th>Item</th></tr></thead><tbody>${rod.map(r=>`<tr><td style="width:80px;font-family:'IBM Plex Mono',monospace">${r.time||''}</td><td>${h(r.item||'')}</td></tr>`).join('')}</tbody></table></div></div>`:''}
-      ${ev.kitchen_notes||ev.chef_notes?`<div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd">Notes</div><div class="ev-section-body">
-        ${ev.kitchen_notes?`<div class="ev-field"><div class="ev-field-label">Kitchen</div><div class="ev-field-value">${h(ev.kitchen_notes)}</div></div>`:''}
-        ${ev.chef_notes?`<div class="ev-field"><div class="ev-field-label">Chef</div><div class="ev-field-value">${h(ev.chef_notes)}</div></div>`:''}
-        ${ev.service_notes?`<div class="ev-field"><div class="ev-field-label">Service</div><div class="ev-field-value">${h(ev.service_notes)}</div></div>`:''}
-      </div></div>`:''}
-    </div>`;
-  setTimeout(()=>{const pc=document.getElementById('pnl-container-'+id);if(pc)renderEventPnL(id,pc);},0);
-}
-
-function backToEventsList(){
-  const w=document.getElementById('ev-detail-wrap');if(w)w.style.display='none';
-  const l=document.getElementById('events-list');if(l){l.style.display='flex';l.style.flexDirection='column';}
-}
-
-async function renderPipeline(){
-  const wrap=document.getElementById('pipeline-body');if(!wrap)return;
-  const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
-  const hr=new Date().getHours();
-  const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
-  const greetEl=document.getElementById('home-greeting');
-  if(greetEl)greetEl.textContent=greet+', James';
-  if(!upcoming.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">◈</div><div class="empty-t">No upcoming events</div><div class="empty-s">Create a function sheet to get started.</div></div>';return;}
-  let stock=[];try{const{data}=await sb.from('prepped_stock').select('*');stock=data||[];}catch(e){}
-  const msPerDay=86400000;
-  const cards=upcoming.map(ev=>{
-    const d=new Date(ev.event_date+'T00:00:00');
-    const daysAway=Math.round((d-now)/msPerDay);
-    const urgencyClass=daysAway<=7?'urgent':daysAway<=21?'soon':'ok';
-    const daysCol=daysAway<=7?'red':daysAway<=21?'amb':'grn';
-    const evDishes=ev.event_dishes||[];
-    const comps=[];
-    evDishes.forEach(ed=>{const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;(dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{const have=stock.filter(s=>s.component_id===c.id).reduce((s,r)=>s+(r.portions_remaining||0),0);comps.push({comp:c,have,need:ev.covers||0});});});
-    const prepItems=comps.slice(0,4).map(({comp,have,need})=>{const done=have>=need;return`<div class="pipe-prep-item ${done?'done':'todo'}"><div class="pipe-prep-dot ${done?'done':'todo'}"></div><span>${h(comp.name||'Component')}</span>${!done?`<span style="font-size:10px;color:var(--t4);font-family:'IBM Plex Mono',monospace">${have}/${need}</span>`:''}</div>
-      <div class="ev-section" style="grid-column:1/-1">
-        <div class="ev-section-hd">P&amp;L</div>
-        <div id="pnl-container-${ev.id}" class="ev-section-body" style="padding:0"></div>
-      </div>`;}).join('');
-    const dateStr=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
-    const payLabel={deposit:'Deposit ✓',invoiced:'Invoiced',paid:'Paid ✓'}[ev.deposit_status]||'⚠ Unpaid';
-    const payCol=ev.deposit_status==='paid'?'var(--grn)':ev.deposit_status?'var(--amb)':'var(--red)';
-    return`<div class="pipe-card ${urgencyClass}" onclick="showEventDetail('${ev.id}')">
-      <div class="pipe-card-top">
-        <div class="pipe-card-info">
-          <div class="pipe-card-client">${h(ev.client_name||'Unnamed')}</div>
-          <div class="pipe-card-meta"><span>${dateStr}</span>${ev.event_type?`<span>${h(ev.event_type)}</span>`:''} ${ev.covers?`<span>${ev.covers} covers</span>`:''} <span style="color:${payCol}">${payLabel}</span></div>
-        </div>
-        <div class="pipe-card-right"><div class="pipe-days ${daysCol}">${daysAway}</div><div class="pipe-days-label">day${daysAway!==1?'s':''} away</div></div>
-      </div>
-      ${comps.length?`<div class="pipe-card-prep">${prepItems}${comps.length>4?`<span style="font-size:11px;color:var(--t4)">+${comps.length-4} more</span>`:''}</div>`:''}
-      <div class="pipe-card-actions">
-        <button class="btn btn-xs" onclick="event.stopPropagation();showEventDetail('${ev.id}')">View sheet</button>
-        <button class="btn btn-xs" onclick="event.stopPropagation();openFsWizard('${ev.id}')">Edit</button>
-        <button class="btn btn-xs" onclick="event.stopPropagation();sbNav('prep',document.querySelector('.sb-item[data-view=prep]'));prepSubTab('list',document.querySelector('.prep-subtab'));setTimeout(()=>{document.getElementById('prep-ev-sel').value='${ev.id}';loadPrepList();},100)">Prep list</button>
-      </div>
-    </div>`;
-  });
-  const batchSuggs=getBatchSuggestions(upcoming,stock);
-  wrap.innerHTML=`<div class="pipeline-section"><div class="pipeline-section-label">Upcoming — ${upcoming.length} event${upcoming.length!==1?'s':''}</div>${cards.join('')}</div>${batchSuggs.length?`<div class="pipeline-section"><div class="pipeline-section-label">Smart batching</div>${batchSuggs.map(s=>`<div class="batch-card"><div class="batch-card-title"><span class="batch-card-label">Batch opportunity</span>${h(s.compName)}</div><div class="batch-card-desc">Needed for ${s.events.map(e=>h(e.client_name)).join(' & ')} — make <strong>${s.totalPortions} portions</strong> in one batch.</div></div>`).join('')}</div>`:''}`;
-}
-
-function getBatchSuggestions(upcoming,stock){
-  const map={};
-  upcoming.forEach(ev=>{(ev.event_dishes||[]).forEach(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;(dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{if(!map[c.id])map[c.id]={compName:c.name,compId:c.id,events:[],totalPortions:0};map[c.id].events.push(ev);map[c.id].totalPortions+=(ev.covers||0);});});});
-  return Object.values(map).filter(s=>s.events.length>=2).slice(0,3);
-}
-
-function prepSubTab(tab,el){
-  document.querySelectorAll('.prep-subtab').forEach(t=>t.classList.remove('on'));
-  if(el)el.classList.add('on');
-  document.getElementById('prep-plan-wrap').style.display=tab==='plan'?'flex':'none';
-  document.getElementById('prep-list-wrap').style.display=tab==='list'?'flex':'none';
-  if(tab==='plan')renderPrepPlan();
-}
-
-async function renderPrepPlan(){
-  const wrap=document.getElementById('prep-plan-body');if(!wrap)return;
-  const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
-  if(!upcoming.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">▣</div><div class="empty-t">No upcoming events</div></div>';return;}
-  let stock=[];try{const{data}=await sb.from('prepped_stock').select('*');stock=data||[];}catch(e){}
-  const msPerDay=86400000;
-  const icons={frz:'❄',fri:'🧊',fsh:'○'};
-  wrap.innerHTML=upcoming.map(ev=>{
-    const d=new Date(ev.event_date+'T00:00:00');
-    const daysAway=Math.round((d-now)/msPerDay);
-    const comps=[];
-    (ev.event_dishes||[]).forEach(ed=>{const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;(dish.components||[]).forEach(c=>{const have=stock.filter(s=>s.component_id===c.id).reduce((s,r)=>s+(r.portions_remaining||0),0);comps.push({comp:c,dish,have,need:ev.covers||0,storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh'});});});
-    if(!comps.length)return'';
-    return`<div class="prep-event-block">
-      <div class="prep-event-hd">
-        <span class="prep-event-name">${h(ev.client_name||'Unnamed')}</span>
-        <span class="prep-event-date">${d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span>
-        ${daysAway<=14?`<span class="prep-event-urgency ${daysAway<=7?'red':'amb'}">${daysAway}d away</span>`:''}
-        <span style="flex:1"></span>
-        <span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${ev.covers||0} covers</span>
-      </div>
-      ${comps.map(({comp,dish,have,need,storage})=>`<div class="prep-comp-row">
-        <div class="prep-comp-storage ${storage}">${icons[storage]}</div>
-        <div class="prep-comp-info"><div class="prep-comp-name">${h(comp.name||'Component')}</div><div class="prep-comp-dish">${h(dish.name)}</div></div>
-        <span class="prep-comp-stock ${have>=need?'have':have>0?'partial':'none'}">${have>=need?'Stocked':have>0?have+' made':'Not started'}</span>
-        <div class="prep-comp-portions"><strong>${need}</strong> portions</div>
-      </div>`).join('')}
-    </div>`;
-  }).filter(Boolean).join('');
-}
-
-let _floorTasks=[];
-function enterFloorMode(){
-  const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
-  _floorTasks=[];
-  upcoming.forEach(ev=>{(ev.event_dishes||[]).forEach(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;(dish.components||[]).forEach(c=>{_floorTasks.push({id:c.id+'_'+ev.id,compId:c.id,dishId:dish.id,eventId:ev.id,compName:c.name||'Component',dishName:dish.name,eventClient:ev.client_name,eventDate:ev.event_date,portions:ev.covers||1,storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',steps:c.steps||[],ingredients:c.ingredients||[],status:'pending'});});});});
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  document.querySelector('.sb-item[data-view="prep"]')?.classList.add('active');
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-floor').classList.add('active');
-  renderFloorTasks();
-}
-function floorTab(tab,el){
-  document.querySelectorAll('#view-floor .prep-subtab').forEach(t=>t.classList.remove('on'));
-  if(el)el.classList.add('on');
-  document.getElementById('floor-tasks-wrap').style.display=tab==='all'?'block':'none';
-  document.getElementById('floor-lead-wrap').style.display=tab==='lead'?'block':'none';
-  if(tab==='lead')renderLeadView();
-}
-function renderFloorTasks(){
-  const wrap=document.getElementById('floor-tasks-wrap');if(!wrap)return;
-  const done=_floorTasks.filter(t=>t.status==='done').length;
-  const prog=document.getElementById('floor-progress-label');if(prog)prog.textContent=`${done}/${_floorTasks.length} done`;
-  const icons={frz:'❄',fri:'🧊',fsh:'○'};
-  if(!_floorTasks.length){wrap.innerHTML='<div class="empty"><div class="empty-t">No prep tasks</div></div>';return;}
-  wrap.innerHTML=_floorTasks.map((t,i)=>`<div class="floor-task-card ${t.status==='done'?'done-task':t.status==='in_progress'?'active-task':''}" id="ftask-${i}">
-    <div class="floor-task-hd" onclick="toggleFloorTask(${i})">
-      <div class="floor-task-icon ${t.storage}">${icons[t.storage]}</div>
-      <div class="floor-task-body"><div class="floor-task-name">${h(t.compName)}</div><div class="floor-task-dish">${h(t.dishName)} · ${h(t.eventClient||'')} · ${t.eventDate?new Date(t.eventDate+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short'}):''}</div></div>
-      <div class="floor-task-state">
-        ${t.status==='pending'?`<button class="floor-task-btn start" onclick="event.stopPropagation();startFloorTask(${i})">Start</button>`:''}
-        ${t.status==='in_progress'?`<button class="floor-task-btn done-btn" onclick="event.stopPropagation();doneFloorTask(${i})">Done</button>`:''}
-        ${t.status==='done'?`<span style="color:var(--grn);font-size:20px">✓</span>`:''}
-        <span class="floor-task-portions">${t.portions} portions</span>
-      </div>
-    </div>
-    ${t.status==='in_progress'||t._expanded?`<div class="floor-task-recipe">
-      ${t.ingredients?.length?`<div class="floor-recipe-ings"><div class="floor-ings-label">Ingredients</div>${t.ingredients.map(ir=>{const ing=ingredients.find(x=>x.id===ir.ingredient_id);return`<div class="floor-ing-row"><span class="floor-ing-name">${h(ing?.name||'Ingredient')}</span><span class="floor-ing-qty">${ir.quantity_g||ir.quantity||'—'}</span></div>`;}).join('')}</div>`:''}
-      ${t.steps?.length?t.steps.map((s,si)=>`<div class="floor-recipe-step"><div class="floor-step-n">${si+1}</div><div class="floor-step-text">${h(s.text||s)}</div></div>`).join(''):`<div style="font-size:13px;color:var(--t4);padding:8px 0">No recipe steps saved yet.</div>`}
-    </div>
-    <div class="floor-task-actions">
-      <button class="floor-print-btn" onclick="printLabel_floor(${i})">🖨 Print label</button>
-      ${t.status==='in_progress'?`<button class="floor-task-btn done-btn" onclick="doneFloorTask(${i})">Mark done</button>`:''}
-    </div>`:''}
-  </div>`).join('');
-}
-function toggleFloorTask(i){_floorTasks[i]._expanded=!_floorTasks[i]._expanded;renderFloorTasks();}
-function startFloorTask(i){_floorTasks[i].status='in_progress';_floorTasks[i]._expanded=true;renderFloorTasks();}
-function doneFloorTask(i){_floorTasks[i].status='done';_floorTasks[i]._expanded=false;renderFloorTasks();}
-function printLabel_floor(i){const t=_floorTasks[i];toast('Sending to CPS printer…');window.open(`https://digbys-cps.vercel.app?label=${encodeURIComponent(JSON.stringify({name:t.compName,dish:t.dishName,portions:t.portions,event:t.eventClient}))}`);}
-function renderLeadView(){const wrap=document.getElementById('floor-lead-wrap');if(!wrap)return;const chefs=[...new Set(_floorTasks.map(t=>t.assignedTo||'Unassigned'))];wrap.innerHTML=`<div class="lead-grid">${chefs.map(chef=>{const tasks=_floorTasks.filter(t=>(t.assignedTo||'Unassigned')===chef);const done=tasks.filter(t=>t.status==='done').length;const pct=tasks.length?Math.round(done/tasks.length*100):0;return`<div class="lead-chef-card"><div class="lead-chef-name">${h(chef)}</div>${tasks.map(t=>`<div class="lead-task-mini"><div class="lead-task-dot ${t.status==='done'?'done':t.status==='in_progress'?'in':'pend'}"></div><span>${h(t.compName)}</span></div>`).join('')}<div class="lead-prog"><div class="lead-prog-fill" style="width:${pct}%"></div></div></div>`;}).join('')}</div>`;}
-
-function renderDishList(){
-  const list=document.getElementById('dish-list');if(!list)return;
-  const q=(document.getElementById('dl-search')?.value||'').toLowerCase();
-  let f=[...dishes];
-  if(q)f=f.filter(d=>d.name.toLowerCase().includes(q));
-  if(_dlFilter!=='all')f=f.filter(d=>d.category===_dlFilter);
-  f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
-  if(!f.length){list.innerHTML=`<div class="lib-empty"><div class="lib-empty-t">${q?'No dishes match "'+h(q)+'"':'No dishes yet'}</div><div class="lib-empty-s">${q?'Try a different search.':'Hit + New dish to start building.'}</div></div>`;return;}
-  const groups={};f.forEach(d=>{const cat=d.category||'Other';if(!groups[cat])groups[cat]=[];groups[cat].push(d);});
-  list.innerHTML=CAT_ORDER.filter(cat=>groups[cat]).map(cat=>{
-    const col=CAT_COLORS[cat]||'var(--cat-ot)';
-    return`<div class="lib-section"><div class="lib-cat-hd"><span class="lib-cat-name" style="color:${col}">${cat}</span><span class="lib-cat-count">${groups[cat].length}</span></div>${groups[cat].map(d=>{const cost=calcDishCost(d);return`<div class="dish-row" style="border-left-color:${col}" onclick="openDish('${d.id}')">
-        ${d.photo_url
-          ?`<img class="dish-thumb" src="${d.photo_url}" alt="" loading="lazy" onerror="this.style.display='none'">`
-          :`<div class="dish-thumb-placeholder">🍽</div>`}
-        <div class="dish-name">${h(d.name)}</div>
-        ${cost!=null?`<div class="dish-cost">${fmt$(cost)}/cv</div>`:`<div class="dish-cost none">—</div>`}
-      </div>`;}).join('')}</div>`;
-  }).join('');
-}
-
-
-// ── CORE ──
 
 
 
@@ -1951,11 +1343,11 @@ function renderDishList(){
 // ═══════════════════════════════════════════════
 // CONSTANTS & INIT
 // ═══════════════════════════════════════════════
-
-
-
+const SUPA_URL='https://qfnwyooipwtfzikukztz.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbnd5b29pcHd0Znppa3VrenR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODY0MTcsImV4cCI6MjA5Mjk2MjQxN30.qzq30fT8L2bhX7kx46HZdco3rt7bN2zRGSKETCNgQqw';
+const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
 // BOH rota app — secondary read client (anon, CPS project)
-
+const sbBOH=supabase.createClient('https://jaajrllkozknilvmdezt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphYWpybGxrb3prbmlsdm1kZXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQxNDAsImV4cCI6MjA5MjYwMDE0MH0.09U5cba3JxRmysrn2X3TxPqr-q6jJE4QhyeKQwEK03M');
 
 const CAT_ORDER=['Canapés','Starters','Mains','Kids','Desserts','Evening Grazing','Tasting Menu','Sides','Other'];
 const ALLERGENS=['Gluten','Dairy','Egg','Fish','Shellfish','Nuts','Peanuts','Soya','Celery','Mustard','Sesame','Sulphites','Lupin','Molluscs'];
@@ -1972,7 +1364,7 @@ const BUCKETS={advance:{label:'Advance prep — ❄ Freeze',cls:'adv',fn:c=>c.fr
 // State
 let dishes=[],events=[],ingredients=[],stock=[],production_runs=[];
 let _ddStep=1,_ddAlState={},_ddComps=[],_ddData={};
-let _dlFilter='all',_ingFilter='all';
+let _dlFilter='all',_ingFilter='all',_evTab='upcoming';
 let _prepDone={},_prepTasks=[];
 let _settings={buffer:14,ngrok:'https://palatable-shack-scallion.ngrok-free.dev'};
 let _formDirty=false;
@@ -1987,12 +1379,24 @@ function toast(msg,type='ok'){const t=document.getElementById('toast');t.textCon
 function closeModal(id){document.getElementById(id).classList.remove('open');_formDirty=false;}
 function openModal(id){document.getElementById(id).classList.add('open');}
 
-
-
+function showView(pg,el){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.tn-item').forEach(n=>n.classList.remove('active'));
+  const v=document.getElementById('view-'+pg);
+  if(v)v.classList.add('active');
+  if(el)el.classList.add('active');
+  else document.querySelector(`.tn-item[onclick*="'${pg}'"]`)?.classList.add('active');
+  if(pg==='allergens')renderAllergenMatrix();
+  if(pg==='ingredients')renderIngredients();
+  if(pg==='cleaning')initCleaning();
+  if(pg==='calendar'){if((events||[]).length)calRender();else loadEvents().then(calRender);}
+}
+function nav(pg,el){showView(pg,el);}
 
 function backToLibrary(){
   if(_formDirty&&!confirm('Unsaved changes. Leave?'))return;
-  document.getElementById('builder-panel').classList.add('hidden');
+  document.getElementById('builder-panel').style.display='none';
+  document.getElementById('lib-panel').style.display='flex';
   _formDirty=false;renderDishList();
 }
 
@@ -2012,21 +1416,8 @@ function convertIngCost(qty,unit,obj){
   if(!obj||obj.cost_per_unit==null)return null;
   const sb2=(obj.sold_by||obj.unit||'kg').toLowerCase();
   const u=(unit||'').toLowerCase().trim();
-  // Density map for common liquids stored per kg
-  const density={'ml':1,'l':1000,'cl':10};
-  if(sb2==='kg'){
-    if(u==='g'||u==='grams'||u==='ml')return qty/1000*obj.cost_per_unit;
-    if(u==='kg'||u==='l')return qty*obj.cost_per_unit;
-    if(u==='cl')return qty*10/1000*obj.cost_per_unit;
-    return qty*obj.cost_per_unit; // each, cloves, etc — pass through
-  }
-  if(sb2==='litre'||sb2==='l'){
-    if(u==='ml')return qty/1000*obj.cost_per_unit;
-    if(u==='cl')return qty/100*obj.cost_per_unit;
-    if(u==='g')return qty/1000*obj.cost_per_unit;
-    return qty*obj.cost_per_unit;
-  }
-  // sold by each/bunch/portion — qty is count
+  if(sb2==='kg'){if(u==='g'||u==='grams')return qty/1000*obj.cost_per_unit;return qty*obj.cost_per_unit;}
+  if(sb2==='litre'){if(u==='ml')return qty/1000*obj.cost_per_unit;if(u==='cl')return qty/100*obj.cost_per_unit;return qty*obj.cost_per_unit;}
   return qty*obj.cost_per_unit;
 }
 
@@ -2060,15 +1451,7 @@ async function init(){
   populateSelects();
   // ensure builder hidden on load
   const bp=document.getElementById('builder-panel');
-  if(bp)bp.classList.add('hidden');
-  // Activate home view and render pipeline on load
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  const homeView=document.getElementById('view-home');
-  if(homeView)homeView.classList.add('active');
-  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
-  const homeBtn=document.querySelector('.sb-item[data-view="home"]');
-  if(homeBtn)homeBtn.classList.add('active');
-  renderPipeline();
+  if(bp)bp.style.display='none';
 }
 
 async function loadDishes(){
@@ -2105,7 +1488,70 @@ function setDlFilter(f,el){
   renderDishList();
 }
 
+function renderDishList(){
+  const list=document.getElementById('dish-list');if(!list)return;
+  const q=(document.getElementById('dl-search')?.value||'').toLowerCase();
+  let f=[...dishes];
+  if(q)f=f.filter(d=>d.name.toLowerCase().includes(q));
+  if(_dlFilter!=='all')f=f.filter(d=>d.category===_dlFilter);
+  f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
 
+  if(!f.length){
+    list.innerHTML=`<div class="lib-empty">
+      <div class="lib-empty-mark">🍽</div>
+      <div class="lib-empty-title">${q?'No dishes match "'+h(q)+'"':'No dishes yet'}</div>
+      <div class="lib-empty-sub">${q?'Try a different search or clear the filter.':'Hit + New dish to start building your library.'}</div>
+    </div>`;
+    return;
+  }
+
+  const groups={};
+  f.forEach(d=>{const cat=d.category||'Other';if(!groups[cat])groups[cat]=[];groups[cat].push(d);});
+
+  list.innerHTML=CAT_ORDER.filter(cat=>groups[cat]).map(cat=>{
+    const catDishes=groups[cat];
+    return`<div class="lib-cat-block">
+      <div class="lib-cat-heading">
+        <span class="lib-cat-label">${cat}</span>
+        <span class="lib-cat-count">${catDishes.length}</span>
+        <span class="lib-cat-line"></span>
+      </div>
+      ${catDishes.map(d=>{
+        const cost=calcDishCost(d);
+        const al=getDishAl(d);
+        const comps=(d.components||[]);
+        const hasFreeze=comps.some(c=>c.freeze_flag);
+        const mt=(d.menu_type||[]);
+        const isKids=mt.includes('Kids');
+        const isVariant=!!d.variant_of;
+        const parentName=isVariant?dishes.find(x=>x.id===d.variant_of)?.name:'';
+
+        // Allergen chips — just show unique allergens, max 4
+        const contains=[...new Set(al.filter(a=>a.status==='Contains').map(a=>a.allergen))].slice(0,3);
+        const mayContain=[...new Set(al.filter(a=>a.status==='May Contain').map(a=>a.allergen))].slice(0,2);
+
+        return`<div class="lib-dish-row" onclick="openDish('${d.id}')">
+          <div class="lib-dish-dot ${d.locked?'locked':'draft'}"></div>
+          <div class="lib-dish-centre">
+            <div class="lib-dish-name">${h(d.name)}</div>
+            <div class="lib-dish-meta">
+              ${hasFreeze?`<span class="lib-dish-chip freeze">❄ Freeze</span>`:''}
+              ${isKids?`<span class="lib-dish-chip kids">Kids</span>`:''}
+              ${isVariant?`<span class="lib-dish-chip">↳ alt</span>`:''}
+              ${contains.length?`<span class="lib-dish-chip al-c">⚠ ${contains.slice(0,2).join(', ')}${contains.length>2?' +'+( contains.length-2):''}</span>`:''}
+            </div>
+          </div>
+          <div class="lib-dish-right">
+            ${cost!=null
+              ?`<div class="lib-dish-cost">${fmt$(cost)}<span style="font-size:10px;font-weight:400;color:var(--ink4)">/cv</span></div>`
+              :`<div class="lib-dish-cost no-cost">—</div>`}
+            <div class="lib-dish-comps">${comps.length} component${comps.length!==1?'s':''}</div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+  }).join('');
+}
 
 // ═══════════════════════════════════════════════
 // DISH BUILDER
@@ -2117,8 +1563,7 @@ function openDish(id){
     name:d.name,category:d.category||'Canapés',station:d.station||'',
     description:d.description||'',notes:d.notes||'',
     menu_type:d.menu_type||[],variant_of:d.variant_of||'',
-    target_food_cost:d.target_food_cost||'',
-    photo_url:d.photo_url||null,dietary_tags:d.dietary_tags||[],allergens_removed:d.allergens_removed||[],allergens_added:d.allergens_added||[],variant_reason:d.variant_reason||null
+    target_food_cost:d.target_food_cost||''
   };
   document.getElementById('dd-id').value=d.id;
   const _ni=document.getElementById('dd-hd-name');if(_ni){_ni.value=d.name;_ni.placeholder=d.name;}
@@ -2135,7 +1580,8 @@ function openDish(id){
   }));
   if(!_ddComps.length)_ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',ings:[],steps:[]}];
   showBuilder();
-  ddGoStep(1); setTimeout(()=>maybeShowBrineBtn(d.id),50);
+  ddGoStep(1);
+  setTimeout(()=>maybeShowBrineBtn(d.id),300);
   renderDishList();
   _formDirty=false;
 }
@@ -2152,7 +1598,8 @@ function newDish(){
 }
 
 function showBuilder(){
-  document.getElementById('builder-panel').classList.remove('hidden');
+  document.getElementById('lib-panel').style.display='none';
+  document.getElementById('builder-panel').style.display='flex';
 }
 
 function ddGoStep(n){
@@ -2166,7 +1613,7 @@ function ddGoStep(n){
   });
   const body=document.getElementById('dd-body');
   if(n===1)body.innerHTML=ddStep1();
-  else if(n===2){body.innerHTML=ddStep2();renderDietaryTagsSection(body);}
+  else if(n===2)body.innerHTML=ddStep2();
   else if(n===3){body.innerHTML=ddStep3();ddBindComps();}
   else if(n===4)body.innerHTML=ddStep4();
 }
@@ -2221,16 +1668,7 @@ function ddStep1(){
       <div></div>
       <button class="btn btn-primary" onclick="s1Next()">Allergens →</button>
     </div>
-  </div>
-    <div class="fld" style="margin-top:18px;">
-      <label class="fld-label">Dish photo</label>
-      <div class="photo-upload-area" id="photo-drop-area">
-        <input type="file" accept="image/*" id="photo-file-input" onchange="handlePhotoSelect(event,document.getElementById('dd-id').value)">
-        ${_ddData.photo_url?`<img class="photo-preview" id="photo-preview" src="${_ddData.photo_url}" alt="">`:''}
-        <div class="photo-upload-label">${_ddData.photo_url?'<strong>Click to replace</strong>':'<strong>Click to add a photo</strong><div style="font-size:11px;margin-top:3px;color:var(--t4)">JPG or PNG · max 5MB</div>'}</div>
-      </div>
-      ${_ddData.photo_url?`<button class="btn btn-xs btn-danger" style="margin-top:6px" onclick="removeDishPhoto()">Remove photo</button>`:''}
-    </div>`;
+  </div>`;
 }
 
 function s1Next(){
@@ -2577,15 +2015,15 @@ function ddStep4(){
       ${unlinked.length?`<td style="color:var(--red);font-size:11px;font-family:var(--mono);">⚠ ${unlinked.join(', ')}</td>`:'<td></td>'}
     </tr>`;
   }).join('');
-  const target=parseFloat(_ddData.target_food_cost)||null;
-  const minSellPrice=anyCosted&&target?totalCost*(100/target):null;
+  const target=parseFloat(_ddData.target_food_cost)||32;
+  const sellPrice=anyCosted?totalCost*(100/target):null;
   return`<div class="step">
     <div class="step-h">Cost summary</div>
-    <div class="step-sub">Based on your ingredient prices and recipe quantities. Prices update automatically when you change ingredients.</div>
+    <div class="step-sub">Based on your ingredient prices and recipe quantities. All prices update automatically when you change ingredients.</div>
     ${anyCosted?`<div class="cost-banner">
       <div class="cost-banner-label">Food cost per cover</div>
       <div class="cost-banner-val">${fmt$(totalCost)}</div>
-      <div class="cost-banner-sub">${minSellPrice?`At ${target}% FC target — minimum selling price ${fmt$(minSellPrice)}/cv`:'Add a target FC % on step 1 to see minimum selling price'}</div>
+      <div class="cost-banner-sub${sellPrice?totalCost/sellPrice*100>40?' warn':' ok':''}">${sellPrice?`At ${fmt$(sellPrice)} selling price — ${Math.round(totalCost/sellPrice*100)}% food cost against your ${Math.round(target)}% target`:'Set a target FC % on step 1 for selling price guidance'}</div>
     </div>`:`<div style="padding:20px;background:var(--c1);border:1px solid var(--l1);border-radius:var(--r2);color:var(--t4);font-size:13px;margin-bottom:20px;">Add ingredient quantities on step 3 to calculate costs.</div>`}
     <table class="cost-tbl">
       <thead><tr><th>Component</th><th>Storage</th><th>Ingredients</th><th style="text-align:right;">Cost/cover</th><th>Unlinked</th></tr></thead>
@@ -2610,7 +2048,6 @@ async function saveDish(){
   const dishData={name:_ddData.name,category:_ddData.category||'Canapés',station:_ddData.station||null,
     description:_ddData.description||null,notes:_ddData.notes||null,menu_type:_ddData.menu_type||[],
     variant_of:_ddData.variant_of||null,target_food_cost:parseFloat(_ddData.target_food_cost)||null,
-    photo_url:_ddData.photo_url||null,dietary_tags:_ddData.dietary_tags||[],allergens_removed:_ddData.allergens_removed||[],allergens_added:_ddData.allergens_added||[],variant_reason:_ddData.variant_reason||null,
     updated_at:new Date().toISOString()};
   try{
     let did=id;
@@ -2674,7 +2111,7 @@ async function deleteDish(){
 // ═══════════════════════════════════════════════
 function setIngFilter(f,el){
   _ingFilter=f;
-  document.querySelectorAll('#lib-ing-wrap .filter-chip').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('#view-ingredients .fchip').forEach(c=>c.classList.remove('on'));
   if(el)el.classList.add('on');
   renderIngredients();
 }
@@ -2760,7 +2197,11 @@ async function saveIngredient(){
 // ═══════════════════════════════════════════════
 // EVENTS / FUNCTION SHEETS
 // ═══════════════════════════════════════════════
-
+function setEvTab(tab,el){
+  _evTab=tab;
+  document.querySelectorAll('.ev-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');renderEventsList();
+}
 
 async function loadBOHForCard(ev) {
   const panel = document.getElementById('boh-panel-' + ev.id);
@@ -2769,7 +2210,22 @@ async function loadBOHForCard(ev) {
   panel.innerHTML = bohPanelHTML(ev, bohData);
 }
 
-
+function renderEventsList(){
+  const wrap=document.getElementById('events-list');if(!wrap)return;
+  const sf=document.getElementById('ev-status-filter')?.value||'';
+  const pf=document.getElementById('ev-payment-filter')?.value||'';
+  const now=new Date();now.setHours(0,0,0,0);
+  let f=[...events];
+  if(_evTab==='upcoming')f=f.filter(e=>new Date(e.event_date)>=now&&e.status!=='Cancelled');
+  else f=f.filter(e=>new Date(e.event_date)<now||e.status==='Completed'||e.status==='Cancelled');
+  if(_evTab==='upcoming')f.sort((a,b)=>new Date(a.event_date)-new Date(b.event_date));
+  else f.sort((a,b)=>new Date(b.event_date)-new Date(a.event_date));
+  if(sf)f=f.filter(e=>e.status===sf);
+  if(pf){if(pf==='unpaid')f=f.filter(e=>!e.deposit_status);else f=f.filter(e=>e.deposit_status===pf);}
+  const cnt=document.getElementById('ev-count');if(cnt)cnt.textContent=f.length+' event'+(f.length!==1?'s':'');
+  if(!f.length){wrap.innerHTML=`<div class="empty"><div class="empty-title">${_evTab==='upcoming'?'No upcoming events':'No past events'}</div></div>`;return;}
+  wrap.innerHTML=f.map(ev=>renderFsCard(ev)).join('');
+}
 
 function renderFsCard(ev){
   const buf=1+(_settings.buffer||14)/100;const bc=Math.round(ev.covers*buf);
@@ -2839,7 +2295,15 @@ function goPrep(evId){document.getElementById('prep-ev-sel').value=evId;loadPrep
 
 function genJobCode(evType,date){const d=new Date(date);return'DF'+String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+String(d.getFullYear()).slice(2)+(evType||'EV');}
 
-
+function openFunctionSheet(){
+  document.getElementById('fs-modal-title').textContent='New function sheet';
+  document.getElementById('fs-id').value='';document.getElementById('fs-jobcode').value='';
+  ['fs-client','fs-venue','fs-location','fs-address','fs-contact-name','fs-contact-phone','fs-contact-email','fs-contact-2','fs-kitchen-notes','fs-service-notes','fs-chef-notes','fs-client-notes','fs-budget','fs-staffing','fs-covers'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('fs-type').value='WED';document.getElementById('fs-status').value='Enquiry';document.getElementById('fs-deposit').value='';
+  document.getElementById('fs-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('fs-rod-list').innerHTML='';document.getElementById('fs-charges-list').innerHTML='';document.getElementById('fs-guests-list').innerHTML='';
+  renderFsDishPicker([]);openModal('fs-modal');
+}
 
 function editFunctionSheet(id){
   const ev=events.find(x=>x.id===id);if(!ev)return;
@@ -3016,9 +2480,687 @@ function printFunctionSheet(evId){
   <div class="pb"></div><div class="st" style="margin-top:0;">Allergen matrix</div>
   <table style="border-collapse:collapse;font-size:10px;"><thead><tr><th style="border:1px solid #ddd;padding:5px 8px;text-align:left;min-width:150px;background:#f5f5f3;">Dish</th>${AL14p.map(a=>`<th style="border:1px solid #ddd;padding:3px;text-align:center;font-size:9px;background:#f5f5f3;min-width:40px;">${AL_SH[a]||a}</th>`).join('')}</tr></thead>
   <tbody>${evDishes.map((d,di)=>{const al=getDishAl(d);const cS=new Set();const mS=new Set();al.forEach(a=>{const f=AL_TO_FSA[a.allergen]||a.allergen;if(a.status==='May Contain')mS.add(f);else cS.add(f);});return`<tr><td style="border:1px solid #eee;padding:6px 8px;font-weight:500;background:${di%2?'#f9f9f7':'#fff'};">${h(d.name)}</td>${AL14p.map(a=>{if(cS.has(a))return`<td style="background:#fff0f0;border:1px solid #eee;text-align:center;">●</td>`;if(mS.has(a))return`<td style="background:#fff8ee;border:1px solid #eee;text-align:center;opacity:0.5;font-size:9px;color:#8A5200;">MC</td>`;return`<td style="border:1px solid #eee;background:${di%2?'#f9f9f7':'#fff'};">&nbsp;</td>`;}).join('')}</tr>`;}).join('')}</tbody></table>`:''}
-  <div class="footer"><span>Digby's Events Co</span><span>Printed ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</span></div></body></html>`;
+  <div class="footer"><span>Digby's Events Co</span><span>Printed ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</span></div>
+<div id="view-fs-wizard" class="view">
+  <div class="wiz-bar">
+    <button class="wiz-back" onclick="closeFsWizard()">&#8592;</button>
+    <span class="wiz-title" id="wiz-title">New event</span>
+    <div class="wiz-steps">
+      <div class="wiz-step-dot active" id="wiz-dot-1" onclick="fsWizStep(1)">1</div>
+      <div class="wiz-step-line"></div>
+      <div class="wiz-step-dot" id="wiz-dot-2" onclick="fsWizStep(2)">2</div>
+      <div class="wiz-step-line"></div>
+      <div class="wiz-step-dot" id="wiz-dot-3" onclick="fsWizStep(3)">3</div>
+    </div>
+    <div class="wiz-actions">
+      <button class="btn btn-sm" id="wiz-back-btn" onclick="fsWizStep(_wizStep-1)" style="display:none">&#8592; Back</button>
+      <button class="btn btn-gold btn-sm" id="wiz-next-btn" onclick="fsWizNext()">Next &#8594;</button>
+    </div>
+  </div>
+  <div id="wiz-body" style="flex:1;overflow:hidden;display:flex;flex-direction:column;"></div>
+</div>
+<div class="crop-modal-ov" id="crop-modal">
+  <div class="crop-hint">Drag to move &middot; Drag corners to resize</div>
+  <div class="crop-viewport" id="crop-viewport">
+    <img class="crop-img-el" id="crop-img-el" alt="" draggable="false">
+    <div class="crop-box" id="crop-box">
+      <div class="crop-handle tl" data-handle="tl"></div>
+      <div class="crop-handle tr" data-handle="tr"></div>
+      <div class="crop-handle bl" data-handle="bl"></div>
+      <div class="crop-handle br" data-handle="br"></div>
+    </div>
+  </div>
+  <div class="crop-bar">
+    <button class="btn" onclick="cancelCrop()">Cancel</button>
+    <button class="btn btn-gold" onclick="applyCrop()">Use this crop</button>
+  </div>
+</div>
+<div id="view-brine-calc" class="view">
+  <div style="background:var(--s1);border-bottom:1px solid var(--bd);padding:14px 24px;flex-shrink:0;display:flex;align-items:center;gap:12px;">
+    <button class="btn btn-ghost btn-sm" onclick="sbNav('library',null)">&#8592; Library</button>
+    <div><div style="font-family:'IBM Plex Serif',serif;font-size:20px;color:var(--t1)">Brine calculator</div>
+    <div style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:2px">Injection-brined spatchcock chicken</div></div>
+  </div>
+  <div class="brine-calc-wrap">
+    <div class="brine-inputs">
+      <div>
+        <div class="brine-slider-label"><span class="brine-slider-title">Number of birds</span><span class="brine-slider-val" id="bc-birds-val">10</span></div>
+        <input class="brine-slider" type="range" id="bc-birds" min="1" max="100" value="10" oninput="brineCalc()">
+      </div>
+      <div>
+        <div class="brine-slider-label"><span class="brine-slider-title">Avg bird weight</span><span class="brine-slider-val" id="bc-weight-val">2.2<span style="font-size:13px"> kg</span></span></div>
+        <input class="brine-slider" type="range" id="bc-weight" min="1.4" max="3.5" step="0.1" value="2.2" oninput="brineCalc()">
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="btn btn-xs" onclick="setBirdSize(1.8,4.00)">Small 1.8kg &#163;4</button>
+          <button class="btn btn-xs btn-gold" onclick="setBirdSize(2.2,5.50)">Medium &#163;5.50</button>
+          <button class="btn btn-xs" onclick="setBirdSize(2.6,6.75)">Large &#163;6.75</button>
+        </div>
+      </div>
+    </div>
+    <div class="brine-results">
+      <div class="brine-result-card gold"><div class="brine-result-label">Total brine to make</div><div><span class="brine-result-val" id="bc-brine-total">2,750</span><span class="brine-result-unit">ml</span></div></div>
+      <div class="brine-result-card gold"><div class="brine-result-label">Injection per bird</div><div><span class="brine-result-val" id="bc-per-bird">220</span><span class="brine-result-unit">ml</span></div></div>
+      <div class="brine-result-card"><div class="brine-result-label">Combined blend</div><div><span class="brine-result-val" id="bc-blend">198</span><span class="brine-result-unit">g</span></div></div>
+      <div class="brine-result-card"><div class="brine-result-label">Total chicken weight</div><div><span class="brine-result-val" id="bc-chicken">22.0</span><span class="brine-result-unit">kg</span></div></div>
+      <div class="brine-result-card gold"><div class="brine-result-label">Cost per bird</div><div><span class="brine-result-val" id="bc-cost-bird">&#163;5.72</span></div></div>
+      <div class="brine-result-card gold"><div class="brine-result-label">Cost per portion</div><div><span class="brine-result-val" id="bc-cost-portion">&#163;2.86</span></div></div>
+    </div>
+    <div class="brine-section-hd">Brine ingredients for this batch</div>
+    <table class="brine-ing-table"><thead><tr><th>Ingredient</th><th>Quantity</th></tr></thead><tbody>
+      <tr><td>Water</td><td id="bc-water">2,750 ml</td></tr>
+      <tr><td>Combined brine blend</td><td id="bc-blend2">198 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">STPP E451</td><td id="bc-stpp" style="color:var(--t4)">15.8 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Cornflour</td><td id="bc-cornflour" style="color:var(--t4)">41.6 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Maltodextrin</td><td id="bc-maltodextrin" style="color:var(--t4)">41.6 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Dextrose</td><td id="bc-dextrose" style="color:var(--t4)">33.7 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">White sugar</td><td id="bc-sugar" style="color:var(--t4)">21.8 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Caramelised sugar powder</td><td id="bc-caramel" style="color:var(--t4)">15.8 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Knorr chicken stock powder</td><td id="bc-knorr" style="color:var(--t4)">27.7 g</td></tr>
+      <tr><td>Fine salt</td><td id="bc-salt">44.0 g</td></tr>
+      <tr><td>Marmite</td><td id="bc-marmite">22.0 g</td></tr>
+      <tr><td>Rapeseed oil</td><td id="bc-oil">27.5 ml</td></tr>
+      <tr><td>Black pepper</td><td id="bc-pepper">5.5 g</td></tr>
+      <tr><td>Sweet paprika</td><td id="bc-paprika">8.3 g</td></tr>
+    </tbody></table>
+    <div class="brine-section-hd" style="margin-top:24px">CPS labels</div>
+    <div class="brine-cps-btns">
+      <div class="fld" style="margin:0;flex:1;min-width:180px"><label class="fld-label">Job code</label><input class="fld-inp" id="bc-jobcode" placeholder="e.g. MJ071126" style="text-transform:uppercase"></div>
+      <div class="fld" style="margin:0;width:130px"><label class="fld-label">Staff name</label><input class="fld-inp" id="bc-staff" value="James Brierley"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="printBrineLabel('raw')">Print raw label (post-injection)</button>
+      <button class="btn btn-sm" onclick="printBrineLabel('cooked')">Print cooked label (post-SV)</button>
+    </div>
+    <div style="font-size:11px;color:var(--t4);margin-top:10px;font-family:'IBM Plex Mono',monospace;line-height:1.6">Raw: cook by +24hrs &nbsp;|&nbsp; Cooked: use by +72hrs, storage 1-3C</div>
+  </div>
+</div>
+</body></html>`;
   const win=window.open('','_blank','width=900,height=700');win.document.write(html);win.document.close();win.focus();setTimeout(()=>win.print(),800);
 }
+
+// ═══════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════
+
+// CLEANING MODULE
+let _clTasks=[],_clDone=[],_clAreaF='all',_clDays=[];
+const _CLDAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const _CLFREQ={daily:'Daily',twice_weekly:'2x weekly',three_weekly:'3x weekly',weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly',quarterly:'Quarterly',twice_yearly:'6-monthly',annual:'Annual',as_needed:'As needed'};
+const _CLAREAS=['Zone A RTE','Zone B Butchery','Walk-in Fridge','Walk-in Freezer','General','External'];
+const _CLFREQORD=['daily','twice_weekly','three_weekly','weekly','fortnightly','monthly','quarterly','twice_yearly','annual','as_needed'];
+
+function _clWS(){const d=new Date(),dy=d.getDay(),diff=d.getDate()-dy+(dy===0?-6:1);return new Date(d.setDate(diff)).toISOString().split('T')[0];}
+
+async function initCleaning(){
+  try{
+    const{data:t}=await sb.from('cleaning_tasks').select('*').order('area').order('name');
+    _clTasks=t||[];
+    const{data:c}=await sb.from('cleaning_completions').select('*').gte('week_start',_clWS());
+    _clDone=c||[];
+  }catch(e){
+    _clTasks=[];_clDone=[];
+    const w=document.getElementById('cl-task-list');
+    if(w)w.innerHTML='<div class="empty"><div class="empty-icon">&#9888;</div><div class="empty-title">Cleaning tables not set up yet</div><div class="empty-sub">Run the SQL migration in Supabase Studio first.<br><br><code style="font-size:11px;background:var(--surface2);padding:4px 8px;border-radius:4px;display:inline-block;margin-top:8px;">CREATE TABLE cleaning_tasks...</code><br><br>Ask Claude for the full SQL.</div></div>';
+    return;
+  }
+  const sv=localStorage.getItem('cl_days');
+  _clDays=sv?JSON.parse(sv):['Monday','Tuesday','Wednesday','Thursday','Friday'];
+  clRenderTasks();clRenderWeek();clRenderToday();
+}
+
+function clTab(tab,el){
+  document.querySelectorAll('.cl-tab').forEach(t=>t.classList.remove('active'));
+  if(el)el.classList.add('active');
+  ['tasks','week','today'].forEach(t=>{const v=document.getElementById('clv-'+t);if(v)v.style.display=t===tab?'flex':'none';});
+  if(tab==='today')clRenderToday();
+  if(tab==='week')clRenderWeek();
+}
+
+function clArea(area,el){
+  _clAreaF=area;
+  document.querySelectorAll('#clv-tasks .fchip').forEach(c=>c.classList.remove('on'));
+  if(el)el.classList.add('on');
+  clRenderTasks();
+}
+
+function clRenderTasks(){
+  const w=document.getElementById('cl-task-list');if(!w)return;
+  let tasks=[..._clTasks].filter(t=>t.active!==false);
+  if(_clAreaF!=='all')tasks=tasks.filter(t=>t.area===_clAreaF);
+  const cnt=document.getElementById('cl-count');
+  if(cnt)cnt.textContent=_clTasks.filter(t=>t.active!==false).length+' tasks';
+  if(!tasks.length){w.innerHTML='<div class="empty"><div class="empty-icon">&#x1f9f9;</div><div class="empty-title">No tasks yet</div><div class="empty-sub">Add your first cleaning task above.</div></div>';return;}
+  const byArea={};
+  tasks.forEach(t=>{if(!byArea[t.area])byArea[t.area]=[];byArea[t.area].push(t);});
+  Object.values(byArea).forEach(arr=>arr.sort((a,b)=>_CLFREQORD.indexOf(a.frequency)-_CLFREQORD.indexOf(b.frequency)));
+  w.innerHTML=_CLAREAS.filter(a=>byArea[a]).map(area=>
+    '<div class="card" style="margin-bottom:12px;"><div class="cl-area-hd">'+h(area)+'</div>'+
+    byArea[area].map(t=>'<div class="cl-task-row" onclick="openClModal(\''+t.id+'\')">'
+      +'<div class="cl-task-name">'+h(t.name)+'</div>'
+      +'<div style="display:flex;align-items:center;gap:8px;">'
+      +(t.estimated_minutes?'<span class="cl-time">'+t.estimated_minutes+'min</span>':'')
+      +'<span class="cl-freq-badge">'+(_CLFREQ[t.frequency]||t.frequency)+'</span>'
+      +'</div></div>').join('')+'</div>').join('');
+}
+
+function openClModal(id){
+  const isEdit=!!id;
+  document.getElementById('cl-modal-title').textContent=isEdit?'Edit task':'Add cleaning task';
+  document.getElementById('cl-id').value=id||'';
+  const db=document.getElementById('cl-del-btn');if(db)db.style.display=isEdit?'':'none';
+  if(!isEdit){
+    ['cl-name','cl-mins','cl-notes'].forEach(x=>{const el=document.getElementById(x);if(el)el.value='';});
+    document.getElementById('cl-area-sel').selectedIndex=4;
+    document.getElementById('cl-freq').value='weekly';
+    document.getElementById('cl-active').value='true';
+  }else{
+    const t=_clTasks.find(x=>x.id===id);if(!t)return;
+    document.getElementById('cl-name').value=t.name||'';
+    document.getElementById('cl-area-sel').value=t.area||'General';
+    document.getElementById('cl-freq').value=t.frequency||'weekly';
+    document.getElementById('cl-mins').value=t.estimated_minutes||'';
+    document.getElementById('cl-notes').value=t.notes||'';
+    document.getElementById('cl-active').value=t.active===false?'false':'true';
+  }
+  openModal('cl-modal');
+}
+
+async function saveClTask(){
+  const name=document.getElementById('cl-name').value.trim();
+  if(!name){toast('Task name required','err');return;}
+  const id=document.getElementById('cl-id').value;
+  const data={name,area:document.getElementById('cl-area-sel').value,frequency:document.getElementById('cl-freq').value,
+    estimated_minutes:parseInt(document.getElementById('cl-mins').value)||null,
+    notes:document.getElementById('cl-notes').value.trim()||null,
+    active:document.getElementById('cl-active').value!=='false'};
+  try{
+    if(id)await sb.from('cleaning_tasks').update(data).eq('id',id);
+    else await sb.from('cleaning_tasks').insert(data);
+    toast(id?'Updated':'Added');closeModal('cl-modal');await initCleaning();
+  }catch(e){toast('Error: '+e.message,'err');}
+}
+
+async function deleteClTask(){
+  const id=document.getElementById('cl-id').value;if(!id||!confirm('Delete this task?'))return;
+  await sb.from('cleaning_tasks').delete().eq('id',id);
+  toast('Deleted');closeModal('cl-modal');await initCleaning();
+}
+
+function _clDistrib(task,days){
+  const n=days.length;if(!n)return[];const f=task.frequency;
+  if(f==='daily')return days.map((_,i)=>i);
+  if(f==='twice_weekly'){if(n===1)return[0];return[0,Math.ceil((n-1)/2)];}
+  if(f==='three_weekly'){if(n<=2)return days.map((_,i)=>i);return[0,Math.floor(n/2),n-1];}
+  if(f==='weekly')return[0];
+  if(f==='fortnightly'){const wn=Math.ceil((Date.now()-new Date(new Date().getFullYear(),0,1))/(7*864e5));return wn%2===0?[0]:[];}
+  if(f==='monthly'){return new Date().getDate()<=7?[0]:[];}
+  if(f==='quarterly'){return[0,3,6,9].includes(new Date().getMonth())?[0]:[];}
+  if(f==='twice_yearly'){return[0,6].includes(new Date().getMonth())?[0]:[];}
+  if(f==='annual'){return new Date().getMonth()===0?[0]:[];}
+  return[];
+}
+
+function clToggleDay(btn){
+  btn.classList.toggle('on');
+  _clDays=_CLDAYS.filter(d=>document.querySelector('.wdb[data-day="'+d+'"]')?.classList.contains('on'));
+  localStorage.setItem('cl_days',JSON.stringify(_clDays));
+  clRenderWeek();clRenderToday();
+}
+
+function clRenderWeek(){
+  document.querySelectorAll('.wdb').forEach(b=>b.classList.toggle('on',_clDays.includes(b.dataset.day)));
+  const w=document.getElementById('cl-week-grid');if(!w)return;
+  const lbl=document.getElementById('cl-week-lbl');
+  const ws=_clWS();if(lbl)lbl.textContent='w/c '+new Date(ws).toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+  if(!_clDays.length){w.innerHTML='<div class="empty"><div class="empty-title">Select working days above</div></div>';return;}
+  const active=_clTasks.filter(t=>t.active!==false&&t.frequency!=='as_needed');
+  const sched={};_clDays.forEach(d=>sched[d]=[]);
+  active.forEach(t=>_clDistrib(t,_clDays).forEach(i=>sched[_clDays[i]].push(t)));
+  w.innerHTML='<div style="display:grid;grid-template-columns:repeat('+_clDays.length+',minmax(220px,1fr));min-width:'+(_clDays.length*220)+'px;">'+
+    _clDays.map(day=>{
+      const dt=sched[day];const mins=dt.reduce((s,t)=>s+(t.estimated_minutes||0),0);
+      const doneIds=_clDone.filter(c=>c.scheduled_day===day&&c.week_start===ws).map(c=>c.task_id);
+      return'<div><div class="week-col-hd">'+day+'<span style="float:right;color:var(--ink4);font-weight:400;">'+dt.length+'t'+(mins?' &middot; '+mins+'m':'')+'</span></div>'
+        +(!dt.length?'<div style="padding:14px;font-size:12px;color:var(--ink5);">Nothing scheduled</div>':
+        dt.map(t=>{const done=doneIds.includes(t.id);return'<div class="week-task-item'+(done?' week-done':'')+'">'
+          +'<div class="week-cb'+(done?' done':'')+'" onclick="clToggleWeek(\''+t.id+'\',\''+day+'\')">'+(done?'v':'')+'</div>'
+          +'<div><div class="week-task-name">'+h(t.name)+'</div><div class="week-task-area">'+h(t.area)+'</div></div>'
+          +'</div>';}).join(''))+'</div>';}).join('')+'</div>';
+}
+
+async function clToggleWeek(taskId,day){
+  const ws=_clWS();
+  const ex=_clDone.find(c=>c.task_id===taskId&&c.scheduled_day===day&&c.week_start===ws);
+  if(ex)await sb.from('cleaning_completions').delete().eq('id',ex.id);
+  else await sb.from('cleaning_completions').insert({task_id:taskId,scheduled_day:day,week_start:ws,completed_at:new Date().toISOString()});
+  const{data:c}=await sb.from('cleaning_completions').select('*').gte('week_start',ws);
+  _clDone=c||[];clRenderWeek();clRenderToday();
+}
+
+function clRenderToday(){
+  const w=document.getElementById('cl-today-list');if(!w)return;
+  const today=new Date();
+  const dayName=today.toLocaleDateString('en-GB',{weekday:'long'});
+  const dateEl=document.getElementById('cl-today-date');
+  const subEl=document.getElementById('cl-today-sub');
+  const progEl=document.getElementById('cl-today-prog');
+  if(dateEl)dateEl.textContent=today.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  const active=_clTasks.filter(t=>t.active!==false&&t.frequency!=='as_needed');
+  const sched={};_clDays.forEach(d=>sched[d]=[]);
+  active.forEach(t=>_clDistrib(t,_clDays).forEach(i=>sched[_clDays[i]].push(t)));
+  const todayTasks=sched[dayName]||[];
+  const ws=_clWS();
+  const doneIds=_clDone.filter(c=>c.scheduled_day===dayName&&c.week_start===ws).map(c=>c.task_id);
+  const doneCount=todayTasks.filter(t=>doneIds.includes(t.id)).length;
+  const totalMin=todayTasks.reduce((s,t)=>s+(t.estimated_minutes||0),0);
+  if(subEl)subEl.textContent=doneCount+' of '+todayTasks.length+' done'+(totalMin?' &middot; ~'+totalMin+'min total':'')+(!_clDays.includes(dayName)?' &middot; Not a scheduled day':'');
+  if(progEl)progEl.style.width=(todayTasks.length?Math.round(doneCount/todayTasks.length*100):0)+'%';
+  if(!_clDays.includes(dayName)){w.innerHTML='<div class="empty"><div class="empty-icon">&#128197;</div><div class="empty-title">Not a scheduled working day</div><div class="empty-sub">Set working days in the This week tab.</div></div>';return;}
+  if(!todayTasks.length){w.innerHTML='<div class="empty"><div class="empty-icon">&#x2713;</div><div class="empty-title">Nothing scheduled today</div></div>';return;}
+  const byArea={};todayTasks.forEach(t=>{if(!byArea[t.area])byArea[t.area]=[];byArea[t.area].push(t);});
+  w.innerHTML=(doneCount===todayTasks.length&&todayTasks.length?'<div class="today-all-done">All done for today &#x2713;</div>':'')+
+    _CLAREAS.filter(a=>byArea[a]).map(area=>
+      '<div class="today-area-label">'+area+'</div>'+
+      byArea[area].map(t=>{const done=doneIds.includes(t.id);return'<div class="today-task'+(done?' done':'')+'" onclick="clToggleToday(\''+t.id+'\',\''+dayName+'\')"><div class="today-cb"></div><div style="flex:1;"><div class="today-task-name">'+h(t.name)+'</div>'+(t.notes?'<div class="today-task-note">'+h(t.notes.slice(0,70))+'</div>':'')+'</div>'+(t.estimated_minutes?'<div class="today-task-time">'+t.estimated_minutes+'min</div>':'')+'</div>';}).join('')
+    ).join('');
+}
+
+async function clToggleToday(taskId,day){
+  const ws=_clWS();
+  const ex=_clDone.find(c=>c.task_id===taskId&&c.scheduled_day===day&&c.week_start===ws);
+  if(ex)await sb.from('cleaning_completions').delete().eq('id',ex.id);
+  else await sb.from('cleaning_completions').insert({task_id:taskId,scheduled_day:day,week_start:ws,completed_at:new Date().toISOString()});
+  const{data:c}=await sb.from('cleaning_completions').select('*').gte('week_start',ws);
+  _clDone=c||[];clRenderToday();
+}
+
+
+// ═══════════════════════════════════════════════
+// CALENDAR MODULE
+// ═══════════════════════════════════════════════
+let _calViewDate = new Date();
+let _calSelected = new Date();
+_calSelected.setHours(0,0,0,0);
+
+function calInit(){
+  _calViewDate = new Date();
+  _calSelected = new Date();
+  _calSelected.setHours(0,0,0,0);
+  calRender();
+}
+
+function calPrev(){ _calViewDate = new Date(_calViewDate.getFullYear(), _calViewDate.getMonth()-1, 1); calRenderGrid(); }
+function calNext(){ _calViewDate = new Date(_calViewDate.getFullYear(), _calViewDate.getMonth()+1, 1); calRenderGrid(); }
+function calGoToday(){ _calViewDate=new Date(); _calSelected=new Date(); _calSelected.setHours(0,0,0,0); calRender(); }
+
+function calRender(){ calRenderGrid(); calRenderRight(); }
+
+function calIsSameDay(a,b){ return a.getFullYear()===b.getFullYear()&&a.getMonth()===b.getMonth()&&a.getDate()===b.getDate(); }
+
+function calEventsOnDate(date){
+  return (events||[]).filter(ev=>{
+    if(!ev.event_date)return false;
+    const d=new Date(ev.event_date+'T00:00:00');
+    return calIsSameDay(d,date);
+  });
+}
+
+function calPrepOnDate(date){
+  const out=[];
+  (events||[]).filter(ev=>ev.event_date&&ev.status!=='Cancelled').forEach(ev=>{
+    const evDate=new Date(ev.event_date+'T00:00:00');
+    const evDishes=(dishes||[]).filter(d=>(ev.event_dishes||[]).map(x=>x.dish_id).includes(d.id));
+    evDishes.forEach(dish=>{
+      (dish.components||[]).forEach(comp=>{
+        const days=comp.freeze_flag?14:comp.fridge_flag?2:0;
+        if(!days)return;
+        const prepDate=new Date(evDate);
+        prepDate.setDate(evDate.getDate()-days);
+        if(calIsSameDay(prepDate,date)){
+          out.push({evName:ev.client_name,compName:comp.name,evDate,storage:comp.freeze_flag?'freeze':'fridge'});
+        }
+      });
+    });
+  });
+  return out;
+}
+
+function calSelectDate(iso){
+  _calSelected=new Date(iso);
+  calRenderGrid();
+  calRenderRight();
+}
+
+function calRenderGrid(){
+  const grid=document.getElementById('cal-grid');if(!grid)return;
+  const lbl=document.getElementById('cal-month-label');
+  const yr=_calViewDate.getFullYear();const mo=_calViewDate.getMonth();
+  const firstDay=new Date(yr,mo,1);
+  if(lbl)lbl.textContent=firstDay.toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+  const startDow=firstDay.getDay();
+  const startDate=new Date(firstDay);
+  startDate.setDate(1-(startDow===0?6:startDow-1));
+  const today=new Date();today.setHours(0,0,0,0);
+  const cells=[];const d=new Date(startDate);
+  for(let i=0;i<42;i++){cells.push(new Date(d));d.setDate(d.getDate()+1);}
+  grid.innerHTML=cells.map(date=>{
+    date.setHours(0,0,0,0);
+    const isToday=calIsSameDay(date,today);
+    const isSel=calIsSameDay(date,_calSelected);
+    const isOther=date.getMonth()!==mo;
+    const isWknd=date.getDay()===0||date.getDay()===6;
+    const dayEvs=calEventsOnDate(date);
+    const dayPrep=calPrepOnDate(date);
+    const iso=date.toISOString();
+    const cls=['cal-cell',isToday?'today':'',isSel?'selected':'',isOther?'other-month':'',isWknd?'weekend':''].filter(Boolean).join(' ');
+    return`<div class="${cls}" onclick="calSelectDate('${iso}')">
+      <div class="cal-dn">${date.getDate()}</div>
+      ${dayEvs.map(ev=>`<div class="cal-pill ${ev.status||'Enquiry'}" onclick="event.stopPropagation();editFunctionSheet('${ev.id}')" title="${h(ev.client_name)}">${h(ev.client_name)}</div>`).join('')}
+      ${dayPrep.slice(0,2).map(p=>`<div class="cal-prep-tag" title="${h(p.compName)} for ${h(p.evName)}">&#9889; ${h(p.evName)}</div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+function calRenderRight(){
+  const hd=document.getElementById('cal-right-hd');
+  const body=document.getElementById('cal-right-body');
+  if(!hd||!body)return;
+  const date=_calSelected;
+  const dayName=date.toLocaleDateString('en-GB',{weekday:'long'});
+  const dateStr=date.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  hd.innerHTML=`<div class="cal-right-date">${dateStr}</div><div class="cal-right-day">${dayName}</div>`;
+  const dayEvs=calEventsOnDate(date);
+  const dayPrep=calPrepOnDate(date);
+  const today=new Date();today.setHours(0,0,0,0);
+  const upcoming=(events||[]).filter(ev=>{
+    if(!ev.event_date||ev.status==='Cancelled')return false;
+    const d=new Date(ev.event_date+'T00:00:00');
+    return d>date;
+  }).sort((a,b)=>new Date(a.event_date)-new Date(b.event_date)).slice(0,8);
+  let html='';
+  if(dayEvs.length){
+    html+='<div class="cal-section-label">Events this day</div>';
+    html+=dayEvs.map(ev=>{
+      const hasDishes=(ev.event_dishes||[]).length>0;
+      const hasPayment=!!ev.deposit_status;
+      return`<div class="cal-ev-card ${ev.status||'Enquiry'}" onclick="editFunctionSheet('${ev.id}')">
+        <div class="cal-ev-name">${h(ev.client_name)}</div>
+        <div class="cal-ev-meta">${EV_TYPES[ev.event_type]||''} &middot; ${ev.covers||0} covers${ev.start_time?' &middot; '+ev.start_time:''}</div>
+        <div class="cal-ev-meta">${ev.status||''}${ev.venue_name?' &middot; '+h(ev.venue_name):''}</div>
+        <div class="cal-ev-flags">
+          ${!hasPayment?'<span class="cal-flag cal-flag-pay">&#163; Unpaid</span>':''}
+          ${!hasDishes?'<span class="cal-flag cal-flag-menu">No menu set</span>':''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+  if(dayPrep.length){
+    html+='<div class="cal-section-label">Prep due</div>';
+    html+=dayPrep.map(p=>`<div class="cal-prep-card">
+      <div class="cal-prep-name">${h(p.compName)}</div>
+      <div class="cal-prep-for">for ${h(p.evName)} &middot; ${p.evDate.toLocaleDateString('en-GB',{day:'numeric',month:'short'})} &middot; ${p.storage==='freeze'?'&#10052; Freeze ahead':'&#129514; Fridge ahead'}</div>
+    </div>`).join('');
+  }
+  if(!dayEvs.length&&!dayPrep.length){
+    html+='<div class="cal-nothing">Nothing scheduled</div>';
+  }
+  if(upcoming.length){
+    html+='<div class="cal-section-label" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">Upcoming</div>';
+    html+=upcoming.map(ev=>`<div class="cal-ev-card ${ev.status||'Enquiry'}" onclick="editFunctionSheet('${ev.id}')">
+      <div class="cal-upcoming-date">${new Date(ev.event_date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</div>
+      <div class="cal-ev-name">${h(ev.client_name)}</div>
+      <div class="cal-ev-meta">${ev.covers||0} covers &middot; ${ev.status||''}</div>
+    </div>`).join('');
+  }
+  body.innerHTML=html;
+}
+
+
+// ═══════════════════════════════════════════════
+// PREP LIST — full rewrite
+// ═══════════════════════════════════════════════
+// _prepDone already declared above
+
+function fmtQty(qty, unit) {
+  if (!qty) return '—';
+  if (unit === 'g' && qty >= 1000) return (qty / 1000).toFixed(qty % 1000 === 0 ? 0 : 2).replace(/\.?0+$/, '') + 'kg';
+  if (unit === 'ml' && qty >= 1000) return (qty / 1000).toFixed(qty % 1000 === 0 ? 0 : 2).replace(/\.?0+$/, '') + 'L';
+  if (qty % 1 === 0) return qty + (unit ? ' ' + unit : '');
+  return qty.toFixed(1) + (unit ? ' ' + unit : '');
+}
+
+async function loadPrepList() {
+  const evId = document.getElementById('prep-ev-sel').value;
+  const wrap = document.getElementById('prep-content');
+  if (!evId) {
+    wrap.innerHTML = '<div class="empty" style="margin:auto;"><div class="empty-icon">📋</div><div class="empty-title">Select an event above</div></div>';
+    return;
+  }
+  wrap.innerHTML = '<div class="empty" style="margin:auto;"><span class="spin"></span></div>';
+  
+  const ev = events.find(e => e.id === evId);
+  if (!ev) return;
+  
+  // Load saved completion state
+  _prepDone = JSON.parse(localStorage.getItem('prep-done-' + evId) || '{}');
+  
+  // Get dishes for this event
+  const evDishIds = (ev.event_dishes || []).map(ed => ed.dish_id);
+  const evDishes = dishes.filter(d => evDishIds.includes(d.id));
+  
+  // Build task list
+  const tasks = [];
+  evDishes.forEach(dish => {
+    (dish.components || []).sort((a,b)=>a.sort_order-b.sort_order).forEach(comp => {
+      const covers = ev.covers || 0;
+      const base = comp.base_portions || 10;
+      const batches = Math.max(1, Math.ceil(covers / base));
+      const bucket = comp.freeze_flag ? 'freeze' : comp.fridge_flag ? 'fridge' : 'fresh';
+      tasks.push({ dish, comp, covers, base, batches, bucket });
+    });
+  });
+  
+  const freeze = tasks.filter(t => t.bucket === 'freeze');
+  const fridge = tasks.filter(t => t.bucket === 'fridge');
+  const fresh  = tasks.filter(t => t.bucket === 'fresh');
+  
+  const totalMins = tasks.reduce((s, t) => {
+    const mins = parseInt(t.comp.estimated_minutes) || 0;
+    return s + mins * t.batches;
+  }, 0);
+  
+  const doneCount = tasks.filter(t => _prepDone[t.comp.id]).length;
+  
+  // Render header
+  const hdHTML = `
+    <div class="prep-hd">
+      <div class="prep-hd-client">${h(ev.client_name)}</div>
+      <div class="prep-hd-meta">
+        <div class="prep-hd-pill">📅 <strong>${new Date(ev.event_date + 'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</strong></div>
+        <div class="prep-hd-pill">👥 <strong>${ev.covers || 0} covers</strong></div>
+        ${ev.start_time ? `<div class="prep-hd-pill">⏰ <strong>${ev.start_time}</strong></div>` : ''}
+        <div class="prep-hd-pill">${EV_TYPES[ev.event_type]||ev.event_type||''}</div>
+      </div>
+      <div class="prep-hd-stats">
+        <div class="prep-stat"><div class="prep-stat-n">${tasks.length}</div><div class="prep-stat-l">Total tasks</div></div>
+        <div class="prep-stat"><div class="prep-stat-n">${freeze.length}</div><div class="prep-stat-l">Freeze ahead</div></div>
+        <div class="prep-stat"><div class="prep-stat-n">${fridge.length}</div><div class="prep-stat-l">Fridge ahead</div></div>
+        <div class="prep-stat"><div class="prep-stat-n">${fresh.length}</div><div class="prep-stat-l">Day of</div></div>
+        ${totalMins ? `<div class="prep-stat"><div class="prep-stat-n">${totalMins >= 60 ? Math.floor(totalMins/60)+'h '+(totalMins%60||'') : totalMins+'m'}</div><div class="prep-stat-l">Est. time</div></div>` : ''}
+        <div class="prep-stat"><div class="prep-stat-n">${doneCount}/${tasks.length}</div><div class="prep-stat-l">Done</div></div>
+      </div>
+    </div>
+  `;
+  
+  // Render buckets
+  const buckets = [
+    { key: 'freeze', cls: 'pb-freeze', icon: '❄', label: 'Freeze ahead', sub: 'Make now — freeze until needed', tasks: freeze },
+    { key: 'fridge', cls: 'pb-fridge', icon: '🧊', label: 'Fridge ahead', sub: 'Make 1–3 days before event', tasks: fridge },
+    { key: 'fresh',  cls: 'pb-fresh',  icon: '○', label: 'Day of service', sub: 'Prepare fresh on the day', tasks: fresh },
+  ].filter(b => b.tasks.length);
+  
+  const bucketsHTML = buckets.map(b => `
+    <div class="prep-bucket ${b.cls}">
+      <div class="prep-bucket-hd">
+        <span class="prep-bucket-icon">${b.icon}</span>
+        <span class="prep-bucket-title">${b.label}</span>
+        <span class="prep-bucket-count">${b.tasks.length} task${b.tasks.length!==1?'s':''} &middot; ${b.sub}</span>
+      </div>
+      <div class="prep-tasks">
+        ${b.tasks.map(t => prepTaskHTML(t)).join('')}
+      </div>
+    </div>
+  `).join('');
+  
+  wrap.innerHTML = `
+    ${hdHTML}
+    <div class="prep-body">${bucketsHTML}</div>
+  `;
+}
+
+function prepTaskHTML(t) {
+  const { dish, comp, covers, base, batches } = t;
+  const done = !!_prepDone[comp.id];
+  const ings = comp.recipe_ingredients || [];
+  const steps = (comp.recipe_steps || []).sort((a,b) => (a.step_number||a.sort_order||0) - (b.step_number||b.sort_order||0));
+  const als = comp.component_allergens || [];
+  const hasDetail = ings.length > 0 || steps.length > 0;
+  
+  const alTags = als.map(a =>
+    `<span class="prep-task-tag ${a.status==='Contains'?'pt-al-c':'pt-al-m'}">${a.allergen} ${a.status==='May Contain'?'(MC)':''}</span>`
+  ).join('');
+  
+  const ingRows = ings.map(i => {
+    const scaledQty = ((i.qty || i.quantity || 0) * batches);
+    return `<tr>
+      <td>${h(i.ingredient_name || i.name)}</td>
+      <td class="prep-ing-qty">${fmtQty(scaledQty, i.unit)}</td>
+    </tr>`;
+  }).join('');
+  
+  const stepRows = steps.map((s,idx) =>
+    `<div class="prep-step"><span class="prep-step-n">${s.step_number||idx+1}.</span><span>${h(s.instruction||'')}</span></div>`
+  ).join('');
+  
+  return `
+    <div class="prep-task${done?' done':''}${hasDetail?' expanded':''}" id="ptask-${comp.id}">
+      <div class="prep-task-hd" onclick="prepToggleExpand('${comp.id}')">
+        <div class="prep-task-cb" onclick="event.stopPropagation();prepToggleDone('${comp.id}')"></div>
+        <div class="prep-task-info">
+          <div class="prep-task-name">${h(comp.name)}</div>
+          <div class="prep-task-dish">${h(dish.name)}</div>
+          ${comp.chef_note ? `<div class="prep-task-note">${h(comp.chef_note.slice(0,120))}${comp.chef_note.length>120?'…':''}</div>` : ''}
+          <div class="prep-task-tags">
+            <span class="prep-task-tag pt-batch">${batches === 1 ? '1 batch' : batches + ' batches'} &middot; ${covers} covers</span>
+            ${alTags}
+          </div>
+        </div>
+        ${hasDetail ? `<div class="prep-task-toggle"><span class="prep-task-toggle-arrow">▶</span></div>` : ''}
+      </div>
+      ${hasDetail ? `
+        <div class="prep-task-detail">
+          ${ings.length ? `
+            <table class="prep-ing-table">
+              <thead><tr><th>Ingredient</th><th style="text-align:right;">Quantity (${batches > 1 ? batches + ' batches' : 'scaled'})</th></tr></thead>
+              <tbody>${ingRows}</tbody>
+            </table>` : ''}
+          ${steps.length ? `
+            <div class="prep-method">
+              <div class="prep-method-title">Method</div>
+              ${stepRows}
+            </div>` : ''}
+        </div>` : ''}
+    </div>
+  `;
+}
+
+function prepToggleExpand(cid) {
+  document.getElementById('ptask-' + cid)?.classList.toggle('expanded');
+}
+
+function prepToggleDone(cid) {
+  const evId = document.getElementById('prep-ev-sel').value;
+  const el = document.getElementById('ptask-' + cid);
+  if (!el) return;
+  if (_prepDone[cid]) {
+    delete _prepDone[cid];
+    el.classList.remove('done');
+  } else {
+    _prepDone[cid] = true;
+    el.classList.add('done');
+  }
+  localStorage.setItem('prep-done-' + evId, JSON.stringify(_prepDone));
+  // Update done count in header
+  loadPrepList();
+}
+
+
+// ═══════════════════════════════════════════════
+// BOH INTEGRATION
+// ═══════════════════════════════════════════════
+async function loadBOHShifts(jobCode, eventDate) {
+  if (!jobCode) return null;
+  try {
+    // BOH requires auth — attempt anon read, fails gracefully if RLS blocks
+    const { data: bohEvs } = await sbBOH.from('events')
+      .select('id,name')
+      .eq('job_code', jobCode)
+      .limit(1);
+    
+    if (!bohEvs || !bohEvs.length) {
+      // Try matching by date as fallback
+      const { data: byDate } = await sbBOH.from('events')
+        .select('id,name')
+        .eq('event_date', eventDate)
+        .limit(1);
+      if (!byDate || !byDate.length) return null;
+      bohEvs.push(...byDate);
+    }
+    
+    const bohEvId = bohEvs[0].id;
+    const { data: shifts } = await sbBOH.from('shifts')
+      .select('title,start_time,end_time,status,assigned_user_id')
+      .eq('event_id', bohEvId)
+      .eq('status', 'ASSIGNED');
+    
+    return { bohEventId: bohEvId, shifts: shifts || [] };
+  } catch(e) {
+    return null; // BOH auth required — show link only
+  }
+}
+
+function bohPanelHTML(ev, bohData) {
+  const jobCode = ev.job_code || ev.id.slice(0,8).toUpperCase();
+  const bohUrl = 'https://digbys-boh.vercel.app'; // update when deployed
+  
+  let shiftsHTML;
+  if (!bohData) {
+    shiftsHTML = `<div class="boh-no-link">Not yet linked in BOH — open BOH and set job code to <strong style="color:var(--gold);font-family:var(--mono);">${jobCode}</strong> on the matching event.</div>`;
+  } else if (!bohData.shifts.length) {
+    shiftsHTML = `<div class="boh-no-link">BOH event linked — no shifts assigned yet.</div>`;
+  } else {
+    shiftsHTML = bohData.shifts.map(s => `
+      <div class="boh-shift-row">
+        <div class="boh-status-dot"></div>
+        <div class="boh-shift-name">${h(s.title)}</div>
+        <div class="boh-shift-time">${s.start_time}–${s.end_time}</div>
+      </div>`).join('');
+  }
+  
+  return `<div class="boh-panel">
+    <div class="boh-panel-hd">
+      <span class="boh-panel-title">Staff rota</span>
+      <span class="boh-job-code">${jobCode}</span>
+      <a class="boh-open-btn" href="${bohUrl}" target="_blank">Open BOH →</a>
+    </div>
+    <div class="boh-panel-body">${shiftsHTML}</div>
+  </div>`;
+}
+
+document.addEventListener('DOMContentLoaded',init);
+
+
+
 
 // ═══ FUNCTION SHEET WIZARD ═══════════════════════════════════════════
 
@@ -3232,11 +3374,11 @@ function renderDietaryTagsSection(step2El){
       <div class="wiz-section-label" style="margin-top:16px">Allergen changes vs parent dish</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:8px">
         <div>
-          <div style="font-size:11px;color:var(--t4);margin-bottom:6px;font-family:'IBM Plex Mono',monospace">REMOVES</div>
+          <div style="font-size:11px;color:var(--t4);margin-bottom:6px;font-family:'DM Mono',monospace">REMOVES</div>
           <div class="diet-tags" id="al-removed-wrap">${['Gluten','Egg','Dairy','Celery','Fish','Shellfish','Soya','Nuts','Peanuts','Lupin','Molluscs','Mustard','Sesame','Sulphites'].map(a=>`<button class="diet-chip${removed.includes(a)?' on':''}" onclick="toggleAllergenChange('removed','${a}',this)">${a}</button>`).join('')}</div>
         </div>
         <div>
-          <div style="font-size:11px;color:var(--t4);margin-bottom:6px;font-family:'IBM Plex Mono',monospace">ADDS</div>
+          <div style="font-size:11px;color:var(--t4);margin-bottom:6px;font-family:'DM Mono',monospace">ADDS</div>
           <div class="diet-tags" id="al-added-wrap">${['Gluten','Egg','Dairy','Celery','Fish','Shellfish','Soya','Nuts','Peanuts','Lupin','Molluscs','Mustard','Sesame','Sulphites'].map(a=>`<button class="diet-chip${added.includes(a)?' on':''}" onclick="toggleAllergenChange('added','${a}',this)">${a}</button>`).join('')}</div>
         </div>
       </div>
@@ -3383,7 +3525,7 @@ async function renderWizDietaryStep(body){
       }).join('')}
       ${!needingVariant.length?guests.map(g=>`<div class="diet-guest-row"><span class="diet-guest-tag">${h(g.name||'Guest')}</span><span style="color:var(--t3);font-size:12px">${h(g.dietary||'')}</span><span style="color:#4ac177;font-size:12px;margin-left:auto">✓ OK with standard</span></div>`).join(''):''}
       <div class="diet-guest-row" style="background:var(--s2)">
-        <span style="font-size:12px;color:var(--t3);font-family:'IBM Plex Mono',monospace">Portions</span>
+        <span style="font-size:12px;color:var(--t3);font-family:'DM Mono',monospace">Portions</span>
         <span style="flex:1"></span>
         ${stdPortions>0?`<span class="diet-portions-badge">Standard ×${stdPortions}</span>`:''}
         ${varPortions>0&&bestVariant?`<span class="diet-portions-badge" style="color:var(--gold)">Variant ×${varPortions}</span>`:''}
@@ -3392,7 +3534,7 @@ async function renderWizDietaryStep(body){
   }
 
   body.innerHTML=`<div class="diet-step-wrap">${blocks.join('')}
-    ${_wizVariantAssignments.length?`<div style="padding:10px 0;font-size:12px;color:var(--t3);font-family:'IBM Plex Mono',monospace;text-align:center">Variant assignments saved with the event. Edit any time from the function sheet.</div>`:''}
+    ${_wizVariantAssignments.length?`<div style="padding:10px 0;font-size:12px;color:var(--t3);font-family:'DM Mono',monospace;text-align:center">Variant assignments saved with the event. Edit any time from the function sheet.</div>`:''}
   </div>`;
 }
 
@@ -3493,7 +3635,7 @@ function renderHaccpSection(compId,steps,containerId){
     </div>
     ${steps.length?steps.map((s,i)=>`<div class="haccp-step-row" id="hstep-${s.id}">
       <span class="haccp-step-type ${s.critical?'critical':''}">${typeIcons[s.step_type]||''} ${s.label||s.step_type}</span>
-      <span class="haccp-step-label">${s.tms_unit_hint?`<span style="font-size:10px;color:var(--t4);font-family:'IBM Plex Mono',monospace">TMS: ${s.tms_unit_hint}</span>`:''}</span>
+      <span class="haccp-step-label">${s.tms_unit_hint?`<span style="font-size:10px;color:var(--t4);font-family:'DM Mono',monospace">TMS: ${s.tms_unit_hint}</span>`:''}</span>
       <span class="haccp-step-temp">${s.target_temp_min!=null?s.target_temp_min+'°C':''} ${s.target_temp_min!=null&&s.target_temp_max!=null?'–':''} ${s.target_temp_max!=null?s.target_temp_max+'°C':''}</span>
       <button class="btn btn-xs btn-danger" onclick="deleteHaccpStep('${s.id}','${compId}','${containerId}')">×</button>
     </div>`).join(''):'<div style="font-size:12px;color:var(--t4);padding:8px 0">No steps yet — add the temperature journey for this component.</div>'}
@@ -3555,7 +3697,7 @@ async function renderEventPnL(eventId,container){
       ${costLines.length?costLines.map(l=>`<div class="pnl-row">
         <span class="pnl-cat ${l.category}">${l.category}</span>
         <span class="pnl-desc">${h(l.description)}</span>
-        <span style="font-size:11px;color:var(--t4);font-family:'IBM Plex Mono',monospace">${l.source!=='manual'?l.source:''}</span>
+        <span style="font-size:11px;color:var(--t4);font-family:'DM Mono',monospace">${l.source!=='manual'?l.source:''}</span>
         <span class="pnl-amount">£${parseFloat(l.amount).toFixed(2)}</span>
         <button class="btn btn-xs btn-danger" onclick="deleteCostLine('${l.id}','${eventId}')">×</button>
       </div>`).join(''):'<div style="padding:16px;color:var(--t4);font-size:13px;text-align:center">No cost lines yet</div>'}
@@ -3584,7 +3726,264 @@ async function deleteCostLine(lineId,eventId){
 
 
 
-// ═══ PHOTO CROP ════════════════════════════════════════════════════
+// ═══ NEW SIDEBAR NAVIGATION ════════════════════════════════════════
+const CAT_COLORS={'Canap\u00e9s':'var(--cat-c)','Starters':'var(--cat-st)','Mains':'var(--cat-ma)','Kids':'var(--cat-ki)','Desserts':'var(--cat-de)','Evening Grazing':'var(--cat-gr)','Tasting Menu':'var(--cat-gr)','Sides':'var(--cat-si)','Other':'var(--cat-ot)'};
+
+function sbNav(view,el){
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  if(el)el.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  const t=document.getElementById('view-'+view);if(t)t.classList.add('active');
+  if(view==='home')renderPipeline();
+  else if(view==='events'){renderEventsList();}
+  else if(view==='prep')renderPrepPlan();
+  else if(view==='library'){renderDishList();}
+  else if(view==='cleaning')initCleaning();
+}
+
+// _evTab declared in core
+function setEvTab(tab,el){
+  _evTab=tab;
+  document.querySelectorAll('.ev-subtab').forEach(t=>t.classList.remove('on'));
+  if(el)el.classList.add('on');
+  const listEl=document.getElementById('events-list');
+  const calWrap=document.getElementById('ev-calendar-wrap');
+  const detWrap=document.getElementById('ev-detail-wrap');
+  if(listEl)listEl.style.display=tab!=='calendar'?'flex':'none';
+  if(calWrap)calWrap.style.display=tab==='calendar'?'flex':'none';
+  if(detWrap)detWrap.style.display='none';
+  if(tab==='calendar'){calInit();return;}
+  renderEventsList();
+}
+
+function renderEventsList(){
+  const wrap=document.getElementById('events-list');if(!wrap)return;
+  const sf=document.getElementById('ev-status-filter')?.value||'';
+  const now=new Date();now.setHours(0,0,0,0);
+  let f=[...events];
+  if(sf)f=f.filter(e=>e.status===sf);
+  if(_evTab==='upcoming')f=f.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now);
+  else f=f.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')<now);
+  f.sort((a,b)=>_evTab==='upcoming'?a.event_date?.localeCompare(b.event_date||'')||0:b.event_date?.localeCompare(a.event_date||'')||0);
+  const countEl=document.getElementById('ev-count');
+  if(countEl)countEl.textContent=f.length+' event'+(f.length!==1?'s':'');
+  if(!f.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">&#9672;</div><div class="empty-t">No events</div></div>';return;}
+  wrap.innerHTML=f.map(ev=>{
+    const d=ev.event_date?new Date(ev.event_date+'T00:00:00'):null;
+    const day=d?d.toLocaleDateString('en-GB',{day:'numeric'}):'--';
+    const mon=d?d.toLocaleDateString('en-GB',{month:'short'}).toUpperCase():'';
+    const yr=d?d.getFullYear():'';
+    const payFlag=!ev.deposit_status?'<span class="ev-flag">&#9651; Unpaid</span>':'';
+    return`<div class="ev-row" onclick="showEventDetail('${ev.id}')">
+      <div class="ev-row-date"><div class="ev-row-day">${day}</div><div class="ev-row-month">${mon} ${yr}</div></div>
+      <div class="ev-row-divider"></div>
+      <div class="ev-row-info">
+        <div class="ev-row-client">${h(ev.client_name||'Unnamed event')}</div>
+        <div class="ev-row-meta">
+          ${ev.event_type?`<span>${h(ev.event_type)}</span>`:''}
+          ${ev.covers?`<span>${ev.covers} covers</span>`:''}
+          ${ev.job_code?`<span style="color:var(--gold);font-weight:600">${h(ev.job_code)}</span>`:''}
+        </div>
+      </div>
+      <div class="ev-row-right">
+        <span class="ev-status ${ev.status||'Enquiry'}">${ev.status||'Enquiry'}</span>
+        ${payFlag}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function showEventDetail(id){
+  const ev=events.find(e=>e.id===id);if(!ev)return;
+  document.getElementById('events-list').style.display='none';
+  const calWrap=document.getElementById('ev-calendar-wrap');if(calWrap)calWrap.style.display='none';
+  const wrap=document.getElementById('ev-detail-wrap');wrap.style.display='block';
+  const d=ev.event_date?new Date(ev.event_date+'T00:00:00'):null;
+  const fmtDate=d?d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'Date TBC';
+  const evDishes=ev.event_dishes||[];
+  const menuItems=evDishes.map(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return'';const col=CAT_COLORS[dish.category]||'var(--cat-ot)';return`<div class="ev-menu-item"><div class="ev-menu-cat" style="background:${col}"></div><div class="ev-menu-name">${h(dish.name)}</div></div>`;}).join('');
+  const guests=(ev.guest_allergens||[]).map(g=>`<div class="guest-row ${g.type||''}"><div class="guest-name">${h(g.name||'Guest')}</div><div class="guest-detail">${h(g.dietary||'')}</div></div>`).join('');
+  const rod=(ev.run_of_day||[]);
+  wrap.innerHTML=`
+    <div style="padding:16px 24px;border-bottom:1px solid var(--bd);background:var(--s1);display:flex;align-items:center;gap:12px;flex-shrink:0;">
+      <button class="btn btn-ghost btn-sm" onclick="backToEventsList()">&#8592; Events</button>
+      <div style="flex:1"><div style="font-family:'IBM Plex Serif',serif;font-size:22px;color:var(--t1)">${h(ev.client_name||'Unnamed')}</div>
+      <div style="font-size:12px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:2px">${fmtDate}${ev.job_code?' &middot; '+h(ev.job_code):''}</div></div>
+      <span class="ev-status ${ev.status||'Enquiry'}">${ev.status||'Enquiry'}</span>
+      <button class="btn btn-sm" onclick="openFsWizard('${ev.id}')">Edit</button>
+    </div>
+    <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:18px;overflow-y:auto;flex:1;">
+      <div class="ev-section"><div class="ev-section-hd">Details</div><div class="ev-section-body">
+        <div class="ev-field"><div class="ev-field-label">Type</div><div class="ev-field-value">${h(ev.event_type||'--')}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Time</div><div class="ev-field-value">${ev.start_time||'--'} - ${ev.end_time||'--'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Covers</div><div class="ev-field-value">${ev.covers||'--'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Venue</div><div class="ev-field-value ${ev.venue_name?'':'muted'}">${h(ev.venue_name||ev.location||'--')}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Staffing</div><div class="ev-field-value ${ev.staffing?'':'muted'}">${h(ev.staffing||'--')}</div></div>
+      </div></div>
+      <div class="ev-section"><div class="ev-section-hd">Financials</div><div class="ev-section-body">
+        <div class="ev-field"><div class="ev-field-label">Price</div><div class="ev-field-value" style="color:var(--gold);font-family:'IBM Plex Mono',monospace;">${ev.budget?'&pound;'+Number(ev.budget).toFixed(2):'--'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Payment</div><div class="ev-field-value">${{deposit:'Deposit taken',invoiced:'Invoice sent',paid:'Paid in full'}[ev.deposit_status]||'Unpaid'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Contact</div><div class="ev-field-value ${ev.contact_name?'':'muted'}">${h(ev.contact_name||'--')}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Phone</div><div class="ev-field-value ${ev.contact_phone?'':'muted'}">${h(ev.contact_phone||'--')}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Email</div><div class="ev-field-value ${ev.contact_email?'':'muted'}">${h(ev.contact_email||'--')}</div></div>
+      </div></div>
+      ${menuItems?`<div class="ev-section"><div class="ev-section-hd">Menu</div><div class="ev-section-body" style="padding:0 16px">${menuItems}</div></div>`:''}
+      ${guests?`<div class="ev-section"><div class="ev-section-hd">Dietary guests</div><div class="ev-section-body" style="padding:0 16px">${guests}</div></div>`:''}
+      ${rod.length?`<div class="ev-section"><div class="ev-section-hd">Run of day</div><div class="ev-section-body" style="padding:0"><table class="rod-table"><thead><tr><th>Time</th><th>Item</th></tr></thead><tbody>${rod.map(r=>`<tr><td style="width:80px;font-family:'IBM Plex Mono',monospace">${r.time||''}</td><td>${h(r.item||'')}</td></tr>`).join('')}</tbody></table></div></div>`:''}
+      ${ev.kitchen_notes||ev.chef_notes?`<div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd">Notes</div><div class="ev-section-body">
+        ${ev.kitchen_notes?`<div class="ev-field"><div class="ev-field-label">Kitchen</div><div class="ev-field-value">${h(ev.kitchen_notes)}</div></div>`:''}
+        ${ev.chef_notes?`<div class="ev-field"><div class="ev-field-label">Chef</div><div class="ev-field-value">${h(ev.chef_notes)}</div></div>`:''}
+        ${ev.service_notes?`<div class="ev-field"><div class="ev-field-label">Service</div><div class="ev-field-value">${h(ev.service_notes)}</div></div>`:''}
+      </div></div>`:''}
+      <div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd">P&amp;L</div><div id="pnl-container-${ev.id}" class="ev-section-body" style="padding:0"></div></div>
+    </div>`;
+  setTimeout(()=>{const pc=document.getElementById('pnl-container-'+id);if(pc)renderEventPnL(id,pc);},0);
+}
+
+function backToEventsList(){
+  const w=document.getElementById('ev-detail-wrap');if(w)w.style.display='none';
+  const l=document.getElementById('events-list');if(l){l.style.display='flex';l.style.flexDirection='column';}
+}
+
+async function renderPipeline(){
+  const wrap=document.getElementById('pipeline-body');if(!wrap)return;
+  const now=new Date();now.setHours(0,0,0,0);
+  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
+  const hr=new Date().getHours();
+  const greetEl=document.getElementById('home-greeting');
+  if(greetEl)greetEl.textContent=(hr<12?'Good morning':hr<17?'Good afternoon':'Good evening')+', James';
+  if(!upcoming.length){wrap.innerHTML='<div class="empty"><div class="empty-icon">&#9672;</div><div class="empty-t">No upcoming events</div><div class="empty-s">Create a function sheet to get started.</div></div>';return;}
+  let stock=[];try{const{data}=await sb.from('prepped_stock').select('*');stock=data||[];}catch(e){}
+  const msPerDay=86400000;
+  const cards=upcoming.map(ev=>{
+    const d=new Date(ev.event_date+'T00:00:00');
+    const daysAway=Math.round((d-now)/msPerDay);
+    const daysCol=daysAway<=7?'red':daysAway<=21?'amb':'grn';
+    const evDishes=ev.event_dishes||[];
+    const comps=[];
+    evDishes.forEach(ed=>{const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;(dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{const have=stock.filter(s=>s.component_id===c.id).reduce((s,r)=>s+(r.portions_remaining||0),0);comps.push({comp:c,have,need:ev.covers||0});});});
+    const prepItems=comps.slice(0,4).map(({comp,have,need})=>{const done=have>=need;return`<div class="pipe-prep-item ${done?'done':'todo'}"><div class="pipe-prep-dot ${done?'done':'todo'}"></div><span>${h(comp.name||'Component')}</span><span style="font-size:10px;color:var(--t4);font-family:'IBM Plex Mono',monospace">${have}/${need}</span></div>`;}).join('');
+    const dateStr=d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+    const payLabel={deposit:'Deposit \u2713',invoiced:'Invoiced',paid:'Paid \u2713'}[ev.deposit_status]||'\u26a0 Unpaid';
+    const payCol=ev.deposit_status==='paid'?'var(--grn)':ev.deposit_status?'var(--amb)':'var(--red)';
+    return`<div class="pipe-card" onclick="showEventDetail('${ev.id}')">
+      <div class="pipe-card-top">
+        <div class="pipe-card-info">
+          <div class="pipe-card-client">${h(ev.client_name||'Unnamed')}</div>
+          <div class="pipe-card-meta"><span>${dateStr}</span>${ev.event_type?`<span>${h(ev.event_type)}</span>`:''} ${ev.covers?`<span>${ev.covers} covers</span>`:''} <span style="color:${payCol}">${payLabel}</span></div>
+        </div>
+        <div class="pipe-card-right"><div class="pipe-days ${daysCol}">${daysAway}</div><div class="pipe-days-label">day${daysAway!==1?'s':''} away</div></div>
+      </div>
+      ${comps.length?`<div class="pipe-card-prep">${prepItems}${comps.length>4?`<span style="font-size:11px;color:var(--t4)">+${comps.length-4} more</span>`:''}</div>`:''}
+      <div class="pipe-card-actions">
+        <button class="btn btn-xs" onclick="event.stopPropagation();showEventDetail('${ev.id}')">View sheet</button>
+        <button class="btn btn-xs" onclick="event.stopPropagation();openFsWizard('${ev.id}')">Edit</button>
+      </div>
+    </div>`;
+  });
+  wrap.innerHTML=`<div class="pipeline-section"><div class="pipeline-section-label">Upcoming &mdash; ${upcoming.length} event${upcoming.length!==1?'s':''}</div>${cards.join('')}</div>`;
+}
+
+function renderDishList(){
+  const list=document.getElementById('dish-list');if(!list)return;
+  const q=(document.getElementById('dl-search')?.value||'').toLowerCase();
+  let f=[...dishes];
+  if(q)f=f.filter(d=>d.name.toLowerCase().includes(q));
+  if(typeof _dlFilter!=='undefined'&&_dlFilter!=='all')f=f.filter(d=>d.category===_dlFilter);
+  f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
+  if(!f.length){list.innerHTML=`<div class="lib-empty"><div class="lib-empty-t">${q?'No matches':'No dishes yet'}</div></div>`;return;}
+  const groups={};f.forEach(d=>{const cat=d.category||'Other';if(!groups[cat])groups[cat]=[];groups[cat].push(d);});
+  list.innerHTML=CAT_ORDER.filter(cat=>groups[cat]).map(cat=>{
+    const col=CAT_COLORS[cat]||'var(--cat-ot)';
+    return`<div class="lib-section"><div class="lib-cat-hd"><span class="lib-cat-name" style="color:${col}">${cat}</span><span class="lib-cat-count">${groups[cat].length}</span></div>${groups[cat].map(d=>{const cost=calcDishCost(d);return`<div class="dish-row" style="border-left-color:${col}" onclick="openDish('${d.id}')">
+      ${d.photo_url?`<img class="dish-thumb" src="${d.photo_url}" alt="" loading="lazy">`:`<div class="dish-thumb-placeholder">&#127374;</div>`}
+      <div class="dish-name">${h(d.name)}</div>
+      ${cost!=null?`<div class="dish-cost">${fmt$(cost)}/cv</div>`:`<div class="dish-cost none">--</div>`}
+    </div>`;}).join('')}</div>`;
+  }).join('');
+}
+
+function prepSubTab(tab,el){
+  document.querySelectorAll('.prep-subtab').forEach(t=>t.classList.remove('on'));
+  if(el)el.classList.add('on');
+  document.getElementById('prep-plan-wrap').style.display=tab==='plan'?'flex':'none';
+  document.getElementById('prep-list-wrap').style.display=tab==='list'?'flex':'none';
+  if(tab==='plan')renderPrepPlan();
+}
+
+async function renderPrepPlan(){
+  const wrap=document.getElementById('prep-plan-body');if(!wrap)return;
+  const now=new Date();now.setHours(0,0,0,0);
+  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
+  if(!upcoming.length){wrap.innerHTML='<div class="empty"><div class="empty-t">No upcoming events</div></div>';return;}
+  let stock=[];try{const{data}=await sb.from('prepped_stock').select('*');stock=data||[];}catch(e){}
+  const msPerDay=86400000;const icons={frz:'&#10052;',fri:'&#129514;',fsh:'&#9675;'};
+  wrap.innerHTML=upcoming.map(ev=>{
+    const d=new Date(ev.event_date+'T00:00:00');
+    const daysAway=Math.round((d-now)/msPerDay);
+    const comps=[];
+    (ev.event_dishes||[]).forEach(ed=>{const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;(dish.components||[]).forEach(c=>{const have=stock.filter(s=>s.component_id===c.id).reduce((s,r)=>s+(r.portions_remaining||0),0);comps.push({comp:c,dish,have,need:ev.covers||0,storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh'});});});
+    if(!comps.length)return'';
+    return`<div class="prep-event-block">
+      <div class="prep-event-hd"><span class="prep-event-name">${h(ev.client_name||'Unnamed')}</span><span class="prep-event-date">${d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</span>${daysAway<=14?`<span class="prep-event-urgency ${daysAway<=7?'red':'amb'}">${daysAway}d</span>`:''}<span style="flex:1"></span><span style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace">${ev.covers||0} covers</span></div>
+      ${comps.map(({comp,dish,have,need,storage})=>`<div class="prep-comp-row"><div class="prep-comp-storage ${storage}">${icons[storage]}</div><div class="prep-comp-info"><div class="prep-comp-name">${h(comp.name||'Component')}</div><div class="prep-comp-dish">${h(dish.name)}</div></div><span class="prep-comp-stock ${have>=need?'have':have>0?'partial':'none'}">${have>=need?'Stocked':have>0?have+' made':'Not started'}</span><div class="prep-comp-portions"><strong>${need}</strong> portions</div></div>`).join('')}
+    </div>`;
+  }).filter(Boolean).join('');
+}
+
+let _floorTasks=[];
+function enterFloorMode(){
+  const now=new Date();now.setHours(0,0,0,0);
+  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
+  _floorTasks=[];
+  upcoming.forEach(ev=>{(ev.event_dishes||[]).forEach(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;(dish.components||[]).forEach(c=>{_floorTasks.push({id:c.id+'_'+ev.id,compId:c.id,dishId:dish.id,eventId:ev.id,compName:c.name||'Component',dishName:dish.name,eventClient:ev.client_name,eventDate:ev.event_date,portions:ev.covers||1,storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',steps:c.steps||[],ingredients:c.ingredients||[],status:'pending'});});});});
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  document.querySelector('.sb-item[data-view="prep"]')?.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-floor').classList.add('active');
+  renderFloorTasks();
+}
+function renderFloorTasks(){
+  const wrap=document.getElementById('floor-tasks-wrap');if(!wrap)return;
+  if(!_floorTasks.length){wrap.innerHTML='<div class="empty"><div class="empty-t">No prep tasks</div></div>';return;}
+  const icons={frz:'&#10052;',fri:'&#129514;',fsh:'&#9675;'};
+  wrap.innerHTML=_floorTasks.map((t,i)=>`<div class="floor-task-card ${t.status==='done'?'done-task':t.status==='in_progress'?'active-task':''}" id="ftask-${i}">
+    <div class="floor-task-hd" onclick="toggleFloorTask(${i})">
+      <div class="floor-task-icon ${t.storage}">${icons[t.storage]}</div>
+      <div class="floor-task-body"><div class="floor-task-name">${h(t.compName)}</div><div class="floor-task-dish">${h(t.dishName)} &middot; ${h(t.eventClient||'')} &middot; ${t.portions} covers</div></div>
+      <div class="floor-task-state">
+        ${t.status==='pending'?`<button class="floor-task-btn start" onclick="event.stopPropagation();startFloorTask(${i})">Start</button>`:''}
+        ${t.status==='in_progress'?`<button class="floor-task-btn done-btn" onclick="event.stopPropagation();doneFloorTask(${i})">Done</button>`:''}
+        ${t.status==='done'?'<span style="color:var(--grn);font-size:20px">&#10003;</span>':''}
+      </div>
+    </div>
+  </div>`).join('');
+}
+function toggleFloorTask(i){_floorTasks[i]._expanded=!_floorTasks[i]._expanded;renderFloorTasks();}
+function startFloorTask(i){_floorTasks[i].status='in_progress';renderFloorTasks();}
+function doneFloorTask(i){_floorTasks[i].status='done';renderFloorTasks();}
+
+
+
+async function uploadDishPhoto(file,dishId){
+  const ext=file.name.split('.').pop().toLowerCase();const path=`${dishId}.${ext}`;
+  await sb.storage.from('dish-photos').remove([path]);
+  const{data,error}=await sb.storage.from('dish-photos').upload(path,file,{upsert:true,contentType:file.type});
+  if(error){toast('Upload failed: '+error.message,'err');return null;}
+  const{data:urlData}=sb.storage.from('dish-photos').getPublicUrl(path);
+  return urlData.publicUrl+'?t='+Date.now();
+}
+async function removeDishPhoto(){
+  if(!confirm('Remove this photo?'))return;
+  const dishId=document.getElementById('dd-id').value;
+  if(_ddData.photo_url){const path=_ddData.photo_url.split('/dish-photos/')[1]?.split('?')[0];if(path)await sb.storage.from('dish-photos').remove([path]);}
+  _ddData.photo_url=null;
+  if(dishId){await sb.from('dishes').update({photo_url:null}).eq('id',dishId);const d=dishes.find(x=>x.id===dishId);if(d)d.photo_url=null;}
+  toast('Photo removed');ddGoStep(1);renderDishList();
+}
+
+
+
 let _cropDishId=null,_cropDrag=null;
 function openCropModal(file,dishId){
   _cropDishId=dishId;const modal=document.getElementById('crop-modal');const img=document.getElementById('crop-img-el');
@@ -3615,7 +4014,7 @@ async function applyCrop(){
   const box=getCropBox(),sx=img.naturalWidth/vp.offsetWidth,sy=img.naturalHeight/vp.offsetHeight;
   const cv=document.createElement('canvas');cv.width=800;cv.height=800;cv.getContext('2d').drawImage(img,box.x*sx,box.y*sy,box.w*sx,box.h*sy,0,0,800,800);cancelCrop();
   cv.toBlob(async(blob)=>{
-    const file=new File([blob],'dish.jpg',{type:'image/jpeg'});toast('Uploading\u2026');
+    const file=new File([blob],'dish.jpg',{type:'image/jpeg'});toast('Uploading...');
     const url=await uploadDishPhoto(file,_cropDishId);if(!url)return;
     _ddData.photo_url=url;
     const w=document.getElementById('photo-preview-wrap');if(w)w.innerHTML=`<img class="photo-preview" src="${url}" alt="">`;
@@ -3632,192 +4031,124 @@ async function handlePhotoSelect(evt,dishId){
   openCropModal(file,dishId);
 }
 
-document.addEventListener("DOMContentLoaded", init);
 
-// ── Brine calculator ─────────────────────────────────────────────────
-const BRINE = {
-  BLEND_PER_LITRE: 72,   // g blend per litre brine
-  SALT_PER_LITRE: 16,    // g
-  MARMITE_PER_LITRE: 8,  // g
-  OIL_PER_LITRE: 10,     // ml
-  PEPPER_PER_LITRE: 2,   // g
-  PAPRIKA_PER_LITRE: 3,  // g
-  BUFFER: 1.25,
-  INJECTION_PCT: 0.10,
-  // Blend ratios (sum to 1000g)
-  STPP: 80, CORNFLOUR: 210, MALTODEXTRIN: 210, DEXTROSE: 170,
-  SUGAR: 110, CARAMEL: 80, KNORR: 140,
-};
 
-function brineCalc() {
-  const birds = parseFloat(document.getElementById('bc-birds')?.value || 10);
-  const weight = parseFloat(document.getElementById('bc-weight')?.value || 2.2);
-  document.getElementById('bc-birds-val').textContent = birds;
-  document.getElementById('bc-weight-val').innerHTML = weight.toFixed(1)+'<span style="font-size:13px"> kg</span>';
-
-  const injectPerBird = weight * BRINE.INJECTION_PCT * 1000; // ml
-  const totalInject = birds * injectPerBird;
-  const brineMl = totalInject * BRINE.BUFFER;
-  const brineL = brineMl / 1000;
-  const blendG = brineL * BRINE.BLEND_PER_LITRE;
-  const chickTotal = birds * weight;
-
-  const fmt1 = v => v < 10 ? v.toFixed(1) : Math.round(v).toLocaleString();
-
-  document.getElementById('bc-brine-total').textContent = Math.round(brineMl).toLocaleString();
-  document.getElementById('bc-per-bird').textContent = Math.round(injectPerBird);
-  document.getElementById('bc-blend').textContent = fmt1(blendG);
-  document.getElementById('bc-chicken').textContent = chickTotal.toFixed(1);
-  document.getElementById('bc-water').textContent = Math.round(brineMl).toLocaleString() + ' ml';
-  document.getElementById('bc-blend2').textContent = fmt1(blendG) + ' g';
-  document.getElementById('bc-stpp').textContent = fmt1(blendG * BRINE.STPP/1000) + ' g';
-  document.getElementById('bc-cornflour').textContent = fmt1(blendG * BRINE.CORNFLOUR/1000) + ' g';
-  document.getElementById('bc-maltodextrin').textContent = fmt1(blendG * BRINE.MALTODEXTRIN/1000) + ' g';
-  document.getElementById('bc-dextrose').textContent = fmt1(blendG * BRINE.DEXTROSE/1000) + ' g';
-  document.getElementById('bc-sugar').textContent = fmt1(blendG * BRINE.SUGAR/1000) + ' g';
-  document.getElementById('bc-caramel').textContent = fmt1(blendG * BRINE.CARAMEL/1000) + ' g';
-  document.getElementById('bc-knorr').textContent = fmt1(blendG * BRINE.KNORR/1000) + ' g';
-  document.getElementById('bc-salt').textContent = fmt1(brineL * BRINE.SALT_PER_LITRE) + ' g';
-  document.getElementById('bc-marmite').textContent = fmt1(brineL * BRINE.MARMITE_PER_LITRE) + ' g';
-  document.getElementById('bc-oil').textContent = fmt1(brineL * BRINE.OIL_PER_LITRE) + ' ml';
-  document.getElementById('bc-pepper').textContent = fmt1(brineL * BRINE.PEPPER_PER_LITRE) + ' g';
-  document.getElementById('bc-paprika').textContent = fmt1(brineL * BRINE.PAPRIKA_PER_LITRE) + ' g';
-
-  // Cost per bird: chicken price + brine ingredient costs
-  const chickenPrice = parseFloat(document.getElementById('bc-chicken-price')?.value || 5.50);
-  // Brine cost per 1000ml (approximate from ingredient prices)
-  const brineCostPer1000 = (
-    (blendG/1000) * (72/1000) * 35 +   // STPP ~£35/kg
-    (blendG/1000) * (210/1000) * 3 +   // Cornflour £3/kg
-    (blendG/1000) * (210/1000) * 8.95 + // Maltodextrin £8.95/kg
-    (blendG/1000) * (170/1000) * 6.99 + // Dextrose £6.99/kg
-    (blendG/1000) * (110/1000) * 2 +   // Sugar £2/kg
-    (blendG/1000) * (80/1000) * 2.25 + // Caramel sugar £2.25/kg
-    (blendG/1000) * (140/1000) * 12 +  // Knorr £12/kg
-    (brineL * 16/1000) * 1.5 +         // Salt £1.5/kg
-    (brineL * 8/1000) * 8 +            // Marmite £8/kg
-    (brineL * 10/1000) * 2.75 +        // Rapeseed £2.75/L
-    (brineL * 2/1000) * 15 +           // Pepper £15/kg
-    (brineL * 3/1000) * 10             // Paprika £10/kg
-  );
-  const brineCostPerBird = brineCostPer1000 / birds;
-  const totalPerBird = chickenPrice + brineCostPerBird;
-  document.getElementById('bc-cost-bird').textContent = '£' + totalPerBird.toFixed(2);
-  document.getElementById('bc-cost-portion').textContent = '£' + (totalPerBird/2).toFixed(2);
+const BRINE={BLEND_PER_LITRE:72,SALT_PER_LITRE:16,MARMITE_PER_LITRE:8,OIL_PER_LITRE:10,PEPPER_PER_LITRE:2,PAPRIKA_PER_LITRE:3,BUFFER:1.25,INJECTION_PCT:0.10,STPP:80,CORNFLOUR:210,MALTODEXTRIN:210,DEXTROSE:170,SUGAR:110,CARAMEL:80,KNORR:140};
+function brineCalc(){
+  const birds=parseFloat(document.getElementById('bc-birds')?.value||10);
+  const weight=parseFloat(document.getElementById('bc-weight')?.value||2.2);
+  const pi=document.getElementById('bc-chicken-price');
+  const chickenPrice=parseFloat(pi?.value||5.50);
+  if(document.getElementById('bc-birds-val'))document.getElementById('bc-birds-val').textContent=birds;
+  if(document.getElementById('bc-weight-val'))document.getElementById('bc-weight-val').innerHTML=weight.toFixed(1)+'<span style="font-size:13px"> kg</span>';
+  const injectPerBird=weight*BRINE.INJECTION_PCT*1000;
+  const brineMl=birds*injectPerBird*BRINE.BUFFER;
+  const brineL=brineMl/1000;const blendG=brineL*BRINE.BLEND_PER_LITRE;
+  const fmt1=v=>v<10?v.toFixed(2):Math.round(v).toLocaleString();
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+  set('bc-brine-total',Math.round(brineMl).toLocaleString());set('bc-per-bird',Math.round(injectPerBird));
+  set('bc-blend',fmt1(blendG));set('bc-chicken',(birds*weight).toFixed(1));
+  set('bc-water',Math.round(brineMl).toLocaleString()+' ml');set('bc-blend2',fmt1(blendG)+' g');
+  set('bc-stpp',fmt1(blendG*BRINE.STPP/1000)+' g');set('bc-cornflour',fmt1(blendG*BRINE.CORNFLOUR/1000)+' g');
+  set('bc-maltodextrin',fmt1(blendG*BRINE.MALTODEXTRIN/1000)+' g');set('bc-dextrose',fmt1(blendG*BRINE.DEXTROSE/1000)+' g');
+  set('bc-sugar',fmt1(blendG*BRINE.SUGAR/1000)+' g');set('bc-caramel',fmt1(blendG*BRINE.CARAMEL/1000)+' g');
+  set('bc-knorr',fmt1(blendG*BRINE.KNORR/1000)+' g');set('bc-salt',fmt1(brineL*BRINE.SALT_PER_LITRE)+' g');
+  set('bc-marmite',fmt1(brineL*BRINE.MARMITE_PER_LITRE)+' g');set('bc-oil',fmt1(brineL*BRINE.OIL_PER_LITRE)+' ml');
+  set('bc-pepper',fmt1(brineL*BRINE.PEPPER_PER_LITRE)+' g');set('bc-paprika',fmt1(brineL*BRINE.PAPRIKA_PER_LITRE)+' g');
+  const brineCostPerBird=(blendG/birds)*((BRINE.STPP/1000*34.75)+(BRINE.CORNFLOUR/1000*3)+(BRINE.MALTODEXTRIN/1000*8.95)+(BRINE.DEXTROSE/1000*6.99)+(BRINE.SUGAR/1000*2)+(BRINE.CARAMEL/1000*2.25)+(BRINE.KNORR/1000*12))+brineL/birds*(BRINE.SALT_PER_LITRE/1000*1.5+BRINE.MARMITE_PER_LITRE/1000*8+BRINE.OIL_PER_LITRE/1000*2.75+BRINE.PEPPER_PER_LITRE/1000*15+BRINE.PAPRIKA_PER_LITRE/1000*10);
+  const totalPerBird=chickenPrice+brineCostPerBird;
+  set('bc-cost-bird','£'+totalPerBird.toFixed(2));set('bc-cost-portion','£'+(totalPerBird/2).toFixed(2));
 }
-
-let _bcChickenPrice = 5.50;
-function setBirdSize(weight, price) {
-  _bcChickenPrice = price;
-  document.getElementById('bc-weight').value = weight;
-  // Store price for cost calc
-  let pi = document.getElementById('bc-chicken-price');
-  if(!pi){ pi=document.createElement('input'); pi.type='hidden'; pi.id='bc-chicken-price'; document.body.appendChild(pi); }
-  pi.value = price;
-  brineCalc();
+function setBirdSize(weight,price){
+  document.getElementById('bc-weight').value=weight;
+  let pi=document.getElementById('bc-chicken-price');
+  if(!pi){pi=document.createElement('input');pi.type='hidden';pi.id='bc-chicken-price';document.body.appendChild(pi);}
+  pi.value=price;brineCalc();
 }
-
-async function printBrineLabel(type) {
-  const birds = parseInt(document.getElementById('bc-birds')?.value || 10);
-  const jobCode = (document.getElementById('bc-jobcode')?.value || '').toUpperCase().trim() || null;
-  const staff = document.getElementById('bc-staff')?.value || 'James Brierley';
-  const today = new Date();
-  const fmt = d => d.toLocaleDateString('en-GB');
-  const addDays = (d,n) => { const x=new Date(d); x.setDate(x.getDate()+n); return x; };
-  const todayStr = fmt(today);
-  const isRaw = type === 'raw';
-  const labelStatus = isRaw ? 'FRIDGE' : 'FRIDGE';
-  const useby = isRaw ? addDays(today,1) : addDays(today,3);
-  const notes = isRaw
-    ? `Raw — injected ${todayStr} — cook by ${fmt(addDays(today,1))}`
-    : `Cooked — chilled ${todayStr} — use by ${fmt(useby)} | Storage 1–3°C, sealed vac-pack`;
-
-  const {error} = await sbBOH.from('print_jobs').insert({
-    product_name: isRaw
-      ? 'Injection-brined spatchcock chicken (raw)'
-      : 'Injection-brined spatchcock chicken (cooked)',
-    staff_name: staff,
-    section: 'Mains',
-    job_code: jobCode,
-    quantity: String(birds),
-    date_prepped: today.toISOString().slice(0,10),
-    date_useby: useby.toISOString().slice(0,10),
-    contains: 'Sulphites',
-    may_contain: null,
-    printed_at: today.toTimeString().slice(0,5),
-    notes: notes,
-    label_status: labelStatus,
-  });
-  if(error) toast('CPS error: '+error.message,'err');
-  else toast(isRaw?'Raw label sent to CPS':'Cooked label sent to CPS','ok');
+async function printBrineLabel(type){
+  const birds=parseInt(document.getElementById('bc-birds')?.value||10);
+  const jobCode=(document.getElementById('bc-jobcode')?.value||'').toUpperCase().trim()||null;
+  const staff=document.getElementById('bc-staff')?.value||'James Brierley';
+  const today=new Date();const fmtD=d=>d.toLocaleDateString('en-GB');
+  const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+  const isRaw=type==='raw';const useby=isRaw?addDays(today,1):addDays(today,3);
+  const notes=isRaw?'Raw - injected '+fmtD(today)+' - cook by '+fmtD(addDays(today,1)):'Cooked - chilled '+fmtD(today)+' - use by '+fmtD(useby)+' | Storage 1-3C sealed vac-pack';
+  const{error}=await sbBOH.from('print_jobs').insert({product_name:isRaw?'Injection-brined spatchcock chicken (raw)':'Injection-brined spatchcock chicken (cooked)',staff_name:staff,section:'Mains',job_code:jobCode,quantity:String(birds),date_prepped:today.toISOString().slice(0,10),date_useby:useby.toISOString().slice(0,10),contains:'Sulphites',may_contain:null,printed_at:today.toTimeString().slice(0,5),notes,label_status:'FRIDGE'});
+  if(error)toast('CPS error: '+error.message,'err');else toast(isRaw?'Raw label sent':'Cooked label sent','ok');
 }
-
-function openBrineCalc() {
+function openBrineCalc(){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-brine-calc').classList.add('active');
   brineCalc();
 }
-
-
-// ── Finance app linkage ───────────────────────────────────────────────
-// When a cost line is added in Kitchen Prep, mirror it to the Finance app
-// Finance app uses same CPS Supabase (jaajrllkozknilvmdezt)
-// Table: finance_transactions (if exists) or flagged for manual entry
-
-async function pushCostLineToFinance(costLine) {
-  // Try to insert into Finance app's ledger
-  // Finance app table name TBC — attempt common names
-  const payload = {
-    job_code: costLine.job_code || null,
-    description: costLine.description,
-    amount: costLine.amount,
-    category: costLine.category,
-    date: costLine.date || new Date().toISOString().slice(0,10),
-    source: 'kitchen_prep',
-    reference: costLine.id || null,
-  };
-
-  // Try finance_transactions first, then transactions
-  for(const table of ['finance_transactions','transactions']) {
-    const {error} = await sbBOH.from(table).insert(payload);
-    if(!error) {
-      console.log('Cost line pushed to Finance:', table);
-      return true;
-    }
-    if(!error?.message?.includes('does not exist')) {
-      console.log('Finance push error:', error.message);
-      return false;
-    }
-  }
-  // If neither table exists, just log — Finance session will wire this up
-  console.log('Finance table not found — cost line logged in Kitchen Prep only. Wire up in Finance session.');
-  return false;
+function maybeShowBrineBtn(dishId){
+  const dish=dishes.find(d=>d.id===dishId);
+  if(!dish||!dish.name.toLowerCase().includes('injection'))return;
+  if(document.getElementById('brine-calc-btn'))return;
+  const topBar=document.querySelector('#builder-panel > div');if(!topBar)return;
+  const btn=document.createElement('button');
+  btn.id='brine-calc-btn';btn.className='btn btn-sm';
+  btn.style.cssText='background:var(--goldfg);border-color:var(--goldbd);color:var(--gold);font-weight:600;';
+  btn.textContent='Brine calc';btn.onclick=openBrineCalc;
+  topBar.appendChild(btn);
 }
 
-// Patch addCostLine to also push to Finance
-const _origAddCostLine = addCostLine;
-addCostLine = async function(eventId) {
-  const cat = prompt('Category (food/labour/mileage/overhead/other):', 'food');
-  if(!cat) return;
-  const desc = prompt('Description:', ''); if(!desc) return;
-  const amount = parseFloat(prompt('Amount £:', '0') || 0); if(!amount) return;
-  const ev = events.find(e=>e.id===eventId);
-  const {data, error} = await sb.from('event_cost_lines').insert({
-    event_id:eventId, category:cat, description:desc, amount,
-    job_code: ev?.job_code || null
-  }).select().single();
-  if(!error && data) {
-    // Push to Finance app
-    pushCostLineToFinance({...data, job_code: ev?.job_code}).catch(()=>{});
+
+
+// _haccpSteps declared above
+async function loadHaccpSteps(compId){if(_haccpSteps[compId])return _haccpSteps[compId];const{data}=await sb.from('haccp_templates').select('*').eq('component_id',compId).order('step_order');_haccpSteps[compId]=data||[];return _haccpSteps[compId];}
+function renderHaccpSection(compId,steps,containerId){const container=document.getElementById(containerId);if(!container)return;const typeIcons={raw_intake:'[IN]',fridge:'[F]',freezer:'[FR]',cook:'[C]',sv:'[SV]',blast_chill:'[BC]',hold:'[H]',probe:'[P]',transport:'[T]'};container.innerHTML='<div class="haccp-section"><div class="haccp-section-hd">Temperature journey <button class="haccp-add-btn" onclick="addHaccpStep(\''+compId+'\',\''+containerId+'\')">+ Add</button></div>'+(steps.length?steps.map(s=>`<div class="haccp-step-row"><span class="haccp-step-type ${s.critical?'critical':''}">${s.label||s.step_type}</span><span class="haccp-step-label"></span><span class="haccp-step-temp">${s.target_temp_min!=null?s.target_temp_min+'C':''} ${s.target_temp_max!=null?'- '+s.target_temp_max+'C':''}</span></div>`).join(''):'<div style="font-size:12px;color:var(--t4);padding:8px 0">No HACCP steps yet.</div>')+'</div>';}
+async function addHaccpStep(compId,containerId){const type=prompt('Step type (fridge/sv/cook/blast_chill/probe/hold/freezer/transport):');if(!type)return;const label=prompt('Label:',type)||type;const tms=prompt('TMS unit (blank if none):','')||null;const steps=await loadHaccpSteps(compId);const{data,error}=await sb.from('haccp_templates').insert({component_id:compId,step_order:steps.length+1,step_type:type,label,tms_unit_hint:tms,critical:['cook','probe','blast_chill'].includes(type)}).select().single();if(error){toast(error.message,'err');return;}_haccpSteps[compId]=[...steps,data];renderHaccpSection(compId,_haccpSteps[compId],containerId);}
+async function deleteHaccpStep(stepId,compId,containerId){await sb.from('haccp_templates').delete().eq('id',stepId);_haccpSteps[compId]=(_haccpSteps[compId]||[]).filter(s=>s.id!==stepId);renderHaccpSection(compId,_haccpSteps[compId],containerId);}
+async function renderEventPnL(eventId,container){
+  container.innerHTML='<div style="padding:20px;color:var(--t4);font-size:13px">Loading...</div>';
+  const ev=events.find(e=>e.id===eventId);if(!ev)return;
+  const{data:lines}=await sb.from('event_cost_lines').select('*').eq('event_id',eventId).order('date');
+  const costLines=lines||[];const revenue=parseFloat(ev.budget)||0;
+  const byCat={food:0,labour:0,mileage:0,overhead:0,other:0};
+  costLines.forEach(l=>byCat[l.category]=(byCat[l.category]||0)+parseFloat(l.amount||0));
+  const totalCost=Object.values(byCat).reduce((s,v)=>s+v,0);const gp=revenue-totalCost;const gpPct=revenue?Math.round(gp/revenue*100):0;
+  container.innerHTML=`<div class="pnl-summary-bar" style="margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid var(--bd)"><div class="pnl-summary-cell"><div class="pnl-summary-label">Revenue</div><div class="pnl-summary-val gold">${fmt$(revenue)}</div></div><div class="pnl-summary-cell"><div class="pnl-summary-label">Total cost</div><div class="pnl-summary-val ${totalCost>revenue?'red':'gold'}">${fmt$(totalCost)}</div></div><div class="pnl-summary-cell"><div class="pnl-summary-label">Gross profit</div><div class="pnl-summary-val ${gp>=0?'green':'red'}">${fmt$(gp)}</div></div><div class="pnl-summary-cell"><div class="pnl-summary-label">GP %</div><div class="pnl-summary-val ${gpPct>=40?'green':gpPct>=20?'gold':'red'}">${gpPct}%</div></div></div>
+  <div class="pnl-section"><div class="pnl-hd"><span class="pnl-hd-title">Cost lines</span><button class="btn btn-xs" onclick="addCostLine('${eventId}')">+ Add</button></div>${costLines.length?costLines.map(l=>`<div class="pnl-row"><span class="pnl-cat ${l.category}">${l.category}</span><span class="pnl-desc">${h(l.description)}</span><span class="pnl-amount">£${parseFloat(l.amount).toFixed(2)}</span><button class="btn btn-xs btn-danger" onclick="deleteCostLine('${l.id}','${eventId}')">x</button></div>`).join(''):'<div style="padding:16px;color:var(--t4);font-size:13px;text-align:center">No cost lines yet</div>'}
+  <div style="padding:10px 16px;background:var(--s2);border-top:1px solid var(--bd);display:flex;flex-wrap:wrap;gap:6px">${Object.keys(byCat).map(cat=>`<span class="pnl-cat ${cat}">${cat}: £${byCat[cat].toFixed(2)}</span>`).join('')}</div></div>`;
+}
+async function deleteCostLine(lineId,eventId){await sb.from('event_cost_lines').delete().eq('id',lineId);const c=document.getElementById('pnl-container-'+eventId);if(c)renderEventPnL(eventId,c);}
+async function addCostLine(eventId){
+  const cat=prompt('Category (food/labour/mileage/overhead/other):','food');if(!cat)return;
+  const desc=prompt('Description:','');if(!desc)return;
+  const amount=parseFloat(prompt('Amount £:','0')||0);if(!amount)return;
+  const ev=events.find(e=>e.id===eventId);
+  const{data,error}=await sb.from('event_cost_lines').insert({event_id:eventId,category:cat,description:desc,amount,job_code:ev?.job_code||null}).select().single();
+  if(!error&&data){
+    const payload={date:new Date().toISOString().slice(0,10),amount,category:{food:'Food & Drink',labour:'Staff Costs',mileage:'Travel',overhead:'Office & Admin',other:'Other'}[cat]||'Other',description:desc+(ev?.job_code?' ['+ev.job_code+']':''),reference:ev?.job_code||null};
+    sbBOH.from('finance_expenses').insert(payload).catch(()=>{});
   }
-  const container = document.getElementById('pnl-container-'+eventId);
-  if(container) renderEventPnL(eventId, container);
-};
+  const c=document.getElementById('pnl-container-'+eventId);if(c)renderEventPnL(eventId,c);
+}
+document.addEventListener('DOMContentLoaded',init);
 
 </script>
 
+<div id="view-fs-wizard" class="view">
+  <div class="wiz-bar">
+    <button class="wiz-back" onclick="closeFsWizard()">&#8592;</button>
+    <span class="wiz-title" id="wiz-title">New event</span>
+    <div class="wiz-steps">
+      <div class="wiz-step-dot active" id="wiz-dot-1" onclick="fsWizStep(1)">1</div>
+      <div class="wiz-step-line"></div>
+      <div class="wiz-step-dot" id="wiz-dot-2" onclick="fsWizStep(2)">2</div>
+      <div class="wiz-step-line"></div>
+      <div class="wiz-step-dot" id="wiz-dot-3" onclick="fsWizStep(3)">3</div>
+    </div>
+    <div class="wiz-actions">
+      <button class="btn btn-sm" id="wiz-back-btn" onclick="fsWizStep(_wizStep-1)" style="display:none">&#8592; Back</button>
+      <button class="btn btn-gold btn-sm" id="wiz-next-btn" onclick="fsWizNext()">Next &#8594;</button>
+    </div>
+  </div>
+  <div id="wiz-body" style="flex:1;overflow:hidden;display:flex;flex-direction:column;"></div>
+</div>
 <div class="crop-modal-ov" id="crop-modal">
-  <div class="crop-hint">Drag to move · Drag corners to resize</div>
+  <div class="crop-hint">Drag to move &middot; Drag corners to resize</div>
   <div class="crop-viewport" id="crop-viewport">
     <img class="crop-img-el" id="crop-img-el" alt="" draggable="false">
     <div class="crop-box" id="crop-box">
@@ -3830,6 +4161,65 @@ addCostLine = async function(eventId) {
   <div class="crop-bar">
     <button class="btn" onclick="cancelCrop()">Cancel</button>
     <button class="btn btn-gold" onclick="applyCrop()">Use this crop</button>
+  </div>
+</div>
+<div id="view-brine-calc" class="view">
+  <div style="background:var(--s1);border-bottom:1px solid var(--bd);padding:14px 24px;flex-shrink:0;display:flex;align-items:center;gap:12px;">
+    <button class="btn btn-ghost btn-sm" onclick="sbNav('library',null)">&#8592; Library</button>
+    <div><div style="font-family:'IBM Plex Serif',serif;font-size:20px;color:var(--t1)">Brine calculator</div>
+    <div style="font-size:11px;color:var(--t3);font-family:'IBM Plex Mono',monospace;margin-top:2px">Injection-brined spatchcock chicken</div></div>
+  </div>
+  <div class="brine-calc-wrap">
+    <div class="brine-inputs">
+      <div>
+        <div class="brine-slider-label"><span class="brine-slider-title">Number of birds</span><span class="brine-slider-val" id="bc-birds-val">10</span></div>
+        <input class="brine-slider" type="range" id="bc-birds" min="1" max="100" value="10" oninput="brineCalc()">
+      </div>
+      <div>
+        <div class="brine-slider-label"><span class="brine-slider-title">Avg bird weight</span><span class="brine-slider-val" id="bc-weight-val">2.2<span style="font-size:13px"> kg</span></span></div>
+        <input class="brine-slider" type="range" id="bc-weight" min="1.4" max="3.5" step="0.1" value="2.2" oninput="brineCalc()">
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <button class="btn btn-xs" onclick="setBirdSize(1.8,4.00)">Small 1.8kg &#163;4</button>
+          <button class="btn btn-xs btn-gold" onclick="setBirdSize(2.2,5.50)">Medium &#163;5.50</button>
+          <button class="btn btn-xs" onclick="setBirdSize(2.6,6.75)">Large &#163;6.75</button>
+        </div>
+      </div>
+    </div>
+    <div class="brine-results">
+      <div class="brine-result-card gold"><div class="brine-result-label">Total brine to make</div><div><span class="brine-result-val" id="bc-brine-total">2,750</span><span class="brine-result-unit">ml</span></div></div>
+      <div class="brine-result-card gold"><div class="brine-result-label">Injection per bird</div><div><span class="brine-result-val" id="bc-per-bird">220</span><span class="brine-result-unit">ml</span></div></div>
+      <div class="brine-result-card"><div class="brine-result-label">Combined blend</div><div><span class="brine-result-val" id="bc-blend">198</span><span class="brine-result-unit">g</span></div></div>
+      <div class="brine-result-card"><div class="brine-result-label">Total chicken weight</div><div><span class="brine-result-val" id="bc-chicken">22.0</span><span class="brine-result-unit">kg</span></div></div>
+      <div class="brine-result-card gold"><div class="brine-result-label">Cost per bird</div><div><span class="brine-result-val" id="bc-cost-bird">&#163;5.72</span></div></div>
+      <div class="brine-result-card gold"><div class="brine-result-label">Cost per portion</div><div><span class="brine-result-val" id="bc-cost-portion">&#163;2.86</span></div></div>
+    </div>
+    <div class="brine-section-hd">Brine ingredients for this batch</div>
+    <table class="brine-ing-table"><thead><tr><th>Ingredient</th><th>Quantity</th></tr></thead><tbody>
+      <tr><td>Water</td><td id="bc-water">2,750 ml</td></tr>
+      <tr><td>Combined brine blend</td><td id="bc-blend2">198 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">STPP E451</td><td id="bc-stpp" style="color:var(--t4)">15.8 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Cornflour</td><td id="bc-cornflour" style="color:var(--t4)">41.6 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Maltodextrin</td><td id="bc-maltodextrin" style="color:var(--t4)">41.6 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Dextrose</td><td id="bc-dextrose" style="color:var(--t4)">33.7 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">White sugar</td><td id="bc-sugar" style="color:var(--t4)">21.8 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Caramelised sugar powder</td><td id="bc-caramel" style="color:var(--t4)">15.8 g</td></tr>
+      <tr><td style="padding-left:24px;color:var(--t4)">Knorr chicken stock powder</td><td id="bc-knorr" style="color:var(--t4)">27.7 g</td></tr>
+      <tr><td>Fine salt</td><td id="bc-salt">44.0 g</td></tr>
+      <tr><td>Marmite</td><td id="bc-marmite">22.0 g</td></tr>
+      <tr><td>Rapeseed oil</td><td id="bc-oil">27.5 ml</td></tr>
+      <tr><td>Black pepper</td><td id="bc-pepper">5.5 g</td></tr>
+      <tr><td>Sweet paprika</td><td id="bc-paprika">8.3 g</td></tr>
+    </tbody></table>
+    <div class="brine-section-hd" style="margin-top:24px">CPS labels</div>
+    <div class="brine-cps-btns">
+      <div class="fld" style="margin:0;flex:1;min-width:180px"><label class="fld-label">Job code</label><input class="fld-inp" id="bc-jobcode" placeholder="e.g. MJ071126" style="text-transform:uppercase"></div>
+      <div class="fld" style="margin:0;width:130px"><label class="fld-label">Staff name</label><input class="fld-inp" id="bc-staff" value="James Brierley"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:10px;flex-wrap:wrap">
+      <button class="btn btn-sm" onclick="printBrineLabel('raw')">Print raw label (post-injection)</button>
+      <button class="btn btn-sm" onclick="printBrineLabel('cooked')">Print cooked label (post-SV)</button>
+    </div>
+    <div style="font-size:11px;color:var(--t4);margin-top:10px;font-family:'IBM Plex Mono',monospace;line-height:1.6">Raw: cook by +24hrs &nbsp;|&nbsp; Cooked: use by +72hrs, storage 1-3C</div>
   </div>
 </div>
 </body>
