@@ -887,7 +887,12 @@ input,select,textarea{font-family:inherit;}
 .orders-table td{padding:9px 16px;font-size:13.5px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;}
 .orders-table tr:last-child td{border-bottom:none;}
 .ord-have-input{width:70px;padding:4px 8px;border:1px solid var(--line2);border-radius:var(--r3);font-size:13px;}
+.ord-have-input:disabled{background:var(--paper2);color:var(--stone2);cursor:not-allowed;}
 .ord-zero{color:var(--stone2);}
+.bl-item-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);}
+.bl-item-row:last-child{border-bottom:none;}
+.bl-item-name{font-size:13.5px;font-weight:500;}
+.bl-item-dish{font-size:11.5px;color:var(--stone);}
 </style>
 </head>
 <body>
@@ -1033,7 +1038,7 @@ input,select,textarea{font-family:inherit;}
       </div>
       <div class="basket-sum-actions">
         <button class="btn btn-sm" onclick="copyBasketList()">📋 Copy list</button>
-        <button class="btn btn-sm btn-primary" onclick="logBasketToBank()">❄ Log batch to freezer</button>
+        <button class="btn btn-sm btn-primary" onclick="openBasketLogModal()">❄ Log batch to freezer</button>
       </div>
     </div>
   </div>
@@ -1469,6 +1474,42 @@ input,select,textarea{font-family:inherit;}
 </div>
 </div>
 
+<div class="modal-ov" id="board-done-modal">
+<div class="modal" style="width:380px;">
+  <div class="modal-hd"><div class="modal-title">Mark done</div><button class="modal-close" onclick="closeModal('board-done-modal')">×</button></div>
+  <div class="modal-body">
+    <div style="font-size:14px;font-weight:600;margin-bottom:12px;" id="bd-comp-name"></div>
+    <div class="fld"><label class="fld-label">Quantity made</label><input class="fld-inp" id="bd-qty" type="number" step="0.1"></div>
+    <div class="fld" style="margin:0;"><label class="fld-label">Where's it stored?</label><input class="fld-inp" id="bd-location" placeholder="e.g. Freezer 2, Fridge"></div>
+  </div>
+  <div class="modal-foot"><input type="hidden" id="bd-card-id"><button class="btn" onclick="closeModal('board-done-modal')">Cancel</button><button class="btn btn-dark" onclick="confirmBoardDone()">Log to bank</button></div>
+</div>
+</div>
+
+<div class="modal-ov" id="board-move-modal">
+<div class="modal" style="width:340px;">
+  <div class="modal-hd"><div class="modal-title">Move card</div><button class="modal-close" onclick="closeModal('board-move-modal')">×</button></div>
+  <div class="modal-body">
+    <div style="font-size:14px;font-weight:600;margin-bottom:12px;" id="bm-comp-name"></div>
+    <div class="fld" style="margin:0;"><label class="fld-label">Move to</label>
+      <select class="fld-sel" id="bm-day-sel"></select>
+    </div>
+  </div>
+  <div class="modal-foot"><input type="hidden" id="bm-card-id"><button class="btn" onclick="closeModal('board-move-modal')">Cancel</button><button class="btn btn-dark" onclick="confirmBoardMove()">Move</button></div>
+</div>
+</div>
+
+<div class="modal-ov" id="basket-log-modal">
+<div class="modal" style="width:460px;">
+  <div class="modal-hd"><div class="modal-title">Log batch to freezer</div><button class="modal-close" onclick="closeModal('basket-log-modal')">×</button></div>
+  <div class="modal-body">
+    <div class="fld"><label class="fld-label">Where's it going?</label><input class="fld-inp" id="bl-location" placeholder="e.g. Freezer 2"></div>
+    <div id="bl-items" style="margin-top:6px;"></div>
+  </div>
+  <div class="modal-foot"><button class="btn" onclick="closeModal('basket-log-modal')">Cancel</button><button class="btn btn-dark" onclick="confirmBasketLog()">Log all</button></div>
+</div>
+</div>
+
 <script>
 
 
@@ -1710,11 +1751,11 @@ function openDish(id){
   _ddComps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(c=>({
     id:'c'+c.id,dbId:c.id,name:c.name,
     storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',
-    base:c.base_portions||10,qty:c.qty_per_cover||'',unit:c.unit||'',note:c.chef_note||'',
+    base:c.base_portions||10,qty:c.qty_per_cover||'',unit:c.unit||'',note:c.chef_note||'',time_est:c.time_estimate_mins||'',
     ings:(c.recipe_ingredients||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>({name:i.ingredient_name||i.name||'',qty:i.quantity||i.qty||'',unit:i.unit||'g'})),
     steps:(c.recipe_steps||[]).sort((a,b)=>(a.step_number||0)-(b.step_number||0)).map(s=>s.instruction||'')
   }));
-  if(!_ddComps.length)_ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',ings:[],steps:[]}];
+  if(!_ddComps.length)_ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',time_est:'',ings:[],steps:[]}];
   showBuilder();
   ddGoStep(1);
   setTimeout(()=>maybeShowBrineBtn(d.id),300);
@@ -1724,7 +1765,7 @@ function openDish(id){
 
 function newDish(){
   _ddAlState={};_ddData={name:'',category:'Canapés',station:'',description:'',notes:'',menu_type:[],variant_of:'',target_food_cost:''};
-  _ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',ings:[],steps:[]}];
+  _ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',time_est:'',ings:[],steps:[]}];
   document.getElementById('dd-id').value='';
   const ni=document.getElementById('dd-hd-name');if(ni){ni.value='';ni.placeholder='Dish name…';}
   const ci=document.getElementById('dd-hd-cat');if(ci)ci.textContent='';
@@ -1896,6 +1937,7 @@ function compHTML(comp,idx){
           </div>
         </div>
         <input class="comp-note-inp" style="flex:1;min-width:140px;" placeholder="Chef note — on prep list and labels…" value="${h(comp.note||'')}" oninput="_ddComps[${idx}].note=this.value;">
+        <div class="comp-meta-f"><div class="comp-meta-label">Prep time (mins)</div><input class="comp-meta-inp" type="number" min="0" placeholder="—" value="${comp.time_est||''}" style="width:70px;" oninput="_ddComps[${idx}].time_est=this.value;"></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;">
       <div class="comp-col comp-ings">
@@ -1960,7 +2002,7 @@ function setStorage(cid,cidx,st){
 
 function addComp(){
   const id='c'+Date.now();
-  _ddComps.push({id,name:'',storage:'fri',base:10,qty:'',unit:'',note:'',ings:[],steps:[]});
+  _ddComps.push({id,name:'',storage:'fri',base:10,qty:'',unit:'',note:'',time_est:'',ings:[],steps:[]});
   const list=document.getElementById('comp-list');
   list.insertAdjacentHTML('beforeend',compHTML(_ddComps[_ddComps.length-1],_ddComps.length-1));
   list.lastElementChild.querySelector('.comp-name-inp')?.focus();
@@ -2195,7 +2237,7 @@ async function saveDish(){
         dish_id:did,name:comp.name.trim(),qty_per_cover:parseFloat(comp.qty)||null,
         unit:comp.unit||null,chef_note:comp.note||null,
         freeze_flag:comp.storage==='frz',fridge_flag:comp.storage==='fri',
-        sort_order:i,base_portions:parseInt(comp.base)||10
+        sort_order:i,base_portions:parseInt(comp.base)||10,time_estimate_mins:parseInt(comp.time_est)||null
       }).select().single();
       if(ce)throw ce;
       const ings=comp.ings.filter(ing=>ing.name.trim()).map((ing,j)=>({
@@ -3935,7 +3977,7 @@ async function renderPipeline(){
     if(daysAway<=14&&e.status==='Confirmed'&&e.deposit_status!=='paid')alerts.push({sev:daysAway<=7?'red':'warn',id:e.id,t:`${e.client_name||'Unnamed'} is ${payMeta(e)[1].toLowerCase()}`,s:`${nice(d)} · ${daysAway===0?'today':daysAway+' day'+(daysAway===1?'':'s')+' away'}`});
     if(daysAway<=7&&nDishes===0)alerts.push({sev:'red',id:e.id,t:`${e.client_name||'Unnamed'} has no menu yet`,s:`${nice(d)} · ${e.covers||0} covers`});
     if(daysAway<=10&&nDishes>0){
-      let short=0;(e.event_dishes||[]).forEach(ed=>{const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;(dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{const have=stock.filter(s=>s.component_id===c.id).reduce((s,r)=>s+(r.portions_remaining||0),0);if(have<(e.covers||0))short++;});});
+      let short=0;(e.event_dishes||[]).forEach(ed=>{const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;(dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{const need=c.qty_per_cover?Math.ceil(c.qty_per_cover*(e.covers||0)):(e.covers||0);const have=stock.filter(s=>s.component_id===c.id&&s.status==='available'&&(!s.assigned_event||s.assigned_event===e.id)).reduce((s,r)=>s+(parseFloat(r.qty)||0),0);if(have<need)short++;});});
       if(short)alerts.push({sev:'warn',id:e.id,t:`${short} freezer component${short===1?'':'s'} short for ${e.client_name||'Unnamed'}`,s:`${nice(d)} · check Prep`});
     }
   });
@@ -4040,7 +4082,7 @@ async function generateBoard(){
     (ev.event_dishes||[]).forEach(ed=>{
       const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;
       (dish.components||[]).forEach(comp=>{
-        const need=ev.covers||0;if(!need)return;
+        const need=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*(ev.covers||0)):(ev.covers||0);if(!need)return;
         const have=rows.filter(r=>r.component_id===comp.id&&r.status==='available'&&(!r.assigned_event||r.assigned_event===ev.id))
           .reduce((s,r)=>s+(parseFloat(r.qty)||0),0);
         const planned=rows.filter(r=>r.component_id===comp.id&&r.status==='planned'&&r.assigned_event===ev.id)
@@ -4112,8 +4154,8 @@ function boardCardHTML(c){
     <div class="board-card-dish">${h(c.dish_name||'')}</div>
     <div class="board-card-meta">${ev?`<span>${h(ev.client_name||'')}</span>`:'<span>General bank</span>'}${deadlineLabel}</div>
     <div class="board-card-actions">
-      <button class="btn btn-xs btn-primary" onclick="event.stopPropagation();boardMarkDone('${c.id}')">Done</button>
-      <button class="btn btn-xs" onclick="event.stopPropagation();boardDefer('${c.id}')">Pool</button>
+      <button class="btn btn-xs btn-primary" onclick="event.stopPropagation();openBoardDoneModal('${c.id}')">Done</button>
+      <button class="btn btn-xs" onclick="event.stopPropagation();openBoardMoveModal('${c.id}')">Move</button>
       <button class="btn btn-xs btn-danger" onclick="event.stopPropagation();boardDelete('${c.id}')">×</button>
     </div>
   </div>`;
@@ -4127,14 +4169,45 @@ async function boardDrop(e,iso){
   await sb.from('prepped_stock').update({planned_date:iso}).eq('id',_dragCardId);
   _dragCardId=null;renderPrepBoard();
 }
-async function boardDefer(id){await sb.from('prepped_stock').update({planned_date:null}).eq('id',id);renderPrepBoard();}
 async function boardDelete(id){if(!confirm('Remove this task card? This does not affect the event menu.'))return;await sb.from('prepped_stock').delete().eq('id',id);renderPrepBoard();}
-async function boardMarkDone(id){
+
+// Touch-friendly move — a Move button + day picker, since native HTML5 drag doesn't fire on touchscreens
+function openBoardMoveModal(id){
   const card=(_boardData.cards||[]).find(c=>c.id===id);if(!card)return;
-  const madeStr=prompt(`Quantity made (${card.unit||'portions'}):`,card.qty);if(madeStr===null)return;
-  const made=parseFloat(madeStr);if(!made&&made!==0)return;
-  const location=prompt('Where is it stored? (e.g. Freezer 2, Fridge)','')||null;
+  document.getElementById('bm-card-id').value=id;
+  document.getElementById('bm-comp-name').textContent=card.component_name;
+  const days=parseInt(document.getElementById('board-horizon')?.value)||14;
+  const now=new Date();now.setHours(0,0,0,0);
+  let opts=`<option value="">Unplanned pool</option>`;
+  for(let i=0;i<days;i++){
+    const d=new Date(now.getTime()+i*86400000);const iso=d.toISOString().split('T')[0];
+    opts+=`<option value="${iso}"${card.planned_date===iso?' selected':''}>${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</option>`;
+  }
+  document.getElementById('bm-day-sel').innerHTML=opts;
+  openModal('board-move-modal');
+}
+async function confirmBoardMove(){
+  const id=document.getElementById('bm-card-id').value;
+  const iso=document.getElementById('bm-day-sel').value||null;
+  await sb.from('prepped_stock').update({planned_date:iso}).eq('id',id);
+  closeModal('board-move-modal');renderPrepBoard();
+}
+
+function openBoardDoneModal(id){
+  const card=(_boardData.cards||[]).find(c=>c.id===id);if(!card)return;
+  document.getElementById('bd-card-id').value=id;
+  document.getElementById('bd-comp-name').textContent=card.component_name;
+  document.getElementById('bd-qty').value=card.qty;
+  document.getElementById('bd-location').value='';
+  openModal('board-done-modal');
+}
+async function confirmBoardDone(){
+  const id=document.getElementById('bd-card-id').value;
+  const made=parseFloat(document.getElementById('bd-qty').value);
+  if(!made&&made!==0){toast('Enter a quantity','err');return;}
+  const location=document.getElementById('bd-location').value.trim()||null;
   await sb.from('prepped_stock').update({status:'available',qty:made,prepped_date:new Date().toISOString().split('T')[0],notes:location,planned_date:null}).eq('id',id);
+  closeModal('board-done-modal');
   toast('Logged to the bank');renderPrepBoard();
 }
 
@@ -4146,7 +4219,7 @@ function renderBasketPicker(){
   const q=(document.getElementById('basket-search')?.value||'').toLowerCase().trim();
   const cat=document.getElementById('basket-cat')?.value||'';
   const list=document.getElementById('basket-pick-list');if(!list)return;
-  const filtered=dishes.filter(d=>!d.locked&&(!cat||d.category===cat)&&(!q||d.name.toLowerCase().includes(q)));
+  const filtered=dishes.filter(d=>(!cat||d.category===cat)&&(!q||d.name.toLowerCase().includes(q)));
   list.innerHTML=filtered.map(d=>`
     <div class="basket-dish">
       <div class="basket-dish-name">${h(d.name)}</div>
@@ -4191,16 +4264,28 @@ function copyBasketList(){
   const text=lines.map(l=>`${l.name} — ${fmtQty(l.qty,l.unit)}`).join('\n');
   navigator.clipboard.writeText(text).then(()=>toast('Copied')).catch(()=>toast('Could not copy','err'));
 }
-async function logBasketToBank(){
-  const items=Object.values(_basketSel);if(!items.length){toast('Nothing selected','err');return;}
-  const location=prompt('Where is this going? (e.g. Freezer 2)','')||null;
-  for(const{comp,dish}of items){
-    const madeStr=prompt(`Portions made — ${comp.name}:`,comp.base_portions||'');
-    if(madeStr===null)continue;
-    const made=parseFloat(madeStr);if(!made&&made!==0)continue;
+function openBasketLogModal(){
+  const items=Object.values(_basketSel);
+  if(!items.length){toast('Nothing selected','err');return;}
+  document.getElementById('bl-location').value='';
+  document.getElementById('bl-items').innerHTML=items.map(({comp,dish},i)=>`
+    <div class="bl-item-row">
+      <div class="bl-item-info"><div class="bl-item-name">${h(comp.name)}</div><div class="bl-item-dish">${h(dish.name)}</div></div>
+      <input type="number" step="0.1" class="fld-inp bl-item-qty" id="bl-qty-${i}" value="${comp.base_portions||''}" style="width:90px;">
+    </div>`).join('');
+  openModal('basket-log-modal');
+}
+async function confirmBasketLog(){
+  const items=Object.values(_basketSel);
+  const location=document.getElementById('bl-location').value.trim()||null;
+  for(let i=0;i<items.length;i++){
+    const{comp,dish}=items[i];
+    const made=parseFloat(document.getElementById('bl-qty-'+i).value);
+    if(!made&&made!==0)continue;
     await sb.from('prepped_stock').insert({component_id:comp.id,component_name:comp.name,dish_id:dish.id,dish_name:dish.name,
       qty:made,unit:comp.unit||'portions',status:'available',prepped_date:new Date().toISOString().split('T')[0],notes:location});
   }
+  closeModal('basket-log-modal');
   toast('Logged to the bank');_basketSel={};renderBasketPicker();renderBasketSummary();
 }
 
@@ -4249,7 +4334,7 @@ function renderOrders(){
       const have=l.ingredientId&&haveMap[l.ingredientId]?parseFloat(haveMap[l.ingredientId].qty)||0:0;
       const toOrder=Math.max(0,l.total-have);
       return`<tr><td>${h(l.name)}</td><td>${fmtQty(l.total,l.unit)}</td>
-        <td><input type="number" step="0.1" class="ord-have-input" value="${have||''}" placeholder="0" onchange="updateOnHand('${l.ingredientId||''}',this.value)"></td>
+        <td>${l.ingredientId?`<input type="number" step="0.1" class="ord-have-input" value="${have||''}" placeholder="0" onchange="updateOnHand('${l.ingredientId}',this.value)">`:`<input type="number" class="ord-have-input" disabled placeholder="—" title="Link this ingredient in the Library to track on-hand stock">`}</td>
         <td class="${toOrder>0?'':'ord-zero'}">${fmtQty(toOrder,l.unit)}</td></tr>`;
     }).join('')}
   </tbody></table>`;
