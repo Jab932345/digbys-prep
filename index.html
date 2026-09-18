@@ -893,6 +893,46 @@ input,select,textarea{font-family:inherit;}
 .bl-item-row:last-child{border-bottom:none;}
 .bl-item-name{font-size:13.5px;font-weight:500;}
 .bl-item-dish{font-size:11.5px;color:var(--stone);}
+
+/* ═══ RECIPE VIEW ═══ */
+.recipe-ov{display:none;position:fixed;inset:0;background:rgba(61,55,51,.5);z-index:1100;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(2px);}
+.recipe-ov.open{display:flex;}
+.recipe-card{background:var(--white);border-radius:var(--r);max-width:640px;width:100%;max-height:88vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+.recipe-hd{position:sticky;top:0;background:var(--white);border-bottom:1px solid var(--line);padding:18px 24px;display:flex;justify-content:space-between;align-items:flex-start;z-index:1;}
+.recipe-title{font-family:var(--serif);font-size:22px;color:var(--ink);}
+.recipe-cat{font-size:12px;color:var(--stone);margin-top:2px;}
+.recipe-hd-acts{display:flex;gap:8px;align-items:center;}
+.recipe-body{padding:20px 24px 28px;}
+.recipe-desc{font-size:13.5px;color:var(--ink2);margin-bottom:12px;font-style:italic;}
+.recipe-al-row{margin-bottom:16px;}
+.recipe-comp{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--line);}
+.recipe-comp:last-child{border-bottom:none;margin-bottom:0;}
+.recipe-comp-hd{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.recipe-comp-storage{font-size:15px;}
+.recipe-comp-name{font-size:16px;font-weight:700;color:var(--ink);flex:1;}
+.recipe-serving-ctrl{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--stone);}
+.recipe-serving-ctrl input{width:56px;padding:4px 6px;border:1px solid var(--line2);border-radius:var(--r3);font-size:13px;text-align:center;}
+.recipe-note{font-size:12.5px;color:var(--brick);background:var(--brick-bg);padding:6px 10px;border-radius:var(--r3);margin-bottom:10px;}
+.recipe-ing-list{margin-bottom:10px;}
+.recipe-ing-row{display:flex;justify-content:space-between;font-size:13.5px;padding:4px 0;border-bottom:1px dashed var(--line);}
+.recipe-ing-row:last-child{border-bottom:none;}
+.recipe-steps{margin:0;padding-left:20px;font-size:13.5px;line-height:1.6;color:var(--ink2);}
+.recipe-steps li{margin-bottom:4px;}
+.btn-recipe-view{background:none;border:none;font-size:16px;cursor:pointer;padding:4px 6px;border-radius:var(--r3);opacity:.6;}
+.btn-recipe-view:hover{opacity:1;background:var(--paper2);}
+
+/* ═══ PAR STOCK / STOCK TAB ═══ */
+.par-tog-row{display:flex;align-items:center;gap:8px;cursor:pointer;}
+.par-cell{display:flex;align-items:center;gap:4px;flex-wrap:wrap;}
+.par-badge{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:99px;text-transform:uppercase;letter-spacing:.02em;}
+.par-badge.ok{background:var(--paper2);color:var(--stone);}
+.par-badge.low{background:#f6ecd2;color:#8a6d1d;}
+.par-badge.out{background:var(--brick-bg);color:var(--brick);}
+.stock-mode-tog{display:flex;gap:4px;background:var(--paper2);border-radius:var(--r2);padding:3px;}
+.stock-mode-btn{border:none;background:none;padding:6px 14px;border-radius:var(--r3);font-size:12.5px;font-weight:600;color:var(--stone);cursor:pointer;}
+.stock-mode-btn.on{background:var(--white);color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.stock-group-hd{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--stone);margin:18px 0 6px;}
+.stock-group-hd:first-child{margin-top:0;}
 </style>
 </head>
 <body>
@@ -988,6 +1028,7 @@ input,select,textarea{font-family:inherit;}
     <button class="prep-subtab" onclick="prepSubTab('list',this)">Prep lists</button>
     <button class="prep-subtab" onclick="prepSubTab('basket',this)">Basket</button>
     <button class="prep-subtab" onclick="prepSubTab('orders',this)">Orders</button>
+    <button class="prep-subtab" onclick="prepSubTab('stock',this)">Stock</button>
     <div style="flex:1;"></div>
   </div>
   <!-- Board sub-view: the backlog / freezer bank -->
@@ -1058,6 +1099,20 @@ input,select,textarea{font-family:inherit;}
       <div class="empty"><div class="empty-t">Set a date range and generate</div></div>
     </div>
   </div>
+  <!-- Stock sub-view: par-level dry-store/frozen stock, separate from event-driven ordering -->
+  <div id="prep-stock-wrap" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+    <div class="board-bar">
+      <div class="stock-mode-tog">
+        <button class="stock-mode-btn on" id="stock-mode-flagged" onclick="setStockMode('flagged')">Flagged</button>
+        <button class="stock-mode-btn" id="stock-mode-full" onclick="setStockMode('full')">Full stock-take</button>
+      </div>
+      <div style="flex:1;"></div>
+      <button class="btn btn-sm" id="stock-copy-btn" style="display:none;" onclick="copyStockTopUp()">✉ Copy top-up for supplier</button>
+    </div>
+    <div id="stock-body" class="orders-body">
+      <div class="empty"><div class="empty-t">Loading…</div></div>
+    </div>
+  </div>
 </div>
 
 <!-- ══ FLOOR MODE ══════════════════════════════════════ -->
@@ -1083,8 +1138,9 @@ input,select,textarea{font-family:inherit;}
   <div class="ph">
     <span class="ph-title">Library</span>
     <div class="ph-actions">
-      <button class="btn btn-sm" onclick="libSubTab('ingredients')">Ingredients</button>
-      <button class="btn btn-sm" onclick="libSubTab('allergens')">Allergen matrix</button>
+      <button class="btn btn-sm btn-dark" id="lib-tab-dishes" onclick="libSubTab('dishes')">Dishes</button>
+      <button class="btn btn-sm" id="lib-tab-ingredients" onclick="libSubTab('ingredients')">Ingredients</button>
+      <button class="btn btn-sm" id="lib-tab-allergens" onclick="libSubTab('allergens')">Allergen matrix</button>
     </div>
   </div>
   <!-- Dish sub-view -->
@@ -1116,6 +1172,7 @@ input,select,textarea{font-family:inherit;}
           <div class="builder-sub" id="dd-hd-cat"></div>
         </div>
         <div class="builder-acts">
+          <button class="btn btn-sm" onclick="openRecipeViewFromBuilder()">📖 View recipe</button>
           <button class="btn btn-sm" id="dd-lock-btn" onclick="toggleDishLock()" style="display:none">Lock</button>
           <button class="btn btn-sm btn-danger" id="dd-del-btn" onclick="deleteDish()" style="display:none">Delete</button>
           <button class="btn btn-primary btn-sm" onclick="saveDish()">Save</button>
@@ -1145,7 +1202,7 @@ input,select,textarea{font-family:inherit;}
     </div>
     <div class="page-body">
       <table class="data-table">
-        <thead><tr><th>Name</th><th>Type</th><th>Sold by</th><th>Price</th><th>Allergens</th><th>Notes</th><th></th></tr></thead>
+        <thead><tr><th>Name</th><th>Type</th><th>Sold by</th><th>Price</th><th>Par</th><th>Allergens</th><th>Notes</th><th></th></tr></thead>
         <tbody id="ing-tbody"></tbody>
       </table>
     </div>
@@ -1348,6 +1405,13 @@ input,select,textarea{font-family:inherit;}
       </div>
       <div class="fld"><label class="fld-label">Supplier</label><input class="fld-inp" id="ing-supplier" placeholder="Sainsbury's, Booker…"></div>
     </div>
+    <div class="fld">
+      <label class="par-tog-row"><input type="checkbox" id="ing-par-stock" onchange="parStockToggled()"> <span class="fld-label" style="margin:0;">Par stock — keep this topped up regardless of bookings</span></label>
+      <div id="ing-par-fields" class="g2" style="display:none;margin-top:8px;">
+        <div class="fld" style="margin:0;"><label class="fld-label">Par level <span id="ing-par-unit-lbl"></span></label><input class="fld-inp" id="ing-par-level" type="number" step="0.1" placeholder="e.g. 10"></div>
+        <div class="fld" style="margin:0;"><label class="fld-label">Flag on an event needing over</label><input class="fld-inp" id="ing-par-threshold" type="number" step="0.1" placeholder="optional"></div>
+      </div>
+    </div>
     <div class="fld"><label class="fld-label">Allergens</label><div class="al-grid" id="ing-al-grid"></div></div>
     <div class="fld" style="margin:0;"><label class="fld-label">Notes</label><textarea class="fld-ta" id="ing-notes" style="min-height:44px;" placeholder="Pack size, density conversion…"></textarea></div>
   </div>
@@ -1394,6 +1458,7 @@ input,select,textarea{font-family:inherit;}
       <div class="fld"><label class="fld-label">Email</label><input class="fld-inp" id="fs-contact-email" type="email"></div>
       <div class="fld"><label class="fld-label">Job code</label><input class="fld-inp" id="fs-jobcode-inp" placeholder="e.g. ARL031026" style="text-transform:uppercase"></div>
     </div>
+    <div class="fld" style="margin-top:8px;"><label class="fld-label">Second contact</label><input class="fld-inp" id="fs-contact-2" placeholder="e.g. Best man — John, 07700 900000"></div>
     <div class="modal-divider">Menu</div>
     <div id="fs-dish-picker" style="max-height:180px;overflow-y:auto;border:1px solid var(--bd);border-radius:var(--r);padding:8px;background:var(--bg);display:flex;flex-direction:column;gap:3px;"></div>
     <div class="modal-divider">Run of day</div>
@@ -1510,7 +1575,26 @@ input,select,textarea{font-family:inherit;}
 </div>
 </div>
 
+<!-- Recipe view — a clean read-only recipe card, reachable from the Library
+     and from mid-edit in the builder. Its own class (not modal-ov) so the
+     print stylesheet doesn't blank it out like it does the real modals. -->
+<div class="recipe-ov" id="recipe-ov">
+  <div class="recipe-card" id="recipe-card"></div>
+</div>
+
+<div class="modal-ov" id="par-modal">
+<div class="modal" style="width:420px;">
+  <div class="modal-hd"><div class="modal-title">Stock take — <span id="par-modal-name"></span></div><button class="modal-close" onclick="closeModal('par-modal')">×</button></div>
+  <div class="modal-body">
+    <div class="fld"><label class="fld-label">Par level</label><input class="fld-inp" id="par-modal-level" type="number" step="0.1" disabled></div>
+    <div class="fld" style="margin:0;"><label class="fld-label">Counted now</label><input class="fld-inp" id="par-modal-counted" type="number" step="0.1"></div>
+  </div>
+  <div class="modal-foot"><input type="hidden" id="par-modal-id"><button class="btn" onclick="closeModal('par-modal')">Cancel</button><button class="btn btn-dark" onclick="confirmParCount()">Save count</button></div>
+</div>
+</div>
+
 <script>
+
 
 
 
@@ -1583,6 +1667,87 @@ function getDishAl(d){
   (d.components||[]).forEach(c=>(c.component_allergens||[]).forEach(a=>{if(!al.find(x=>x.allergen===a.allergen))al.push(a);}));
   return al;
 }
+
+// ═══════════════════════════════════════════════
+// RECIPE VIEW — clean read-only recipe, no builder chrome.
+// Reachable from the Library (saved dish) or from mid-edit in the builder
+// (unsaved live state) — both funnel into the same renderer.
+// ═══════════════════════════════════════════════
+let _recipeComps=[]; // normalized, independent of source, so servings-scaling has one code path
+
+function openRecipeView(dishId){
+  const d=dishes.find(x=>x.id===dishId);if(!d)return;
+  const al=getDishAl(d).map(a=>({allergen:a.allergen,may:a.status==='May Contain'}));
+  const comps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(c=>({
+    name:c.name||'Component',storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',
+    base:c.base_portions||10,servings:c.base_portions||10,note:c.chef_note||'',
+    ings:(c.recipe_ingredients||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>({name:i.ingredient_name||i.name||'',qty:parseFloat(i.quantity||i.qty)||0,unit:i.unit||'g'})),
+    steps:(c.recipe_steps||[]).sort((a,b)=>(a.step_number||0)-(b.step_number||0)).map(s=>s.instruction||'')
+  }));
+  renderRecipeCard(d.name,d.category,d.description,al,comps);
+}
+
+function openRecipeViewFromBuilder(){
+  const name=document.getElementById('dd-hd-name')?.value||_ddData.name||'Untitled dish';
+  const al=Object.entries(_ddAlState).filter(([,v])=>v).map(([a,v])=>({allergen:a,may:v==='may'}));
+  const comps=_ddComps.map(c=>({
+    name:c.name||'Component',storage:c.storage==='frz'?'frz':c.storage==='fri'?'fri':'fsh',
+    base:parseInt(c.base)||10,servings:parseInt(c.base)||10,note:c.note||'',
+    ings:(c.ings||[]).map(i=>({name:i.name||'',qty:parseFloat(i.qty)||0,unit:i.unit||'g'})),
+    steps:(c.steps||[]).filter(s=>s&&s.trim())
+  }));
+  renderRecipeCard(name,_ddData.category,_ddData.description,al,comps,true);
+}
+
+function renderRecipeCard(name,category,description,allergens,comps,isLive){
+  _recipeComps=comps;
+  const card=document.getElementById('recipe-card');
+  card.innerHTML=`
+    <div class="recipe-hd">
+      <div><div class="recipe-title">${h(name||'Untitled dish')}</div><div class="recipe-cat">${h(category||'')}${isLive?' · unsaved':''}</div></div>
+      <div class="recipe-hd-acts"><button class="btn btn-sm" onclick="window.print()">🖨 Print</button><button class="modal-close" onclick="closeRecipeView()">×</button></div>
+    </div>
+    <div class="recipe-body">
+      ${description?`<div class="recipe-desc">${h(description)}</div>`:''}
+      ${allergens.length?`<div class="recipe-al-row">${allergens.map(a=>`<span class="al-tag${a.may?' may':' c'}">${h(a.allergen)}${a.may?' (may)':''}</span>`).join('')}</div>`:''}
+      ${comps.length?comps.map((c,idx)=>recipeCompHTML(c,idx)).join(''):'<div class="empty" style="margin:20px auto;"><div class="empty-t">No components yet</div></div>'}
+    </div>
+  `;
+  openRecipeOv();
+}
+
+function recipeCompHTML(c,idx){
+  const icon=c.storage==='frz'?'&#10052;':c.storage==='fri'?'&#129514;':'&#9675;';
+  return`<div class="recipe-comp">
+    <div class="recipe-comp-hd">
+      <span class="recipe-comp-storage">${icon}</span>
+      <span class="recipe-comp-name">${h(c.name)}</span>
+      <div class="recipe-serving-ctrl">
+        <label>Makes</label>
+        <input type="number" min="1" value="${c.servings}" onchange="recipeSetServings(${idx},this.value)">
+        <span>${c.base?'(base '+c.base+')':''}</span>
+      </div>
+    </div>
+    ${c.note?`<div class="recipe-note">${h(c.note)}</div>`:''}
+    <div class="recipe-ing-list" id="recipe-ings-${idx}">${recipeIngRows(c)}</div>
+    ${c.steps.length?`<ol class="recipe-steps">${c.steps.map(s=>`<li>${h(s)}</li>`).join('')}</ol>`:''}
+  </div>`;
+}
+
+function recipeIngRows(c){
+  const ratio=c.base?c.servings/c.base:1;
+  return c.ings.length?c.ings.map(i=>`<div class="recipe-ing-row"><span>${h(i.name)}</span><span>${fmtQty(i.qty*ratio,i.unit)}</span></div>`).join(''):'<div class="recipe-ing-row" style="color:var(--stone2);">No ingredients listed</div>';
+}
+
+function recipeSetServings(idx,val){
+  const c=_recipeComps[idx];if(!c)return;
+  const v=parseFloat(val);if(!v||v<=0)return;
+  c.servings=v;
+  const el=document.getElementById('recipe-ings-'+idx);if(el)el.innerHTML=recipeIngRows(c);
+}
+
+function openRecipeOv(){document.getElementById('recipe-ov').classList.add('open');}
+function closeRecipeView(){document.getElementById('recipe-ov').classList.remove('open');}
 
 function findIngredient(name){return ingredients.find(x=>x.name.toLowerCase()===(name||'').toLowerCase().trim());}
 
@@ -2286,9 +2451,20 @@ async function deleteDish(){
 // ═══════════════════════════════════════════════
 // INGREDIENTS PAGE
 // ═══════════════════════════════════════════════
+function libSubTab(tab){
+  document.getElementById('lib-dishes-wrap').style.display=tab==='dishes'?'flex':'none';
+  document.getElementById('lib-ing-wrap').style.display=tab==='ingredients'?'flex':'none';
+  document.getElementById('lib-al-wrap').style.display=tab==='allergens'?'flex':'none';
+  ['dishes','ingredients','allergens'].forEach(t=>{
+    const b=document.getElementById('lib-tab-'+t);if(b)b.classList.toggle('btn-dark',t===tab);
+  });
+  if(tab==='ingredients')renderIngredients();
+  if(tab==='allergens')renderAllergenMatrix();
+}
+
 function setIngFilter(f,el){
   _ingFilter=f;
-  document.querySelectorAll('#view-ingredients .fchip').forEach(c=>c.classList.remove('on'));
+  document.querySelectorAll('#lib-ing-wrap .fchip').forEach(c=>c.classList.remove('on'));
   if(el)el.classList.add('on');
   renderIngredients();
 }
@@ -2299,16 +2475,30 @@ function renderIngredients(){
   let f=[...ingredients];
   if(q)f=f.filter(i=>i.name.toLowerCase().includes(q)||(i.notes||'').toLowerCase().includes(q));
   if(_ingFilter!=='all')f=f.filter(i=>i.type===_ingFilter);
-  if(!f.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--t4);">No ingredients found</td></tr>';return;}
+  if(!f.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--t4);">No ingredients found</td></tr>';return;}
   tbody.innerHTML=f.map(i=>`<tr>
     <td style="font-weight:500;color:var(--t1);">${h(i.name)}</td>
     <td><span class="badge badge-n" style="font-size:9px;">${ING_TYPES[i.type]||i.type}</span></td>
     <td class="mono">${h(i.sold_by||i.unit||'—')}</td>
     <td style="font-family:var(--mono);font-size:11px;color:var(--g);">${i.cost_per_unit!=null?fmt$(i.cost_per_unit)+'/'+(i.sold_by||i.unit||'unit'):'—'}</td>
+    <td>${parCellHTML(i)}</td>
     <td>${(i.allergens||[]).map(a=>`<span class="al-tag">${h(a)}</span>`).join('')||'<span style="font-size:11px;color:var(--t4);">None</span>'}</td>
     <td class="muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h(i.notes||'—')}</td>
     <td><button class="btn btn-ghost btn-xs" onclick="editIngredient('${i.id}')">Edit</button></td>
   </tr>`).join('');
+}
+
+function parCellHTML(i){
+  if(!i.par_stock)return'<span style="font-size:11px;color:var(--t4);">—</span>';
+  const target=i.par_level!=null?fmtQty(i.par_level,i.sold_by):'no target';
+  if(i.par_status==='out')return`<div class="par-cell"><span class="par-badge out">Out</span><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','ok')">Mark OK</button></div>`;
+  if(i.par_status==='low')return`<div class="par-cell"><span class="par-badge low">Low</span><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','ok')">Mark OK</button></div>`;
+  return`<div class="par-cell"><span class="par-badge ok">${target}</span><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','low')">Low</button><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','out')">Out</button></div>`;
+}
+
+async function flagParStatus(id,status){
+  await sb.from('ingredients').update({par_status:status,par_flagged_at:status==='ok'?null:new Date().toISOString()}).eq('id',id);
+  await loadIngredients();
 }
 
 function buildIngAlGrid(){
@@ -2330,13 +2520,19 @@ function ingUnitChanged(){
   const labels={kg:'per kg',litre:'per litre',each:'each',bunch:'per bunch',portion:'per portion'};
   const hints={kg:'e.g. Salmon £30/kg · Butter £8/kg · Flour £0.90/kg',litre:'e.g. Double cream £4.95/kg · Olive oil £5.49/kg',each:'e.g. Lemon £0.26 each · Egg £0.30 each',bunch:'e.g. Thyme £0.65/bunch',portion:'e.g. Duck leg £2.20 per portion'};
   if(lbl)lbl.textContent=labels[v]||v;if(hint)hint.textContent=hints[v]||'';
+  const pu=document.getElementById('ing-par-unit-lbl');if(pu)pu.textContent='('+v+')';
+}
+function parStockToggled(){
+  const on=document.getElementById('ing-par-stock').checked;
+  document.getElementById('ing-par-fields').style.display=on?'grid':'none';
 }
 
 function openIngModal(){
   document.getElementById('ing-modal-title').textContent='Add ingredient';
-  ['ing-id','ing-name','ing-cost','ing-supplier','ing-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['ing-id','ing-name','ing-cost','ing-supplier','ing-notes','ing-par-level','ing-par-threshold'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('ing-type').value='protein';
   document.getElementById('ing-sold-by').value='kg';ingUnitChanged();
+  document.getElementById('ing-par-stock').checked=false;parStockToggled();
   _ingAlState={};ALLERGENS.forEach(a=>{const el=document.getElementById('ing-al-grid-'+a);if(el)el.className='al-tog';});
   openModal('ing-modal');
 }
@@ -2351,6 +2547,10 @@ function editIngredient(id){
   document.getElementById('ing-cost').value=i.cost_per_unit!=null?i.cost_per_unit:'';
   document.getElementById('ing-supplier').value=i.supplier||'';
   document.getElementById('ing-notes').value=i.notes||'';
+  document.getElementById('ing-par-stock').checked=!!i.par_stock;
+  document.getElementById('ing-par-level').value=i.par_level!=null?i.par_level:'';
+  document.getElementById('ing-par-threshold').value=i.par_threshold!=null?i.par_threshold:'';
+  parStockToggled();
   _ingAlState={};(i.allergens||[]).forEach(a=>{_ingAlState[a]='contains';const el=document.getElementById('ing-al-grid-'+a);if(el)el.className='al-tog c';});
   openModal('ing-modal');
 }
@@ -2360,15 +2560,107 @@ async function saveIngredient(){
   const id=document.getElementById('ing-id').value;
   const sold_by=document.getElementById('ing-sold-by').value||'kg';
   const allergens2=Object.keys(_ingAlState).filter(a=>_ingAlState[a]);
+  const parStock=document.getElementById('ing-par-stock').checked;
   const data={name,type:document.getElementById('ing-type').value,unit:sold_by,sold_by,
     cost_per_unit:parseFloat(document.getElementById('ing-cost').value)||null,
     supplier:document.getElementById('ing-supplier').value.trim()||null,
-    notes:document.getElementById('ing-notes').value.trim()||null,allergens:allergens2};
+    notes:document.getElementById('ing-notes').value.trim()||null,allergens:allergens2,
+    par_stock:parStock,
+    par_level:parStock?(parseFloat(document.getElementById('ing-par-level').value)||null):null,
+    par_threshold:parStock?(parseFloat(document.getElementById('ing-par-threshold').value)||null):null};
+  if(!parStock)data.par_status='ok';
   try{
     if(id)await sb.from('ingredients').update(data).eq('id',id);
     else await sb.from('ingredients').insert(data);
     toast(id?'Updated':'Added');closeModal('ing-modal');await loadIngredients();
   }catch(e){toast('Error: '+e.message,'err');}
+}
+
+// ═══════════════════════════════════════════════
+// STOCK — par-level dry-store/frozen stock, separate from event ordering
+// ═══════════════════════════════════════════════
+let _stockMode='flagged';
+let _stockCounts={}; // ingredient id -> {counted, topUp, supplier, name, unit}, this stock-take session only
+
+function setStockMode(mode){
+  _stockMode=mode;
+  document.getElementById('stock-mode-flagged').classList.toggle('on',mode==='flagged');
+  document.getElementById('stock-mode-full').classList.toggle('on',mode==='full');
+  document.getElementById('stock-copy-btn').style.display=mode==='full'?'':'none';
+  renderStock();
+}
+
+function renderStock(){
+  const body=document.getElementById('stock-body');if(!body)return;
+  const parIngs=ingredients.filter(i=>i.par_stock);
+
+  if(_stockMode==='flagged'){
+    const flagged=parIngs.filter(i=>i.par_status&&i.par_status!=='ok');
+    if(!flagged.length){body.innerHTML='<div class="empty"><div class="empty-t">Nothing flagged — all par stock reads OK</div></div>';return;}
+    body.innerHTML=`<table class="orders-table"><thead><tr><th>Ingredient</th><th>Type</th><th>Status</th><th>Supplier</th><th></th></tr></thead><tbody>
+      ${flagged.map(i=>`<tr>
+        <td>${h(i.name)}</td>
+        <td>${ING_TYPES[i.type]||i.type}</td>
+        <td><span class="par-badge ${i.par_status}">${i.par_status==='out'?'Out':'Low'}</span></td>
+        <td>${h(i.supplier||'—')}</td>
+        <td><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','ok')">Mark OK</button></td>
+      </tr>`).join('')}
+    </tbody></table>`;
+    return;
+  }
+
+  if(!parIngs.length){body.innerHTML='<div class="empty"><div class="empty-t">No ingredients marked as par stock yet — set this in the ingredient editor, Library › Ingredients</div></div>';return;}
+  const groups={};parIngs.forEach(i=>{const t=i.type||'other';(groups[t]=groups[t]||[]).push(i);});
+  body.innerHTML=Object.keys(groups).map(t=>`
+    <div class="stock-group-hd">${ING_TYPES[t]||t}</div>
+    <table class="orders-table"><thead><tr><th>Ingredient</th><th>Par level</th><th>Status</th><th>Counted</th><th>Top up</th></tr></thead><tbody>
+    ${groups[t].map(i=>{
+      const c=_stockCounts[i.id];
+      return`<tr>
+        <td>${h(i.name)}</td>
+        <td>${i.par_level!=null?fmtQty(i.par_level,i.sold_by):'—'}</td>
+        <td><span class="par-badge ${i.par_status||'ok'}">${i.par_status==='low'?'Low':i.par_status==='out'?'Out':'OK'}</span></td>
+        <td>${c?fmtQty(c.counted,i.sold_by):`<button class="btn btn-ghost btn-xs" onclick="openParCountModal('${i.id}')">Count</button>`}</td>
+        <td>${c?(c.topUp>0?fmtQty(c.topUp,i.sold_by):'—'):''}</td>
+      </tr>`;
+    }).join('')}
+    </tbody></table>
+  `).join('');
+}
+
+function openParCountModal(id){
+  const i=ingredients.find(x=>x.id===id);if(!i)return;
+  document.getElementById('par-modal-id').value=id;
+  document.getElementById('par-modal-name').textContent=i.name;
+  document.getElementById('par-modal-level').value=i.par_level!=null?i.par_level:'';
+  document.getElementById('par-modal-counted').value='';
+  openModal('par-modal');
+}
+async function confirmParCount(){
+  const id=document.getElementById('par-modal-id').value;
+  const i=ingredients.find(x=>x.id===id);if(!i)return;
+  const counted=parseFloat(document.getElementById('par-modal-counted').value);
+  if(!counted&&counted!==0){toast('Enter a count','err');return;}
+  const par=i.par_level||0;
+  const topUp=Math.max(0,par-counted);
+  _stockCounts[id]={counted,topUp,supplier:i.supplier,name:i.name,unit:i.sold_by};
+  const newStatus=counted>=par?'ok':(counted<=0?'out':'low');
+  await sb.from('ingredients').update({par_status:newStatus,par_flagged_at:newStatus==='ok'?null:new Date().toISOString()}).eq('id',id);
+  closeModal('par-modal');
+  await loadIngredients();
+  renderStock();
+}
+
+function copyStockTopUp(){
+  const items=Object.values(_stockCounts).filter(c=>c.topUp>0);
+  if(!items.length){toast('Nothing to top up yet','err');return;}
+  const bySupplier={};
+  items.forEach(c=>{const s=c.supplier||'Unassigned';(bySupplier[s]=bySupplier[s]||[]).push(c);});
+  let text='Stock top-up\n\n';
+  Object.keys(bySupplier).forEach(s=>{
+    text+=`${s}:\n`;bySupplier[s].forEach(c=>{text+=`  ${c.name} — ${fmtQty(c.topUp,c.unit)}\n`;});text+='\n';
+  });
+  navigator.clipboard.writeText(text).then(()=>toast('Copied — paste into an email')).catch(()=>toast('Could not copy','err'));
 }
 
 // ═══════════════════════════════════════════════
@@ -4039,6 +4331,7 @@ function renderDishList(){
       ${d.photo_url?`<img class="dish-thumb" src="${d.photo_url}" alt="" loading="lazy">`:`<div class="dish-thumb-placeholder">&#127374;</div>`}
       <div class="dish-name">${h(d.name)}</div>
       ${cost!=null?`<div class="dish-cost">${fmt$(cost)}/cv</div>`:`<div class="dish-cost none">--</div>`}
+      <button class="btn-recipe-view" title="View recipe" onclick="event.stopPropagation();openRecipeView('${d.id}')">📖</button>
     </div>`;}).join('')}</div>`;
   }).join('');
 }
@@ -4050,8 +4343,10 @@ function prepSubTab(tab,el){
   document.getElementById('prep-list-wrap').style.display=tab==='list'?'flex':'none';
   document.getElementById('prep-basket-wrap').style.display=tab==='basket'?'flex':'none';
   document.getElementById('prep-orders-wrap').style.display=tab==='orders'?'flex':'none';
+  document.getElementById('prep-stock-wrap').style.display=tab==='stock'?'flex':'none';
   if(tab==='board')renderPrepBoard();
   if(tab==='basket')renderBasketPicker();
+  if(tab==='stock')renderStock();
   if(tab==='orders'){
     const fromEl=document.getElementById('ord-from');
     if(fromEl&&!fromEl.value){
@@ -4298,9 +4593,14 @@ async function generateOrders(){
   if(!inRange.length){toast('No events in that range','err');return;}
   const{data:onHand}=await sb.from('ingredient_on_hand').select('*');
   const haveMap={};(onHand||[]).forEach(r=>haveMap[r.ingredient_id]=r);
-  const agg={};
+
+  // First pass: qty needed per (event, ingredient) — kept separate so a
+  // par-stock ingredient's single-event usage can be checked against its
+  // threshold before deciding whether it belongs on this order at all.
+  const perEvent={};
   inRange.forEach(ev=>{
     const job=ev.job_code||ev.client_name||'Unassigned';
+    perEvent[ev.id]=perEvent[ev.id]||{job,ings:{}};
     (ev.event_dishes||[]).forEach(ed=>{
       const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;
       (dish.components||[]).forEach(comp=>{
@@ -4317,10 +4617,28 @@ async function generateOrders(){
             if(ingObj.sold_by==='litre'&&u==='cl')qty=qty/100;
           }
           const key=ingObj?.id||name;
-          agg[key]=agg[key]||{name,unit:unit||ri.unit,total:0,byJob:{},ingredientId:ingObj?.id||null};
-          agg[key].total+=qty;agg[key].byJob[job]=(agg[key].byJob[job]||0)+qty;
+          const bucket=perEvent[ev.id].ings;
+          bucket[key]=bucket[key]||{name,unit:unit||ri.unit,qty:0,ingObj};
+          bucket[key].qty+=qty;
         });
       });
+    });
+  });
+
+  // Second pass: fold into the real order — par-stock ingredients are
+  // assumed covered by the pantry and left off entirely, unless this one
+  // event's need crosses that ingredient's own "flag if over" threshold.
+  const agg={};
+  Object.values(perEvent).forEach(({job,ings})=>{
+    Object.entries(ings).forEach(([key,{name,unit,qty,ingObj}])=>{
+      if(ingObj?.par_stock){
+        const overThreshold=ingObj.par_threshold!=null&&qty>ingObj.par_threshold;
+        if(!overThreshold)return; // pantry stock covers it, skip
+        agg[key]=agg[key]||{name,unit,total:0,byJob:{},ingredientId:ingObj?.id||null,parExceeded:true};
+      }else{
+        agg[key]=agg[key]||{name,unit,total:0,byJob:{},ingredientId:ingObj?.id||null};
+      }
+      agg[key].total+=qty;agg[key].byJob[job]=(agg[key].byJob[job]||0)+qty;
     });
   });
   _lastOrder={from,to,lines:Object.values(agg).sort((a,b)=>a.name.localeCompare(b.name)),haveMap,jobs:[...new Set(inRange.map(e=>e.job_code||e.client_name||'Unassigned'))]};
@@ -4333,7 +4651,7 @@ function renderOrders(){
     ${lines.map(l=>{
       const have=l.ingredientId&&haveMap[l.ingredientId]?parseFloat(haveMap[l.ingredientId].qty)||0:0;
       const toOrder=Math.max(0,l.total-have);
-      return`<tr><td>${h(l.name)}</td><td>${fmtQty(l.total,l.unit)}</td>
+      return`<tr><td>${h(l.name)}${l.parExceeded?' <span class="par-badge low" title="Normally pantry stock — this event needs more than the threshold">exceeds pantry</span>':''}</td><td>${fmtQty(l.total,l.unit)}</td>
         <td>${l.ingredientId?`<input type="number" step="0.1" class="ord-have-input" value="${have||''}" placeholder="0" onchange="updateOnHand('${l.ingredientId}',this.value)">`:`<input type="number" class="ord-have-input" disabled placeholder="—" title="Link this ingredient in the Library to track on-hand stock">`}</td>
         <td class="${toOrder>0?'':'ord-zero'}">${fmtQty(toOrder,l.unit)}</td></tr>`;
     }).join('')}
