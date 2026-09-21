@@ -429,34 +429,11 @@ input,select,textarea{font-family:inherit;}
 .prep-stat{display:inline-flex;flex-direction:column;background:var(--white);border-radius:var(--r);padding:12px 16px;min-width:110px;box-shadow:var(--shadow-xs);}
 .prep-stat-n{font-family:var(--serif);font-size:24px;line-height:1;}
 .prep-stat-l{font-size:11.5px;color:var(--stone);margin-top:5px;}
-.prep-event-block{background:var(--white);border-radius:var(--r-lg);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-xs);}
-.prep-event-hd{display:flex;align-items:center;gap:14px;padding:14px 20px;border-bottom:1px solid var(--line);}
-.prep-event-name{font-family:var(--serif);font-size:17px;flex:1;}
-.prep-event-date{font-size:12.5px;color:var(--stone);}
-.prep-event-urgency{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--paper2);color:var(--ink2);}
-.prep-event-urgency.red{background:var(--brick-bg);color:var(--brick);}
-.prep-event-urgency.amb{background:var(--warn-bg);color:var(--warn);}
-.prep-event-urgency.grn{background:var(--ok-bg);color:var(--ok);}
-.prep-comp-row{display:grid;grid-template-columns:30px 1fr auto auto;align-items:center;gap:14px;padding:11px 20px;border-bottom:1px solid var(--line);transition:background var(--dur) var(--ease);}
-.prep-comp-row:last-child{border-bottom:none;}
-.prep-comp-row:hover{background:var(--paper);}
-.prep-comp-info{min-width:0;}
-.prep-comp-name{font-size:14px;font-weight:500;}
-.prep-comp-dish{font-size:12px;color:var(--stone);margin-top:1px;}
-.prep-comp-portions{font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink2);}
-.prep-comp-stock{font-size:12px;color:var(--stone);}
-.prep-comp-storage{width:30px;height:30px;border-radius:50%;background:var(--paper2);display:flex;align-items:center;justify-content:center;font-size:13px;}
-.prep-comp-storage.frz{background:var(--info-bg);color:var(--info);}
-.prep-comp-storage.fri{background:var(--ok-bg);color:var(--ok);}
-.prep-comp-stock.have{color:var(--ok);font-weight:600;}
-.prep-comp-stock.partial{color:var(--warn);font-weight:600;}
-.prep-comp-stock.none{color:var(--stone);}
 .prep-bucket{background:var(--white);border-radius:var(--r-lg);margin-bottom:16px;overflow:hidden;box-shadow:var(--shadow-xs);}
 .prep-bucket-hd{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--line);}
 .prep-bucket-icon{font-size:15px;}
 .prep-bucket-title{font-weight:600;font-size:14px;flex:1;}
 .prep-bucket-count{font-size:12px;color:var(--stone);}
-.prep-ev-bar{background:var(--white);border-bottom:1px solid var(--line);padding:10px 28px;display:flex;align-items:center;gap:12px;}
 .prep-ev-sel{padding:8px 12px;border:1px solid var(--line2);border-radius:var(--r2);font-size:13.5px;background:var(--white);min-width:280px;transition:border-color var(--dur) var(--ease);}
 .prep-ev-sel:focus{outline:none;border-color:var(--ink);box-shadow:var(--ring);}
 .prep-hd{padding:18px 28px;background:var(--white);border-bottom:1px solid var(--line);}
@@ -492,22 +469,11 @@ input,select,textarea{font-family:inherit;}
 .prep-method-title{font-size:11.5px;font-weight:600;color:var(--stone);margin-bottom:6px;}
 .prep-step{display:flex;gap:10px;font-size:13px;line-height:1.5;padding:4px 0;}
 .prep-step-n{font-weight:600;color:var(--stone);min-width:18px;}
-/* Floor mode */
-.floor-header{background:var(--ink);color:#fff;height:56px;display:flex;align-items:center;padding:0 16px;gap:12px;flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.14);}
-.floor-back{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;border-radius:99px;padding:4px 8px;transition:background var(--dur) var(--ease);}
-.floor-back:hover{background:rgba(255,255,255,.12);}
-.floor-chef{font-size:12px;color:rgba(255,255,255,.6);}
-.floor-task-list{padding:16px;display:flex;flex-direction:column;gap:10px;}
-.floor-task-card{background:var(--white);border-radius:var(--r-lg);overflow:hidden;box-shadow:var(--shadow-sm);}
-.floor-task-hd{display:flex;align-items:center;gap:14px;padding:16px 18px;}
-.floor-task-icon{width:34px;height:34px;border-radius:50%;background:var(--paper2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-.floor-task-name{font-size:16px;font-weight:600;flex:1;}
-.floor-task-dish{font-size:12.5px;color:var(--stone);}
-.floor-task-state{font-size:11px;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--paper2);}
-.floor-task-body{padding:0 18px 16px;font-size:14px;}
-.floor-task-btn{width:100%;padding:14px;border:none;border-radius:var(--r2);background:var(--ink);color:#fff;font-size:15px;font-weight:600;cursor:pointer;margin-top:10px;transition:all var(--dur) var(--ease);}
-.floor-task-btn:active{transform:scale(.98);}
-.floor-task-btn.done{background:var(--ok);}
+.prep-task-tag.pt-al-c{background:var(--brick-bg);color:var(--brick);}
+.prep-task-tag.pt-al-m{background:var(--warn-bg);color:var(--warn);}
+.prep-task-tag.pt-late{background:var(--brick-bg);color:var(--brick);}
+.prep-task-tag.pt-soon{background:var(--warn-bg);color:var(--warn);}
+.queue-covered{background:var(--ok-bg);color:var(--ok);border-radius:var(--r-lg);padding:14px 18px;font-size:13.5px;font-weight:600;margin-bottom:16px;}
 
 /* ── Library ───────────────────────────────────────── */
 .lib-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
@@ -864,7 +830,7 @@ input,select,textarea{font-family:inherit;}
   .tab-item{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10.5px;font-weight:600;color:var(--stone);cursor:pointer;padding:6px 0;}
   .tab-item.active{color:var(--brick);}
   .tab-ico{font-size:18px;line-height:1;}
-  .ph,.ev-subbar,.prep-subbar,.cl-tabs,.page-bar,.lib-panel-hd,.builder-hd,.builder-steps,.wiz-bar,.b-topbar,.prep-ev-bar{padding-left:16px;padding-right:16px;}
+  .ph,.ev-subbar,.prep-subbar,.cl-tabs,.page-bar,.lib-panel-hd,.builder-hd,.builder-steps,.wiz-bar,.b-topbar,.board-bar{padding-left:16px;padding-right:16px;}
   .ph{height:54px;}
   .ph-title{font-size:19px;}
   .page-body,.pipeline-body,.prep-plan-body,.prep-body,.builder-body,.b-content,.brine-calc-wrap,.fs{padding:16px;}
@@ -939,8 +905,7 @@ input,select,textarea{font-family:inherit;}
 .board-card-actions{display:flex;gap:4px;margin-top:8px;}
 .board-card-actions .btn{flex:1;padding:3px 6px;}
 
-/* ═══ BASKET ═══ */
-#prep-basket-wrap{display:flex;}
+/* ═══ ADD TASK (batch-ahead picker, slides over the queue) ═══ */
 .basket-pick{flex:1.3;border-right:1px solid var(--line);display:flex;flex-direction:column;overflow:hidden;}
 .basket-pick-bar{padding:12px 20px;border-bottom:1px solid var(--line);display:flex;gap:8px;background:var(--white);}
 .basket-pick-bar input,.basket-pick-bar select{padding:8px 12px;border:1px solid var(--line2);border-radius:var(--r2);font-size:13px;background:var(--white);transition:border-color var(--dur) var(--ease),box-shadow var(--dur) var(--ease);}
@@ -1100,118 +1065,104 @@ input,select,textarea{font-family:inherit;}
 <div id="view-prep" class="view">
   <div class="ph">
     <span class="ph-title">Prep</span>
-    <div class="ph-actions">
-      <button class="btn btn-primary btn-sm" onclick="enterFloorMode()">⚡ Floor mode</button>
-    </div>
   </div>
   <div class="prep-subbar">
-    <button class="prep-subtab on" onclick="prepSubTab('board',this)">Board</button>
-    <button class="prep-subtab" onclick="prepSubTab('list',this)">Prep lists</button>
-    <button class="prep-subtab" onclick="prepSubTab('basket',this)">Basket</button>
-    <button class="prep-subtab" onclick="prepSubTab('orders',this)">Orders</button>
-    <button class="prep-subtab" onclick="prepSubTab('stock',this)">Stock</button>
+    <button class="prep-subtab on" id="prep-tab-queue" onclick="prepMainTab('queue',this)">Queue</button>
+    <button class="prep-subtab" id="prep-tab-sourcing" onclick="prepMainTab('sourcing',this)">Sourcing</button>
     <div style="flex:1;"></div>
   </div>
-  <!-- Board sub-view: the backlog / freezer bank -->
-  <div id="prep-board-wrap" style="display:flex;flex:1;flex-direction:column;overflow:hidden;">
-    <div class="board-bar">
-      <label style="font-size:12.5px;color:var(--stone);">Horizon</label>
-      <select id="board-horizon" class="prep-ev-sel" style="min-width:120px;" onchange="renderPrepBoard()">
-        <option value="7">7 days</option>
-        <option value="14" selected>14 days</option>
-        <option value="21">21 days</option>
-      </select>
-      <button class="btn btn-sm btn-primary" onclick="generateBoard()">⟳ Generate</button>
+
+  <!-- QUEUE: one Supabase-backed task pool (prepped_stock). By day (kanban across a horizon)
+       and By event (per-event checklist) are two views on the same rows, so Done/Move always
+       write real state — nothing here is a browser-only tick. -->
+  <div id="prep-queue-wrap" style="display:flex;flex:1;flex-direction:column;overflow:hidden;">
+    <div class="board-bar" id="queue-toolbar">
+      <div class="stock-mode-tog">
+        <button class="stock-mode-btn on" id="queue-mode-day" onclick="queueView('day')">By day</button>
+        <button class="stock-mode-btn" id="queue-mode-event" onclick="queueView('event')">By event</button>
+      </div>
+      <div id="queue-day-controls" style="display:flex;align-items:center;gap:10px;">
+        <label style="font-size:12.5px;color:var(--stone);">Horizon</label>
+        <select id="board-horizon" class="prep-ev-sel" style="min-width:120px;" onchange="renderPrepBoard()">
+          <option value="7">7 days</option>
+          <option value="14" selected>14 days</option>
+          <option value="21">21 days</option>
+        </select>
+        <button class="btn btn-sm btn-primary" onclick="generateBoard()">⟳ Generate</button>
+      </div>
+      <div id="queue-event-controls" style="display:none;align-items:center;gap:10px;">
+        <select class="prep-ev-sel" id="queue-ev-sel" onchange="refreshEventQueue()">
+          <option value="">— Select an event —</option>
+        </select>
+        <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
+      </div>
       <div style="flex:1;"></div>
       <span class="board-hours" id="board-hours"></span>
+      <button class="btn btn-sm btn-dark" onclick="openAddTask()">+ Add task</button>
     </div>
-    <div class="board-cols" id="board-cols">
-      <div class="empty"><span class="spin"></span></div>
-    </div>
-  </div>
-  <!-- Prep list sub-view (legacy) -->
-  <div id="prep-list-wrap" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-    <div class="prep-ev-bar">
-      <select class="prep-ev-sel" id="prep-ev-sel" onchange="loadPrepList()">
-        <option value="">— Select an event —</option>
-      </select>
-      <div style="flex:1;"></div>
-      <button class="btn btn-sm" onclick="window.print()">🖨 Print</button>
-    </div>
-    <div id="prep-content" style="flex:1;overflow:hidden;display:flex;flex-direction:column;">
-      <div class="empty" style="margin:auto;"><div class="empty-icon">📋</div><div class="empty-t">Select an event above</div></div>
-    </div>
-  </div>
-  <!-- Basket sub-view: opportunistic prep -->
-  <div id="prep-basket-wrap" style="display:none;flex:1;overflow:hidden;">
-    <div class="basket-pick">
-      <div class="basket-pick-bar">
-        <input type="text" id="basket-search" placeholder="Search dishes…" oninput="renderBasketPicker()">
-        <select id="basket-cat" onchange="renderBasketPicker()">
-          <option value="">All categories</option>
-        </select>
+    <div id="queue-main" style="display:flex;flex:1;flex-direction:column;overflow:hidden;">
+      <div class="board-cols" id="board-cols">
+        <div class="empty"><span class="spin"></span></div>
       </div>
-      <div id="basket-pick-list" class="basket-pick-list"></div>
-    </div>
-    <div class="basket-sum">
-      <div class="basket-sum-hd">Shopping list <span id="basket-count" style="color:var(--stone);font-weight:400;"></span></div>
-      <div id="basket-sum-body" class="basket-sum-body">
-        <div class="empty" style="margin:auto;"><div class="empty-t">Tick components on the left</div></div>
+      <div id="queue-event-body" style="display:none;flex:1;overflow:hidden;flex-direction:column;">
+        <div class="empty" style="margin:auto;"><div class="empty-icon">📋</div><div class="empty-t">Select an event above</div></div>
       </div>
-      <div class="basket-sum-actions">
-        <button class="btn btn-sm" onclick="copyBasketList()">📋 Copy list</button>
-        <button class="btn btn-sm btn-primary" onclick="openBasketLogModal()">❄ Log batch to freezer</button>
+    </div>
+    <!-- Add task: batch-ahead picker, slides over the queue, returns to whichever view was open -->
+    <div id="prep-add-wrap" style="display:none;flex:1;overflow:hidden;">
+      <div class="basket-pick">
+        <div class="basket-pick-bar">
+          <button class="btn btn-sm" onclick="closeAddTask()">← Back</button>
+          <input type="text" id="basket-search" placeholder="Search dishes…" oninput="renderBasketPicker()">
+          <select id="basket-cat" onchange="renderBasketPicker()">
+            <option value="">All categories</option>
+          </select>
+        </div>
+        <div id="basket-pick-list" class="basket-pick-list"></div>
+      </div>
+      <div class="basket-sum">
+        <div class="basket-sum-hd">Batch <span id="basket-count" style="color:var(--stone);font-weight:400;"></span></div>
+        <div id="basket-sum-body" class="basket-sum-body">
+          <div class="empty" style="margin:auto;"><div class="empty-t">Tick components to batch together</div></div>
+        </div>
+        <div class="basket-sum-actions">
+          <button class="btn btn-sm" onclick="copyBasketList()">📋 Copy list</button>
+          <button class="btn btn-sm btn-primary" onclick="openAddTaskConfirm()">Add to queue</button>
+        </div>
       </div>
     </div>
   </div>
-  <!-- Orders sub-view: weekly ingredient ordering -->
-  <div id="prep-orders-wrap" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
-    <div class="board-bar">
-      <label style="font-size:12.5px;color:var(--stone);">From</label>
-      <input type="date" id="ord-from" class="prep-ev-sel" style="min-width:140px;">
-      <label style="font-size:12.5px;color:var(--stone);">To</label>
-      <input type="date" id="ord-to" class="prep-ev-sel" style="min-width:140px;">
-      <button class="btn btn-sm btn-primary" onclick="generateOrders()">⟳ Generate</button>
-      <div style="flex:1;"></div>
-      <button class="btn btn-sm" onclick="copyOrderEmail()">✉ Copy for supplier</button>
-      <button class="btn btn-sm" onclick="window.print()">🖨 Print pick list</button>
-    </div>
-    <div id="orders-body" class="orders-body">
-      <div class="empty"><div class="empty-t">Set a date range and generate</div></div>
-    </div>
-  </div>
-  <!-- Stock sub-view: par-level dry-store/frozen stock, separate from event-driven ordering -->
-  <div id="prep-stock-wrap" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+
+  <!-- SOURCING: ingredient buying — event-driven demand and pantry par-level top-up -->
+  <div id="prep-sourcing-wrap" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
     <div class="board-bar">
       <div class="stock-mode-tog">
+        <button class="stock-mode-btn on" id="sourcing-mode-events" onclick="sourcingView('events')">For events</button>
+        <button class="stock-mode-btn" id="sourcing-mode-stock" onclick="sourcingView('stock')">Par stock</button>
+      </div>
+      <div id="sourcing-events-controls" style="display:flex;align-items:center;gap:10px;">
+        <label style="font-size:12.5px;color:var(--stone);">From</label>
+        <input type="date" id="ord-from" class="prep-ev-sel" style="min-width:140px;">
+        <label style="font-size:12.5px;color:var(--stone);">To</label>
+        <input type="date" id="ord-to" class="prep-ev-sel" style="min-width:140px;">
+        <button class="btn btn-sm btn-primary" onclick="generateOrders()">⟳ Generate</button>
+      </div>
+      <div id="sourcing-stock-controls" style="display:none;align-items:center;gap:10px;">
         <button class="stock-mode-btn on" id="stock-mode-flagged" onclick="setStockMode('flagged')">Flagged</button>
         <button class="stock-mode-btn" id="stock-mode-full" onclick="setStockMode('full')">Full stock-take</button>
       </div>
       <div style="flex:1;"></div>
+      <button class="btn btn-sm" id="sourcing-copy-events" onclick="copyOrderEmail()">✉ Copy for supplier</button>
+      <button class="btn btn-sm" id="sourcing-print-events" onclick="window.print()">🖨 Print pick list</button>
       <button class="btn btn-sm" id="stock-copy-btn" style="display:none;" onclick="copyStockTopUp()">✉ Copy top-up for supplier</button>
     </div>
-    <div id="stock-body" class="orders-body">
+    <div id="orders-body" class="orders-body">
+      <div class="empty"><div class="empty-t">Set a date range and generate</div></div>
+    </div>
+    <div id="stock-body" class="orders-body" style="display:none;">
       <div class="empty"><div class="empty-t">Loading…</div></div>
     </div>
   </div>
-</div>
-
-<!-- ══ FLOOR MODE ══════════════════════════════════════ -->
-<div id="view-floor" class="view">
-  <div class="floor-header">
-    <button class="floor-back" onclick="sbNav('prep',null)">←</button>
-    <span style="font-family:var(--serif);font-size:16px;color:var(--t1);flex:1;text-align:center;" id="floor-session-name">Floor Mode</span>
-    <span class="floor-chef" id="floor-view-label">All tasks</span>
-  </div>
-  <!-- Lead / individual toggle -->
-  <div class="prep-subbar">
-    <button class="prep-subtab on" id="floor-tab-all" onclick="floorTab('all',this)">My tasks</button>
-    <button class="prep-subtab" id="floor-tab-lead" onclick="floorTab('lead',this)">Lead view</button>
-    <div style="flex:1;"></div>
-    <span style="font-size:11px;color:var(--t4);font-variant-numeric:tabular-nums;padding-right:8px;" id="floor-progress-label"></span>
-  </div>
-  <div id="floor-tasks-wrap" style="flex:1;overflow-y:auto;" class="floor-task-list"></div>
-  <div id="floor-lead-wrap" style="display:none;flex:1;overflow-y:auto;"></div>
 </div>
 
 <!-- ══ LIBRARY ═════════════════════════════════════════ -->
@@ -1645,14 +1596,18 @@ input,select,textarea{font-family:inherit;}
 </div>
 </div>
 
-<div class="modal-ov" id="basket-log-modal">
+<div class="modal-ov" id="add-task-modal">
 <div class="modal" style="width:460px;">
-  <div class="modal-hd"><div class="modal-title">Log batch to freezer</div><button class="modal-close" onclick="closeModal('basket-log-modal')">×</button></div>
+  <div class="modal-hd"><div class="modal-title">Add to queue</div><button class="modal-close" onclick="closeModal('add-task-modal')">×</button></div>
   <div class="modal-body">
-    <div class="fld"><label class="fld-label">Where's it going?</label><input class="fld-inp" id="bl-location" placeholder="e.g. Freezer 2"></div>
-    <div id="bl-items" style="margin-top:6px;"></div>
+    <div id="at-items" style="margin-top:2px;"></div>
+    <div class="fld" style="margin:10px 0 0;"><label class="fld-label">Where's it stored? <span style="font-weight:400;color:var(--stone);">(only if made now)</span></label><input class="fld-inp" id="at-location" placeholder="e.g. Freezer 2"></div>
   </div>
-  <div class="modal-foot"><button class="btn" onclick="closeModal('basket-log-modal')">Cancel</button><button class="btn btn-dark" onclick="confirmBasketLog()">Log all</button></div>
+  <div class="modal-foot">
+    <button class="btn" onclick="closeModal('add-task-modal')">Cancel</button>
+    <button class="btn" onclick="confirmAddTask('planned')">Schedule it</button>
+    <button class="btn btn-dark" onclick="confirmAddTask('available')">Made now</button>
+  </div>
 </div>
 </div>
 
@@ -1706,7 +1661,7 @@ const BUCKETS={advance:{label:'Advance prep — ❄ Freeze',cls:'adv',fn:c=>c.fr
 let dishes=[],events=[],ingredients=[],stock=[],production_runs=[];
 let _ddStep=1,_ddAlState={},_ddComps=[],_ddData={};
 let _dlFilter='all',_ingFilter='all',_evTab='upcoming';
-let _prepDone={},_prepTasks=[];
+let _prepTasks=[];
 let _settings={buffer:14,ngrok:'https://palatable-shack-scallion.ngrok-free.dev'};
 let _formDirty=false;
 
@@ -1884,7 +1839,7 @@ async function loadIngredients(){
 
 function populateSelects(){
   const up=events.filter(e=>new Date(e.event_date)>=new Date()&&e.status!=='Cancelled').sort((a,b)=>new Date(a.event_date)-new Date(b.event_date));
-  ['prep-ev-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const prev=el.value;el.innerHTML='<option value="">— select event —</option>'+up.map(e=>`<option value="${e.id}">${h(e.client_name)} — ${fmtShort(e.event_date)}</option>`).join('');if(prev)el.value=prev;});
+  ['queue-ev-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const prev=el.value;el.innerHTML='<option value="">— select event —</option>'+up.map(e=>`<option value="${e.id}">${h(e.client_name)} — ${fmtShort(e.event_date)}</option>`).join('');if(prev)el.value=prev;});
   ['al-ev-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const prev=el.value;el.innerHTML='<option value="">Full library</option>'+up.map(e=>`<option value="${e.id}">${h(e.client_name)} — ${fmtShort(e.event_date)}</option>`).join('');if(prev)el.value=prev;});
 }
 
@@ -2688,7 +2643,7 @@ async function markPayment(evId,status){
   if(dw&&dw.style.display==='block')showEventDetail(evId);
 }
 
-function goPrep(evId){document.getElementById('prep-ev-sel').value=evId;loadPrepList();sbNav('prep');}
+function goPrep(evId){document.getElementById('queue-ev-sel').value=evId;sbNav('prep');prepMainTab('queue',document.getElementById('prep-tab-queue'));queueView('event');}
 
 function genJobCode(evType,date){const d=new Date(date);return'DF'+String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+String(d.getFullYear()).slice(2)+(evType||'EV');}
 
@@ -3196,9 +3151,11 @@ function calRenderRight(){
 
 
 // ═══════════════════════════════════════════════
-// PREP LIST — full rewrite
+// QUEUE — by-event view (same prepped_stock rows the by-day board uses;
+// opening an event tops up its shortfall the same way Generate does,
+// scoped to just that event, so the list is always current — and Done
+// always writes real quantity/location to Supabase, never a local tick)
 // ═══════════════════════════════════════════════
-// _prepDone already declared above
 
 function fmtQty(qty, unit) {
   if (!qty) return '—';
@@ -3208,49 +3165,82 @@ function fmtQty(qty, unit) {
   return qty.toFixed(1) + (unit ? ' ' + unit : '');
 }
 
-async function loadPrepList() {
-  const evId = document.getElementById('prep-ev-sel').value;
-  const wrap = document.getElementById('prep-content');
+// Shortfall math shared by the day board's Generate and the by-event
+// auto-refresh below — one calculation, so the two views always agree.
+function shortfallRowsForEvents(eventList, stockRows) {
+  const toInsert = [];
+  eventList.forEach(ev => {
+    (ev.event_dishes || []).forEach(ed => {
+      const dish = dishes.find(d => d.id === ed.dish_id); if (!dish) return;
+      (dish.components || []).forEach(comp => {
+        const need = comp.qty_per_cover ? Math.ceil(comp.qty_per_cover * (ev.covers || 0)) : (ev.covers || 0); if (!need) return;
+        const have = stockRows.filter(r => r.component_id === comp.id && r.status === 'available' && (!r.assigned_event || r.assigned_event === ev.id))
+          .reduce((s, r) => s + (parseFloat(r.qty) || 0), 0);
+        const planned = stockRows.filter(r => r.component_id === comp.id && r.status === 'planned' && r.assigned_event === ev.id)
+          .reduce((s, r) => s + (parseFloat(r.qty) || 0), 0);
+        const shortfall = need - have - planned;
+        if (shortfall > 0.5) {
+          toInsert.push({ component_id: comp.id, component_name: comp.name, dish_id: dish.id, dish_name: dish.name,
+            qty: Math.ceil(shortfall), unit: comp.unit || 'portions', status: 'planned', assigned_event: ev.id,
+            job_code: ev.job_code || null, planned_date: null, time_estimate_mins: comp.time_estimate_mins || null });
+        }
+      });
+    });
+  });
+  return toInsert;
+}
+
+let _queueEventRows = [];
+
+async function refreshEventQueue() {
+  const evId = document.getElementById('queue-ev-sel').value;
+  const wrap = document.getElementById('queue-event-body');
   if (!evId) {
-    wrap.innerHTML = '<div class="empty" style="margin:auto;"><div class="empty-icon">📋</div><div class="empty-title">Select an event above</div></div>';
+    wrap.innerHTML = '<div class="empty" style="margin:auto;"><div class="empty-icon">📋</div><div class="empty-t">Select an event above</div></div>';
     return;
   }
   wrap.innerHTML = '<div class="empty" style="margin:auto;"><span class="spin"></span></div>';
-  
+
   const ev = events.find(e => e.id === evId);
   if (!ev) return;
-  
-  // Load saved completion state
-  _prepDone = JSON.parse(localStorage.getItem('prep-done-' + evId) || '{}');
-  
-  // Get dishes for this event
-  const evDishIds = (ev.event_dishes || []).map(ed => ed.dish_id);
-  const evDishes = dishes.filter(d => evDishIds.includes(d.id));
-  
-  // Build task list
-  const tasks = [];
-  evDishes.forEach(dish => {
-    (dish.components || []).sort((a,b)=>a.sort_order-b.sort_order).forEach(comp => {
-      const covers = ev.covers || 0;
-      const base = comp.base_portions || 10;
-      const batches = Math.max(1, Math.ceil(covers / base));
-      const bucket = comp.freeze_flag ? 'freeze' : comp.fridge_flag ? 'fridge' : 'fresh';
-      tasks.push({ dish, comp, covers, base, batches, bucket });
-    });
+
+  const { data: stockData } = await sb.from('prepped_stock').select('*');
+  const rows = stockData || [];
+  const toInsert = shortfallRowsForEvents([ev], rows);
+  if (toInsert.length) { for (const row of toInsert) { await sb.from('prepped_stock').insert(row); } }
+
+  const { data: fresh } = await sb.from('prepped_stock').select('*').eq('assigned_event', evId);
+  _queueEventRows = fresh || [];
+  renderQueueByEvent();
+}
+
+function renderQueueByEvent() {
+  const evId = document.getElementById('queue-ev-sel').value;
+  const wrap = document.getElementById('queue-event-body');
+  if (!wrap || !evId) return;
+  const ev = events.find(e => e.id === evId);
+  if (!ev) return;
+
+  const open = _queueEventRows.filter(r => r.status === 'planned');
+  const made = _queueEventRows.filter(r => r.status === 'available');
+
+  const bucketOf = c => {
+    const comp = dishes.flatMap(d => d.components || []).find(cc => cc.id === c.component_id);
+    return comp?.freeze_flag ? 'freeze' : comp?.fridge_flag ? 'fridge' : 'fresh';
+  };
+  const freeze = open.filter(c => bucketOf(c) === 'freeze');
+  const fridge = open.filter(c => bucketOf(c) === 'fridge');
+  const fresh  = open.filter(c => bucketOf(c) === 'fresh');
+
+  let totalMins = 0;
+  open.forEach(c => {
+    if (c.time_estimate_mins) {
+      const comp = dishes.flatMap(d => d.components || []).find(cc => cc.id === c.component_id);
+      const base = comp?.base_portions || 10;
+      totalMins += c.time_estimate_mins * Math.max(1, (parseFloat(c.qty) || base) / base);
+    }
   });
-  
-  const freeze = tasks.filter(t => t.bucket === 'freeze');
-  const fridge = tasks.filter(t => t.bucket === 'fridge');
-  const fresh  = tasks.filter(t => t.bucket === 'fresh');
-  
-  const totalMins = tasks.reduce((s, t) => {
-    const mins = parseInt(t.comp.estimated_minutes) || 0;
-    return s + mins * t.batches;
-  }, 0);
-  
-  const doneCount = tasks.filter(t => _prepDone[t.comp.id]).length;
-  
-  // Render header
+
   const hdHTML = `
     <div class="prep-hd">
       <div class="prep-hd-client">${h(ev.client_name)}</div>
@@ -3261,23 +3251,27 @@ async function loadPrepList() {
         <div class="prep-hd-pill">${EV_TYPES[ev.event_type]||ev.event_type||''}</div>
       </div>
       <div class="prep-hd-stats">
-        <div class="prep-stat"><div class="prep-stat-n">${tasks.length}</div><div class="prep-stat-l">Total tasks</div></div>
+        <div class="prep-stat"><div class="prep-stat-n">${open.length}</div><div class="prep-stat-l">Still to prep</div></div>
         <div class="prep-stat"><div class="prep-stat-n">${freeze.length}</div><div class="prep-stat-l">Freeze ahead</div></div>
         <div class="prep-stat"><div class="prep-stat-n">${fridge.length}</div><div class="prep-stat-l">Fridge ahead</div></div>
         <div class="prep-stat"><div class="prep-stat-n">${fresh.length}</div><div class="prep-stat-l">Day of</div></div>
         ${totalMins ? `<div class="prep-stat"><div class="prep-stat-n">${totalMins >= 60 ? Math.floor(totalMins/60)+'h '+(totalMins%60||'') : totalMins+'m'}</div><div class="prep-stat-l">Est. time</div></div>` : ''}
-        <div class="prep-stat"><div class="prep-stat-n">${doneCount}/${tasks.length}</div><div class="prep-stat-l">Done</div></div>
+        <div class="prep-stat"><div class="prep-stat-n">${made.length}</div><div class="prep-stat-l">Already made</div></div>
       </div>
     </div>
   `;
-  
-  // Render buckets
+
+  if (!open.length) {
+    wrap.innerHTML = hdHTML + `<div class="prep-body"><div class="queue-covered">✓ Fully covered — everything this event needs is made or already queued</div>${made.length ? madeListHTML(made) : ''}</div>`;
+    return;
+  }
+
   const buckets = [
-    { key: 'freeze', cls: 'pb-freeze', icon: '❄', label: 'Freeze ahead', sub: 'Make now — freeze until needed', tasks: freeze },
-    { key: 'fridge', cls: 'pb-fridge', icon: '🧊', label: 'Fridge ahead', sub: 'Make 1–3 days before event', tasks: fridge },
-    { key: 'fresh',  cls: 'pb-fresh',  icon: '○', label: 'Day of service', sub: 'Prepare fresh on the day', tasks: fresh },
+    { cls: 'pb-freeze', icon: '❄', label: 'Freeze ahead', sub: 'Make now — freeze until needed', tasks: freeze },
+    { cls: 'pb-fridge', icon: '🧊', label: 'Fridge ahead', sub: 'Make 1–3 days before event', tasks: fridge },
+    { cls: 'pb-fresh',  icon: '○', label: 'Day of service', sub: 'Prepare fresh on the day', tasks: fresh },
   ].filter(b => b.tasks.length);
-  
+
   const bucketsHTML = buckets.map(b => `
     <div class="prep-bucket ${b.cls}">
       <div class="prep-bucket-hd">
@@ -3286,52 +3280,62 @@ async function loadPrepList() {
         <span class="prep-bucket-count">${b.tasks.length} task${b.tasks.length!==1?'s':''} &middot; ${b.sub}</span>
       </div>
       <div class="prep-tasks">
-        ${b.tasks.map(t => prepTaskHTML(t)).join('')}
+        ${b.tasks.map(c => queueTaskCardHTML(c)).join('')}
       </div>
     </div>
   `).join('');
-  
-  wrap.innerHTML = `
-    ${hdHTML}
-    <div class="prep-body">${bucketsHTML}</div>
-  `;
+
+  wrap.innerHTML = hdHTML + `<div class="prep-body">${bucketsHTML}${made.length ? madeListHTML(made) : ''}</div>`;
 }
 
-function prepTaskHTML(t) {
-  const { dish, comp, covers, base, batches } = t;
-  const done = !!_prepDone[comp.id];
-  const ings = comp.recipe_ingredients || [];
-  const steps = (comp.recipe_steps || []).sort((a,b) => (a.step_number||a.sort_order||0) - (b.step_number||b.sort_order||0));
-  const als = comp.component_allergens || [];
+function madeListHTML(made) {
+  return `<div class="prep-bucket">
+    <div class="prep-bucket-hd"><span class="prep-bucket-icon">✓</span><span class="prep-bucket-title">Already made</span><span class="prep-bucket-count">${made.length} in the bank</span></div>
+    <div class="prep-tasks">${made.map(c => `<div class="prep-task done" style="cursor:default;"><div class="prep-task-hd" style="cursor:default;"><div class="prep-task-cb" style="pointer-events:none;">✓</div><div class="prep-task-info"><div class="prep-task-name">${h(c.component_name)}</div><div class="prep-task-dish">${h(c.dish_name||'')} &middot; ${fmtQty(c.qty,c.unit)}${c.notes?' &middot; '+h(c.notes):''}</div></div></div></div>`).join('')}</div>
+  </div>`;
+}
+
+// Unified task card for the by-event view — the same qty/storage metadata a
+// day-board card shows, plus the expandable recipe detail the old per-event
+// prep list showed (ingredients scaled to whole batches, method, allergens).
+function queueTaskCardHTML(c) {
+  const dish = dishes.find(d => d.id === c.dish_id);
+  const comp = dish?.components?.find(cc => cc.id === c.component_id);
+  const base = comp?.base_portions || 10;
+  const batches = Math.max(1, Math.ceil((parseFloat(c.qty) || 0) / base));
+  const ings = comp?.recipe_ingredients || [];
+  const steps = (comp?.recipe_steps || []).sort((a,b) => (a.step_number||a.sort_order||0) - (b.step_number||b.sort_order||0));
+  const als = comp?.component_allergens || [];
   const hasDetail = ings.length > 0 || steps.length > 0;
-  
-  const alTags = als.map(a =>
-    `<span class="prep-task-tag ${a.status==='Contains'?'pt-al-c':'pt-al-m'}">${a.allergen} ${a.status==='May Contain'?'(MC)':''}</span>`
-  ).join('');
-  
-  const ingRows = ings.map(i => {
-    const scaledQty = ((i.qty || i.quantity || 0) * batches);
-    return `<tr>
-      <td>${h(i.ingredient_name || i.name)}</td>
-      <td class="prep-ing-qty">${fmtQty(scaledQty, i.unit)}</td>
-    </tr>`;
-  }).join('');
-  
-  const stepRows = steps.map((s,idx) =>
-    `<div class="prep-step"><span class="prep-step-n">${s.step_number||idx+1}.</span><span>${h(s.instruction||'')}</span></div>`
-  ).join('');
-  
+  const storageIcon = comp?.freeze_flag ? '&#10052;' : comp?.fridge_flag ? '&#129514;' : '&#9675;';
+
+  const ev = c.assigned_event ? events.find(e => e.id === c.assigned_event) : null;
+  let deadlineTag = '';
+  if (ev) {
+    const lead = comp?.lead_time_days || 0;
+    const deadline = new Date(ev.event_date + 'T00:00:00'); deadline.setDate(deadline.getDate() - lead);
+    const now = new Date(); now.setHours(0,0,0,0);
+    const daysLeft = Math.round((deadline - now) / 86400000);
+    deadlineTag = daysLeft < 0 ? `<span class="prep-task-tag pt-late">overdue</span>` : daysLeft <= 2 ? `<span class="prep-task-tag pt-soon">${daysLeft}d left</span>` : `<span class="prep-task-tag">${daysLeft}d left</span>`;
+  }
+
+  const alTags = als.map(a => `<span class="prep-task-tag ${a.status==='Contains'?'pt-al-c':'pt-al-m'}">${a.allergen} ${a.status==='May Contain'?'(MC)':''}</span>`).join('');
+  const ingRows = ings.map(i => `<tr><td>${h(i.ingredient_name || i.name)}</td><td class="prep-ing-qty">${fmtQty((i.qty||i.quantity||0)*batches, i.unit)}</td></tr>`).join('');
+  const stepRows = steps.map((s,idx) => `<div class="prep-step"><span class="prep-step-n">${s.step_number||idx+1}.</span><span>${h(s.instruction||'')}</span></div>`).join('');
+
   return `
-    <div class="prep-task${done?' done':''}${hasDetail?' expanded':''}" id="ptask-${comp.id}">
-      <div class="prep-task-hd" onclick="prepToggleExpand('${comp.id}')">
-        <div class="prep-task-cb" onclick="event.stopPropagation();prepToggleDone('${comp.id}')"></div>
+    <div class="prep-task${hasDetail?' expanded':''}" id="qtask-${c.id}">
+      <div class="prep-task-hd" onclick="${hasDetail?`queueToggleExpand('${c.id}')`:''}">
+        <div class="prep-task-cb" style="cursor:default;">${storageIcon}</div>
         <div class="prep-task-info">
-          <div class="prep-task-name">${h(comp.name)}</div>
-          <div class="prep-task-dish">${h(dish.name)}</div>
-          ${comp.chef_note ? `<div class="prep-task-note">${h(comp.chef_note.slice(0,120))}${comp.chef_note.length>120?'…':''}</div>` : ''}
+          <div class="prep-task-name">${h(c.component_name)} <span style="font-weight:400;color:var(--stone);">— ${fmtQty(c.qty,c.unit)}</span></div>
+          <div class="prep-task-dish">${h(c.dish_name||'')}</div>
           <div class="prep-task-tags">
-            <span class="prep-task-tag pt-batch">${batches === 1 ? '1 batch' : batches + ' batches'} &middot; ${covers} covers</span>
-            ${alTags}
+            <span class="prep-task-tag pt-batch">${batches === 1 ? '1 batch' : batches + ' batches'}</span>
+            ${ev?`<span class="prep-task-tag">${h(ev.client_name||'')}</span>`:'<span class="prep-task-tag">General bank</span>'}
+            ${deadlineTag}${alTags}
+            <button class="btn btn-xs btn-primary" onclick="event.stopPropagation();openBoardDoneModal('${c.id}')">Done</button>
+            <button class="btn btn-xs" onclick="event.stopPropagation();openBoardMoveModal('${c.id}')">Move</button>
           </div>
         </div>
         ${hasDetail ? `<div class="prep-task-toggle"><span class="prep-task-toggle-arrow">▶</span></div>` : ''}
@@ -3340,7 +3344,7 @@ function prepTaskHTML(t) {
         <div class="prep-task-detail">
           ${ings.length ? `
             <table class="prep-ing-table">
-              <thead><tr><th>Ingredient</th><th style="text-align:right;">Quantity (${batches > 1 ? batches + ' batches' : 'scaled'})</th></tr></thead>
+              <thead><tr><th>Ingredient</th><th style="text-align:right;">Quantity (${batches > 1 ? batches + ' batches' : '1 batch'})</th></tr></thead>
               <tbody>${ingRows}</tbody>
             </table>` : ''}
           ${steps.length ? `
@@ -3353,24 +3357,8 @@ function prepTaskHTML(t) {
   `;
 }
 
-function prepToggleExpand(cid) {
-  document.getElementById('ptask-' + cid)?.classList.toggle('expanded');
-}
-
-function prepToggleDone(cid) {
-  const evId = document.getElementById('prep-ev-sel').value;
-  const el = document.getElementById('ptask-' + cid);
-  if (!el) return;
-  if (_prepDone[cid]) {
-    delete _prepDone[cid];
-    el.classList.remove('done');
-  } else {
-    _prepDone[cid] = true;
-    el.classList.add('done');
-  }
-  localStorage.setItem('prep-done-' + evId, JSON.stringify(_prepDone));
-  // Update done count in header
-  loadPrepList();
+function queueToggleExpand(cid) {
+  document.getElementById('qtask-' + cid)?.classList.toggle('expanded');
 }
 
 
@@ -3889,7 +3877,13 @@ function sbNav(view,el){
     if(_evTab==='calendar'){const calWrap=document.getElementById('ev-calendar-wrap');if(calWrap)calWrap.style.display='flex';calInit();}
     else{const listEl=document.getElementById('events-list');if(listEl){listEl.style.display='flex';listEl.style.flexDirection='column';}renderEventsList();}
   }
-  else if(view==='prep')loadPrepList();
+  else if(view==='prep'){
+    if(document.getElementById('prep-sourcing-wrap')?.style.display==='flex'){
+      if(document.getElementById('sourcing-mode-stock')?.classList.contains('on'))renderStock();else renderOrders();
+    }else{
+      if(document.getElementById('queue-mode-event')?.classList.contains('on'))refreshEventQueue();else renderPrepBoard();
+    }
+  }
   else if(view==='library'){renderDishList();}
   else if(view==='cleaning')initCleaning();
   else if(view==='butchery')bDashboard();
@@ -4104,24 +4098,51 @@ function renderDishList(){
   }).join('');
 }
 
-function prepSubTab(tab,el){
+function prepMainTab(tab,el){
   document.querySelectorAll('#view-prep .prep-subtab').forEach(t=>t.classList.remove('on'));
   if(el)el.classList.add('on');
-  document.getElementById('prep-board-wrap').style.display=tab==='board'?'flex':'none';
-  document.getElementById('prep-list-wrap').style.display=tab==='list'?'flex':'none';
-  document.getElementById('prep-basket-wrap').style.display=tab==='basket'?'flex':'none';
-  document.getElementById('prep-orders-wrap').style.display=tab==='orders'?'flex':'none';
-  document.getElementById('prep-stock-wrap').style.display=tab==='stock'?'flex':'none';
-  if(tab==='board')renderPrepBoard();
-  if(tab==='basket')renderBasketPicker();
-  if(tab==='stock')renderStock();
-  if(tab==='orders'){
+  document.getElementById('prep-queue-wrap').style.display=tab==='queue'?'flex':'none';
+  document.getElementById('prep-sourcing-wrap').style.display=tab==='sourcing'?'flex':'none';
+  if(tab==='queue')queueView(document.getElementById('queue-mode-event').classList.contains('on')?'event':'day');
+  if(tab==='sourcing')sourcingView(document.getElementById('sourcing-mode-stock').classList.contains('on')?'stock':'events');
+}
+
+function queueView(mode){
+  document.getElementById('queue-mode-day').classList.toggle('on',mode==='day');
+  document.getElementById('queue-mode-event').classList.toggle('on',mode==='event');
+  document.getElementById('queue-day-controls').style.display=mode==='day'?'flex':'none';
+  document.getElementById('queue-event-controls').style.display=mode==='event'?'flex':'none';
+  document.getElementById('board-cols').style.display=mode==='day'?'flex':'none';
+  document.getElementById('board-hours').style.display=mode==='day'?'':'none';
+  document.getElementById('queue-event-body').style.display=mode==='event'?'flex':'none';
+  if(mode==='day')renderPrepBoard();
+  else if(document.getElementById('queue-ev-sel').value)refreshEventQueue();
+  else document.getElementById('queue-event-body').innerHTML='<div class="empty" style="margin:auto;"><div class="empty-icon">📋</div><div class="empty-t">Select an event above</div></div>';
+}
+
+function renderActiveQueueView(){
+  if(document.getElementById('queue-mode-event')?.classList.contains('on'))refreshEventQueue();else renderPrepBoard();
+}
+
+function sourcingView(mode){
+  document.getElementById('sourcing-mode-events').classList.toggle('on',mode==='events');
+  document.getElementById('sourcing-mode-stock').classList.toggle('on',mode==='stock');
+  document.getElementById('sourcing-events-controls').style.display=mode==='events'?'flex':'none';
+  document.getElementById('sourcing-stock-controls').style.display=mode==='stock'?'flex':'none';
+  document.getElementById('sourcing-copy-events').style.display=mode==='events'?'':'none';
+  document.getElementById('sourcing-print-events').style.display=mode==='events'?'':'none';
+  document.getElementById('orders-body').style.display=mode==='events'?'':'none';
+  document.getElementById('stock-body').style.display=mode==='stock'?'':'none';
+  document.getElementById('stock-copy-btn').style.display=(mode==='stock'&&_stockMode==='full')?'':'none';
+  if(mode==='events'){
     const fromEl=document.getElementById('ord-from');
     if(fromEl&&!fromEl.value){
       const today=new Date(),weekOut=new Date(today.getTime()+7*86400000);
       fromEl.value=today.toISOString().split('T')[0];
       document.getElementById('ord-to').value=weekOut.toISOString().split('T')[0];
     }
+  }else{
+    renderStock();
   }
 }
 
@@ -4140,25 +4161,7 @@ async function generateBoard(){
 
   const{data:stockData}=await sb.from('prepped_stock').select('*');
   const rows=stockData||[];
-  const toInsert=[];
-  upcoming.forEach(ev=>{
-    (ev.event_dishes||[]).forEach(ed=>{
-      const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;
-      (dish.components||[]).forEach(comp=>{
-        const need=comp.qty_per_cover?Math.ceil(comp.qty_per_cover*(ev.covers||0)):(ev.covers||0);if(!need)return;
-        const have=rows.filter(r=>r.component_id===comp.id&&r.status==='available'&&(!r.assigned_event||r.assigned_event===ev.id))
-          .reduce((s,r)=>s+(parseFloat(r.qty)||0),0);
-        const planned=rows.filter(r=>r.component_id===comp.id&&r.status==='planned'&&r.assigned_event===ev.id)
-          .reduce((s,r)=>s+(parseFloat(r.qty)||0),0);
-        const shortfall=need-have-planned;
-        if(shortfall>0.5){
-          toInsert.push({component_id:comp.id,component_name:comp.name,dish_id:dish.id,dish_name:dish.name,
-            qty:Math.ceil(shortfall),unit:comp.unit||'portions',status:'planned',assigned_event:ev.id,
-            job_code:ev.job_code||null,planned_date:null,time_estimate_mins:comp.time_estimate_mins||null});
-        }
-      });
-    });
-  });
+  const toInsert=shortfallRowsForEvents(upcoming,rows);
   if(toInsert.length){
     for(const row of toInsert){await sb.from('prepped_stock').insert(row);}
     toast(`Added ${toInsert.length} task${toInsert.length!==1?'s':''} to the pool`);
@@ -4232,11 +4235,17 @@ async function boardDrop(e,iso){
   await sb.from('prepped_stock').update({planned_date:iso}).eq('id',_dragCardId);
   _dragCardId=null;renderPrepBoard();
 }
-async function boardDelete(id){if(!confirm('Remove this task card? This does not affect the event menu.'))return;await sb.from('prepped_stock').delete().eq('id',id);renderPrepBoard();}
+async function boardDelete(id){if(!confirm('Remove this task card? This does not affect the event menu.'))return;await sb.from('prepped_stock').delete().eq('id',id);renderActiveQueueView();}
+
+// Card lookup spans both queue views — a card acted on from By event may not
+// be in the by-day board's own (horizon-limited) fetch, and vice versa.
+function findQueueCard(id){
+  return (_boardData.cards||[]).find(c=>c.id===id)||(_queueEventRows||[]).find(c=>c.id===id);
+}
 
 // Touch-friendly move — a Move button + day picker, since native HTML5 drag doesn't fire on touchscreens
 function openBoardMoveModal(id){
-  const card=(_boardData.cards||[]).find(c=>c.id===id);if(!card)return;
+  const card=findQueueCard(id);if(!card)return;
   document.getElementById('bm-card-id').value=id;
   document.getElementById('bm-comp-name').textContent=card.component_name;
   const days=parseInt(document.getElementById('board-horizon')?.value)||14;
@@ -4253,11 +4262,11 @@ async function confirmBoardMove(){
   const id=document.getElementById('bm-card-id').value;
   const iso=document.getElementById('bm-day-sel').value||null;
   await sb.from('prepped_stock').update({planned_date:iso}).eq('id',id);
-  closeModal('board-move-modal');renderPrepBoard();
+  closeModal('board-move-modal');renderActiveQueueView();
 }
 
 function openBoardDoneModal(id){
-  const card=(_boardData.cards||[]).find(c=>c.id===id);if(!card)return;
+  const card=findQueueCard(id);if(!card)return;
   document.getElementById('bd-card-id').value=id;
   document.getElementById('bd-comp-name').textContent=card.component_name;
   document.getElementById('bd-qty').value=card.qty;
@@ -4271,10 +4280,10 @@ async function confirmBoardDone(){
   const location=document.getElementById('bd-location').value.trim()||null;
   await sb.from('prepped_stock').update({status:'available',qty:made,prepped_date:new Date().toISOString().split('T')[0],notes:location,planned_date:null}).eq('id',id);
   closeModal('board-done-modal');
-  toast('Logged to the bank');renderPrepBoard();
+  toast('Logged to the bank');renderActiveQueueView();
 }
 
-// ═══ BASKET (opportunistic prep — the "spare two hours" screen) ═══
+// ═══ ADD TASK (batch-ahead picker — dish/component search feeding the same queue) ═══
 let _basketSel={};
 function renderBasketPicker(){
   const catSel=document.getElementById('basket-cat');
@@ -4313,7 +4322,7 @@ function renderBasketSummary(){
   const items=Object.values(_basketSel);
   document.getElementById('basket-count').textContent=items.length?`— ${items.length} component${items.length!==1?'s':''}`:'';
   const body=document.getElementById('basket-sum-body');
-  if(!items.length){body.innerHTML='<div class="empty" style="margin:auto;"><div class="empty-t">Tick components on the left</div></div>';return;}
+  if(!items.length){body.innerHTML='<div class="empty" style="margin:auto;"><div class="empty-t">Tick components to batch together</div></div>';return;}
   const lines=basketAgg();
   body.innerHTML=`
     <div class="basket-list-title">Batch make</div>
@@ -4327,32 +4336,50 @@ function copyBasketList(){
   const text=lines.map(l=>`${l.name} — ${fmtQty(l.qty,l.unit)}`).join('\n');
   navigator.clipboard.writeText(text).then(()=>toast('Copied')).catch(()=>toast('Could not copy','err'));
 }
-function openBasketLogModal(){
+let _addTaskReturnMode='day';
+function openAddTask(){
+  _addTaskReturnMode=document.getElementById('queue-mode-event').classList.contains('on')?'event':'day';
+  document.getElementById('queue-toolbar').style.display='none';
+  document.getElementById('queue-main').style.display='none';
+  document.getElementById('prep-add-wrap').style.display='flex';
+  renderBasketPicker();renderBasketSummary();
+}
+function closeAddTask(){
+  document.getElementById('prep-add-wrap').style.display='none';
+  document.getElementById('queue-toolbar').style.display='flex';
+  document.getElementById('queue-main').style.display='flex';
+  queueView(_addTaskReturnMode);
+}
+function openAddTaskConfirm(){
   const items=Object.values(_basketSel);
   if(!items.length){toast('Nothing selected','err');return;}
-  document.getElementById('bl-location').value='';
-  document.getElementById('bl-items').innerHTML=items.map(({comp,dish},i)=>`
+  document.getElementById('at-location').value='';
+  document.getElementById('at-items').innerHTML=items.map(({comp,dish},i)=>`
     <div class="bl-item-row">
       <div class="bl-item-info"><div class="bl-item-name">${h(comp.name)}</div><div class="bl-item-dish">${h(dish.name)}</div></div>
-      <input type="number" step="0.1" class="fld-inp bl-item-qty" id="bl-qty-${i}" value="${comp.base_portions||''}" style="width:90px;">
+      <input type="number" step="0.1" class="fld-inp bl-item-qty" id="at-qty-${i}" value="${comp.base_portions||''}" style="width:90px;">
     </div>`).join('');
-  openModal('basket-log-modal');
+  openModal('add-task-modal');
 }
-async function confirmBasketLog(){
+async function confirmAddTask(mode){
   const items=Object.values(_basketSel);
-  const location=document.getElementById('bl-location').value.trim()||null;
+  const location=document.getElementById('at-location').value.trim()||null;
   for(let i=0;i<items.length;i++){
     const{comp,dish}=items[i];
-    const made=parseFloat(document.getElementById('bl-qty-'+i).value);
-    if(!made&&made!==0)continue;
-    await sb.from('prepped_stock').insert({component_id:comp.id,component_name:comp.name,dish_id:dish.id,dish_name:dish.name,
-      qty:made,unit:comp.unit||'portions',status:'available',prepped_date:new Date().toISOString().split('T')[0],notes:location});
+    const qty=parseFloat(document.getElementById('at-qty-'+i).value);
+    if(!qty&&qty!==0)continue;
+    const row={component_id:comp.id,component_name:comp.name,dish_id:dish.id,dish_name:dish.name,qty,unit:comp.unit||'portions'};
+    if(mode==='available'){row.status='available';row.prepped_date=new Date().toISOString().split('T')[0];row.notes=location;}
+    else{row.status='planned';row.planned_date=null;row.assigned_event=null;}
+    await sb.from('prepped_stock').insert(row);
   }
-  closeModal('basket-log-modal');
-  toast('Logged to the bank');_basketSel={};renderBasketPicker();renderBasketSummary();
+  closeModal('add-task-modal');
+  toast(mode==='available'?'Logged to the bank':'Added to the queue');
+  _basketSel={};
+  closeAddTask();
 }
 
-// ═══ ORDERS (weekly ingredient ordering, split by job code) ═══
+// ═══ SOURCING — FOR EVENTS (weekly ingredient ordering, split by job code) ═══
 let _lastOrder=null;
 async function generateOrders(){
   const from=document.getElementById('ord-from').value,to=document.getElementById('ord-to').value;
@@ -4447,41 +4474,6 @@ function copyOrderEmail(){
   });
   navigator.clipboard.writeText(text).then(()=>toast('Copied — paste into an email')).catch(()=>toast('Could not copy','err'));
 }
-
-function floorTab(tab,el){document.querySelectorAll('#view-floor .prep-subtab').forEach(t=>t.classList.remove('on'));if(el)el.classList.add('on');}
-
-let _floorTasks=[];
-function enterFloorMode(){
-  const now=new Date();now.setHours(0,0,0,0);
-  const upcoming=events.filter(e=>e.event_date&&new Date(e.event_date+'T00:00:00')>=now&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
-  _floorTasks=[];
-  upcoming.forEach(ev=>{(ev.event_dishes||[]).forEach(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return;(dish.components||[]).forEach(c=>{_floorTasks.push({id:c.id+'_'+ev.id,compId:c.id,dishId:dish.id,eventId:ev.id,compName:c.name||'Component',dishName:dish.name,eventClient:ev.client_name,eventDate:ev.event_date,portions:ev.covers||1,storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',steps:c.steps||[],ingredients:c.ingredients||[],status:'pending'});});});});
-  document.querySelectorAll('.nav-item,.tab-item').forEach(i=>i.classList.toggle('active',i.dataset.view==='prep'));
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.getElementById('view-floor').classList.add('active');
-  renderFloorTasks();
-}
-function renderFloorTasks(){
-  const wrap=document.getElementById('floor-tasks-wrap');if(!wrap)return;
-  if(!_floorTasks.length){wrap.innerHTML='<div class="empty"><div class="empty-t">No prep tasks</div></div>';return;}
-  const icons={frz:'&#10052;',fri:'&#129514;',fsh:'&#9675;'};
-  wrap.innerHTML=_floorTasks.map((t,i)=>`<div class="floor-task-card ${t.status==='done'?'done-task':t.status==='in_progress'?'active-task':''}" id="ftask-${i}">
-    <div class="floor-task-hd" onclick="toggleFloorTask(${i})">
-      <div class="floor-task-icon ${t.storage}">${icons[t.storage]}</div>
-      <div class="floor-task-body"><div class="floor-task-name">${h(t.compName)}</div><div class="floor-task-dish">${h(t.dishName)} &middot; ${h(t.eventClient||'')} &middot; ${t.portions} covers</div></div>
-      <div class="floor-task-state">
-        ${t.status==='pending'?`<button class="floor-task-btn start" onclick="event.stopPropagation();startFloorTask(${i})">Start</button>`:''}
-        ${t.status==='in_progress'?`<button class="floor-task-btn done-btn" onclick="event.stopPropagation();doneFloorTask(${i})">Done</button>`:''}
-        ${t.status==='done'?'<span style="color:var(--grn);font-size:20px">&#10003;</span>':''}
-      </div>
-    </div>
-  </div>`).join('');
-}
-function toggleFloorTask(i){_floorTasks[i]._expanded=!_floorTasks[i]._expanded;renderFloorTasks();}
-function startFloorTask(i){_floorTasks[i].status='in_progress';renderFloorTasks();}
-function doneFloorTask(i){_floorTasks[i].status='done';renderFloorTasks();}
-
-
 
 async function uploadDishPhoto(file,dishId){
   const ext=file.name.split('.').pop().toLowerCase();const path=`${dishId}.${ext}`;
