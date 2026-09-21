@@ -1163,6 +1163,44 @@ input[type=range]{accent-color:var(--accent);}
 .prep-bucket .prep-task:first-child{border-top:none;}
 .prep-ing-table th{font-size:var(--fs-fn);font-weight:500;color:var(--label2);text-transform:uppercase;letter-spacing:.02em;text-align:left;padding:0 0 6px;}
 .prep-ing-table th:last-child{text-align:right;}
+
+/* ── Event detail tabs, Financials, invoices, settings ── */
+.ev-tabs{padding:0 var(--gutter) 14px;display:flex;align-items:center;}
+.ev-detail-body{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-height:0;}
+.ev-detail-body>*{flex-shrink:0;}
+.ev-detail-body .ev-detail-grid{overflow:visible;flex:none;}
+.ev-detail-body .empty{margin:auto;}
+.ev-field-stack{flex-direction:column;align-items:flex-start;gap:4px;}
+.ev-field-stack .ev-field-value{text-align:left;font-weight:400;white-space:pre-wrap;}
+.fin-summary{margin:0 var(--gutter) 18px;background:var(--bg2);border-radius:var(--r-md);box-shadow:var(--ring);border:none;overflow:hidden;}
+.fin-summary .pnl-summary-cell{padding:16px;}
+.fin-total .ev-field-label,.fin-total .ev-field-value{font-weight:600;color:var(--label);}
+.fin-actions{display:flex;gap:6px;flex-wrap:wrap;padding:12px 0 4px;}
+.fin-hint{font-size:var(--fs-fn);color:var(--label3);line-height:1.45;padding-top:8px;}
+.fin-inv-list{display:flex;flex-direction:column;}
+.fin-inv-row{position:relative;display:flex;align-items:center;gap:14px;padding:12px 16px;min-height:56px;flex-wrap:wrap;}
+.fin-inv-row::after{content:'';position:absolute;left:16px;right:0;bottom:0;height:1px;background:var(--sep);}
+.fin-inv-row:last-child::after{display:none;}
+.fin-inv-no{width:44px;height:44px;border-radius:var(--r);background:var(--fill3);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--fs-sh);color:var(--label);flex-shrink:0;}
+.fin-inv-acts{display:flex;gap:6px;flex-wrap:wrap;}
+.fin-menu-tbl{box-shadow:none;border-radius:0;}
+.fin-menu-tbl th.tr{text-align:right;}
+.fin-menu-tbl tfoot td{border-top:1.5px solid var(--sep-strong);border-bottom:none;padding-top:12px;}
+.fin-portions{width:82px;min-height:30px;padding:4px 8px;font-size:var(--fs-sh);text-align:right;margin-left:auto;display:inline-block;}
+.fin-portions.is-set{background:var(--accent-tint);color:var(--accent);font-weight:600;}
+.inv-line{display:grid;grid-template-columns:1fr 120px 64px 30px;gap:8px;align-items:center;margin-bottom:6px;}
+.inv-line .fld-inp{min-height:34px;padding:6px 10px;font-size:var(--fs-sh);}
+.inv-line-hd{font-size:var(--fs-fn);color:var(--label2);font-weight:500;margin-bottom:2px;}
+.inv-line-hd span:nth-child(2),.inv-line-hd span:nth-child(3){text-align:right;}
+.inv-total-row{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--label);color:var(--bg2);border-radius:var(--r);font-weight:700;font-size:var(--fs-hl);letter-spacing:.02em;}
+:root[data-theme="dark"] .inv-total-row{background:var(--bg3);color:var(--label);}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .inv-total-row{background:var(--bg3);color:var(--label);}}
+#settings-modal .sec-hd{padding:0;}
+@media (max-width:900px){
+  .inv-line{grid-template-columns:1fr 90px 52px 26px;}
+  .fin-summary{grid-template-columns:1fr 1fr;}
+  .fin-inv-acts{flex-basis:100%;}
+}
 </style>
 </head>
 <body>
@@ -1178,7 +1216,7 @@ input[type=range]{accent-color:var(--accent);}
     <button class="nav-item" data-view="cleaning" onclick="sbNav('cleaning')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/><path d="M5 2l.6 1.4L7 4l-1.4.6L5 6l-.6-1.4L3 4l1.4-.6z"/></svg><span>Cleaning</span></button>
     <button class="nav-item" data-view="butchery" onclick="sbNav('butchery')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h12l4 4v5H3V5z"/><path d="M14 14v5.5a1.5 1.5 0 0 0 1.5 1.5h1a1.5 1.5 0 0 0 1.5-1.5V14"/></svg><span>Butchery</span></button>
   </nav>
-  <div class="sb-foot"><div class="conn"><div class="conn-dot" id="sb-dot"></div><span id="sb-conn"></span></div><button class="theme-btn" id="theme-btn" title="Appearance" onclick="toggleTheme()"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></button></div>
+  <div class="sb-foot"><div class="conn"><div class="conn-dot" id="sb-dot"></div><span id="sb-conn"></span></div><button class="theme-btn" title="Settings" onclick="openSettings()"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button><button class="theme-btn" id="theme-btn" title="Appearance" onclick="toggleTheme()"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></button></div>
 </aside>
 <div class="main">
 
@@ -1666,6 +1704,59 @@ input[type=range]{accent-color:var(--accent);}
 </div>
 </div>
 
+
+<!-- Settings — invoicing, bank details, links. Stored in app_settings (or on this device until the migration runs). -->
+<div class="modal-ov" id="settings-modal">
+<div class="modal" style="width:560px;">
+  <div class="modal-hd"><div class="modal-title">Settings</div><button class="modal-close" onclick="closeModal('settings-modal')"></button></div>
+  <div class="modal-body">
+    <div class="note-card warn" id="set-migration-note" style="display:none;margin:0 0 4px;"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>Invoices, per-dish portions and shared settings need three new tables. Copy the SQL and run it once in the Supabase SQL editor.</span><button class="btn btn-xs" style="margin-left:auto;flex-shrink:0;" onclick="copyMigrationSQL()">Copy SQL</button></div>
+    <div class="sec-hd">Invoicing</div>
+    <div class="g3">
+      <div class="fld"><label class="fld-label">Next invoice number</label><input class="fld-inp num" id="set-inv-next" type="number" min="1" step="1"></div>
+      <div class="fld"><label class="fld-label">Deposit %</label><input class="fld-inp num" id="set-deposit" type="number" min="0" max="100" step="1"></div>
+      <div class="fld"><label class="fld-label">Payment terms (days)</label><input class="fld-inp num" id="set-terms" type="number" min="0" step="1"></div>
+    </div>
+    <div class="sec-hd" style="margin-top:8px;">From</div>
+    <div class="g2">
+      <div class="fld"><label class="fld-label">Business name</label><input class="fld-inp" id="set-from-name"></div>
+      <div class="fld"><label class="fld-label">Email</label><input class="fld-inp" id="set-from-email" type="email"></div>
+      <div class="fld"><label class="fld-label">Phone</label><input class="fld-inp" id="set-from-phone"></div>
+      <div class="fld"><label class="fld-label">Address (on invoices)</label><input class="fld-inp" id="set-from-address" placeholder="Optional"></div>
+    </div>
+    <div class="sec-hd" style="margin-top:8px;">Bank details (printed on invoices)</div>
+    <div class="g2">
+      <div class="fld"><label class="fld-label">Account name</label><input class="fld-inp" id="set-bank-name"></div>
+      <div class="fld"><label class="fld-label">Account type</label><input class="fld-inp" id="set-bank-type" placeholder="Business Account"></div>
+      <div class="fld"><label class="fld-label">Sort code</label><input class="fld-inp num" id="set-bank-sort" placeholder="00-00-00" inputmode="numeric"></div>
+      <div class="fld"><label class="fld-label">Account number</label><input class="fld-inp num" id="set-bank-acct" placeholder="8 digits" inputmode="numeric"></div>
+    </div>
+    <div class="sec-hd" style="margin-top:8px;">Links</div>
+    <div class="fld"><label class="fld-label">BOH (staff rota) app address</label><input class="fld-inp" id="set-boh" placeholder="https://…" inputmode="url"></div>
+  </div>
+  <div class="modal-foot"><button class="btn" onclick="closeModal('settings-modal')">Cancel</button><button class="btn btn-primary" onclick="saveSettings()">Save</button></div>
+</div>
+</div>
+
+<!-- Invoice — raised from an event's Financials tab; printed in the Digby's layout -->
+<div class="modal-ov" id="invoice-modal">
+<div class="modal" style="width:620px;">
+  <div class="modal-hd"><div class="modal-title" id="inv-modal-title">Deposit invoice</div><button class="modal-close" onclick="closeModal('invoice-modal')"></button></div>
+  <div class="modal-body">
+    <div class="g3">
+      <div class="fld"><label class="fld-label">Number</label><input class="fld-inp num" id="inv-number" type="number" min="1" step="1"></div>
+      <div class="fld"><label class="fld-label">Issued</label><input class="fld-inp" id="inv-issued" type="date"></div>
+      <div class="fld"><label class="fld-label">Due</label><input class="fld-inp" id="inv-due" type="date"></div>
+    </div>
+    <div class="fld"><label class="fld-label">Bill to</label><textarea class="fld-ta" id="inv-billto" style="min-height:64px;"></textarea></div>
+    <div class="fld"><label class="fld-label">Lines</label><div class="inv-line inv-line-hd"><span>Description</span><span>Unit price</span><span>Qty</span><span></span></div><div id="inv-lines"></div></div>
+    <div class="fld"><label class="fld-label">Notes (printed)</label><input class="fld-inp" id="inv-notes" placeholder="Optional"></div>
+    <div class="inv-total-row"><span>Total due</span><span class="num" id="inv-total">£0.00</span></div>
+  </div>
+  <div class="modal-foot"><button class="btn" onclick="closeModal('invoice-modal')">Cancel</button><button class="btn" onclick="saveInvoice(false)">Save draft</button><button class="btn btn-primary" onclick="saveInvoice(true)"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3.5h12V9"/><rect x="3" y="9" width="18" height="9" rx="2"/><path d="M6 15h12v5.5H6z"/></svg>Save &amp; print</button></div>
+</div>
+</div>
+
 <!-- Generic styled confirm, replacing window.confirm() everywhere in the app -->
 <div class="modal-ov" id="confirm-modal">
 <div class="modal" style="width:380px;">
@@ -2075,15 +2166,51 @@ function closeRecipeView(){document.getElementById('recipe-ov').classList.remove
 
 function findIngredient(name){return ingredients.find(x=>x.name.toLowerCase()===(name||'').toLowerCase().trim());}
 
-function getUnitOptions(soldBy){return{kg:['g','kg'],litre:['ml','cl','litre'],each:['each'],bunch:['bunch'],portion:['portion']}[soldBy]||['g','kg'];}
+// Liquids bought by weight (milk, oil, stock) are measured by volume in recipes,
+// so a per-kg ingredient can legitimately take ml/cl/litre and vice versa.
+function getUnitOptions(soldBy){return{kg:['g','kg','ml','cl','litre'],g:['g','kg','ml','cl','litre'],litre:['ml','cl','litre','g','kg'],ml:['ml','cl','litre','g','kg'],each:['each'],bunch:['bunch'],portion:['portion']}[soldBy]||['g','kg','ml','each','bunch'];}
 
+// ── Costing engine ────────────────────────────────────────────────────
+// Cost of `qty unit` of an ingredient priced per `sold_by`. Mass and volume are
+// normalised to grams / millilitres and cross-converted with the ingredient's
+// density (g per ml; water-like 1.0 when unknown — oil is 0.92, stock 1.0, so
+// the error is single-digit percent, not the 1000× the old code produced by
+// charging 5 ml as 5 kg). A count unit (each, clove, bar…) against a per-kg
+// price can't be converted without a unit weight, so it returns null and the
+// costing step lists it as unconvertible rather than inventing a number.
+const UNIT_G={g:1,gram:1,grams:1,kg:1000,kilo:1000,mg:0.001};
+const UNIT_ML={ml:1,millilitre:1,cl:10,l:1000,litre:1000,liter:1000,litres:1000};
 function convertIngCost(qty,unit,obj){
   if(!obj||obj.cost_per_unit==null)return null;
-  const sb2=(obj.sold_by||obj.unit||'kg').toLowerCase();
-  const u=(unit||'').toLowerCase().trim();
-  if(sb2==='kg'){if(u==='g'||u==='grams')return qty/1000*obj.cost_per_unit;return qty*obj.cost_per_unit;}
-  if(sb2==='litre'){if(u==='ml')return qty/1000*obj.cost_per_unit;if(u==='cl')return qty/100*obj.cost_per_unit;return qty*obj.cost_per_unit;}
-  return qty*obj.cost_per_unit;
+  qty=parseFloat(qty);if(!(qty>0))return qty===0?0:null;
+  const price=parseFloat(obj.cost_per_unit);if(isNaN(price))return null;
+  const sold=(obj.sold_by||obj.unit||'kg').toLowerCase().trim();
+  const u=((unit||'').toLowerCase().trim())||sold;
+  const dens=parseFloat(obj.density)||1;
+  const soldG=UNIT_G[sold]!=null?UNIT_G[sold]:null;      // grams in one sold unit
+  const soldMl=UNIT_ML[sold]!=null?UNIT_ML[sold]:null;   // millilitres in one sold unit
+  if(soldG!=null){
+    if(UNIT_G[u]!=null)return qty*UNIT_G[u]/soldG*price;
+    if(UNIT_ML[u]!=null)return qty*UNIT_ML[u]*dens/soldG*price;
+    return null;
+  }
+  if(soldMl!=null){
+    if(UNIT_ML[u]!=null)return qty*UNIT_ML[u]/soldMl*price;
+    if(UNIT_G[u]!=null)return qty*UNIT_G[u]/dens/soldMl*price;
+    return null;
+  }
+  // sold by the piece (each, bunch, portion, bar…): a mass or volume quantity
+  // has no conversion; any count unit is taken as one sold unit.
+  if(UNIT_G[u]!=null||UNIT_ML[u]!=null)return null;
+  return qty*price;
+}
+// Why a matched ingredient line still has no cost — for the costing step.
+function ingCostIssue(ing,obj){
+  if(!obj)return 'not in ingredients';
+  if(obj.cost_per_unit==null)return 'no price';
+  const q=parseFloat(ing.qty??ing.quantity);if(!(q>0))return 'no quantity';
+  if(convertIngCost(q,ing.unit,obj)==null)return `can't convert ${(ing.unit||'').trim()||'?'} to ${obj.sold_by||obj.unit||'kg'}`;
+  return null;
 }
 
 function calcCompCost(comp,base){
@@ -2108,9 +2235,9 @@ async function init(){
   try{
     const{error}=await sb.from('dishes').select('id').limit(1);
     if(error)throw error;
-    dot.className='sb-dot live';if(conn)conn.textContent='live';
-  }catch(e){dot.className='sb-dot err';if(conn)conn.textContent='error';toast('Database error','err');return;}
-  await Promise.all([loadDishes(),loadEvents(),loadIngredients()]);
+    dot.className='conn-dot live';if(conn)conn.textContent='Live';
+  }catch(e){dot.className='conn-dot err';if(conn)conn.textContent='Offline';toast('Database error','err');return;}
+  await Promise.all([loadDishes(),loadEvents(),loadIngredients(),loadSettings()]);
   buildIngAlGrid();
   renderDishList();
   populateSelects();
@@ -2127,8 +2254,8 @@ async function loadDishes(){
 }
 
 async function loadEvents(){
-  const{data}=await sb.from('events').select('*, event_dishes(dish_id)').order('event_date');
-  events=data||[];
+  const{data}=await sb.from('events').select('*, event_dishes(*)').order('event_date');
+  events=data||[];detectPortionsCol();
   renderEventsList();populateSelects();
 }
 
@@ -2609,7 +2736,7 @@ function ddStep4(){
     if(cpc!=null){totalCost+=cpc;anyCosted=true;}
     const stCls=comp.storage==='frz'?'badge-blu':comp.storage==='fri'?'badge-grn':'badge-n';
     const stLbl=comp.storage==='frz'?ico('snowflake','ico-xs')+'Freeze':comp.storage==='fri'?ico('thermometer','ico-xs')+'Fridge':ico('leaf','ico-xs')+'Fresh';
-    const unlinked=comp.ings.filter(i=>i.name&&!findIngredient(i.name)).map(i=>i.name);
+    const unlinked=comp.ings.filter(i=>i.name).map(i=>{const issue=ingCostIssue(i,findIngredient(i.name));return issue?`${i.name} (${issue})`:null;}).filter(Boolean);
     return`<tr>
       <td style="font-weight:500;">${h(comp.name||'Unnamed')}</td>
       <td><span class="badge">${stLbl}</span></td>
@@ -2629,10 +2756,10 @@ function ddStep4(){
       <div class="cost-banner-sub${sellPrice?totalCost/sellPrice*100>40?' warn':' ok':''}">${sellPrice?`At ${fmt$(sellPrice)} selling price — ${Math.round(totalCost/sellPrice*100)}% food cost against your ${Math.round(target)}% target`:'Set a target FC % on step 1 for selling price guidance'}</div>
     </div>`:`<div class="note-card">Add ingredient quantities on step 3 to calculate costs.</div>`}
     <table class="cost-tbl">
-      <thead><tr><th>Component</th><th>Storage</th><th>Ingredients</th><th style="text-align:right;">Cost/cover</th><th>Unlinked</th></tr></thead>
+      <thead><tr><th>Component</th><th>Storage</th><th>Ingredients</th><th style="text-align:right;">Cost/cover</th><th>Not costed</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
-    <div class="note-card warn">${ico('info','ico-sm')}Costs only include ingredients with prices in the database. Unlinked ingredients show as — above.</div>
+    <div class="note-card warn">${ico('info','ico-sm')}Costs only include ingredient lines that can be priced. Anything listed under “Not costed” is left out of the total — link it to an ingredient, add a price, or change its unit.</div>
     <div class="step-foot">
       <button class="btn" onclick="ddGoStep(3)">${ico('chevronL')}Back</button>
       <button class="btn btn-primary" onclick="saveDish()">${ico('check')}Save dish</button>
@@ -2939,11 +3066,11 @@ async function loadBOHForCard(ev) {
 // actions live in showEventDetail's header; Mark Paid/Invoiced live in its
 // Financials card. markPayment and goPrep below are called from there.
 async function markPayment(evId,status){
-  await sb.from('events').update({deposit_status:status}).eq('id',evId);
-  toast(status==='paid'?'Marked paid':status==='invoiced'?'Marked invoiced':'Payment cleared');
-  await loadEvents();
-  const dw=document.getElementById('ev-detail-wrap');
-  if(dw&&dw.style.display==='block')showEventDetail(evId);
+  await sb.from('events').update({deposit_status:status||null}).eq('id',evId);
+  const ev=events.find(e=>e.id===evId);if(ev)ev.deposit_status=status||null;
+  toast(status==='paid'?'Marked paid in full':status==='invoiced'?'Marked invoiced':status==='deposit'?'Deposit recorded':'Payment cleared');
+  if(_evDetail.id===evId){const w=document.getElementById('ev-detail-wrap');if(w&&w.style.display!=='none'){const badge=w.querySelector('.ev-detail-hd .ev-status');renderEventTab();}}
+  renderPipeline();
 }
 
 function goPrep(evId){document.getElementById('queue-ev-sel').value=evId;sbNav('prep');prepMainTab('queue',document.getElementById('prep-tab-queue'));queueView('event');}
@@ -3631,7 +3758,7 @@ async function loadBOHShifts(jobCode, eventDate) {
 
 function bohPanelHTML(ev, bohData) {
   const jobCode = ev.job_code || ev.id.slice(0,8).toUpperCase();
-  const bohUrl = 'https://digbys-boh.vercel.app'; // update when deployed
+  const bohUrl = (getSetting('boh_url')||'').trim(); // set in Settings — the app used to point at a placeholder that never existed
   
   let shiftsHTML;
   if (!bohData) {
@@ -3651,7 +3778,7 @@ function bohPanelHTML(ev, bohData) {
     <div class="boh-panel-hd">
       <span class="boh-panel-title">Staff rota</span>
       <span class="boh-job-code">${jobCode}</span>
-      <a class="btn btn-xs" href="${bohUrl}" target="_blank" rel="noopener">Open BOH${ico('arrowR')}</a>
+      ${bohUrl?`<a class="btn btn-xs" href="${h(bohUrl)}" target="_blank" rel="noopener">Open BOH${ico('arrowR')}</a>`:`<button class="btn btn-xs" onclick="openSettings()">${ico('sliders')}Set BOH address</button>`}
     </div>
     <div class="boh-panel-body">${shiftsHTML}</div>
   </div>`;
@@ -3841,8 +3968,9 @@ async function saveFsWizard(){
     let evId=_wizData.id;
     if(evId){const{error}=await sb.from('events').update(p).eq('id',evId);if(error)throw error;}
     else{const{data,error}=await sb.from('events').insert(p).select().single();if(error)throw error;evId=data.id;}
+    const prevEv=events.find(e=>e.id===evId);const prevPortions={};((prevEv&&prevEv.event_dishes)||[]).forEach(r=>{if(r.portions!=null)prevPortions[r.dish_id]=r.portions;});
     await sb.from('event_dishes').delete().eq('event_id',evId);
-    if(_wizSelDishes.length)await sb.from('event_dishes').insert(_wizSelDishes.map(did=>({event_id:evId,dish_id:did})));
+    if(_wizSelDishes.length)await sb.from('event_dishes').insert(_wizSelDishes.map(did=>{const r={event_id:evId,dish_id:did};if(_portionsColOk&&prevPortions[did]!=null)r.portions=prevPortions[did];return r;}));
     await saveVariantAssignments(evId);
     toast(_wizData.id?'Event updated':'Event created','ok');
     await loadEvents();closeFsWizard();
@@ -4196,69 +4324,6 @@ function renderEventsList(){
       </div>
       ${chev()}
     </div>`;}).join('')}</div>`).join('');
-}
-
-async function showEventDetail(id){
-  const ev=events.find(e=>e.id===id);if(!ev)return;
-  document.getElementById('events-list').style.display='none';
-  const calWrap=document.getElementById('ev-calendar-wrap');if(calWrap)calWrap.style.display='none';
-  const wrap=document.getElementById('ev-detail-wrap');wrap.style.display='block';
-  const d=ev.event_date?new Date(ev.event_date+'T00:00:00'):null;
-  const fmtDate=d?d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'Date TBC';
-  const evDishes=ev.event_dishes||[];
-  const menuItems=evDishes.map(ed=>{const dish=dishes.find(d=>d.id===ed.dish_id);if(!dish)return'';const col=CAT_COLORS[dish.category]||'var(--cat-ot)';return`<div class="ev-menu-item"><div class="ev-menu-cat" style="background:${col}"></div><div class="ev-menu-name">${h(dish.name)}</div></div>`;}).join('');
-  const guests=(ev.guest_allergens||[]).map(g=>`<div class="guest-row ${g.type||''}"><div class="guest-name">${h(g.name||'Guest')}</div><div class="guest-detail">${h(g.dietary||g.custom||'')}</div>${(g.allergens||[]).length?`<div class="guest-al-chips">${g.allergens.map(a=>`<span class="al-tag c">${h(a)}</span>`).join('')}</div>`:''}</div>`).join('');
-  const rod=(ev.run_of_day||[]);
-  const charges=(ev.extra_charges||[]);
-  const chargeTotal=charges.reduce((s,c)=>s+(parseFloat(c.amount)||0),0);
-  const timeStr=(ev.start_time||ev.end_time)?`${ev.start_time||'—'} – ${ev.end_time||'—'}`:'—';
-  wrap.innerHTML=`
-    <div class="ev-detail-hd">
-      <button class="builder-back" onclick="backToEventsList()" aria-label="Back to events"></button>
-      <div style="flex:1;min-width:0;"><div class="ev-detail-title">${h(ev.client_name||'Unnamed')}</div>
-      <div class="ev-detail-sub">${fmtDate}${ev.job_code?' · '+h(ev.job_code):''}</div></div>
-      <span class="ev-status ${ev.status||'Enquiry'}">${ev.status||'Enquiry'}</span>
-      <div class="ev-detail-acts">
-        <button class="btn btn-sm" onclick="goPrep('${ev.id}')">${ico('checklist')}Prep list</button>
-        <button class="btn btn-sm" onclick="document.getElementById('al-ev-sel').value='${ev.id}';sbNav('library');libSubTab('allergens')">${ico('leaf')}Allergens</button>
-        <button class="btn btn-sm" onclick="printFunctionSheet('${ev.id}')">${ico('printer')}Print</button>
-        <button class="btn btn-sm btn-primary" onclick="openFsWizard('${ev.id}')">${ico('pencil')}Edit</button>
-      </div>
-    </div>
-    <div class="ev-detail-grid">
-      <div class="ev-section"><div class="ev-section-hd">Details</div><div class="ev-section-body">
-        <div class="ev-field"><div class="ev-field-label">Type</div><div class="ev-field-value${ev.event_type?'':' muted'}">${h((typeof EV_TYPES!=='undefined'&&EV_TYPES[ev.event_type])||ev.event_type||'—')}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Time</div><div class="ev-field-value${timeStr==='—'?' muted':''}">${timeStr}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Covers</div><div class="ev-field-value${ev.covers?'':' muted'}">${ev.covers||'—'}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Venue</div><div class="ev-field-value ${ev.venue_name||ev.location?'':'muted'}">${h(ev.venue_name||ev.location||'—')}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Staffing</div><div class="ev-field-value ${ev.staffing?'':'muted'}">${h(ev.staffing||'—')}</div></div>
-      </div></div>
-      <div class="ev-section"><div class="ev-section-hd">Financials</div><div class="ev-section-body">
-        <div class="ev-field"><div class="ev-field-label">Price</div><div class="ev-field-value num${ev.budget&&!isNaN(Number(ev.budget))?'':' muted'}">${ev.budget&&!isNaN(Number(ev.budget))?'&pound;'+Number(ev.budget).toFixed(2):'—'}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Payment</div><div class="ev-field-value" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span>${{deposit:'Deposit taken',invoiced:'Invoice sent',paid:'Paid in full'}[ev.deposit_status]||'Unpaid'}</span>
-          ${ev.deposit_status!=='paid'?`<button class="btn btn-xs" style="background:var(--ok-tint);color:var(--ok);" onclick="markPayment('${ev.id}','paid')">${ico('check')}Paid</button>`:`<button class="btn btn-xs btn-ghost" onclick="markPayment('${ev.id}','')">Unmark paid</button>`}
-          ${ev.deposit_status!=='invoiced'&&ev.deposit_status!=='paid'?`<button class="btn btn-xs" onclick="markPayment('${ev.id}','invoiced')">Invoiced</button>`:''}
-        </div></div>
-        <div class="ev-field"><div class="ev-field-label">Contact</div><div class="ev-field-value ${ev.contact_name?'':'muted'}">${h(ev.contact_name||'—')}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Phone</div><div class="ev-field-value num ${ev.contact_phone?'':'muted'}">${ev.contact_phone?`<a href="tel:${h(ev.contact_phone)}" class="ev-link">${h(ev.contact_phone)}</a>`:'—'}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Email</div><div class="ev-field-value ${ev.contact_email?'':'muted'}">${ev.contact_email?`<a href="mailto:${h(ev.contact_email)}" class="ev-link">${h(ev.contact_email)}</a>`:'—'}</div></div>
-        ${ev.contact_2?`<div class="ev-field"><div class="ev-field-label">Second contact</div><div class="ev-field-value">${h(ev.contact_2)}</div></div>`:''}
-      </div></div>
-      ${menuItems?`<div class="ev-section"><div class="ev-section-hd">Menu</div><div class="ev-section-body" style="padding-bottom:6px;">${menuItems}</div></div>`:''}
-      ${guests?`<div class="ev-section"><div class="ev-section-hd">Dietary guests</div><div class="ev-section-body">${guests}</div></div>`:''}
-      ${rod.length?`<div class="ev-section"><div class="ev-section-hd">Run of day</div><div class="ev-section-body" style="padding:0"><table class="rod-table"><thead><tr><th>Time</th><th>Item</th><th>Duration</th><th>Notes</th></tr></thead><tbody>${rod.map(r=>`<tr><td class="rod-time">${h(r.time||'')}</td><td class="rod-event">${h(r.event||r.item||'')}</td><td class="rod-dur">${h(r.duration||'')}</td><td class="rod-notes">${h(r.notes||'')}</td></tr>`).join('')}</tbody></table></div></div>`:''}
-      ${charges.length?`<div class="ev-section"><div class="ev-section-hd">Extra charges</div><div class="ev-section-body" style="padding:0"><table class="rod-table"><thead><tr><th>Service</th><th>Notes</th><th style="text-align:right">Amount</th></tr></thead><tbody>${charges.map(c=>`<tr><td class="rod-event">${h(c.service||c.description||'')}</td><td class="rod-notes">${h(c.notes||'')}</td><td class="num" style="text-align:right;">&pound;${(parseFloat(c.amount)||0).toFixed(2)}</td></tr>`).join('')}${charges.length>1?`<tr><td colspan="2" style="font-weight:600">Total</td><td class="num" style="text-align:right;font-weight:600;">&pound;${chargeTotal.toFixed(2)}</td></tr>`:''}</tbody></table></div></div>`:''}
-      ${ev.kitchen_notes||ev.chef_notes||ev.service_notes||ev.client_notes?`<div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd">Notes</div><div class="ev-section-body">
-        ${ev.kitchen_notes?`<div class="ev-field"><div class="ev-field-label">Kitchen</div><div class="ev-field-value">${h(ev.kitchen_notes)}</div></div>`:''}
-        ${ev.chef_notes?`<div class="ev-field"><div class="ev-field-label">Chef</div><div class="ev-field-value">${h(ev.chef_notes)}</div></div>`:''}
-        ${ev.service_notes?`<div class="ev-field"><div class="ev-field-label">Service</div><div class="ev-field-value">${h(ev.service_notes)}</div></div>`:''}
-        ${ev.client_notes?`<div class="ev-field"><div class="ev-field-label">Client</div><div class="ev-field-value">${h(ev.client_notes)}</div></div>`:''}
-      </div></div>`:''}
-      <div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd">Profit &amp; loss</div><div id="pnl-container-${ev.id}" class="ev-section-body" style="padding:0"></div></div>
-      <div id="boh-panel-${ev.id}" style="grid-column:1/-1"></div>
-    </div>`;
-  setTimeout(()=>{const pc=document.getElementById('pnl-container-'+id);if(pc)renderEventPnL(id,pc);},0);
-  loadBOHForCard(ev);
 }
 
 function backToEventsList(){
@@ -4931,55 +4996,567 @@ async function deleteHaccpStep(stepId,compId,containerId){
   _haccpSteps[compId]=(_haccpSteps[compId]||[]).filter(s=>s.id!==stepId);
   renderHaccpSection(compId,_haccpSteps[compId],containerId);
 }
-async function renderEventPnL(eventId,container){
-  container.innerHTML='<div class="spin" style="margin:20px auto;"></div>';
-  const ev=events.find(e=>e.id===eventId);if(!ev)return;
-  let{data:lines}=await sb.from('event_cost_lines').select('*').eq('event_id',eventId).order('date');
-  let costLines=lines||[];
-  // Seamless by default: if there's a costed menu and no cost lines at all yet,
-  // pull the food cost in automatically. The button stays for a manual refresh
-  // or override once lines exist.
-  if(!costLines.length){
-    const seeded=await pullMenuCost(eventId,{silent:true});
-    if(seeded){const{data:lines2}=await sb.from('event_cost_lines').select('*').eq('event_id',eventId).order('date');costLines=lines2||[];}
+// ═══════════════════════════════════════════════════════════════════
+// SETTINGS — one key/value table (app_settings) shared across devices, with a
+// localStorage fallback so the app keeps working before the migration is run.
+// ═══════════════════════════════════════════════════════════════════
+const SETTINGS_DEFAULTS={
+  invoice_next_number:188,
+  deposit_pct:40,
+  payment_terms_days:30,
+  invoice_from:{name:"Digby's Events & Catering",email:'james@digbysevents.co.uk',phone:'',address:''},
+  invoice_bank:{account_name:'James Brierley',account_type:'Business Account',sort_code:'',account_number:''},
+  boh_url:''
+};
+let _appSettings={},_settingsTableOk=null;
+async function loadSettings(){
+  try{
+    const{data,error}=await sb.from('app_settings').select('key,value');
+    if(error)throw error;
+    _settingsTableOk=true;_appSettings={};(data||[]).forEach(r=>_appSettings[r.key]=r.value);
+  }catch(e){
+    _settingsTableOk=false;
+    try{_appSettings=JSON.parse(localStorage.getItem('app_settings')||'{}');}catch(_){_appSettings={};}
   }
-  const chargeTotal=(ev.extra_charges||[]).reduce((s,c)=>s+(parseFloat(c.amount)||0),0);
-  const revenue=(parseFloat(ev.budget)||0)+chargeTotal;
-  const byCat={food:0,labour:0,mileage:0,overhead:0,other:0};
-  costLines.forEach(l=>byCat[l.category]=(byCat[l.category]||0)+parseFloat(l.amount||0));
-  const totalCost=Object.values(byCat).reduce((s,v)=>s+v,0);const gp=revenue-totalCost;const gpPct=revenue?Math.round(gp/revenue*100):0;
-  const foodCostPct=revenue?Math.round(byCat.food/revenue*100):0;
-  container.innerHTML=`<div class="pnl-summary-bar"><div class="pnl-summary-cell"><div class="pnl-summary-label">Revenue${chargeTotal?' (incl. extras)':''}</div><div class="pnl-summary-val gold">${fmt$(revenue)}</div></div><div class="pnl-summary-cell"><div class="pnl-summary-label">Total cost</div><div class="pnl-summary-val ${totalCost>revenue?'red':'gold'}">${fmt$(totalCost)}</div></div><div class="pnl-summary-cell"><div class="pnl-summary-label">Gross profit</div><div class="pnl-summary-val ${gp>=0?'green':'red'}">${fmt$(gp)}</div></div><div class="pnl-summary-cell"><div class="pnl-summary-label">GP %</div><div class="pnl-summary-val ${gpPct>=40?'green':gpPct>=20?'gold':'red'}">${gpPct}%</div></div></div>
-  <div class="pnl-lines"><div class="pnl-hd"><span class="pnl-hd-title">Cost lines</span><span style="display:flex;gap:6px;"><button class="btn btn-xs" onclick="pullMenuCost('${eventId}')">${ico('refresh')}Pull menu cost</button><button class="btn btn-xs" onclick="openAddCostLine('${eventId}')">${ico('plus')}Add</button></span></div>${costLines.length?costLines.map(l=>`<div class="pnl-row"><span class="pnl-cat ${l.category}">${l.category}</span><span class="pnl-desc">${h(l.description)}</span><span class="pnl-src">${l.source!=='manual'?l.source:''}</span><span class="pnl-amount">£${parseFloat(l.amount).toFixed(2)}</span><button class="btn btn-xs btn-ghost" style="color:var(--label3);" onclick="deleteCostLine('${l.id}','${eventId}')">${ico('xmark')}</button></div>`).join(''):'<div class="today-quiet" style="text-align:center;">No cost lines yet</div>'}
-  <div class="pnl-foot">${Object.keys(byCat).filter(cat=>byCat[cat]).map(cat=>`<span class="pnl-cat ${cat}">${cat} £${byCat[cat].toFixed(2)}</span>`).join('')}${revenue?`<span class="pnl-cat food">Food cost ${foodCostPct}%</span>`:''}</div></div>`;
 }
-async function deleteCostLine(lineId,eventId){await sb.from('event_cost_lines').delete().eq('id',lineId);const c=document.getElementById('pnl-container-'+eventId);if(c)renderEventPnL(eventId,c);}
-async function pullMenuCost(eventId,opts={}){
-  const ev=events.find(e=>e.id===eventId);if(!ev)return false;
-  const evDishIds=(ev.event_dishes||[]).map(ed=>ed.dish_id);
-  const evDishes=dishes.filter(d=>evDishIds.includes(d.id));
-  const perCover=evDishes.reduce((s,d)=>{const c=calcDishCost(d);return s+(c||0);},0);
-  const total=perCover*(ev.covers||0);
-  if(!total){if(!opts.silent)toast('No costed dishes on this menu yet','err');return false;}
-  const desc=`Menu cost (auto, £${perCover.toFixed(2)}/cover)`;
-  const{data:existing}=await sb.from('event_cost_lines').select('id').eq('event_id',eventId).eq('source','auto').eq('category','food').limit(1);
-  if(existing&&existing.length){
-    await sb.from('event_cost_lines').update({amount:total,description:desc}).eq('id',existing[0].id);
+function getSetting(k){return _appSettings[k]!==undefined&&_appSettings[k]!==null?_appSettings[k]:SETTINGS_DEFAULTS[k];}
+async function saveSetting(k,v){
+  _appSettings[k]=v;
+  if(_settingsTableOk){
+    const{error}=await sb.from('app_settings').upsert({key:k,value:v,updated_at:new Date().toISOString()},{onConflict:'key'});
+    if(error){toast(error.message,'err');return false;}
   }else{
-    const{data,error}=await sb.from('event_cost_lines').insert({event_id:eventId,category:'food',description:desc,amount:total,source:'auto',job_code:ev.job_code||null}).select().single();
-    if(!error&&data){
-      sbBOH.from('finance_expenses').insert({date:new Date().toISOString().slice(0,10),amount:total,category:'Food & Drink',description:desc+(ev.job_code?' ['+ev.job_code+']':''),reference:ev.job_code||null}).catch(()=>{});
-    }
-  }
-  if(!opts.silent){
-    const c=document.getElementById('pnl-container-'+eventId);if(c)renderEventPnL(eventId,c);
-    toast('Menu cost pulled in');
+    try{localStorage.setItem('app_settings',JSON.stringify(_appSettings));}catch(_){}
   }
   return true;
 }
+// Everything the migration creates, in one script James can paste into the
+// Supabase SQL editor. Kept here so it is always to hand from Settings.
+const MIGRATION_SQL=`-- Kitchen Prep · financials, invoices, settings (run once in the SQL editor)
+alter table public.event_dishes add column if not exists portions integer;
+
+create table if not exists public.app_settings (
+  key text primary key,
+  value jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table public.app_settings enable row level security;
+drop policy if exists "open" on public.app_settings;
+create policy "open" on public.app_settings for all using (true) with check (true);
+
+create table if not exists public.invoices (
+  id uuid primary key default gen_random_uuid(),
+  event_id uuid references public.events(id) on delete cascade,
+  number integer not null unique,
+  kind text not null check (kind in ('deposit','final','full')),
+  status text not null default 'draft' check (status in ('draft','sent','paid','void')),
+  issued_on date not null default current_date,
+  due_on date,
+  bill_to text,
+  lines jsonb not null default '[]'::jsonb,
+  amount numeric(10,2) not null default 0,
+  reference text,
+  notes text,
+  sent_on date,
+  paid_on date,
+  paid_amount numeric(10,2),
+  paid_ref text,
+  created_at timestamptz not null default now()
+);
+alter table public.invoices enable row level security;
+drop policy if exists "open" on public.invoices;
+create policy "open" on public.invoices for all using (true) with check (true);
+create index if not exists invoices_event_idx on public.invoices(event_id);`;
+
+function openSettings(){
+  const bank=getSetting('invoice_bank')||{},from=getSetting('invoice_from')||{};
+  const g=id=>document.getElementById(id);
+  g('set-inv-next').value=getSetting('invoice_next_number');
+  g('set-deposit').value=getSetting('deposit_pct');
+  g('set-terms').value=getSetting('payment_terms_days');
+  g('set-from-name').value=from.name||'';g('set-from-email').value=from.email||'';g('set-from-phone').value=from.phone||'';g('set-from-address').value=from.address||'';
+  g('set-bank-name').value=bank.account_name||'';g('set-bank-type').value=bank.account_type||'';g('set-bank-sort').value=bank.sort_code||'';g('set-bank-acct').value=bank.account_number||'';
+  g('set-boh').value=getSetting('boh_url')||'';
+  g('set-migration-note').style.display=(_settingsTableOk===false||_invoicesTableOk===false||_portionsColOk===false)?'flex':'none';
+  openModal('settings-modal');
+}
+async function saveSettings(){
+  const g=id=>document.getElementById(id).value.trim();
+  const next=parseInt(g('set-inv-next'))||SETTINGS_DEFAULTS.invoice_next_number;
+  const dep=Math.min(100,Math.max(0,parseFloat(g('set-deposit'))||0));
+  const terms=parseInt(g('set-terms'))||30;
+  let boh=g('set-boh');if(boh&&!/^https?:\/\//i.test(boh))boh='https://'+boh;
+  const ok=await Promise.all([
+    saveSetting('invoice_next_number',next),saveSetting('deposit_pct',dep),saveSetting('payment_terms_days',terms),
+    saveSetting('invoice_from',{name:g('set-from-name'),email:g('set-from-email'),phone:g('set-from-phone'),address:g('set-from-address')}),
+    saveSetting('invoice_bank',{account_name:g('set-bank-name'),account_type:g('set-bank-type'),sort_code:g('set-bank-sort'),account_number:g('set-bank-acct')}),
+    saveSetting('boh_url',boh)
+  ]);
+  if(ok.every(Boolean)){closeModal('settings-modal');toast(_settingsTableOk?'Settings saved':'Settings saved on this device');if(_evDetail.id)renderEventTab();}
+}
+function copyMigrationSQL(){navigator.clipboard.writeText(MIGRATION_SQL).then(()=>toast('Migration SQL copied')).catch(()=>toast('Could not copy','err'));}
+
+// ═══════════════════════════════════════════════════════════════════
+// MENU COST — per dish × portions. Every dish used to be charged for every
+// cover, so a choice of two mains cost double and a dietary variant on the
+// menu for two guests was costed for the whole room.
+// ═══════════════════════════════════════════════════════════════════
+let _portionsColOk=null; // does event_dishes.portions exist yet? learned from loaded rows
+function detectPortionsCol(){
+  const rows=events.flatMap(e=>e.event_dishes||[]);
+  if(!rows.length){_portionsColOk=null;return;}
+  _portionsColOk=rows.some(r=>Object.prototype.hasOwnProperty.call(r,'portions'));
+}
+// {dish_id: portions} — explicit portions win; otherwise a standard dish is
+// served to every cover and a variant (dish.variant_of on the same menu) to the
+// guests assigned to it, with its parent reduced by the same number.
+function eventPortionsMap(ev,assignments){
+  const covers=parseInt(ev.covers)||0;const rows=ev.event_dishes||[];const map={};
+  const onMenu=new Set(rows.map(r=>r.dish_id));
+  const assigned={};(assignments||[]).forEach(a=>{if(a.variant_id&&onMenu.has(a.variant_id))assigned[a.variant_id]=(assigned[a.variant_id]||0)+(parseInt(a.portions)||0);});
+  const isVariantOnMenu=r=>{const d=dishes.find(x=>x.id===r.dish_id);return d&&d.variant_of&&onMenu.has(d.variant_of)?d:null;};
+  rows.forEach(r=>{
+    if(r.portions!=null&&r.portions!==''){map[r.dish_id]=parseInt(r.portions)||0;return;}
+    map[r.dish_id]=isVariantOnMenu(r)?(assigned[r.dish_id]||0):covers;
+  });
+  rows.forEach(r=>{const d=isVariantOnMenu(r);if(!d)return;const parent=rows.find(x=>x.dish_id===d.variant_of);if(parent&&(parent.portions==null||parent.portions===''))map[d.variant_of]=Math.max(0,(map[d.variant_of]||0)-(map[r.dish_id]||0));});
+  return map;
+}
+function menuCostForEvent(ev,assignments){
+  const map=eventPortionsMap(ev,assignments);
+  const rows=(ev.event_dishes||[]).map(r=>{
+    const d=dishes.find(x=>x.id===r.dish_id);if(!d)return null;
+    const cpc=calcDishCost(d);const portions=map[r.dish_id]||0;
+    return{dish:d,cpc,portions,line:cpc!=null?cpc*portions:null,overridden:r.portions!=null&&r.portions!=='',isVariant:!!(d.variant_of&&(ev.event_dishes||[]).some(x=>x.dish_id===d.variant_of))};
+  }).filter(Boolean).sort((a,b)=>CAT_ORDER.indexOf(a.dish.category)-CAT_ORDER.indexOf(b.dish.category)||a.dish.name.localeCompare(b.dish.name));
+  const total=rows.reduce((s,r)=>s+(r.line||0),0);
+  const covers=parseInt(ev.covers)||0;
+  return{rows,total,anyCosted:rows.some(r=>r.cpc!=null),uncosted:rows.filter(r=>r.cpc==null).length,perCover:covers?total/covers:0};
+}
+async function setDishPortions(eventId,dishId,val){
+  const ev=events.find(e=>e.id===eventId);if(!ev)return;
+  const row=(ev.event_dishes||[]).find(r=>r.dish_id===dishId);if(!row)return;
+  const n=val===''?null:Math.max(0,parseInt(val)||0);
+  if(_portionsColOk===false){toast('Run the migration in Settings to save portions','err');return;}
+  const{error}=await sb.from('event_dishes').update({portions:n}).eq('event_id',eventId).eq('dish_id',dishId);
+  if(error){_portionsColOk=false;toast('Run the migration in Settings to save portions','err');return;}
+  row.portions=n;
+  await pullMenuCost(eventId,{silent:true});
+  renderEventTab();
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// P&L — the auto food line always mirrors the current menu cost (menu edits,
+// price fixes and portion changes all flow through), and its copy in Digby's
+// Finance is updated in place instead of gaining a second row.
+// ═══════════════════════════════════════════════════════════════════
+async function pullMenuCost(eventId,opts={}){
+  const ev=events.find(e=>e.id===eventId);if(!ev)return false;
+  let assignments=_evDetail.id===eventId&&_evDetail.assignments?_evDetail.assignments:null;
+  if(!assignments){try{const{data}=await sb.from('event_variant_assignments').select('*').eq('event_id',eventId);assignments=data||[];}catch(e){assignments=[];}}
+  const mc=menuCostForEvent(ev,assignments);
+  const total=+mc.total.toFixed(2);
+  const desc=`Menu cost (auto, £${mc.perCover.toFixed(2)}/cover)`;
+  const{data:existing}=await sb.from('event_cost_lines').select('id,amount').eq('event_id',eventId).eq('source','auto').eq('category','food').limit(1);
+  const ex=existing&&existing[0];
+  if(!mc.anyCosted||!total){
+    if(ex)await sb.from('event_cost_lines').delete().eq('id',ex.id);
+    if(!opts.silent)toast('No costed dishes on this menu yet','err');
+    return false;
+  }
+  if(ex){
+    if(Math.abs(parseFloat(ex.amount)-total)>0.005){
+      await sb.from('event_cost_lines').update({amount:total,description:desc}).eq('id',ex.id);
+      mirrorFinanceExpense(ev,total,desc);
+    }
+  }else{
+    const{error}=await sb.from('event_cost_lines').insert({event_id:eventId,category:'food',description:desc,amount:total,source:'auto',job_code:ev.job_code||null});
+    if(!error)mirrorFinanceExpense(ev,total,desc);
+  }
+  if(!opts.silent){toast('Menu cost updated');renderEventTab();}
+  return true;
+}
+function mirrorFinanceExpense(ev,total,desc){
+  const ref=ev.job_code||null;const today=new Date().toISOString().slice(0,10);
+  const row={date:today,amount:total,category:'Food & Drink',description:desc+(ref?' ['+ref+']':''),reference:ref};
+  try{
+    if(!ref){sbBOH.from('finance_expenses').insert(row).then(()=>{},()=>{});return;}
+    Promise.resolve(sbBOH.from('finance_expenses').select('id').eq('reference',ref).ilike('description','Menu cost (auto%').limit(1))
+      .then(({data})=>data&&data.length?sbBOH.from('finance_expenses').update({amount:total,description:row.description}).eq('id',data[0].id):sbBOH.from('finance_expenses').insert(row))
+      .then(()=>{},()=>{});
+  }catch(e){}
+}
+async function deleteCostLine(lineId,eventId){
+  if(!(await askConfirm('Remove this cost line from the event?',{title:'Remove cost line?',confirmLabel:'Remove'})))return;
+  await sb.from('event_cost_lines').delete().eq('id',lineId);
+  renderEventTab();
+}
+// Kept for anything still pointing at the old container-based renderer.
+async function renderEventPnL(eventId){if(_evDetail.id!==eventId){_evDetail.id=eventId;}_evDetail.tab='financials';renderEventTab();}
+
+// ═══════════════════════════════════════════════════════════════════
+// EVENT DETAIL — Overview · Menu · Financials
+// ═══════════════════════════════════════════════════════════════════
+let _evDetail={id:null,tab:'overview',assignments:[],costLines:[],invoices:[],loadedFor:null};
+let _invoicesTableOk=null;
+const evTypeLabel=t=>(typeof EV_TYPES!=='undefined'&&EV_TYPES[t])||t||'';
+const fmtLongDate=iso=>iso?new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'Date TBC';
+const fmtShortDate=iso=>iso?new Date((iso.length===10?iso+'T00:00:00':iso)).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'—';
+const money=v=>'£'+(Math.round((+v||0)*100)/100).toLocaleString('en-GB',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+async function showEventDetail(id,tab){
+  const ev=events.find(e=>e.id===id);if(!ev)return;
+  document.getElementById('events-list').style.display='none';
+  const calWrap=document.getElementById('ev-calendar-wrap');if(calWrap)calWrap.style.display='none';
+  const wrap=document.getElementById('ev-detail-wrap');wrap.style.display='flex';wrap.style.flexDirection='column';
+  if(_evDetail.id!==id){_evDetail={id,tab:tab||'overview',assignments:[],costLines:[],invoices:[],loadedFor:null};}
+  else if(tab)_evDetail.tab=tab;
+  wrap.innerHTML=`
+    <div class="ev-detail-hd">
+      <button class="builder-back" onclick="backToEventsList()" aria-label="Back to events"></button>
+      <div style="flex:1;min-width:0;"><div class="ev-detail-title">${h(ev.client_name||'Unnamed')}</div>
+      <div class="ev-detail-sub">${fmtLongDate(ev.event_date)}${ev.job_code?' · '+h(ev.job_code):''}</div></div>
+      <span class="ev-status ${ev.status||'Enquiry'}">${ev.status||'Enquiry'}</span>
+      <div class="ev-detail-acts">
+        <button class="btn btn-sm" onclick="goPrep('${ev.id}')">${ico('checklist')}Prep list</button>
+        <button class="btn btn-sm" onclick="document.getElementById('al-ev-sel').value='${ev.id}';sbNav('library');libSubTab('allergens')">${ico('leaf')}Allergens</button>
+        <button class="btn btn-sm" onclick="printFunctionSheet('${ev.id}')">${ico('printer')}Print</button>
+        <button class="btn btn-sm btn-primary" onclick="openFsWizard('${ev.id}')">${ico('pencil')}Edit</button>
+      </div>
+    </div>
+    <div class="ev-tabs"><div class="seg" id="ev-detail-seg">
+      <button class="${_evDetail.tab==='overview'?'on':''}" onclick="evDetailTab('overview',this)">Overview</button>
+      <button class="${_evDetail.tab==='menu'?'on':''}" onclick="evDetailTab('menu',this)">Menu</button>
+      <button class="${_evDetail.tab==='financials'?'on':''}" onclick="evDetailTab('financials',this)">Financials</button>
+    </div></div>
+    <div id="ev-detail-body" class="ev-detail-body"></div>`;
+  renderEventTab();
+}
+function evDetailTab(tab,el){
+  _evDetail.tab=tab;
+  document.querySelectorAll('#ev-detail-seg > button').forEach(b=>b.classList.toggle('on',b===el));
+  renderEventTab();
+}
+async function renderEventTab(){
+  const ev=events.find(e=>e.id===_evDetail.id);const body=document.getElementById('ev-detail-body');if(!ev||!body)return;
+  if(_evDetail.tab==='overview'){body.innerHTML=evOverviewHTML(ev);loadBOHForCard(ev);return;}
+  if(_evDetail.tab==='menu'){await ensureEventFinanceData(ev,{light:true});body.innerHTML=evMenuHTML(ev);return;}
+  body.innerHTML='<div class="empty"><span class="spin"></span></div>';
+  await ensureEventFinanceData(ev);
+  await pullMenuCost(ev.id,{silent:true});
+  const{data:lines}=await sb.from('event_cost_lines').select('*').eq('event_id',ev.id).order('date');
+  _evDetail.costLines=lines||[];
+  if(_invoicesTableOk!==false)await autoCheckPayments(ev,{silent:true});
+  if(_evDetail.tab!=='financials')return;
+  body.innerHTML=evFinancialsHTML(ev);
+}
+async function ensureEventFinanceData(ev,opts={}){
+  if(_evDetail.loadedFor!==ev.id){
+    try{const{data}=await sb.from('event_variant_assignments').select('*').eq('event_id',ev.id);_evDetail.assignments=data||[];}catch(e){_evDetail.assignments=[];}
+    _evDetail.loadedFor=ev.id;
+  }
+  if(!opts.light){
+    try{const{data,error}=await sb.from('invoices').select('*').eq('event_id',ev.id).order('number');if(error)throw error;_invoicesTableOk=true;_evDetail.invoices=data||[];}
+    catch(e){_invoicesTableOk=false;_evDetail.invoices=[];}
+  }
+}
+
+// ── Overview ──
+function evOverviewHTML(ev){
+  const timeStr=(ev.start_time||ev.end_time)?`${ev.start_time||'—'} – ${ev.end_time||'—'}`:'—';
+  const rod=ev.run_of_day||[];
+  const field=(label,val,opts={})=>`<div class="ev-field"><div class="ev-field-label">${label}</div><div class="ev-field-value${opts.num?' num':''}${val?'':' muted'}">${val||'—'}</div></div>`;
+  return`<div class="ev-detail-grid">
+    <div class="ev-section"><div class="ev-section-hd">Details</div><div class="ev-section-body">
+      ${field('Type',h(evTypeLabel(ev.event_type)))}
+      ${field('Time',timeStr==='—'?'':timeStr,{num:true})}
+      ${field('Covers',ev.covers?String(ev.covers):'',{num:true})}
+      ${field('Venue',h(ev.venue_name||ev.location||''))}
+      ${ev.address?field('Address',h(ev.address)):''}
+      ${field('Staffing',h(ev.staffing||''))}
+    </div></div>
+    <div class="ev-section"><div class="ev-section-hd">Contact</div><div class="ev-section-body">
+      ${field('Name',h(ev.contact_name||''))}
+      ${field('Phone',ev.contact_phone?`<a href="tel:${h(ev.contact_phone)}" class="ev-link">${h(ev.contact_phone)}</a>`:'',{num:true})}
+      ${field('Email',ev.contact_email?`<a href="mailto:${h(ev.contact_email)}" class="ev-link">${h(ev.contact_email)}</a>`:'')}
+      ${ev.contact_2?field('Second contact',h(ev.contact_2)):''}
+      ${field('Payment',`<span class="pay-pill ${ev.deposit_status==='paid'?'paid':ev.deposit_status?'part':'unpaid'}">${{deposit:'Deposit taken',invoiced:'Invoice sent',paid:'Paid in full'}[ev.deposit_status]||'Unpaid'}</span>`)}
+    </div></div>
+    ${rod.length?`<div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd">Run of day</div><div class="ev-section-body" style="padding:0"><table class="rod-table"><thead><tr><th>Time</th><th>Item</th><th>Duration</th><th>Notes</th></tr></thead><tbody>${rod.slice().sort((a,b)=>(a.time||'')>(b.time||'')?1:-1).map(r=>`<tr><td class="rod-time">${h(r.time||'')}</td><td class="rod-event">${h(r.event||r.item||'')}</td><td class="rod-dur">${h(r.duration||'')}</td><td class="rod-notes">${h(r.notes||'')}</td></tr>`).join('')}</tbody></table></div></div>`:''}
+    ${ev.kitchen_notes||ev.chef_notes||ev.service_notes||ev.client_notes?`<div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd">Notes</div><div class="ev-section-body">
+      ${[['kitchen_notes','Kitchen'],['chef_notes','Chef'],['service_notes','Service'],['client_notes','Client']].filter(([k])=>ev[k]).map(([k,l])=>`<div class="ev-field ev-field-stack"><div class="ev-field-label">${l}</div><div class="ev-field-value">${h(ev[k])}</div></div>`).join('')}
+    </div></div>`:''}
+    <div id="boh-panel-${ev.id}" style="grid-column:1/-1"></div>
+  </div>`;
+}
+
+// ── Menu ──
+function evMenuHTML(ev){
+  const mc=menuCostForEvent(ev,_evDetail.assignments);
+  const guests=ev.guest_allergens||[];
+  const byCat={};mc.rows.forEach(r=>{(byCat[r.dish.category||'Other']=byCat[r.dish.category||'Other']||[]).push(r);});
+  const cats=Object.keys(byCat).sort((a,b)=>CAT_ORDER.indexOf(a)-CAT_ORDER.indexOf(b));
+  return`<div class="ev-detail-grid">
+    <div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd" style="display:flex;justify-content:space-between;align-items:center;">Menu <span class="seg-count" style="margin:0;text-transform:none;letter-spacing:0;">${mc.rows.length} dish${mc.rows.length===1?'':'es'} · ${ev.covers||0} covers</span></div>
+      ${mc.rows.length?cats.map(cat=>`<div class="ev-section-body" style="padding-bottom:4px;"><div class="ev-menu-cat" style="display:flex;align-items:center;gap:8px;"><span class="lib-cat-dot" style="background:${CAT_COLORS[cat]||'var(--cat-ot)'}"></span>${h(cat)}</div>
+        ${byCat[cat].map(r=>{const al=getDishAl(r.dish);return`<div class="ev-menu-item row-nav" onclick="openDish('${r.dish.id}');sbNav('library')">
+          <div style="flex:1;min-width:0;"><div class="ev-menu-name" style="font-weight:500;">${h(r.dish.name)}${r.isVariant?' <span class="badge" style="margin-left:6px;">Variant</span>':''}</div>
+          ${al.length?`<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">${al.map(a=>`<span class="al-tag ${a.status==='May Contain'?'may':'c'}">${h(a.allergen)}${a.status==='May Contain'?' (MC)':''}</span>`).join('')}</div>`:''}</div>
+          <span class="muted num" style="font-size:var(--fs-sh);">${r.portions} portion${r.portions===1?'':'s'}</span>
+          <span class="num" style="min-width:72px;text-align:right;font-weight:500;">${r.cpc!=null?fmt$(r.cpc)+'<span class="muted" style="font-weight:400;">/cover</span>':'<span class="muted">Not costed</span>'}</span>
+          ${chev()}
+        </div>`;}).join('')}
+      </div>`).join(''):`<div class="empty"><div class="empty-icon">${ico('book')}</div><div class="empty-t">No menu yet</div><div class="empty-s">Add dishes from the Library in step 2 of the event editor.</div></div>`}
+    </div>
+    <div class="ev-section"><div class="ev-section-hd">Dietary guests</div><div class="ev-section-body">
+      ${guests.length?guests.map(g=>`<div class="guest-row ${g.type||''}"><div class="guest-name">${h(g.name||'Guest')}</div><div class="guest-detail">${h(g.dietary||g.custom||'')}</div>${(g.allergens||[]).length?`<div class="guest-al-chips">${g.allergens.map(a=>`<span class="al-tag c">${h(a)}</span>`).join('')}</div>`:''}</div>`).join(''):'<div class="today-quiet" style="padding:8px 0 4px;">No dietary requirements recorded.</div>'}
+    </div></div>
+    <div class="ev-section"><div class="ev-section-hd">Variant assignments</div><div class="ev-section-body">
+      ${_evDetail.assignments.length?_evDetail.assignments.map(a=>{const d=dishes.find(x=>x.id===a.dish_id),v=dishes.find(x=>x.id===a.variant_id);return`<div class="ev-field"><div class="ev-field-label">${h(d?.name||'Dish')}</div><div class="ev-field-value">${h(v?.name||'—')} <span class="muted">× ${a.portions||0}</span></div></div>`;}).join(''):'<div class="today-quiet" style="padding:8px 0 4px;">None — set from step 3 of the event editor.</div>'}
+    </div></div>
+  </div>`;
+}
+
+// ── Financials ──
+function evFinancialsHTML(ev){
+  const mc=menuCostForEvent(ev,_evDetail.assignments);
+  const charges=ev.extra_charges||[];
+  const price=parseFloat(ev.budget)||0;
+  const chargeTotal=charges.reduce((s,c)=>s+(parseFloat(c.amount)||0),0);
+  const revenue=price+chargeTotal;
+  const byCat={food:0,labour:0,mileage:0,overhead:0,other:0};
+  _evDetail.costLines.forEach(l=>byCat[l.category]=(byCat[l.category]||0)+parseFloat(l.amount||0));
+  const totalCost=Object.values(byCat).reduce((s,v)=>s+v,0);
+  const gp=revenue-totalCost;const gpPct=revenue?Math.round(gp/revenue*100):0;const foodPct=revenue?Math.round(byCat.food/revenue*100):0;
+  const other=_evDetail.costLines.filter(l=>l.source!=='auto');
+  const invs=_evDetail.invoices.filter(i=>i.status!=='void');
+  const voided=_evDetail.invoices.filter(i=>i.status==='void');
+  const paidTotal=invs.filter(i=>i.status==='paid').reduce((s,i)=>s+parseFloat(i.paid_amount||i.amount||0),0);
+  const outstanding=Math.max(0,revenue-paidTotal);
+  const hasDeposit=invs.some(i=>i.kind==='deposit');
+  const hasFinal=invs.some(i=>i.kind==='final'||i.kind==='full');
+  const canCheck=invs.some(i=>i.status==='sent');
+  const catLabel={food:'Food',labour:'Labour',mileage:'Mileage',overhead:'Overhead',other:'Other'};
+  const kindLabel={deposit:'Deposit',final:'Final',full:'Invoice'};
+  const invStatus=i=>{if(i.status==='paid')return'<span class="pay-pill paid">Paid</span>';if(i.status==='void')return'<span class="badge">Void</span>';if(i.status==='sent'){const od=i.due_on&&new Date(i.due_on+'T00:00:00')<new Date();return`<span class="pay-pill ${od?'unpaid':'part'}">${od?'Overdue':'Sent'}</span>`;}return'<span class="badge">Draft</span>';};
+  return`
+  <div class="pnl-summary-bar fin-summary">
+    <div class="pnl-summary-cell"><div class="pnl-summary-label">Revenue${chargeTotal?' incl. extras':''}</div><div class="pnl-summary-val">${money(revenue)}</div></div>
+    <div class="pnl-summary-cell"><div class="pnl-summary-label">Total cost</div><div class="pnl-summary-val ${totalCost>revenue&&revenue?'red':''}">${money(totalCost)}</div></div>
+    <div class="pnl-summary-cell"><div class="pnl-summary-label">Gross profit</div><div class="pnl-summary-val ${revenue?(gp>=0?'green':'red'):''}">${money(gp)}</div></div>
+    <div class="pnl-summary-cell"><div class="pnl-summary-label">Margin</div><div class="pnl-summary-val ${revenue?(gpPct>=40?'green':gpPct>=20?'':'red'):''}">${revenue?gpPct+'%':'—'}</div></div>
+  </div>
+  <div class="ev-detail-grid">
+    <div class="ev-section"><div class="ev-section-hd" style="display:flex;justify-content:space-between;align-items:center;">Revenue <button class="btn btn-xs" onclick="openFsWizard('${ev.id}')">${ico('pencil')}Edit</button></div><div class="ev-section-body">
+      <div class="ev-field"><div class="ev-field-label">Price agreed</div><div class="ev-field-value num${price?'':' muted'}">${price?money(price):'Not set'}</div></div>
+      ${charges.map(c=>`<div class="ev-field"><div class="ev-field-label">${h(c.service||c.description||'Extra charge')}${c.notes?` <span class="muted">· ${h(c.notes)}</span>`:''}</div><div class="ev-field-value num">${money(c.amount)}</div></div>`).join('')}
+      <div class="ev-field fin-total"><div class="ev-field-label">Total</div><div class="ev-field-value num">${money(revenue)}</div></div>
+      ${ev.covers&&revenue?`<div class="ev-field"><div class="ev-field-label">Per cover</div><div class="ev-field-value num muted">${money(revenue/ev.covers)}</div></div>`:''}
+    </div></div>
+
+    <div class="ev-section"><div class="ev-section-hd" style="display:flex;justify-content:space-between;align-items:center;">Payments <span style="display:flex;gap:6px;">${canCheck&&_invoicesTableOk?`<button class="btn btn-xs" onclick="checkPayments()">${ico('refresh')}Check payments</button>`:''}</span></div><div class="ev-section-body">
+      <div class="ev-field"><div class="ev-field-label">Status</div><div class="ev-field-value"><span class="pay-pill ${ev.deposit_status==='paid'?'paid':ev.deposit_status?'part':'unpaid'}">${{deposit:'Deposit taken',invoiced:'Invoice sent',paid:'Paid in full'}[ev.deposit_status]||'Unpaid'}</span></div></div>
+      <div class="ev-field"><div class="ev-field-label">Received</div><div class="ev-field-value num${paidTotal?'':' muted'}">${money(paidTotal)}</div></div>
+      <div class="ev-field"><div class="ev-field-label">Outstanding</div><div class="ev-field-value num${outstanding?'':' muted'}" ${outstanding&&ev.deposit_status!=='paid'?'style="color:var(--accent)"':''}>${money(outstanding)}</div></div>
+      <div class="fin-actions">
+        ${ev.deposit_status!=='paid'?`<button class="btn btn-xs" style="background:var(--ok-tint);color:var(--ok);" onclick="markPayment('${ev.id}','paid')">${ico('check')}Mark paid in full</button>`:`<button class="btn btn-xs btn-ghost" onclick="markPayment('${ev.id}','')">Unmark paid</button>`}
+        ${!ev.deposit_status?`<button class="btn btn-xs" onclick="markPayment('${ev.id}','deposit')">Deposit taken</button>`:''}
+      </div>
+      <div class="fin-hint">${_invoicesTableOk===false?'Run the migration in Settings to raise invoices from here.':'Payments are matched against income recorded in Digby’s Finance (Starling import) by job code, invoice number and amount.'}</div>
+    </div></div>
+
+    <div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd" style="display:flex;justify-content:space-between;align-items:center;">Invoices <span style="display:flex;gap:6px;">
+      ${_invoicesTableOk===false?'':`${!hasDeposit&&!hasFinal?`<button class="btn btn-xs btn-tint" onclick="openInvoiceModal('deposit')">${ico('plus')}Deposit invoice</button>`:''}
+      ${!hasFinal?`<button class="btn btn-xs btn-tint" onclick="openInvoiceModal('${hasDeposit?'final':'full'}')">${ico('plus')}${hasDeposit?'Final invoice':'Full invoice'}</button>`:''}`}
+    </span></div>
+      ${invs.length?`<div class="fin-inv-list">${invs.map(i=>`<div class="fin-inv-row">
+        <div class="fin-inv-no num">${i.number}</div>
+        <div style="flex:1;min-width:0;"><div style="font-weight:500;">${kindLabel[i.kind]||i.kind} invoice <span class="muted">· ${money(i.amount)}</span></div>
+        <div class="muted" style="font-size:var(--fs-sh);">Issued ${fmtShortDate(i.issued_on)}${i.due_on?' · due '+fmtShortDate(i.due_on):''}${i.status==='paid'&&i.paid_on?' · paid '+fmtShortDate(i.paid_on):''}${i.status==='sent'&&i.sent_on?' · sent '+fmtShortDate(i.sent_on):''}</div></div>
+        ${invStatus(i)}
+        <div class="fin-inv-acts">
+          <button class="btn btn-xs" onclick="printInvoice('${i.id}')">${ico('printer')}View</button>
+          ${i.status==='draft'?`<button class="btn btn-xs" onclick="setInvoiceStatus('${i.id}','sent')">${ico('envelope')}Mark sent</button>`:''}
+          ${i.status!=='paid'?`<button class="btn btn-xs" style="background:var(--ok-tint);color:var(--ok);" onclick="markInvoicePaid('${i.id}')">${ico('check')}Paid</button>`:''}
+          <button class="btn btn-xs btn-ghost" style="color:var(--label3);" title="More" onclick="invoiceMore('${i.id}')">${ico('ellipsis')}</button>
+        </div>
+      </div>`).join('')}</div>`:`<div class="today-quiet">${_invoicesTableOk===false?'Invoices need the migration — open Settings and copy the SQL.':'No invoices yet. Raise the deposit invoice once the booking is confirmed; the final invoice picks up the balance.'}</div>`}
+      ${voided.length?`<div class="muted" style="padding:0 16px 12px;font-size:var(--fs-fn);">Void: ${voided.map(i=>'#'+i.number).join(', ')}</div>`:''}
+    </div>
+
+    <div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd" style="display:flex;justify-content:space-between;align-items:center;">Menu cost <span class="seg-count" style="margin:0;text-transform:none;letter-spacing:0;">${mc.rows.length?money(mc.total)+' · '+money(mc.perCover)+' per cover'+(revenue?' · '+foodPct+'% of revenue':''):''}</span></div>
+      ${mc.rows.length?`<table class="cost-tbl fin-menu-tbl"><thead><tr><th>Dish</th><th class="tr">Cost / cover</th><th class="tr">Portions</th><th class="tr">Line</th></tr></thead><tbody>
+        ${mc.rows.map(r=>`<tr><td><div style="font-weight:500;">${h(r.dish.name)}</div><div class="muted" style="font-size:var(--fs-fn);">${h(r.dish.category||'')}${r.isVariant?' · variant':''}${r.cpc==null?' · not costed':''}</div></td>
+          <td class="tr num">${r.cpc!=null?fmt$(r.cpc):'<span class="muted">—</span>'}</td>
+          <td class="tr"><input class="fld-inp fin-portions${r.overridden?' is-set':''}" type="number" min="0" step="1" value="${r.portions}" title="${r.overridden?'Set for this event':'Default'}" onchange="setDishPortions('${ev.id}','${r.dish.id}',this.value)"></td>
+          <td class="tr num" style="font-weight:600;">${r.line!=null?money(r.line):'<span class="muted">—</span>'}</td></tr>`).join('')}
+        </tbody><tfoot><tr><td colspan="3" style="font-weight:600;">Menu cost</td><td class="tr num" style="font-weight:700;">${money(mc.total)}</td></tr></tfoot></table>
+        <div class="fin-hint" style="padding:10px 16px 14px;">Portions default to every cover for a standard dish and to the assigned guests for a variant. Change a number to override it for this event${_portionsColOk===false?' — run the migration in Settings first':''}.${mc.uncosted?` ${mc.uncosted} dish${mc.uncosted===1?' has':'es have'} no costed recipe yet.`:''}</div>`
+      :`<div class="today-quiet">No dishes on the menu yet.</div>`}
+    </div>
+
+    <div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd" style="display:flex;justify-content:space-between;align-items:center;">Other costs <button class="btn btn-xs" onclick="openAddCostLine('${ev.id}')">${ico('plus')}Add</button></div>
+      ${other.length?other.map(l=>`<div class="pnl-row"><span class="pnl-cat ${l.category}">${catLabel[l.category]||l.category}</span><span class="pnl-desc">${h(l.description)}</span><span class="pnl-src">${l.date?fmtShortDate(l.date):''}</span><span class="pnl-amount">${money(l.amount)}</span><button class="btn btn-xs btn-ghost" style="color:var(--label3);" onclick="deleteCostLine('${l.id}','${ev.id}')">${ico('xmark')}</button></div>`).join(''):'<div class="today-quiet">Labour, mileage and overheads for this event go here.</div>'}
+      <div class="pnl-foot">${Object.keys(byCat).filter(c=>byCat[c]).map(c=>`<span class="pnl-cat ${c}">${catLabel[c]} ${money(byCat[c])}</span>`).join('')}</div>
+    </div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// INVOICES
+// ═══════════════════════════════════════════════════════════════════
+function invoiceTotals(ev){
+  const price=parseFloat(ev.budget)||0;
+  const extras=(ev.extra_charges||[]).map(c=>({description:(c.service||c.description||'Extra charge')+(c.notes?' — '+c.notes:''),unit_price:+(parseFloat(c.amount)||0).toFixed(2),qty:1}));
+  return{price,extras,total:price+extras.reduce((s,e)=>s+e.unit_price,0)};
+}
+let _invDraft={kind:'deposit',lines:[]};
+function openInvoiceModal(kind){
+  const ev=events.find(e=>e.id===_evDetail.id);if(!ev)return;
+  const t=invoiceTotals(ev);
+  if(!t.total){toast('Set a price on the event first','err');return;}
+  const pct=parseFloat(getSetting('deposit_pct'))||40;
+  const evLine=`${evTypeLabel(ev.event_type)||'Catering'} — ${ev.covers||0} covers, ${fmtShortDate(ev.event_date)}`;
+  let lines=[];
+  if(kind==='deposit'){lines=[{description:`Deposit (${pct}%) — ${evLine}`,unit_price:+(t.total*pct/100).toFixed(2),qty:1}];}
+  else{
+    lines=[{description:evLine,unit_price:+t.price.toFixed(2),qty:1},...t.extras];
+    if(kind==='final'){const dep=_evDetail.invoices.filter(i=>i.kind==='deposit'&&i.status!=='void');const depAmt=dep.reduce((s,i)=>s+parseFloat(i.paid_amount||i.amount||0),0);if(depAmt)lines.push({description:`Less deposit received (invoice ${dep.map(i=>'#'+i.number).join(', ')})`,unit_price:-depAmt.toFixed(2),qty:1});}
+  }
+  _invDraft={kind,lines};
+  const g=id=>document.getElementById(id);
+  g('inv-modal-title').textContent={deposit:'Deposit invoice',final:'Final invoice',full:'Invoice'}[kind];
+  g('inv-number').value=getSetting('invoice_next_number');
+  const today=new Date();g('inv-issued').value=today.toISOString().slice(0,10);
+  const due=new Date(today);due.setDate(due.getDate()+(parseInt(getSetting('payment_terms_days'))||30));g('inv-due').value=due.toISOString().slice(0,10);
+  g('inv-billto').value=[ev.contact_name||ev.client_name,ev.contact_email,ev.contact_phone].filter(Boolean).join('\n');
+  g('inv-notes').value='';
+  renderInvLines();
+  openModal('invoice-modal');
+}
+function renderInvLines(){
+  const wrap=document.getElementById('inv-lines');
+  wrap.innerHTML=_invDraft.lines.map((l,i)=>`<div class="inv-line">
+    <input class="fld-inp" value="${h(l.description)}" placeholder="Description" oninput="_invDraft.lines[${i}].description=this.value">
+    <div style="position:relative;"><span class="inp-prefix">£</span><input class="fld-inp num" type="number" step="0.01" value="${l.unit_price}" style="padding-left:26px;" oninput="_invDraft.lines[${i}].unit_price=parseFloat(this.value)||0;renderInvTotal()"></div>
+    <input class="fld-inp num" type="number" step="1" min="1" value="${l.qty||1}" oninput="_invDraft.lines[${i}].qty=parseFloat(this.value)||1;renderInvTotal()">
+    <button class="btn btn-xs btn-ghost" style="color:var(--label3);" onclick="_invDraft.lines.splice(${i},1);renderInvLines()">${ico('xmark')}</button>
+  </div>`).join('')+`<button class="add-row-btn" style="margin-top:6px;" onclick="_invDraft.lines.push({description:'',unit_price:0,qty:1});renderInvLines()">${ico('plus','ico-sm')}Line</button>`;
+  renderInvTotal();
+}
+function invDraftTotal(){return _invDraft.lines.reduce((s,l)=>s+(parseFloat(l.unit_price)||0)*(parseFloat(l.qty)||1),0);}
+function renderInvTotal(){const el=document.getElementById('inv-total');if(el)el.textContent=money(invDraftTotal());}
+async function saveInvoice(andPrint){
+  const ev=events.find(e=>e.id===_evDetail.id);if(!ev)return;
+  const g=id=>document.getElementById(id);
+  const number=parseInt(g('inv-number').value);if(!number){toast('Invoice number required','err');return;}
+  const lines=_invDraft.lines.filter(l=>(l.description||'').trim()||l.unit_price);
+  if(!lines.length){toast('Add at least one line','err');return;}
+  const amount=+invDraftTotal().toFixed(2);
+  const row={event_id:ev.id,number,kind:_invDraft.kind,status:'draft',issued_on:g('inv-issued').value||new Date().toISOString().slice(0,10),due_on:g('inv-due').value||null,bill_to:g('inv-billto').value.trim()||null,lines,amount,reference:ev.job_code||('INV'+number),notes:g('inv-notes').value.trim()||null};
+  const{data,error}=await sb.from('invoices').insert(row).select().single();
+  if(error){toast(error.message.includes('unique')?'Invoice number already used':error.message,'err');return;}
+  if(number>=(parseInt(getSetting('invoice_next_number'))||0))await saveSetting('invoice_next_number',number+1);
+  closeModal('invoice-modal');
+  toast(`Invoice #${number} saved`);
+  await ensureEventFinanceData(ev);renderEventTab();
+  if(andPrint)printInvoice(data.id,data);
+}
+async function setInvoiceStatus(id,status){
+  const inv=_evDetail.invoices.find(i=>i.id===id);if(!inv)return;
+  const patch={status};if(status==='sent')patch.sent_on=new Date().toISOString().slice(0,10);
+  const{error}=await sb.from('invoices').update(patch).eq('id',id);if(error){toast(error.message,'err');return;}
+  Object.assign(inv,patch);
+  const ev=events.find(e=>e.id===inv.event_id);
+  if(status==='sent'&&ev&&ev.deposit_status!=='paid'&&ev.deposit_status!=='deposit'){await sb.from('events').update({deposit_status:'invoiced'}).eq('id',ev.id);ev.deposit_status='invoiced';}
+  toast(status==='sent'?`Invoice #${inv.number} marked sent`:status==='void'?`Invoice #${inv.number} voided`:'Updated');
+  renderEventTab();
+}
+async function markInvoicePaid(id){
+  const inv=_evDetail.invoices.find(i=>i.id===id);if(!inv)return;
+  if(!(await askConfirm(`Record invoice #${inv.number} (${money(inv.amount)}) as paid today?`,{title:'Mark paid',confirmLabel:'Mark paid',danger:false})))return;
+  await applyInvoicePaid(inv,new Date().toISOString().slice(0,10),parseFloat(inv.amount),'manual');
+  renderEventTab();
+}
+async function applyInvoicePaid(inv,paidOn,paidAmount,paidRef){
+  const patch={status:'paid',paid_on:paidOn,paid_amount:paidAmount,paid_ref:paidRef};
+  const{error}=await sb.from('invoices').update(patch).eq('id',inv.id);if(error){toast(error.message,'err');return false;}
+  Object.assign(inv,patch);
+  const ev=events.find(e=>e.id===inv.event_id);
+  if(ev){
+    const next=inv.kind==='deposit'?(ev.deposit_status==='paid'?'paid':'deposit'):'paid';
+    if(ev.deposit_status!==next){await sb.from('events').update({deposit_status:next}).eq('id',ev.id);ev.deposit_status=next;}
+  }
+  return true;
+}
+async function invoiceMore(id){
+  const inv=_evDetail.invoices.find(i=>i.id===id);if(!inv)return;
+  if(inv.status==='paid'){if(await askConfirm(`Undo the payment recorded against invoice #${inv.number}?`,{title:'Undo payment',confirmLabel:'Undo',danger:false})){await sb.from('invoices').update({status:'sent',paid_on:null,paid_amount:null,paid_ref:null}).eq('id',inv.id);Object.assign(inv,{status:'sent',paid_on:null,paid_amount:null,paid_ref:null});renderEventTab();}return;}
+  if(await askConfirm(`Void invoice #${inv.number}? It stays on record but no longer counts.`,{title:'Void invoice',confirmLabel:'Void'}))setInvoiceStatus(id,'void');
+}
+// Match open invoices against income recorded in Digby's Finance (the Starling
+// import lands there). A hit = same amount, and the job code or invoice number
+// in the reference or description.
+async function checkPayments(){const ev=events.find(e=>e.id===_evDetail.id);if(!ev)return;const n=await autoCheckPayments(ev,{});renderEventTab();if(n===null)return;toast(n?`${n} payment${n>1?'s':''} matched`:'No matching payments yet');}
+async function autoCheckPayments(ev,opts={}){
+  const open=_evDetail.invoices.filter(i=>i.status==='sent');
+  if(!open.length)return 0;
+  const keys=[ev.job_code,...open.map(i=>'INV'+i.number),...open.map(i=>'Invoice '+i.number)].filter(Boolean);
+  let rows=[];
+  try{
+    const filter=keys.map(k=>`reference.ilike.%${k}%,description.ilike.%${k}%`).join(',');
+    const{data,error}=await sbBOH.from('finance_income').select('id,date,amount,description,reference').or(filter).order('date',{ascending:false}).limit(60);
+    if(error)throw error;rows=data||[];
+  }catch(e){if(!opts.silent)toast("Couldn't reach Digby's Finance",'err');return null;}
+  const used=new Set(_evDetail.invoices.map(i=>i.paid_ref).filter(Boolean));
+  let matched=0;
+  for(const inv of open){
+    const hit=rows.find(r=>!used.has(r.id)&&Math.abs(parseFloat(r.amount)-parseFloat(inv.amount))<0.011);
+    if(hit&&await applyInvoicePaid(inv,hit.date,parseFloat(hit.amount),hit.id)){used.add(hit.id);matched++;}
+  }
+  return matched;
+}
+
+// ── Print — Digby's invoice layout ──
+function printInvoice(id,invObj){
+  const inv=invObj||_evDetail.invoices.find(i=>i.id===id);if(!inv)return;
+  const ev=events.find(e=>e.id===inv.event_id)||{};
+  const from=getSetting('invoice_from')||{},bank=getSetting('invoice_bank')||{};
+  const lines=inv.lines||[];
+  const subtotal=lines.reduce((s,l)=>s+(parseFloat(l.unit_price)||0)*(parseFloat(l.qty)||1),0);
+  const fmtD=iso=>iso?new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}):'';
+  const css=`*{box-sizing:border-box;margin:0;padding:0;}@page{size:A4;margin:18mm 18mm 20mm;}body{font-family:'Inter',-apple-system,Helvetica,Arial,sans-serif;font-size:11.5px;color:#3D3733;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact;line-height:1.45;}
+  .lora{font-family:'Lora',Georgia,serif;}.hd{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;border-bottom:2px solid #8C2F2F;margin-bottom:22px;}
+  .brand{font-size:30px;font-weight:600;letter-spacing:.04em;color:#3D3733;line-height:1;}.brand-sub{font-size:12.5px;color:#3D3733;margin-top:5px;letter-spacing:.06em;}
+  .inv{text-align:right;}.inv-t{font-size:26px;font-weight:600;color:#8C2F2F;letter-spacing:.06em;line-height:1;}.inv-n{font-size:15px;color:#8C2F2F;margin-top:6px;font-weight:600;}.inv-d{font-size:11.5px;color:#6B635D;margin-top:6px;}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-bottom:24px;}.lbl{font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#8A837C;margin-bottom:6px;}.val{font-size:12px;white-space:pre-line;}.val b{font-weight:600;}
+  table{width:100%;border-collapse:collapse;margin-top:6px;}th{font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8A837C;text-align:left;padding:8px 6px;border-bottom:1.5px solid #D5CFCC;}td{padding:10px 6px;border-bottom:1px solid #D5CFCC;vertical-align:top;font-size:12px;}.r{text-align:right;}.num{font-variant-numeric:tabular-nums;}
+  .sub td{border-bottom:none;padding-top:12px;color:#6B635D;}.total{display:flex;justify-content:space-between;align-items:center;background:#3D3733;color:#fff;padding:12px 14px;margin-top:10px;font-weight:700;font-size:14px;letter-spacing:.04em;}
+  .pay{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:28px;}.pay .val{line-height:1.7;}.foot{margin-top:36px;text-align:center;font-style:italic;color:#6B635D;font-size:12px;}.note{margin-top:16px;font-size:11px;color:#6B635D;white-space:pre-line;}`;
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Invoice ${inv.number} — Digby's</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet"><style>${css}</style></head><body>
+  <div class="hd"><div><div class="brand lora">DIGBY'S</div><div class="brand-sub lora">Events &amp; Catering</div>${from.address?`<div class="val" style="margin-top:10px;color:#6B635D;font-size:11px;">${h(from.address)}</div>`:''}</div>
+    <div class="inv"><div class="inv-t lora">INVOICE</div><div class="inv-n">No. ${inv.number}</div><div class="inv-d">${fmtD(inv.issued_on)}</div></div></div>
+  <div class="cols"><div><div class="lbl">Bill to</div><div class="val">${h(inv.bill_to||ev.client_name||'')}</div></div>
+    <div><div class="lbl">Event</div><div class="val"><b>${h(ev.client_name||'')}</b>\n${h(evTypeLabel(ev.event_type))}${ev.event_date?' · '+fmtD(ev.event_date):''}${ev.venue_name?'\n'+h(ev.venue_name):''}${ev.covers?'\n'+ev.covers+' covers':''}${ev.job_code?'\nJob code '+h(ev.job_code):''}</div></div></div>
+  <table><thead><tr><th style="width:58%">Description</th><th class="r">Unit price</th><th class="r">Qty</th><th class="r">Total</th></tr></thead><tbody>
+    ${lines.map(l=>{const up=parseFloat(l.unit_price)||0,q=parseFloat(l.qty)||1;return`<tr><td>${h(l.description||'')}</td><td class="r num">${money(up)}</td><td class="r num">${q}</td><td class="r num">${money(up*q)}</td></tr>`;}).join('')}
+    <tr class="sub"><td colspan="3" class="r">Subtotal</td><td class="r num">${money(subtotal)}</td></tr>
+    <tr class="sub"><td colspan="3" class="r" style="padding-top:2px;font-size:10.5px;">No VAT — Digby's is not VAT registered</td><td></td></tr>
+  </tbody></table>
+  <div class="total"><span>TOTAL DUE</span><span class="num">${money(subtotal)}</span></div>
+  <div class="pay"><div><div class="lbl">Payment details</div><div class="val">${bank.account_name?`Account name: <b>${h(bank.account_name)}</b>`:''}${bank.account_type?`\n${h(bank.account_type)}`:''}${bank.sort_code?`\nSort code: <b>${h(bank.sort_code)}</b>`:''}${bank.account_number?`\nAccount number: <b>${h(bank.account_number)}</b>`:''}\nReference: <b>${h(inv.reference||ev.job_code||('INV'+inv.number))}</b></div></div>
+    <div><div class="lbl">Terms</div><div class="val">Payment due within ${parseInt(getSetting('payment_terms_days'))||30} days${inv.due_on?` — by <b>${fmtD(inv.due_on)}</b>`:''}.${from.email?`\n${h(from.email)}`:''}${from.phone?`\n${h(from.phone)}`:''}</div></div></div>
+  ${inv.notes?`<div class="note">${h(inv.notes)}</div>`:''}
+  <div class="foot lora">Thank you for choosing Digby's.</div>
+  </body></html>`;
+  const win=window.open('','_blank','width=900,height=1000');if(!win){toast('Allow pop-ups to print invoices','err');return;}
+  win.document.write(html);win.document.close();win.focus();setTimeout(()=>win.print(),900);
+}
+
 function openAddCostLine(eventId){
   document.getElementById('cln-event-id').value=eventId;
-  document.getElementById('cln-cat').value='food';
+  document.getElementById('cln-cat').value='labour';
   document.getElementById('cln-desc').value='';
   document.getElementById('cln-amount').value='';
   openModal('cost-line-modal');
@@ -4999,7 +5576,7 @@ async function confirmAddCostLine(){
     sbBOH.from('finance_expenses').insert(payload).catch(()=>{});
   }
   closeModal('cost-line-modal');
-  const c=document.getElementById('pnl-container-'+eventId);if(c)renderEventPnL(eventId,c);
+  renderEventTab();
   toast('Cost line added');
 }
 document.addEventListener('DOMContentLoaded',init);
