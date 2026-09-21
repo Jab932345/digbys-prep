@@ -1639,19 +1639,8 @@ function toast(msg,type='ok'){const t=document.getElementById('toast');t.textCon
 function closeModal(id){document.getElementById(id).classList.remove('open');_formDirty=false;}
 function openModal(id){document.getElementById(id).classList.add('open');}
 
-function showView(pg,el){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
-  document.querySelectorAll('.tn-item').forEach(n=>n.classList.remove('active'));
-  const v=document.getElementById('view-'+pg);
-  if(v)v.classList.add('active');
-  if(el)el.classList.add('active');
-  else document.querySelector(`.tn-item[onclick*="'${pg}'"]`)?.classList.add('active');
-  if(pg==='allergens')renderAllergenMatrix();
-  if(pg==='ingredients')renderIngredients();
-  if(pg==='cleaning')initCleaning();
-  if(pg==='calendar'){if((events||[]).length)calRender();else loadEvents().then(calRender);}
-}
-function nav(pg,el){showView(pg,el);}
+// nav()/showView() removed (Phase 1): unreachable — no .tn-item elements exist
+// and no code calls nav(). All navigation now goes through sbNav()/libSubTab().
 
 function backToLibrary(){
   if(_formDirty&&!confirm('Unsaved changes. Leave?'))return;
@@ -1659,8 +1648,6 @@ function backToLibrary(){
   document.getElementById('lib-panel').style.display='flex';
   _formDirty=false;renderDishList();
 }
-
-function toggleSidebar(){}
 
 function getDishAl(d){
   const al=[];
@@ -1828,71 +1815,6 @@ function setDlFilter(f,el){
   document.querySelectorAll('.lib-bar .lib-filter').forEach(c=>c.classList.remove('on'));
   if(el)el.classList.add('on');
   renderDishList();
-}
-
-function renderDishList(){
-  const list=document.getElementById('dish-list');if(!list)return;
-  const q=(document.getElementById('dl-search')?.value||'').toLowerCase();
-  let f=[...dishes];
-  if(q)f=f.filter(d=>d.name.toLowerCase().includes(q));
-  if(_dlFilter!=='all')f=f.filter(d=>d.category===_dlFilter);
-  f.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
-
-  if(!f.length){
-    list.innerHTML=`<div class="lib-empty">
-      <div class="lib-empty-mark">🍽</div>
-      <div class="lib-empty-title">${q?'No dishes match "'+h(q)+'"':'No dishes yet'}</div>
-      <div class="lib-empty-sub">${q?'Try a different search or clear the filter.':'Hit + New dish to start building your library.'}</div>
-    </div>`;
-    return;
-  }
-
-  const groups={};
-  f.forEach(d=>{const cat=d.category||'Other';if(!groups[cat])groups[cat]=[];groups[cat].push(d);});
-
-  list.innerHTML=CAT_ORDER.filter(cat=>groups[cat]).map(cat=>{
-    const catDishes=groups[cat];
-    return`<div class="lib-cat-block">
-      <div class="lib-cat-heading">
-        <span class="lib-cat-label">${cat}</span>
-        <span class="lib-cat-count">${catDishes.length}</span>
-        <span class="lib-cat-line"></span>
-      </div>
-      ${catDishes.map(d=>{
-        const cost=calcDishCost(d);
-        const al=getDishAl(d);
-        const comps=(d.components||[]);
-        const hasFreeze=comps.some(c=>c.freeze_flag);
-        const mt=(d.menu_type||[]);
-        const isKids=mt.includes('Kids');
-        const isVariant=!!d.variant_of;
-        const parentName=isVariant?dishes.find(x=>x.id===d.variant_of)?.name:'';
-
-        // Allergen chips — just show unique allergens, max 4
-        const contains=[...new Set(al.filter(a=>a.status==='Contains').map(a=>a.allergen))].slice(0,3);
-        const mayContain=[...new Set(al.filter(a=>a.status==='May Contain').map(a=>a.allergen))].slice(0,2);
-
-        return`<div class="lib-dish-row" onclick="openDish('${d.id}')">
-          <div class="lib-dish-dot ${d.locked?'locked':'draft'}"></div>
-          <div class="lib-dish-centre">
-            <div class="lib-dish-name">${h(d.name)}</div>
-            <div class="lib-dish-meta">
-              ${hasFreeze?`<span class="lib-dish-chip freeze">❄ Freeze</span>`:''}
-              ${isKids?`<span class="lib-dish-chip kids">Kids</span>`:''}
-              ${isVariant?`<span class="lib-dish-chip">↳ alt</span>`:''}
-              ${contains.length?`<span class="lib-dish-chip al-c">⚠ ${contains.slice(0,2).join(', ')}${contains.length>2?' +'+( contains.length-2):''}</span>`:''}
-            </div>
-          </div>
-          <div class="lib-dish-right">
-            ${cost!=null
-              ?`<div class="lib-dish-cost">${fmt$(cost)}<span style="font-size:10px;font-weight:400;color:var(--ink4)">/cv</span></div>`
-              :`<div class="lib-dish-cost no-cost">—</div>`}
-            <div class="lib-dish-comps">${comps.length} component${comps.length!==1?'s':''}</div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>`;
-  }).join('');
 }
 
 // ═══════════════════════════════════════════════
@@ -2666,12 +2588,6 @@ function copyStockTopUp(){
 // ═══════════════════════════════════════════════
 // EVENTS / FUNCTION SHEETS
 // ═══════════════════════════════════════════════
-function setEvTab(tab,el){
-  _evTab=tab;
-  document.querySelectorAll('.ev-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');renderEventsList();
-}
-
 async function loadBOHForCard(ev) {
   const panel = document.getElementById('boh-panel-' + ev.id);
   if (!panel) return;
@@ -2679,100 +2595,21 @@ async function loadBOHForCard(ev) {
   panel.innerHTML = bohPanelHTML(ev, bohData);
 }
 
-function renderEventsList(){
-  const wrap=document.getElementById('events-list');if(!wrap)return;
-  const sf=document.getElementById('ev-status-filter')?.value||'';
-  const pf=document.getElementById('ev-payment-filter')?.value||'';
-  const now=new Date();now.setHours(0,0,0,0);
-  let f=[...events];
-  if(_evTab==='upcoming')f=f.filter(e=>new Date(e.event_date)>=now&&e.status!=='Cancelled');
-  else f=f.filter(e=>new Date(e.event_date)<now||e.status==='Completed'||e.status==='Cancelled');
-  if(_evTab==='upcoming')f.sort((a,b)=>new Date(a.event_date)-new Date(b.event_date));
-  else f.sort((a,b)=>new Date(b.event_date)-new Date(a.event_date));
-  if(sf)f=f.filter(e=>e.status===sf);
-  if(pf){if(pf==='unpaid')f=f.filter(e=>!e.deposit_status);else f=f.filter(e=>e.deposit_status===pf);}
-  const cnt=document.getElementById('ev-count');if(cnt)cnt.textContent=f.length+' event'+(f.length!==1?'s':'');
-  if(!f.length){wrap.innerHTML=`<div class="empty"><div class="empty-title">${_evTab==='upcoming'?'No upcoming events':'No past events'}</div></div>`;return;}
-  wrap.innerHTML=f.map(ev=>renderFsCard(ev)).join('');
-}
-
-function renderFsCard(ev){
-  const buf=1+(_settings.buffer||14)/100;const bc=Math.round(ev.covers*buf);
-  const evDishes=dishes.filter(d=>(ev.event_dishes||[]).map(x=>x.dish_id).includes(d.id));
-  const gAl=ev.guest_allergens||[];const rod=ev.run_of_day||[];const charges=ev.extra_charges||[];
-  const allAl=[...new Set(evDishes.flatMap(d=>getDishAl(d).map(a=>a.allergen)))];
-  const totalFC=evDishes.reduce((t,d)=>{const c=calcDishCost(d);return c?t+c*bc:t;},0);
-  const payBadge=ev.deposit_status?`<span class="badge ${ev.deposit_status==='paid'?'badge-gold':ev.deposit_status==='invoiced'?'badge-blu':'badge-amb'}">${PAY_LABEL[ev.deposit_status]||ev.deposit_status}</span>`:`<span class="badge badge-red">Unpaid</span>`;
-  return`<div class="fs" id="fscard-${ev.id}">
-    <div class="fs-top">
-      <div>
-        <div class="fs-job">${ev.job_code||''}</div>
-        <div class="fs-client">${h(ev.client_name)}</div>
-        <span class="fs-type-tag">${EV_TYPES[ev.event_type]||ev.event_type||''}</span>
-      </div>
-      <div class="fs-right">
-        <div class="fs-date">${fmtDate(ev.event_date)}</div>
-        <div class="fs-covers">${ev.covers} covers${ev.start_time?' · '+ev.start_time:''}${ev.end_time?' – '+ev.end_time:''}</div>
-        <div class="fs-badges">
-          <span class="badge ${STATUS_BADGE[ev.status]||'badge-n'}">${ev.status}</span>
-          ${payBadge}
-          ${totalFC>0?`<span class="cost-pill">${fmt$(totalFC)}</span>`:''}
-        </div>
-      </div>
-    </div>
-    <div class="fs-body">
-      <div class="fs-col">
-        <div class="fs-sec">Client</div>
-        ${ev.contact_name?`<div class="fs-fl">Contact</div><div class="fs-fv">${h(ev.contact_name)}</div>`:''}
-        ${ev.contact_phone?`<div class="fs-fl">Phone</div><div class="fs-fv"><a href="tel:${ev.contact_phone}" style="color:var(--g);text-decoration:none;">${h(ev.contact_phone)}</a></div>`:''}
-        ${ev.budget?`<div class="fs-fl" style="margin-top:8px;">Price agreed</div><div class="fs-fv">${h(ev.budget)}</div>`:''}
-        ${charges.map(c=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px dotted var(--l1);color:var(--t2);"><span>${h(c.service)}</span><span style="font-family:var(--mono);">${h(c.amount)}</span></div>`).join('')}
-      </div>
-      <div class="fs-col">
-        <div class="fs-sec">Venue</div>
-        ${ev.venue_name?`<div class="fs-fl">Venue</div><div class="fs-fv">${h(ev.venue_name)}</div>`:''}
-        ${ev.location?`<div class="fs-fl">Location</div><div class="fs-fv n">${h(ev.location)}</div>`:''}
-        ${ev.staffing?`<div class="fs-fl" style="margin-top:6px;">Staffing</div><div class="fs-fv n">${h(ev.staffing)}</div>`:''}
-        ${allAl.length?`<div style="margin-top:6px;">${allAl.map(a=>`<span class="al-tag">${a}</span>`).join('')}</div>`:''}
-      </div>
-    </div>
-    ${rod.length?`<div class="fs-full"><div class="fs-sec">Run of day</div><table class="rod-table"><thead><tr><th style="width:70px;">Time</th><th>Stage</th><th style="width:90px;">Duration</th><th>Notes</th></tr></thead><tbody>${rod.sort((a,b)=>a.time>b.time?1:-1).map(r=>`<tr><td class="rod-time">${r.time||'—'}</td><td style="font-weight:500;color:var(--t1);">${h(r.event)}</td><td>${h(r.duration||'')}</td><td>${h(r.notes||'')}</td></tr>`).join('')}</tbody></table></div>`:''}
-    ${[['kitchen_notes','Kitchen'],['service_notes','Service'],['chef_notes','Chef'],['client_notes','Client']].filter(([k])=>ev[k]).length?`<div class="fs-full" style="display:grid;grid-template-columns:repeat(2,1fr);gap:16px;">${[['kitchen_notes','Kitchen'],['service_notes','Service'],['chef_notes','Chef'],['client_notes','Client']].filter(([k])=>ev[k]).map(([k,l])=>`<div><div class="fs-sec">${l} notes</div><div class="fs-notes">${h(ev[k])}</div></div>`).join('')}</div>`:''}
-    ${gAl.length?`<div class="fs-full"><div class="fs-sec">Dietary guests — ${gAl.length}</div><div style="display:flex;flex-direction:column;gap:5px;margin-top:8px;">${gAl.map(g=>{const gDishes=(g.dishes||[]).map(did=>dishes.find(d=>d.id===did)).filter(Boolean);return`<div class="guest-card ${(g.severity||'').toLowerCase()}"><div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">${h(g.name||'Guest')}</span><span class="badge badge-red" style="font-size:9px;">${g.severity||'Allergy'}</span>${gDishes.length?`<span style="font-size:11px;color:var(--g);">→ ${gDishes.map(d=>h(d.name)).join(', ')}</span>`:''}</div>${(g.allergens||[]).map(a=>`<span class="al-tag">${a}</span>`).join('')}${g.custom?`<div style="font-size:11px;color:var(--t3);margin-top:3px;font-style:italic;">${h(g.custom)}</div>`:''}</div>`;}).join('')}</div></div>`:''}
-    ${evDishes.length?`<div class="fs-full"><div class="fs-sec">Menu · ${ev.covers} covers · ${bc} prepping</div><div class="fs-dish-grid">${evDishes.map(d=>{const al=getDishAl(d);const cost=calcDishCost(d);return`<div class="fs-dish-item"><div class="fs-dish-cat">${d.category}</div><div class="fs-dish-name">${h(d.name)}</div>${(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(c=>`<div class="fs-dish-comp"><span>${h(c.name)}</span><span style="font-family:var(--mono);font-size:10px;">${c.qty_per_cover?Math.ceil(c.qty_per_cover*bc):bc}${c.unit?' '+c.unit:''}</span></div>`).join('')}${al.length?`<div style="margin-top:4px;">${al.map(a=>`<span class="al-tag">${h(a.allergen)}</span>`).join('')}</div>`:''}${cost!=null?`<div style="margin-top:5px;"><span class="cost-pill" style="font-size:9px;">${fmt$(cost)}/cv</span></div>`:''}</div>`}).join('')}</div></div>`:''}
-    <div id="boh-panel-${ev.id}"></div>
-  <div class="fs-actions">
-      <button class="btn btn-sm btn-primary" onclick="editFunctionSheet('${ev.id}')">Edit</button>
-      <button class="btn btn-sm" onclick="goPrep('${ev.id}')">Prep list</button>
-      <button class="btn btn-sm" onclick="document.getElementById('al-ev-sel').value='${ev.id}';renderAllergenMatrix();nav('allergens',null)">Allergens</button>
-      <button class="btn btn-sm" onclick="printFunctionSheet('${ev.id}')">🖨 Print</button>
-      <div style="margin-left:auto;display:flex;gap:5px;">
-        ${ev.deposit_status!=='paid'?`<button class="btn btn-sm" onclick="markPayment('${ev.id}','paid')" style="color:var(--grn);border-color:var(--gbd);">✓ Paid</button>`:`<button class="btn btn-sm btn-ghost" onclick="markPayment('${ev.id}','')">Unmark paid</button>`}
-        ${ev.deposit_status!=='invoiced'&&ev.deposit_status!=='paid'?`<button class="btn btn-sm" onclick="markPayment('${ev.id}','invoiced')">Invoiced</button>`:''}
-      </div>
-    </div>
-  </div>`;
-}
-
+// renderFsCard removed (Phase 1): unreachable in production (only caller was
+// the already-dead renderEventsList). Its Edit/Prep list/Allergens/Print
+// actions live in showEventDetail's header; Mark Paid/Invoiced live in its
+// Financials card. markPayment and goPrep below are called from there.
 async function markPayment(evId,status){
   await sb.from('events').update({deposit_status:status}).eq('id',evId);
   toast(status==='paid'?'Marked paid ✓':status==='invoiced'?'Marked invoiced':'Cleared');
   await loadEvents();
+  const dw=document.getElementById('ev-detail-wrap');
+  if(dw&&dw.style.display==='block')showEventDetail(evId);
 }
 
-function goPrep(evId){document.getElementById('prep-ev-sel').value=evId;loadPrepList();nav('prep',null);}
+function goPrep(evId){document.getElementById('prep-ev-sel').value=evId;loadPrepList();sbNav('prep');}
 
 function genJobCode(evType,date){const d=new Date(date);return'DF'+String(d.getDate()).padStart(2,'0')+String(d.getMonth()+1).padStart(2,'0')+String(d.getFullYear()).slice(2)+(evType||'EV');}
-
-function openFunctionSheet(){
-  document.getElementById('fs-modal-title').textContent='New function sheet';
-  document.getElementById('fs-id').value='';document.getElementById('fs-jobcode').value='';
-  ['fs-client','fs-venue','fs-location','fs-address','fs-contact-name','fs-contact-phone','fs-contact-email','fs-contact-2','fs-kitchen-notes','fs-service-notes','fs-chef-notes','fs-client-notes','fs-budget','fs-staffing','fs-covers'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('fs-type').value='WED';document.getElementById('fs-status').value='Enquiry';document.getElementById('fs-deposit').value='';
-  document.getElementById('fs-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('fs-rod-list').innerHTML='';document.getElementById('fs-charges-list').innerHTML='';document.getElementById('fs-guests-list').innerHTML='';
-  renderFsDishPicker([]);openModal('fs-modal');
-}
 
 function editFunctionSheet(id){
   const ev=events.find(x=>x.id===id);if(!ev)return;
@@ -2864,22 +2701,6 @@ async function saveFunctionSheet(){
 }
 
 // ═══════════════════════════════════════════════
-// PREP LIST
-// ═══════════════════════════════════════════════
-
-
-
-
-function toggleTask(id){
-  if(_prepDone.has(id))_prepDone.delete(id);else _prepDone.add(id);
-  const row=document.getElementById('tr-'+id);if(!row)return;
-  row.classList.toggle('done',_prepDone.has(id));
-  const done=_prepTasks.filter(t=>_prepDone.has(t.id)).length;
-  const fill=document.querySelector('.prep-prog-fill');if(fill)fill.style.width=(_prepTasks.length?Math.round(done/_prepTasks.length*100):0)+'%';
-}
-function toggleRecipePanel(id){const el=document.getElementById('rp-'+id);if(el)el.classList.toggle('open');}
-
-// ═══════════════════════════════════════════════
 // ALLERGEN MATRIX
 // ═══════════════════════════════════════════════
 function renderAllergenMatrix(){
@@ -2950,22 +2771,6 @@ function printFunctionSheet(evId){
   <table style="border-collapse:collapse;font-size:10px;"><thead><tr><th style="border:1px solid #ddd;padding:5px 8px;text-align:left;min-width:150px;background:#f5f5f3;">Dish</th>${AL14p.map(a=>`<th style="border:1px solid #ddd;padding:3px;text-align:center;font-size:9px;background:#f5f5f3;min-width:40px;">${AL_SH[a]||a}</th>`).join('')}</tr></thead>
   <tbody>${evDishes.map((d,di)=>{const al=getDishAl(d);const cS=new Set();const mS=new Set();al.forEach(a=>{const f=AL_TO_FSA[a.allergen]||a.allergen;if(a.status==='May Contain')mS.add(f);else cS.add(f);});return`<tr><td style="border:1px solid #eee;padding:6px 8px;font-weight:500;background:${di%2?'#f9f9f7':'#fff'};">${h(d.name)}</td>${AL14p.map(a=>{if(cS.has(a))return`<td style="background:#fff0f0;border:1px solid #eee;text-align:center;">●</td>`;if(mS.has(a))return`<td style="background:#fff8ee;border:1px solid #eee;text-align:center;opacity:0.5;font-size:9px;color:#8A5200;">MC</td>`;return`<td style="border:1px solid #eee;background:${di%2?'#f9f9f7':'#fff'};">&nbsp;</td>`;}).join('')}</tr>`;}).join('')}</tbody></table>`:''}
   <div class="footer"><span>Digby's Events Co</span><span>Printed ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}</span></div>
-<div class="crop-modal-ov" id="crop-modal">
-  <div class="crop-hint">Drag to move &middot; Drag corners to resize</div>
-  <div class="crop-viewport" id="crop-viewport">
-    <img class="crop-img-el" id="crop-img-el" alt="" draggable="false">
-    <div class="crop-box" id="crop-box">
-      <div class="crop-handle tl" data-handle="tl"></div>
-      <div class="crop-handle tr" data-handle="tr"></div>
-      <div class="crop-handle bl" data-handle="bl"></div>
-      <div class="crop-handle br" data-handle="br"></div>
-    </div>
-  </div>
-  <div class="crop-bar">
-    <button class="btn" onclick="cancelCrop()">Cancel</button>
-    <button class="btn btn-primary" onclick="applyCrop()">Use this crop</button>
-  </div>
-</div>
 
 </body></html>`;
   const win=window.open('','_blank','width=900,height=700');win.document.write(html);win.document.close();win.focus();setTimeout(()=>win.print(),800);
@@ -3582,22 +3387,6 @@ function closeFsWizard(){
   sbNav(pv);
 }
 
-function fsWizStep(n){
-  if(n<1||n>3)return;
-  if(_wizStep===1)collectStep1();if(_wizStep===3)collectStep3();
-  _wizStep=n;
-  for(let i=1;i<=3;i++){const dot=document.getElementById('wiz-dot-'+i);if(!dot)continue;dot.className='wiz-step-dot'+(i<n?' done':i===n?' active':'');dot.textContent=i<n?'✓':i;}
-  document.getElementById('wiz-back-btn').style.display=n>1?'flex':'none';
-  document.getElementById('wiz-next-btn').textContent=n===3?'Save event':'Next →';
-  const body=document.getElementById('wiz-body');
-  if(n===1)renderWizStep1(body);else if(n===2)renderWizStep2(body);else renderWizStep3(body);
-}
-function fsWizNext(){
-  if(_wizStep===1){collectStep1();if(!_wizData.client_name||!_wizData.event_date||!_wizData.covers){toast('Fill in client, date and covers.','err');return;}fsWizStep(2);}
-  else if(_wizStep===2)fsWizStep(3);
-  else{collectStep3();saveFsWizard();}
-}
-
 function renderWizStep1(body){
   const d=_wizData;
   body.innerHTML=`<div class="wiz-form-body">
@@ -3788,12 +3577,6 @@ function toggleAllergenChange(type,allergen,el){
   const arr=_ddData[key]||[];
   _ddData[key]=arr.includes(allergen)?arr.filter(x=>x!==allergen):[...arr,allergen];
   el.classList.toggle('on',_ddData[key].includes(allergen));
-}
-
-// Save dietary fields with dish
-function collectDietaryFromBuilder(){
-  // variant_reason collected inline via oninput
-  // dietary_tags, allergens_removed, allergens_added tracked on _ddData directly
 }
 
 // ── Dietary intelligence for wizard ──────────────────────────────────
@@ -4010,115 +3793,7 @@ const HACCP_DEFAULTS={
   hold:{min:63,max:null},probe:{min:75,max:null},transport:{min:null,max:8}
 };
 
-let _haccpSteps={}; // keyed by component_id
-
-async function loadHaccpSteps(compId){
-  if(_haccpSteps[compId])return _haccpSteps[compId];
-  const{data}=await sb.from('haccp_templates').select('*').eq('component_id',compId).order('step_order');
-  _haccpSteps[compId]=data||[];
-  return _haccpSteps[compId];
-}
-
-function renderHaccpSection(compId,steps,containerId){
-  const container=document.getElementById(containerId);if(!container)return;
-  const typeIcons=Object.fromEntries(HACCP_STEP_TYPES.map(t=>[t.key,t.icon]));
-  container.innerHTML=`<div class="haccp-section">
-    <div class="haccp-section-hd">🌡 Temperature journey
-      <button class="haccp-add-btn" onclick="addHaccpStep('${compId}','${containerId}')">+ Add step</button>
-    </div>
-    ${steps.length?steps.map((s,i)=>`<div class="haccp-step-row" id="hstep-${s.id}">
-      <span class="haccp-step-type ${s.critical?'critical':''}">${typeIcons[s.step_type]||''} ${s.label||s.step_type}</span>
-      <span class="haccp-step-label">${s.tms_unit_hint?`<span style="font-size:10px;color:var(--t4);font-family:'DM Mono',monospace">TMS: ${s.tms_unit_hint}</span>`:''}</span>
-      <span class="haccp-step-temp">${s.target_temp_min!=null?s.target_temp_min+'°C':''} ${s.target_temp_min!=null&&s.target_temp_max!=null?'–':''} ${s.target_temp_max!=null?s.target_temp_max+'°C':''}</span>
-      <button class="btn btn-xs btn-danger" onclick="deleteHaccpStep('${s.id}','${compId}','${containerId}')">×</button>
-    </div>`).join(''):'<div style="font-size:12px;color:var(--t4);padding:8px 0">No steps yet — add the temperature journey for this component.</div>'}
-  </div>`;
-}
-
-async function addHaccpStep(compId,containerId){
-  const type=prompt('Step type:\n'+HACCP_STEP_TYPES.map(t=>t.key).join(', '));
-  if(!type||!HACCP_STEP_TYPES.find(t=>t.key===type))return;
-  const defaults=HACCP_DEFAULTS[type]||{};
-  const label=prompt('Label (e.g. "Blast chill to <3°C"):',HACCP_STEP_TYPES.find(t=>t.key===type)?.label||type)||type;
-  const tms=prompt('TMS unit hint (leave blank if none):','')||null;
-  const steps=await loadHaccpSteps(compId);
-  const{data,error}=await sb.from('haccp_templates').insert({
-    component_id:compId,step_order:steps.length+1,step_type:type,label,
-    target_temp_min:defaults.min,target_temp_max:defaults.max,
-    tms_unit_hint:tms,critical:['cook','probe','blast_chill'].includes(type)
-  }).select().single();
-  if(error){toast(error.message,'err');return;}
-  _haccpSteps[compId]=[...steps,data];
-  renderHaccpSection(compId,_haccpSteps[compId],containerId);
-}
-
-async function deleteHaccpStep(stepId,compId,containerId){
-  await sb.from('haccp_templates').delete().eq('id',stepId);
-  _haccpSteps[compId]=(_haccpSteps[compId]||[]).filter(s=>s.id!==stepId);
-  renderHaccpSection(compId,_haccpSteps[compId],containerId);
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// EVENT P&L VIEW
-// ═══════════════════════════════════════════════════════════════════
-async function renderEventPnL(eventId,container){
-  container.innerHTML='<div style="padding:20px;color:var(--t4);font-size:13px">Loading costs…</div>';
-  const ev=events.find(e=>e.id===eventId);if(!ev)return;
-  const{data:lines}=await sb.from('event_cost_lines').select('*').eq('event_id',eventId).order('date');
-  const costLines=lines||[];
-
-  const revenue=parseFloat(ev.budget)||0;
-  const byCat={food:0,labour:0,mileage:0,overhead:0,other:0};
-  costLines.forEach(l=>byCat[l.category]=(byCat[l.category]||0)+parseFloat(l.amount||0));
-  const totalCost=Object.values(byCat).reduce((s,v)=>s+v,0);
-  const gp=revenue-totalCost;
-  const gpPct=revenue?Math.round(gp/revenue*100):0;
-
-  const foodCostPct=revenue?Math.round(byCat.food/revenue*100):0;
-
-  container.innerHTML=`
-    <div class="pnl-summary-bar" style="margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid var(--bd)">
-      <div class="pnl-summary-cell"><div class="pnl-summary-label">Revenue</div><div class="pnl-summary-val gold">${fmt$(revenue)}</div></div>
-      <div class="pnl-summary-cell"><div class="pnl-summary-label">Total cost</div><div class="pnl-summary-val ${totalCost>revenue?'red':'gold'}">${fmt$(totalCost)}</div></div>
-      <div class="pnl-summary-cell"><div class="pnl-summary-label">Gross profit</div><div class="pnl-summary-val ${gp>=0?'green':'red'}">${fmt$(gp)}</div></div>
-      <div class="pnl-summary-cell"><div class="pnl-summary-label">GP %</div><div class="pnl-summary-val ${gpPct>=40?'green':gpPct>=20?'gold':'red'}">${gpPct}%</div></div>
-    </div>
-    <div class="pnl-section">
-      <div class="pnl-hd"><span class="pnl-hd-title">Cost lines</span>
-        <button class="btn btn-xs" onclick="pullMenuCost('${eventId}')">↻ Pull menu cost</button>
-        <button class="btn btn-xs" onclick="addCostLine('${eventId}')">+ Add</button>
-      </div>
-      ${costLines.length?costLines.map(l=>`<div class="pnl-row">
-        <span class="pnl-cat ${l.category}">${l.category}</span>
-        <span class="pnl-desc">${h(l.description)}</span>
-        <span style="font-size:11px;color:var(--t4);font-family:'DM Mono',monospace">${l.source!=='manual'?l.source:''}</span>
-        <span class="pnl-amount">£${parseFloat(l.amount).toFixed(2)}</span>
-        <button class="btn btn-xs btn-danger" onclick="deleteCostLine('${l.id}','${eventId}')">×</button>
-      </div>`).join(''):'<div style="padding:16px;color:var(--t4);font-size:13px;text-align:center">No cost lines yet</div>'}
-      <div class="pnl-add-row" style="background:var(--s2);border-top:1px solid var(--bd);flex-wrap:wrap;gap:6px;padding:10px 16px">
-        ${Object.keys(byCat).map(cat=>`<span class="pnl-cat ${cat}">${cat}: £${byCat[cat].toFixed(2)}</span>`).join('')}
-        ${revenue?`<span class="pnl-cat food">Food FC%: ${foodCostPct}%</span>`:''}
-      </div>
-    </div>`;
-}
-
-async function addCostLine(eventId){
-  const cat=prompt('Category (food/labour/mileage/overhead/other):','food');
-  if(!cat)return;
-  const desc=prompt('Description:','');if(!desc)return;
-  const amount=parseFloat(prompt('Amount £:','0')||0);if(!amount)return;
-  await sb.from('event_cost_lines').insert({event_id:eventId,category:cat,description:desc,amount,job_code:events.find(e=>e.id===eventId)?.job_code||null});
-  const container=document.getElementById('pnl-container-'+eventId);
-  if(container)renderEventPnL(eventId,container);
-}
-
-async function deleteCostLine(lineId,eventId){
-  await sb.from('event_cost_lines').delete().eq('id',lineId);
-  const container=document.getElementById('pnl-container-'+eventId);
-  if(container)renderEventPnL(eventId,container);
-}
-
-
+let _haccpSteps={}; // keyed by component_id — loadHaccpSteps/renderHaccpSection/addHaccpStep/deleteHaccpStep and renderEventPnL/addCostLine/deleteCostLine are defined once, further down, alongside pullMenuCost.
 
 // ═══ NEW SIDEBAR NAVIGATION ════════════════════════════════════════
 const CAT_COLORS={'Canap\u00e9s':'var(--cat-c)','Starters':'var(--cat-st)','Mains':'var(--cat-ma)','Kids':'var(--cat-ki)','Desserts':'var(--cat-de)','Evening Grazing':'var(--cat-gr)','Tasting Menu':'var(--cat-gr)','Sides':'var(--cat-si)','Other':'var(--cat-ot)'};
@@ -4128,8 +3803,12 @@ function sbNav(view,el){
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   const t=document.getElementById('view-'+view);if(t)t.classList.add('active');
   if(view==='home')renderPipeline();
-  else if(view==='events'){renderEventsList();}
-  else if(view==='prep')renderPrepPlan();
+  else if(view==='events'){
+    const detWrap=document.getElementById('ev-detail-wrap');if(detWrap)detWrap.style.display='none';
+    if(_evTab==='calendar'){const calWrap=document.getElementById('ev-calendar-wrap');if(calWrap)calWrap.style.display='flex';calInit();}
+    else{const listEl=document.getElementById('events-list');if(listEl){listEl.style.display='flex';listEl.style.flexDirection='column';}renderEventsList();}
+  }
+  else if(view==='prep')loadPrepList();
   else if(view==='library'){renderDishList();}
   else if(view==='cleaning')initCleaning();
   else if(view==='butchery')bDashboard();
@@ -4204,6 +3883,9 @@ async function showEventDetail(id){
       <div style="flex:1"><div style="font-family:var(--serif);font-size:22px;color:var(--t1)">${h(ev.client_name||'Unnamed')}</div>
       <div style="font-size:12px;color:var(--t3);font-variant-numeric:tabular-nums;margin-top:2px">${fmtDate}${ev.job_code?' &middot; '+h(ev.job_code):''}</div></div>
       <span class="ev-status ${ev.status||'Enquiry'}">${ev.status||'Enquiry'}</span>
+      <button class="btn btn-sm" onclick="goPrep('${ev.id}')">Prep list</button>
+      <button class="btn btn-sm" onclick="document.getElementById('al-ev-sel').value='${ev.id}';sbNav('library');libSubTab('allergens')">Allergens</button>
+      <button class="btn btn-sm" onclick="printFunctionSheet('${ev.id}')">🖨 Print</button>
       <button class="btn btn-sm" onclick="openFsWizard('${ev.id}')">Edit</button>
     </div>
     <div style="padding:20px 24px;display:grid;grid-template-columns:1fr 1fr;gap:18px;overflow-y:auto;flex:1;">
@@ -4215,8 +3897,11 @@ async function showEventDetail(id){
         <div class="ev-field"><div class="ev-field-label">Staffing</div><div class="ev-field-value ${ev.staffing?'':'muted'}">${h(ev.staffing||'--')}</div></div>
       </div></div>
       <div class="ev-section"><div class="ev-section-hd">Financials</div><div class="ev-section-body">
-        <div class="ev-field"><div class="ev-field-label">Price</div><div class="ev-field-value" style="color:var(--ink);font-variant-numeric:tabular-nums;">${ev.budget?'&pound;'+Number(ev.budget).toFixed(2):'--'}</div></div>
-        <div class="ev-field"><div class="ev-field-label">Payment</div><div class="ev-field-value">${{deposit:'Deposit taken',invoiced:'Invoice sent',paid:'Paid in full'}[ev.deposit_status]||'Unpaid'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Price</div><div class="ev-field-value" style="color:var(--ink);font-variant-numeric:tabular-nums;">${ev.budget&&!isNaN(Number(ev.budget))?'&pound;'+Number(ev.budget).toFixed(2):'--'}</div></div>
+        <div class="ev-field"><div class="ev-field-label">Payment</div><div class="ev-field-value" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span>${{deposit:'Deposit taken',invoiced:'Invoice sent',paid:'Paid in full'}[ev.deposit_status]||'Unpaid'}</span>
+          ${ev.deposit_status!=='paid'?`<button class="btn btn-xs" onclick="markPayment('${ev.id}','paid')" style="color:var(--grn);border-color:var(--gbd);">✓ Paid</button>`:`<button class="btn btn-xs btn-ghost" onclick="markPayment('${ev.id}','')">Unmark paid</button>`}
+          ${ev.deposit_status!=='invoiced'&&ev.deposit_status!=='paid'?`<button class="btn btn-xs" onclick="markPayment('${ev.id}','invoiced')">Invoiced</button>`:''}
+        </div></div>
         <div class="ev-field"><div class="ev-field-label">Contact</div><div class="ev-field-value ${ev.contact_name?'':'muted'}">${h(ev.contact_name||'--')}</div></div>
         <div class="ev-field"><div class="ev-field-label">Phone</div><div class="ev-field-value ${ev.contact_phone?'':'muted'}">${h(ev.contact_phone||'--')}</div></div>
         <div class="ev-field"><div class="ev-field-label">Email</div><div class="ev-field-value ${ev.contact_email?'':'muted'}">${h(ev.contact_email||'--')}</div></div>
@@ -4230,8 +3915,10 @@ async function showEventDetail(id){
         ${ev.service_notes?`<div class="ev-field"><div class="ev-field-label">Service</div><div class="ev-field-value">${h(ev.service_notes)}</div></div>`:''}
       </div></div>`:''}
       <div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd">P&amp;L</div><div id="pnl-container-${ev.id}" class="ev-section-body" style="padding:0"></div></div>
+      <div id="boh-panel-${ev.id}" style="grid-column:1/-1"></div>
     </div>`;
   setTimeout(()=>{const pc=document.getElementById('pnl-container-'+id);if(pc)renderEventPnL(id,pc);},0);
+  loadBOHForCard(ev);
 }
 
 function backToEventsList(){
@@ -4846,10 +4533,48 @@ function maybeShowBrineBtn(dishId){
 
 
 // _haccpSteps declared above
-async function loadHaccpSteps(compId){if(_haccpSteps[compId])return _haccpSteps[compId];const{data}=await sb.from('haccp_templates').select('*').eq('component_id',compId).order('step_order');_haccpSteps[compId]=data||[];return _haccpSteps[compId];}
-function renderHaccpSection(compId,steps,containerId){const container=document.getElementById(containerId);if(!container)return;const typeIcons={raw_intake:'[IN]',fridge:'[F]',freezer:'[FR]',cook:'[C]',sv:'[SV]',blast_chill:'[BC]',hold:'[H]',probe:'[P]',transport:'[T]'};container.innerHTML='<div class="haccp-section"><div class="haccp-section-hd">Temperature journey <button class="haccp-add-btn" onclick="addHaccpStep(\''+compId+'\',\''+containerId+'\')">+ Add</button></div>'+(steps.length?steps.map(s=>`<div class="haccp-step-row"><span class="haccp-step-type ${s.critical?'critical':''}">${s.label||s.step_type}</span><span class="haccp-step-label"></span><span class="haccp-step-temp">${s.target_temp_min!=null?s.target_temp_min+'C':''} ${s.target_temp_max!=null?'- '+s.target_temp_max+'C':''}</span></div>`).join(''):'<div style="font-size:12px;color:var(--t4);padding:8px 0">No HACCP steps yet.</div>')+'</div>';}
-async function addHaccpStep(compId,containerId){const type=prompt('Step type (fridge/sv/cook/blast_chill/probe/hold/freezer/transport):');if(!type)return;const label=prompt('Label:',type)||type;const tms=prompt('TMS unit (blank if none):','')||null;const steps=await loadHaccpSteps(compId);const{data,error}=await sb.from('haccp_templates').insert({component_id:compId,step_order:steps.length+1,step_type:type,label,tms_unit_hint:tms,critical:['cook','probe','blast_chill'].includes(type)}).select().single();if(error){toast(error.message,'err');return;}_haccpSteps[compId]=[...steps,data];renderHaccpSection(compId,_haccpSteps[compId],containerId);}
-async function deleteHaccpStep(stepId,compId,containerId){await sb.from('haccp_templates').delete().eq('id',stepId);_haccpSteps[compId]=(_haccpSteps[compId]||[]).filter(s=>s.id!==stepId);renderHaccpSection(compId,_haccpSteps[compId],containerId);}
+async function loadHaccpSteps(compId){
+  if(_haccpSteps[compId])return _haccpSteps[compId];
+  const{data}=await sb.from('haccp_templates').select('*').eq('component_id',compId).order('step_order');
+  _haccpSteps[compId]=data||[];
+  return _haccpSteps[compId];
+}
+function renderHaccpSection(compId,steps,containerId){
+  const container=document.getElementById(containerId);if(!container)return;
+  const typeIcons=Object.fromEntries(HACCP_STEP_TYPES.map(t=>[t.key,t.icon]));
+  container.innerHTML=`<div class="haccp-section">
+    <div class="haccp-section-hd">🌡 Temperature journey
+      <button class="haccp-add-btn" onclick="addHaccpStep('${compId}','${containerId}')">+ Add step</button>
+    </div>
+    ${steps.length?steps.map(s=>`<div class="haccp-step-row" id="hstep-${s.id}">
+      <span class="haccp-step-type ${s.critical?'critical':''}">${typeIcons[s.step_type]||''} ${s.label||s.step_type}</span>
+      <span class="haccp-step-label">${s.tms_unit_hint?`<span style="font-size:10px;color:var(--t4);font-family:'DM Mono',monospace">TMS: ${s.tms_unit_hint}</span>`:''}</span>
+      <span class="haccp-step-temp">${s.target_temp_min!=null?s.target_temp_min+'°C':''} ${s.target_temp_min!=null&&s.target_temp_max!=null?'–':''} ${s.target_temp_max!=null?s.target_temp_max+'°C':''}</span>
+      <button class="btn btn-xs btn-danger" onclick="deleteHaccpStep('${s.id}','${compId}','${containerId}')">×</button>
+    </div>`).join(''):'<div style="font-size:12px;color:var(--t4);padding:8px 0">No steps yet — add the temperature journey for this component.</div>'}
+  </div>`;
+}
+async function addHaccpStep(compId,containerId){
+  const type=prompt('Step type:\n'+HACCP_STEP_TYPES.map(t=>t.key).join(', '));
+  if(!type||!HACCP_STEP_TYPES.find(t=>t.key===type))return;
+  const defaults=HACCP_DEFAULTS[type]||{};
+  const label=prompt('Label (e.g. "Blast chill to <3°C"):',HACCP_STEP_TYPES.find(t=>t.key===type)?.label||type)||type;
+  const tms=prompt('TMS unit hint (leave blank if none):','')||null;
+  const steps=await loadHaccpSteps(compId);
+  const{data,error}=await sb.from('haccp_templates').insert({
+    component_id:compId,step_order:steps.length+1,step_type:type,label,
+    target_temp_min:defaults.min,target_temp_max:defaults.max,
+    tms_unit_hint:tms,critical:['cook','probe','blast_chill'].includes(type)
+  }).select().single();
+  if(error){toast(error.message,'err');return;}
+  _haccpSteps[compId]=[...steps,data];
+  renderHaccpSection(compId,_haccpSteps[compId],containerId);
+}
+async function deleteHaccpStep(stepId,compId,containerId){
+  await sb.from('haccp_templates').delete().eq('id',stepId);
+  _haccpSteps[compId]=(_haccpSteps[compId]||[]).filter(s=>s.id!==stepId);
+  renderHaccpSection(compId,_haccpSteps[compId],containerId);
+}
 async function renderEventPnL(eventId,container){
   container.innerHTML='<div style="padding:20px;color:var(--t4);font-size:13px">Loading...</div>';
   const ev=events.find(e=>e.id===eventId);if(!ev)return;
@@ -4858,9 +4583,10 @@ async function renderEventPnL(eventId,container){
   const byCat={food:0,labour:0,mileage:0,overhead:0,other:0};
   costLines.forEach(l=>byCat[l.category]=(byCat[l.category]||0)+parseFloat(l.amount||0));
   const totalCost=Object.values(byCat).reduce((s,v)=>s+v,0);const gp=revenue-totalCost;const gpPct=revenue?Math.round(gp/revenue*100):0;
+  const foodCostPct=revenue?Math.round(byCat.food/revenue*100):0;
   container.innerHTML=`<div class="pnl-summary-bar" style="margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid var(--bd)"><div class="pnl-summary-cell"><div class="pnl-summary-label">Revenue</div><div class="pnl-summary-val gold">${fmt$(revenue)}</div></div><div class="pnl-summary-cell"><div class="pnl-summary-label">Total cost</div><div class="pnl-summary-val ${totalCost>revenue?'red':'gold'}">${fmt$(totalCost)}</div></div><div class="pnl-summary-cell"><div class="pnl-summary-label">Gross profit</div><div class="pnl-summary-val ${gp>=0?'green':'red'}">${fmt$(gp)}</div></div><div class="pnl-summary-cell"><div class="pnl-summary-label">GP %</div><div class="pnl-summary-val ${gpPct>=40?'green':gpPct>=20?'gold':'red'}">${gpPct}%</div></div></div>
-  <div class="pnl-section"><div class="pnl-hd"><span class="pnl-hd-title">Cost lines</span><button class="btn btn-xs" onclick="pullMenuCost('${eventId}')">↻ Pull menu cost</button><button class="btn btn-xs" onclick="addCostLine('${eventId}')">+ Add</button></div>${costLines.length?costLines.map(l=>`<div class="pnl-row"><span class="pnl-cat ${l.category}">${l.category}</span><span class="pnl-desc">${h(l.description)}</span><span class="pnl-amount">£${parseFloat(l.amount).toFixed(2)}</span><button class="btn btn-xs btn-danger" onclick="deleteCostLine('${l.id}','${eventId}')">x</button></div>`).join(''):'<div style="padding:16px;color:var(--t4);font-size:13px;text-align:center">No cost lines yet</div>'}
-  <div style="padding:10px 16px;background:var(--s2);border-top:1px solid var(--bd);display:flex;flex-wrap:wrap;gap:6px">${Object.keys(byCat).map(cat=>`<span class="pnl-cat ${cat}">${cat}: £${byCat[cat].toFixed(2)}</span>`).join('')}</div></div>`;
+  <div class="pnl-section"><div class="pnl-hd"><span class="pnl-hd-title">Cost lines</span><button class="btn btn-xs" onclick="pullMenuCost('${eventId}')">↻ Pull menu cost</button><button class="btn btn-xs" onclick="addCostLine('${eventId}')">+ Add</button></div>${costLines.length?costLines.map(l=>`<div class="pnl-row"><span class="pnl-cat ${l.category}">${l.category}</span><span class="pnl-desc">${h(l.description)}</span><span style="font-size:11px;color:var(--t4);font-family:'DM Mono',monospace">${l.source!=='manual'?l.source:''}</span><span class="pnl-amount">£${parseFloat(l.amount).toFixed(2)}</span><button class="btn btn-xs btn-danger" onclick="deleteCostLine('${l.id}','${eventId}')">×</button></div>`).join(''):'<div style="padding:16px;color:var(--t4);font-size:13px;text-align:center">No cost lines yet</div>'}
+  <div style="padding:10px 16px;background:var(--s2);border-top:1px solid var(--bd);display:flex;flex-wrap:wrap;gap:6px">${Object.keys(byCat).map(cat=>`<span class="pnl-cat ${cat}">${cat}: £${byCat[cat].toFixed(2)}</span>`).join('')}${revenue?`<span class="pnl-cat food">Food FC%: ${foodCostPct}%</span>`:''}</div></div>`;
 }
 async function deleteCostLine(lineId,eventId){await sb.from('event_cost_lines').delete().eq('id',lineId);const c=document.getElementById('pnl-container-'+eventId);if(c)renderEventPnL(eventId,c);}
 async function pullMenuCost(eventId){
