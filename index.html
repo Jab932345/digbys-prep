@@ -484,7 +484,11 @@ input[type=range]{accent-color:var(--accent);}
 .boh-shift-row::after{left:0;}
 .boh-shift-name{flex:1;font-weight:500;}
 .boh-shift-time{color:var(--label2);font-variant-numeric:tabular-nums;font-size:var(--fs-sh);}
-.boh-status-dot{width:8px;height:8px;border-radius:50%;background:var(--label3);}
+.boh-status-dot{width:8px;height:8px;border-radius:50%;background:var(--label3);flex-shrink:0;}
+.boh-status-dot.ok{background:var(--ok);}
+.boh-status-dot.open{background:var(--warn);}
+.boh-shift-who{display:block;font-size:var(--fs-fn);color:var(--label2);font-weight:400;margin-top:1px;}
+.boh-summary{font-size:var(--fs-fn);color:var(--label2);margin-left:auto;margin-right:8px;}
 .boh-job-code{font-size:var(--fs-fn);color:var(--label2);font-variant-numeric:tabular-nums;}
 .boh-no-link{font-size:var(--fs-sh);color:var(--label2);}
 .boh-open-btn{margin-top:10px;}
@@ -1891,7 +1895,7 @@ input[type=range]{accent-color:var(--accent);}
     <div class="sec-hd" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">Bank feed <button class="btn btn-xs" id="set-bank-sync" onclick="syncBankFeed()" style="text-transform:none;letter-spacing:0;">Sync now</button></div>
     <div id="set-bank-status" style="margin-bottom:12px;"></div>
     <div class="sec-hd" style="margin-top:8px;">Links</div>
-    <div class="fld"><label class="fld-label">BOH (staff rota) app address</label><input class="fld-inp" id="set-boh" placeholder="https://…" inputmode="url"></div>
+    <div class="fld"><label class="fld-label">Digby's Staff (rota) app address</label><input class="fld-inp" id="set-boh" placeholder="https://digbys-staff.vercel.app" inputmode="url"></div>
     <div class="app-ver-long set-ver"></div>
   </div>
   <div class="modal-foot"><button class="btn" onclick="closeModal('settings-modal')">Cancel</button><button class="btn btn-primary" onclick="saveSettings()">Save</button></div>
@@ -2071,7 +2075,7 @@ input[type=range]{accent-color:var(--accent);}
 // ═══ Build stamp — bump APP_VERSION on every delivered file. Shown in the
 // sidebar footer, the Settings sheet and (on phones) the Today header, so it is
 // obvious which build Vercel is actually serving.
-const APP_VERSION='14',APP_BUILD_DATE='2026-09-22';
+const APP_VERSION='15',APP_BUILD_DATE='2026-09-22';
 function stampVersion(){document.querySelectorAll('.app-ver').forEach(el=>{el.textContent='v'+APP_VERSION;el.title='Build '+APP_BUILD_DATE;});document.querySelectorAll('.app-ver-long').forEach(el=>el.textContent='Kitchen Prep v'+APP_VERSION+' · build '+new Date(APP_BUILD_DATE+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));}
 document.addEventListener('DOMContentLoaded',stampVersion);
 // ═══ Icons — SF-Symbol-style line glyphs, 24-grid, stroke 1.75, round caps.
@@ -4277,58 +4281,49 @@ function queueToggleExpand(cid) {
 // ═══════════════════════════════════════════════
 async function loadBOHShifts(jobCode, eventDate) {
   if (!jobCode) return null;
+  // Digby's Staff exposes the rota for a job code through one read-only
+  // function (names only), so no staff login is needed here.
   try {
-    // BOH requires auth — attempt anon read, fails gracefully if RLS blocks
-    const { data: bohEvs } = await sbBOH.from('events')
-      .select('id,name')
-      .eq('job_code', jobCode)
-      .limit(1);
-    
-    if (!bohEvs || !bohEvs.length) {
-      // Try matching by date as fallback
-      const { data: byDate } = await sbBOH.from('events')
-        .select('id,name')
-        .eq('event_date', eventDate)
-        .limit(1);
-      if (!byDate || !byDate.length) return null;
-      bohEvs.push(...byDate);
+    const { data, error } = await sbBOH.rpc('rota_for_job_code', { code: jobCode });
+    if (!error && Array.isArray(data)) {
+      if (!data.length) return null;
+      return { linked: true, eventName: data[0].event_name, shifts: data.filter(r => r.title).map(r => ({ title: r.title, start_time: r.start_time, end_time: r.end_time, status: r.status, assignee: r.assignee })) };
     }
-    
-    const bohEvId = bohEvs[0].id;
-    const { data: shifts } = await sbBOH.from('shifts')
-      .select('title,start_time,end_time,status,assigned_user_id')
-      .eq('event_id', bohEvId)
-      .eq('status', 'ASSIGNED');
-    
-    return { bohEventId: bohEvId, shifts: shifts || [] };
-  } catch(e) {
-    return null; // BOH auth required — show link only
-  }
+  } catch (e) {}
+  // Older Staff database without the function: plain reads (work only if RLS allows them)
+  try {
+    const { data: bohEvs } = await sbBOH.from('events').select('id,name').eq('job_code', jobCode).limit(1);
+    if (!bohEvs || !bohEvs.length) return null;
+    const { data: shifts } = await sbBOH.from('shifts').select('title,start_time,end_time,status,assigned_user_id').eq('event_id', bohEvs[0].id);
+    return { linked: true, eventName: bohEvs[0].name, shifts: (shifts || []).map(s => ({ title: s.title, start_time: s.start_time, end_time: s.end_time, status: s.status, assignee: null })) };
+  } catch (e) { return null; }
 }
 
 function bohPanelHTML(ev, bohData) {
   const jobCode = ev.job_code || ev.id.slice(0,8).toUpperCase();
-  const bohUrl = (getSetting('boh_url')||'').trim(); // set in Settings — the app used to point at a placeholder that never existed
-  
-  let shiftsHTML;
+  const bohUrl = (getSetting('boh_url')||'').trim();
+  const hm = t => t ? String(t).slice(0,5) : '';
+  let shiftsHTML, summary = '';
   if (!bohData) {
-    shiftsHTML = `<div class="boh-no-link">Not yet linked in BOH — open BOH and set job code to <strong class="num" style="color:var(--label);">${jobCode}</strong> on the matching event.</div>`;
+    shiftsHTML = `<div class="boh-no-link">Not on the rota yet. In Digby's Staff → Events, this booking is listed under “From Kitchen Prep” — one tap adds it, then add the shifts.</div>`;
   } else if (!bohData.shifts.length) {
-    shiftsHTML = `<div class="boh-no-link">BOH event linked — no shifts assigned yet.</div>`;
+    shiftsHTML = `<div class="boh-no-link">On the rota, no shifts added yet.</div>`;
   } else {
+    const open = bohData.shifts.filter(s => s.status === 'OPEN' || !s.assignee).length;
+    summary = `${bohData.shifts.length} shift${bohData.shifts.length===1?'':'s'}${open ? ` · <span style="color:var(--warn);font-weight:600;">${open} open</span>` : ' · all staffed'}`;
     shiftsHTML = bohData.shifts.map(s => `
       <div class="boh-shift-row">
-        <div class="boh-status-dot"></div>
-        <div class="boh-shift-name">${h(s.title)}</div>
-        <div class="boh-shift-time">${s.start_time}–${s.end_time}</div>
+        <div class="boh-status-dot${s.status === 'OPEN' || !s.assignee ? ' open' : ' ok'}"></div>
+        <div class="boh-shift-name">${h(s.title)}<span class="boh-shift-who">${s.status === 'OPEN' || !s.assignee ? 'Open' : h(s.assignee)}</span></div>
+        <div class="boh-shift-time">${hm(s.start_time)}–${hm(s.end_time)}</div>
       </div>`).join('');
   }
-  
   return `<div class="boh-panel">
     <div class="boh-panel-hd">
       <span class="boh-panel-title">Staff rota</span>
       <span class="boh-job-code">${jobCode}</span>
-      ${bohUrl?`<a class="btn btn-xs" href="${h(bohUrl)}" target="_blank" rel="noopener">Open BOH${ico('arrowR')}</a>`:`<button class="btn btn-xs" onclick="openSettings()">${ico('sliders')}Set BOH address</button>`}
+      ${summary ? `<span class="boh-summary">${summary}</span>` : ''}
+      ${bohUrl?`<a class="btn btn-xs" href="${h(bohUrl)}${bohData ? '#/events' : ''}" target="_blank" rel="noopener">Open Staff${ico('arrowR')}</a>`:`<button class="btn btn-xs" onclick="openSettings()">${ico('sliders')}Set Staff app address</button>`}
     </div>
     <div class="boh-panel-body">${shiftsHTML}</div>
   </div>`;
@@ -5558,7 +5553,7 @@ const SETTINGS_DEFAULTS={
   payment_terms_days:30,
   invoice_from:{name:"Digby's Events & Catering",email:'james@digbysevents.co.uk',phone:'',address:''},
   invoice_bank:{account_name:'James Brierley',account_type:'Business Account',sort_code:'',account_number:''},
-  boh_url:''
+  boh_url:'https://digbys-staff.vercel.app'
 };
 let _appSettings={},_settingsTableOk=null;
 async function loadSettings(){
