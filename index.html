@@ -391,6 +391,7 @@ input[type=range]{accent-color:var(--accent);}
 
 /* ── Events ──────────────────────────────────────── */
 .events-body{flex:1;overflow-y:auto;padding:0 var(--gutter) 40px;display:flex;flex-direction:column;}
+.events-body>*,.modal-body>*,.cal-right-body>*,.wiz-form-body>*,.wiz-cats>*,.board-col-body>*{flex-shrink:0;}
 .ev-list{background:var(--bg2);border-radius:var(--r-md);box-shadow:var(--ring);overflow:hidden;}
 .ev-month-hd{padding:22px 16px 8px;}
 .ev-month-hd:first-child{padding-top:4px;}
@@ -665,12 +666,39 @@ input[type=range]{accent-color:var(--accent);}
 .al-tog.m{background:var(--warn-tint);color:var(--warn);font-weight:600;box-shadow:inset 0 0 0 1.5px var(--warn);}
 .al-summary{margin-top:14px;font-size:var(--fs-cl);color:var(--label2);display:flex;flex-wrap:wrap;align-items:center;gap:4px;}
 .al-tag{height:22px;margin:2px 4px 2px 0;}
-.al-matrix{border-collapse:separate;border-spacing:0;font-size:var(--fs-sh);background:var(--bg2);border-radius:var(--r-md);overflow:hidden;box-shadow:var(--ring);}
-.al-matrix th,.al-matrix td{border-bottom:1px solid var(--sep);border-right:1px solid var(--sep);padding:8px 10px;text-align:center;}
-.al-matrix th{background:var(--bg3);font-weight:500;font-size:var(--fs-fn);color:var(--label2);}
-.al-matrix tr:last-child td{border-bottom:none;}
-.al-matrix th:last-child,.al-matrix td:last-child{border-right:none;}
-.al-matrix td:first-child,.al-matrix th:first-child{text-align:left;font-weight:500;position:sticky;left:0;background:var(--bg2);color:var(--label);}
+.al-legend{display:flex;align-items:center;gap:18px;padding:12px var(--gutter) 6px;font-size:var(--fs-sh);color:var(--label2);flex-wrap:wrap;}
+.al-legend-item{display:inline-flex;align-items:center;gap:8px;font-weight:500;color:var(--label);}
+.al-legend-note{margin-left:auto;font-size:var(--fs-fn);color:var(--label3);}
+.al-matrix-wrap{overflow:auto;padding:8px var(--gutter) 16px;}
+.al-matrix{border-collapse:separate;border-spacing:0;font-size:var(--fs-sh);background:var(--bg2);border-radius:var(--r-md);box-shadow:var(--ring);min-width:100%;}
+.al-matrix th,.al-matrix td{border-bottom:1px solid var(--sep);border-right:1px solid var(--sep);text-align:center;padding:6px 4px;vertical-align:middle;}
+.al-matrix th:last-child,.al-matrix td:last-child,.al-cat-row td{border-right:none;}
+.al-matrix thead th{position:sticky;top:0;z-index:2;background:var(--bg3);font-weight:500;font-size:var(--fs-cp);color:var(--label2);padding:10px 4px 8px;min-width:56px;}
+.al-matrix thead th:first-child{border-top-left-radius:var(--r-md);}
+.al-matrix thead th:last-child{border-top-right-radius:var(--r-md);}
+.al-th{vertical-align:bottom;}
+.al-th-ico{width:28px;height:28px;display:block;margin:0 auto 4px;}
+.al-th-name{display:block;line-height:1.15;letter-spacing:0;text-transform:none;}
+.al-th-dish,.al-dish{text-align:left!important;position:sticky;left:0;z-index:1;background:var(--bg2);min-width:200px;max-width:280px;padding-left:16px!important;}
+.al-matrix thead .al-th-dish{background:var(--bg3);z-index:3;}
+.al-dish-name{font-weight:500;color:var(--label);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.al-dish-none{display:block;font-size:var(--fs-cp);color:var(--label3);}
+.al-cat-row td{background:var(--bg);color:var(--label2);font-size:var(--fs-fn);font-weight:500;text-transform:uppercase;letter-spacing:.02em;text-align:left;padding:10px 16px 6px;position:sticky;left:0;}
+.al-row td.al-c{background:var(--al-c-bg);}
+.al-row td.al-m{background:var(--al-m-bg);}
+@media (hover:hover){.al-row:hover td{filter:brightness(.97);}}
+.al-mark{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:8px;font-size:11px;font-weight:700;letter-spacing:.02em;line-height:1;}
+.al-mark.c{background:var(--accent);color:#fff;}
+.al-mark.c .ico{width:15px;height:15px;stroke-width:3;}
+.al-mark.m{background:var(--warn);color:#fff;}
+.al-foot{padding:0 var(--gutter) 16px;font-size:var(--fs-cp);color:var(--label3);}
+.al-matrix tbody tr:last-child td{border-bottom:none;}
+.al-matrix tbody tr:last-child td:first-child{border-bottom-left-radius:var(--r-md);}
+.al-matrix tbody tr:last-child td:last-child{border-bottom-right-radius:var(--r-md);}
+:root{--al-c-bg:rgba(140,47,47,.14);--al-m-bg:rgba(196,136,58,.16);}
+:root[data-theme="dark"]{--al-c-bg:rgba(230,120,120,.20);--al-m-bg:rgba(230,170,90,.20);}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--al-c-bg:rgba(230,120,120,.20);--al-m-bg:rgba(230,170,90,.20);}}
+@media print{.al-mark.c{background:#8C2F2F!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.al-mark.m{background:#B8862E!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}}
 .al-c{background:var(--accent-tint);color:var(--accent);font-weight:700;}
 .diet-step-wrap{display:flex;flex-direction:column;gap:16px;}
 .diet-upgrade-banner{background:var(--info-tint);border:none;border-radius:var(--r-md);padding:12px 16px;font-size:var(--fs-cl);color:var(--info);display:flex;align-items:center;gap:10px;}
@@ -1312,6 +1340,14 @@ input[type=range]{accent-color:var(--accent);}
   .cst-tbl thead th:first-child,.cst-tbl td:first-child,.cst-comp td:first-child{padding-left:14px;}
   .cst-card-sheet{max-height:100vh;}
 }
+.bank-status{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;background:var(--fill4);border-radius:var(--r-md);}
+.bank-status.ok{background:var(--ok-tint);}
+.bank-status .conn-dot{margin-top:5px;flex-shrink:0;}
+.bank-status-t{font-weight:600;color:var(--label);font-size:var(--fs-sh);}
+.bank-status-s{font-size:var(--fs-fn);color:var(--label2);margin-top:2px;line-height:1.4;}
+.bank-steps{margin:10px 0 0;padding-left:20px;font-size:var(--fs-sh);color:var(--label2);line-height:1.5;}
+.bank-steps li{margin-bottom:4px;}
+.bank-steps code,.bank-status code{background:var(--fill3);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:12px;color:var(--label);}
 .cst-link{cursor:pointer;}
 @media (hover:hover){.cst-link:hover div:first-child{text-decoration:underline;text-underline-offset:2px;}}
 .ir-cost.warn{color:var(--accent);font-weight:600;}
@@ -1589,7 +1625,7 @@ input[type=range]{accent-color:var(--accent);}
   <!-- Allergen matrix sub-view -->
   <div id="lib-al-wrap" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
     <div class="page-bar">
-      <select class="fld-sel" id="al-ev-sel" style="width:280px;height:28px;font-size:12px;padding:3px 8px;" onchange="renderAllergenMatrix()">
+      <select class="fld-sel" id="al-ev-sel" style="width:300px;" onchange="renderAllergenMatrix()">
         <option value="">Full library</option>
       </select>
       <div style="flex:1;"></div>
@@ -1852,6 +1888,8 @@ input[type=range]{accent-color:var(--accent);}
       <div class="fld"><label class="fld-label">Sort code</label><input class="fld-inp num" id="set-bank-sort" placeholder="00-00-00" inputmode="numeric"></div>
       <div class="fld"><label class="fld-label">Account number</label><input class="fld-inp num" id="set-bank-acct" placeholder="8 digits" inputmode="numeric"></div>
     </div>
+    <div class="sec-hd" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">Bank feed <button class="btn btn-xs" id="set-bank-sync" onclick="syncBankFeed()" style="text-transform:none;letter-spacing:0;">Sync now</button></div>
+    <div id="set-bank-status" style="margin-bottom:12px;"></div>
     <div class="sec-hd" style="margin-top:8px;">Links</div>
     <div class="fld"><label class="fld-label">BOH (staff rota) app address</label><input class="fld-inp" id="set-boh" placeholder="https://…" inputmode="url"></div>
     <div class="app-ver-long set-ver"></div>
@@ -2033,7 +2071,7 @@ input[type=range]{accent-color:var(--accent);}
 // ═══ Build stamp — bump APP_VERSION on every delivered file. Shown in the
 // sidebar footer, the Settings sheet and (on phones) the Today header, so it is
 // obvious which build Vercel is actually serving.
-const APP_VERSION='13',APP_BUILD_DATE='2026-09-22';
+const APP_VERSION='14',APP_BUILD_DATE='2026-09-22';
 function stampVersion(){document.querySelectorAll('.app-ver').forEach(el=>{el.textContent='v'+APP_VERSION;el.title='Build '+APP_BUILD_DATE;});document.querySelectorAll('.app-ver-long').forEach(el=>el.textContent='Kitchen Prep v'+APP_VERSION+' · build '+new Date(APP_BUILD_DATE+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));}
 document.addEventListener('DOMContentLoaded',stampVersion);
 // ═══ Icons — SF-Symbol-style line glyphs, 24-grid, stroke 1.75, round caps.
@@ -2714,6 +2752,7 @@ async function init(){
   renderDishList();
   populateSelects();
   renderPipeline();
+  startBankWatch();
   // ensure builder hidden on load
   const bp=document.getElementById('builder-panel');
   if(bp)bp.style.display='none';
@@ -3607,24 +3646,24 @@ function renderAllergenMatrix(){
   let dl=[...dishes];
   if(evId){const ev=events.find(x=>x.id===evId);if(ev)dl=dishes.filter(d=>(ev.event_dishes||[]).map(x=>x.dish_id).includes(d.id));}
   const sorted=dl.sort((a,b)=>{const oi=CAT_ORDER.indexOf(a.category),oj=CAT_ORDER.indexOf(b.category);return oi!==oj?oi-oj:a.name.localeCompare(b.name);});
-  if(!sorted.length){wrap.innerHTML='<div class="empty"><div class="empty-title">No dishes</div></div>';return;}
-  const iconHdrs=AL14.map(a=>`<th style="padding:5px 3px;border:1px solid var(--l1);background:var(--c1);min-width:50px;text-align:center;vertical-align:bottom;"><div style="display:flex;flex-direction:column;align-items:center;gap:2px;"><img src="${FSA_ICONS[a]||''}" class="fsa-icon" alt="${a}" onerror="this.style.display='none'"><span style="font-size:8px;font-weight:600;color:var(--t4);text-align:center;line-height:1.2;">${FSA_NAMES[a]||a}</span></div></th>`).join('');
-  let rows='';
-  sorted.forEach((d,di)=>{
+  if(!sorted.length){wrap.innerHTML=`<div class="empty"><div class="empty-icon">${ico('leaf')}</div><div class="empty-t">No dishes</div><div class="empty-s">${evId?'This event has no menu yet.':'Add dishes to the library to build the matrix.'}</div></div>`;return;}
+  const hdr=AL14.map(a=>`<th class="al-th"><img src="${FSA_ICONS[a]||''}" class="al-th-ico" alt="" onerror="this.style.display='none'"><span class="al-th-name">${FSA_NAMES[a]||a}</span></th>`).join('');
+  // A dish's own tags plus every component's — the same set the labels use.
+  let rows='';let lastCat=null;
+  sorted.forEach(d=>{
     const al=getDishAl(d);const cSet=new Set();const mSet=new Set();
     al.forEach(a=>{const f=AL_TO_FSA[a.allergen]||a.allergen;if(a.status==='May Contain')mSet.add(f);else cSet.add(f);});
-    const bg=di%2===0?'var(--c1)':'var(--c2)';
-    rows+=`<tr><td class="dish-td" style="background:${bg};">${h(d.name)}<span style="font-size:10px;color:var(--t4);font-family:var(--mono);margin-left:8px;">${d.category}</span></td>${AL14.map(a=>{if(cSet.has(a))return`<td style="background:rgba(217,88,88,0.1);text-align:center;border:1px solid var(--l2);padding:4px;"><img src="${FSA_ICONS[a]||''}" class="fsa-icon-sm" onerror="this.style.display='none'"></td>`;if(mSet.has(a))return`<td style="background:rgba(196,136,58,0.1);text-align:center;border:1px solid var(--l2);padding:4px;"><img src="${FSA_ICONS[a]||''}" class="fsa-icon-sm" style="opacity:0.45;" onerror="this.style.display='none'"><div style="font-size:8px;color:var(--amb);font-weight:700;">MC</div></td>`;return`<td style="background:${bg};border:1px solid var(--l2);"></td>`;}).join('')}</tr>`;
+    if(d.category!==lastCat){rows+=`<tr class="al-cat-row"><td colspan="${AL14.length+1}">${h(d.category||'Other')}</td></tr>`;lastCat=d.category;}
+    const none=!cSet.size&&!mSet.size;
+    rows+=`<tr class="al-row"><td class="al-dish"><span class="al-dish-name">${h(d.name)}</span>${none?'<span class="al-dish-none">no allergens recorded</span>':''}</td>${AL14.map(a=>cSet.has(a)?`<td class="al-c"><span class="al-mark c" title="Contains ${h(a)}">${ico('check','ico-xs')}</span></td>`:mSet.has(a)?`<td class="al-m"><span class="al-mark m" title="May contain ${h(a)}">MC</span></td>`:'<td></td>').join('')}</tr>`;
   });
-  wrap.innerHTML=`<div style="padding:12px 20px;background:var(--sb);border-bottom:1px solid var(--l1);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-    <div style="display:flex;gap:14px;font-size:12px;color:var(--t2);">
-      <span style="display:flex;align-items:center;gap:6px;"><div style="width:22px;height:22px;background:rgba(217,88,88,0.1);border-radius:3px;display:flex;align-items:center;justify-content:center;"><img src="${FSA_ICONS['Milk']}" class="fsa-icon-sm"></div> Contains</span>
-      <span style="display:flex;align-items:center;gap:6px;"><div style="width:22px;height:22px;background:rgba(196,136,58,0.1);border-radius:3px;display:flex;align-items:center;justify-content:center;"><img src="${FSA_ICONS['Milk']}" class="fsa-icon-sm" style="opacity:0.45;"></div> May contain (MC)</span>
+  wrap.innerHTML=`<div class="al-legend">
+      <span class="al-legend-item"><span class="al-mark c">${ico('check','ico-xs')}</span>Contains</span>
+      <span class="al-legend-item"><span class="al-mark m">MC</span>May contain</span>
+      <span class="al-legend-note">FSA 14 · ${sorted.length} dish${sorted.length!==1?'es':''}${evId?' on this menu':''}</span>
     </div>
-    <div style="margin-left:auto;font-size:11px;color:var(--t4);font-family:var(--mono);">FSA 14 major allergens · ${sorted.length} dish${sorted.length!==1?'es':''}</div>
-  </div>
-  <div style="overflow-x:auto;padding:16px 20px;"><table class="al-matrix"><thead><tr><th class="dish-th">Dish</th>${iconHdrs}</tr></thead><tbody>${rows}</tbody></table></div>
-  <div style="padding:8px 20px;border-top:1px solid var(--l1);font-size:10px;color:var(--t4);">Allergen icons © Food Standards Agency (food.gov.uk). Always verify before service.</div>`;
+    <div class="al-matrix-wrap"><table class="al-matrix"><thead><tr><th class="al-th-dish">Dish</th>${hdr}</tr></thead><tbody>${rows}</tbody></table></div>
+    <div class="al-foot">Allergen icons © Food Standards Agency (food.gov.uk). Always verify before service.</div>`;
 }
 
 // ═══════════════════════════════════════════════
@@ -5650,6 +5689,7 @@ function openSettings(){
   g('set-bank-name').value=bank.account_name||'';g('set-bank-type').value=bank.account_type||'';g('set-bank-sort').value=bank.sort_code||'';g('set-bank-acct').value=bank.account_number||'';
   g('set-boh').value=getSetting('boh_url')||'';
   g('set-migration-note').style.display=(_settingsTableOk===false||_invoicesTableOk===false||_portionsColOk===false||_eachColOk===false||_priceLogOk===false)?'flex':'none';
+  renderBankStatus();if(_bank.ok===null)loadBankFeed().then(renderBankStatus);
   openModal('settings-modal');
 }
 async function saveSettings(){
@@ -5934,7 +5974,7 @@ function evFinancialsHTML(ev){
         ${ev.deposit_status!=='paid'?`<button class="btn btn-xs" style="background:var(--ok-tint);color:var(--ok);" onclick="markPayment('${ev.id}','paid')">${ico('check')}Mark paid in full</button>`:`<button class="btn btn-xs btn-ghost" onclick="markPayment('${ev.id}','')">Unmark paid</button>`}
         ${!ev.deposit_status?`<button class="btn btn-xs" onclick="markPayment('${ev.id}','deposit')">Deposit taken</button>`:''}
       </div>
-      <div class="fin-hint">${_invoicesTableOk===false?'Run the migration in Settings to raise invoices from here.':'Payments are matched against income recorded in Digby’s Finance (Starling import) by job code, invoice number and amount.'}</div>
+      <div class="fin-hint">${_invoicesTableOk===false?'Run the migration in Settings to raise invoices from here.':(_bank.ok?'Payments match themselves against the Starling feed — same amount, and the job code, invoice number or payer’s name in the reference. Income recorded in Digby’s Finance is checked too.':'Payments are matched against income recorded in Digby’s Finance. Connect the Starling feed in Settings and they match straight from the bank.')}</div>
     </div></div>
 
     <div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd" style="display:flex;justify-content:space-between;align-items:center;">Invoices <span style="display:flex;gap:6px;">
@@ -5944,7 +5984,7 @@ function evFinancialsHTML(ev){
       ${invs.length?`<div class="fin-inv-list">${invs.map(i=>`<div class="fin-inv-row">
         <div class="fin-inv-no num">${i.number}</div>
         <div style="flex:1;min-width:0;"><div style="font-weight:500;">${kindLabel[i.kind]||i.kind} invoice <span class="muted">· ${money(i.amount)}</span></div>
-        <div class="muted" style="font-size:var(--fs-sh);">Issued ${fmtShortDate(i.issued_on)}${i.due_on?' · due '+fmtShortDate(i.due_on):''}${i.status==='paid'&&i.paid_on?' · paid '+fmtShortDate(i.paid_on):''}${i.status==='sent'&&i.sent_on?' · sent '+fmtShortDate(i.sent_on):''}</div></div>
+        <div class="muted" style="font-size:var(--fs-sh);">Issued ${fmtShortDate(i.issued_on)}${i.due_on?' · due '+fmtShortDate(i.due_on):''}${i.status==='paid'&&i.paid_on?' · paid '+fmtShortDate(i.paid_on)+(i.paid_ref&&i.paid_ref!=='manual'?' · '+payRefLabel(i.paid_ref):''):''}${i.status==='sent'&&i.sent_on?' · sent '+fmtShortDate(i.sent_on):''}</div></div>
         ${invStatus(i)}
         <div class="fin-inv-acts">
           <button class="btn btn-xs" onclick="printInvoice('${i.id}')">${ico('printer')}View</button>
@@ -6066,27 +6106,133 @@ async function invoiceMore(id){
   if(inv.status==='paid'){if(await askConfirm(`Undo the payment recorded against invoice #${inv.number}?`,{title:'Undo payment',confirmLabel:'Undo',danger:false})){await sb.from('invoices').update({status:'sent',paid_on:null,paid_amount:null,paid_ref:null}).eq('id',inv.id);Object.assign(inv,{status:'sent',paid_on:null,paid_amount:null,paid_ref:null});renderEventTab();}return;}
   if(await askConfirm(`Void invoice #${inv.number}? It stays on record but no longer counts.`,{title:'Void invoice',confirmLabel:'Void'}))setInvoiceStatus(id,'void');
 }
-// Match open invoices against income recorded in Digby's Finance (the Starling
-// import lands there). A hit = same amount, and the job code or invoice number
-// in the reference or description.
+// Match open invoices against the bank feed (and income already recorded in
+// Digby's Finance). A hit = same amount, and the job code, invoice number or
+// payer's name in the reference.
 async function checkPayments(){const ev=events.find(e=>e.id===_evDetail.id);if(!ev)return;const n=await autoCheckPayments(ev,{});renderEventTab();if(n===null)return;toast(n?`${n} payment${n>1?'s':''} matched`:'No matching payments yet');}
-async function autoCheckPayments(ev,opts={}){
-  const open=_evDetail.invoices.filter(i=>i.status==='sent');
-  if(!open.length)return 0;
-  const keys=[ev.job_code,...open.map(i=>'INV'+i.number),...open.map(i=>'Invoice '+i.number)].filter(Boolean);
-  let rows=[];
+async function autoCheckPayments(ev,opts={}){return matchEventInvoices(ev,_evDetail.invoices,opts);}
+
+// ═══════════════════════════════════════════════════════════════════
+// BANK FEED — Starling, through the same Vercel proxy Digby's Finance uses
+// (api/starling.js in this repo; the token lives in Vercel as STARLING_TOKEN,
+// never in the page). The app pulls the last 120 days of the feed, and any
+// invoice that is out gets matched against money in — automatically on load,
+// every ten minutes while the app is open, and whenever a Financials tab is
+// opened. Income already recorded in Digby's Finance is the fallback source.
+// ═══════════════════════════════════════════════════════════════════
+let _bank={ok:null,at:0,account:null,txs:[],error:null,fetching:null,lastMatch:null};
+const BANK_DAYS=120,BANK_TTL=5*60*1000;
+async function loadBankFeed(opts={}){
+  if(_bank.fetching)return _bank.fetching;
+  if(!opts.force&&_bank.ok!==null&&Date.now()-_bank.at<BANK_TTL)return _bank;
+  _bank.fetching=(async()=>{
+    try{
+      const to=new Date(),from=new Date(Date.now()-BANK_DAYS*86400000);
+      const res=await fetch(`/api/starling?from=${from.toISOString().slice(0,10)}&to=${to.toISOString().slice(0,10)}`,{cache:'no-store'});
+      let body=null;try{body=await res.json();}catch(_){}
+      if(!res.ok||!body||!Array.isArray(body.transactions))throw new Error(body&&body.error?body.error:res.status===404?'api/starling.js is not deployed':'HTTP '+res.status);
+      _bank.ok=true;_bank.error=null;_bank.account=body.accountName||'Starling';
+      _bank.txs=body.transactions.filter(t=>!isNaN(parseFloat(t.amount)));
+    }catch(e){_bank.ok=false;_bank.error=e.message||String(e);_bank.txs=[];}
+    finally{_bank.at=Date.now();_bank.fetching=null;}
+    return _bank;
+  })();
+  return _bank.fetching;
+}
+const _norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+// Words of the client's name worth matching on (four letters or more, not titles)
+function clientWords(ev){return String((ev.client_name||'')+' '+(ev.contact_name||'')).toLowerCase().split(/[^a-z]+/).filter(w=>w.length>=4&&!/^(the|and|ltd|limited|events|event|catering|company|wedding|party|corporate|mr|mrs|miss|ms)$/.test(w));}
+// A receipt matches an invoice when the amount agrees to the penny and either
+// the job code / invoice number is in the reference, or the payer's name is.
+function receiptMatches(r,inv,ev){
+  if(Math.abs(parseFloat(r.amount)-parseFloat(inv.amount))>=0.011)return false;
+  const hay=_norm((r.reference||'')+' '+(r.counterParty||'')+' '+(r.description||''));
+  const keys=[ev.job_code,'inv'+inv.number,'invoice'+inv.number,'in'+inv.number].map(_norm).filter(k=>k.length>=4);
+  if(keys.some(k=>hay.includes(k)))return true;
+  return clientWords(ev).some(w=>hay.includes(w));
+}
+// Every source a payment can come from, normalised to {ref,date,amount,text}.
+async function paymentCandidates(ev,open){
+  const out=[];
+  await loadBankFeed();
+  if(_bank.ok)_bank.txs.filter(t=>parseFloat(t.amount)>0).forEach(t=>out.push({ref:'starling:'+(t.feedItemUid||t.date+'|'+t.amount+'|'+_norm(t.counterParty)),date:t.date,amount:parseFloat(t.amount),reference:t.reference,counterParty:t.counterParty,source:'Starling'}));
   try{
-    const filter=keys.map(k=>`reference.ilike.%${k}%,description.ilike.%${k}%`).join(',');
-    const{data,error}=await sbBOH.from('finance_income').select('id,date,amount,description,reference').or(filter).order('date',{ascending:false}).limit(60);
-    if(error)throw error;rows=data||[];
-  }catch(e){if(!opts.silent)toast("Couldn't reach Digby's Finance",'err');return null;}
-  const used=new Set(_evDetail.invoices.map(i=>i.paid_ref).filter(Boolean));
+    const keys=[ev.job_code,...open.map(i=>'INV'+i.number),...open.map(i=>'Invoice '+i.number),...clientWords(ev)].filter(Boolean);
+    if(keys.length){
+      const filter=keys.map(k=>`reference.ilike.%${k}%,description.ilike.%${k}%`).join(',');
+      const{data,error}=await sbBOH.from('finance_income').select('id,date,amount,description,reference').or(filter).order('date',{ascending:false}).limit(80);
+      if(!error)(data||[]).forEach(r=>out.push({ref:'finance:'+r.id,legacyRef:r.id,date:r.date,amount:parseFloat(r.amount),reference:r.reference,description:r.description,source:"Digby's Finance"}));
+    }
+  }catch(e){}
+  return out;
+}
+// Match the open invoices of one event. Returns the number matched, or null
+// when no source could be reached at all.
+async function matchEventInvoices(ev,invoices,opts={}){
+  const open=invoices.filter(i=>i.status==='sent');
+  if(!open.length)return 0;
+  const cands=await paymentCandidates(ev,open);
+  if(!_bank.ok&&!cands.length){if(!opts.silent)toast(_bank.error?'Bank feed: '+_bank.error:"Couldn't reach the bank feed or Digby's Finance",'err');return null;}
+  const used=new Set();
+  try{const{data}=await sb.from('invoices').select('paid_ref').not('paid_ref','is',null);(data||[]).forEach(r=>used.add(r.paid_ref));}catch(e){}
   let matched=0;
   for(const inv of open){
-    const hit=rows.find(r=>!used.has(r.id)&&Math.abs(parseFloat(r.amount)-parseFloat(inv.amount))<0.011);
-    if(hit&&await applyInvoicePaid(inv,hit.date,parseFloat(hit.amount),hit.id)){used.add(hit.id);matched++;}
+    const hit=cands.find(c=>!used.has(c.ref)&&!(c.legacyRef&&used.has(c.legacyRef))&&receiptMatches(c,inv,ev));
+    if(hit&&await applyInvoicePaid(inv,hit.date,hit.amount,hit.ref)){used.add(hit.ref);matched++;_bank.lastMatch={ev:ev.client_name,inv,hit};}
   }
   return matched;
+}
+function payRefLabel(ref){
+  if(!ref)return'';
+  if(ref==='manual')return'marked by hand';
+  if(ref.startsWith('starling:'))return'Starling';
+  return"Digby's Finance";
+}
+// Every event with an invoice out — on load, on a timer, and from Settings.
+let _bankTimer=null;
+async function autoCheckAllPayments(opts={}){
+  if(_invoicesTableOk===false)return 0;
+  let sent=[];
+  try{const{data,error}=await sb.from('invoices').select('*').eq('status','sent');if(error)throw error;sent=data||[];_invoicesTableOk=true;}
+  catch(e){if(/does not exist|schema cache/i.test(e.message||''))_invoicesTableOk=false;return 0;}
+  if(!sent.length){await loadBankFeed();return 0;}
+  const byEv={};sent.forEach(i=>{(byEv[i.event_id]=byEv[i.event_id]||[]).push(i);});
+  let total=0;const notes=[];
+  for(const[evId,invs]of Object.entries(byEv)){
+    const ev=events.find(e=>e.id===evId);if(!ev)continue;
+    const n=await matchEventInvoices(ev,invs,{silent:true});
+    if(n){total+=n;invs.filter(i=>i.status==='paid').forEach(i=>notes.push(`${ev.client_name||'Event'} — ${{deposit:'deposit',final:'final',full:'invoice'}[i.kind]||i.kind} ${money(i.amount)}`));
+      if(_evDetail.id===evId){_evDetail.invoices.forEach(x=>{const u=invs.find(i=>i.id===x.id);if(u)Object.assign(x,u);});}}
+  }
+  if(total){toast(`Payment received · ${notes.join(' · ')}`);renderPipeline();if(_evDetail.id&&_evDetail.tab==='financials')renderEventTab();}
+  return total;
+}
+function startBankWatch(){
+  if(_bankTimer)clearInterval(_bankTimer);
+  autoCheckAllPayments({silent:true});
+  _bankTimer=setInterval(()=>{if(document.visibilityState==='visible')autoCheckAllPayments({silent:true});},10*60*1000);
+}
+async function syncBankFeed(){
+  const btn=document.getElementById('set-bank-sync');if(btn){btn.disabled=true;btn.textContent='Syncing…';}
+  await loadBankFeed({force:true});
+  const n=await autoCheckAllPayments({silent:true});
+  renderBankStatus();
+  if(btn){btn.disabled=false;btn.textContent='Sync now';}
+  if(_bank.ok)toast(n?`${n} payment${n>1?'s':''} matched`:'Bank feed up to date');
+}
+function renderBankStatus(){
+  const el=document.getElementById('set-bank-status');if(!el)return;
+  if(_bank.ok===true){
+    const ins=_bank.txs.filter(t=>parseFloat(t.amount)>0).length;
+    el.innerHTML=`<div class="bank-status ok"><span class="conn-dot live"></span><div><div class="bank-status-t">Connected — ${h(_bank.account)}</div><div class="bank-status-s">${_bank.txs.length} transactions in the last ${BANK_DAYS} days · ${ins} in · checked ${new Date(_bank.at).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</div></div></div>`;
+  }else if(_bank.ok===false){
+    el.innerHTML=`<div class="bank-status"><span class="conn-dot err"></span><div><div class="bank-status-t">Not connected</div><div class="bank-status-s">${h(_bank.error||'')}</div></div></div>
+      <ol class="bank-steps">
+        <li>In GitHub → <b>digbys-prep</b> → Add file → Create new file → name it <code>api/starling.js</code> and paste in the file you were sent.</li>
+        <li>In Vercel → <b>digbys-prep</b> → Settings → Environment Variables → add <code>STARLING_TOKEN</code> (a Personal Access Token from developer.starlingbank.com with account:read, account-list:read, transaction:read, balance:read — the same one Finance uses is fine).</li>
+        <li>Redeploy (uploading index.html does it). Payments then match themselves.</li>
+      </ol>`;
+  }else el.innerHTML=`<div class="bank-status"><span class="conn-dot"></span><div class="bank-status-t">Checking…</div></div>`;
 }
 
 // ── Print — Digby's invoice layout ──
