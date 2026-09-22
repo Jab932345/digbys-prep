@@ -1201,6 +1201,120 @@ input[type=range]{accent-color:var(--accent);}
   .fin-summary{grid-template-columns:1fr 1fr;}
   .fin-inv-acts{flex-basis:100%;}
 }
+
+.sb-ver{margin-left:auto;font-size:var(--fs-cp);font-weight:600;color:var(--label3);font-variant-numeric:tabular-nums;letter-spacing:.02em;}
+.set-ver{font-size:var(--fs-fn);color:var(--label3);text-align:center;padding-top:6px;}
+.mobile-only{display:none!important;}
+@media (max-width:900px){.mobile-only{display:inline-flex!important;}.btn-icon.btn-sm{width:30px;}}
+
+/* ── Dish costing ── */
+.badge-grn{background:var(--ok-tint);color:var(--ok);}
+.badge-blu{background:var(--info-tint);color:var(--info);}
+.badge-amb{background:var(--warn-tint);color:var(--warn);}
+.badge-gold{background:var(--fill3);color:var(--label);}
+.cst-card-sheet{max-width:1120px;width:100%;}
+.cst-hd{align-items:center;}
+.cst-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.cst-body{padding:18px 22px 28px;}
+.cst-kpis{margin:0 0 16px;}
+.cst-kpis .pnl-summary-val.muted{color:var(--label3);}
+.cst-kpi-sub{font-size:var(--fs-fn);color:var(--label3);margin-top:4px;line-height:1.35;}
+.cst-portions-row{display:flex;align-items:center;gap:6px;}
+.cst-portions{width:64px;min-height:26px;padding:2px 6px;margin:0;text-align:center;font-weight:600;}
+.cst-issues{background:var(--warn-tint);border-radius:var(--r-md);padding:4px 0;margin-bottom:16px;}
+.cst-issue{display:flex;align-items:center;gap:10px;padding:8px 14px;font-size:var(--fs-sh);cursor:pointer;color:var(--label);}
+.cst-issue .chev{color:var(--warn);}
+.cst-issue-dot{width:7px;height:7px;border-radius:50%;background:var(--warn);flex-shrink:0;}
+.cst-issue-dot.err{background:var(--accent);}
+.cst-issue-name{font-weight:600;white-space:nowrap;}
+.cst-issue-t{color:var(--label2);min-width:0;}
+.cst-issue-go{margin-left:auto;font-size:var(--fs-fn);font-weight:600;color:var(--warn);white-space:nowrap;}
+.cst-issue .chev{margin-left:0;}
+.cst-grid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:16px;align-items:start;}
+.cst-main{min-width:0;}
+.cst-tbl-wrap{overflow-x:auto;background:var(--bg2);border-radius:var(--r-md);box-shadow:var(--ring);}
+.cst-tbl{box-shadow:none;border-radius:0;min-width:600px;}
+.cst-tbl th{white-space:nowrap;}
+.cst-tbl th.tr,.cst-tbl td.tr{text-align:right;font-variant-numeric:tabular-nums;}
+.cst-tbl td{padding:9px 14px;}
+.cst-tbl thead th:first-child,.cst-tbl td:first-child{padding-left:16px;}
+.cst-comp td{background:var(--bg3);padding:10px 14px 8px;border-top:1px solid var(--sep);font-weight:600;color:var(--label);font-size:var(--fs-sh);}
+.cst-comp td:first-child{padding-left:16px;}
+.cst-comp-name{display:flex;align-items:center;gap:8px;}
+.cst-comp-sub{font-size:var(--fs-fn);color:var(--label3);font-weight:400;margin-top:2px;}
+.cst-ing{font-weight:500;color:var(--label);display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.cst-sup{font-size:var(--fs-fn);color:var(--label3);font-weight:400;}
+.cst-per{font-size:var(--fs-fn);color:var(--label3);}
+.cst-pc{font-weight:600;color:var(--label);}
+.cst-line.uncosted td{color:var(--label3);}
+.cst-flags{display:flex;flex-wrap:wrap;gap:4px 10px;margin-top:3px;}
+.cst-flag{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-fn);color:var(--label3);}
+.cst-flag.warn,.cst-flag.err{color:var(--accent);}
+.cst-flag.info .ico{color:var(--label3);}
+.cst-pin{border:none;background:var(--fill3);color:var(--label);font:inherit;font-size:var(--fs-cp);font-weight:600;padding:1px 7px;border-radius:var(--r-pill);cursor:pointer;}
+.cst-pin:hover{background:var(--fill2);}
+.cst-move{font-size:var(--fs-fn);font-weight:700;margin-left:3px;}
+.cst-move.up{color:var(--accent);}.cst-move.down{color:var(--ok);}
+.cst-tbl tfoot td{border-top:1.5px solid var(--sep-strong);border-bottom:none;padding:12px 14px;}
+.cst-rail{display:flex;flex-direction:column;gap:14px;min-width:0;}
+.cst-card{background:var(--bg2);border-radius:var(--r-md);box-shadow:var(--ring);padding:12px 16px 14px;}
+.cst-card-hd{font-size:var(--fs-sh);font-weight:500;color:var(--label2);text-transform:uppercase;letter-spacing:.02em;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.cst-card-hd .seg-count{text-transform:none;letter-spacing:0;}
+.cst-quiet{font-size:var(--fs-sh);color:var(--label3);line-height:1.45;}
+.cst-bar-row{margin-bottom:10px;}
+.cst-bar-row:last-child{margin-bottom:0;}
+.cst-bar-hd{display:flex;justify-content:space-between;gap:10px;font-size:var(--fs-sh);color:var(--label);margin-bottom:5px;}
+.cst-bar-hd span:first-child{font-weight:500;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cst-bar{height:6px;background:var(--fill4);border-radius:3px;overflow:hidden;}
+.cst-bar i{display:block;height:100%;background:var(--accent);border-radius:3px;transition:width var(--dur-lg) var(--spring);}
+.cst-spark{width:100%;height:64px;display:block;}
+.cst-spark path{fill:none;stroke:var(--accent);stroke-width:2;stroke-linejoin:round;stroke-linecap:round;}
+.cst-spark circle{fill:var(--bg2);stroke:var(--accent);stroke-width:1.5;}
+.cst-spark-lbl{display:flex;justify-content:space-between;font-size:var(--fs-fn);color:var(--label3);margin-top:4px;font-variant-numeric:tabular-nums;}
+.cst-moves{margin-top:10px;border-top:1px solid var(--sep);padding-top:8px;}
+.cst-move-row{display:flex;justify-content:space-between;gap:10px;font-size:var(--fs-fn);padding:3px 0;color:var(--label);}
+.cst-move-row span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cst-move-row span:last-child{white-space:nowrap;flex-shrink:0;}
+.cst-ev{display:flex;align-items:center;gap:10px;padding:9px 0;cursor:pointer;position:relative;}
+.cst-ev+.cst-ev{border-top:1px solid var(--sep);}
+.cst-ev>div:first-child{min-width:0;flex:1;}
+.cst-ev-name{font-weight:500;color:var(--label);font-size:var(--fs-sh);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cst-ev-sub{font-size:var(--fs-fn);color:var(--label3);margin-top:1px;}
+.cst-ev-cost{font-weight:600;font-size:var(--fs-sh);}
+.cst-ev .chev{margin-left:0;}
+.cst-embed .cst-grid{grid-template-columns:1fr;}
+.cst-embed .cst-rail{margin-top:2px;}
+.cst-review-count{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--accent);color:#fff;font-size:var(--fs-cp);font-weight:700;margin-left:2px;}
+.cst-rv-row{display:flex;align-items:center;gap:12px;padding:10px 16px;cursor:pointer;position:relative;}
+.cst-rv-row::after{content:'';position:absolute;left:16px;right:0;bottom:0;height:1px;background:var(--sep);}
+.cst-rv-row:last-child::after{display:none;}
+.cst-rv-main{flex:1;min-width:0;}
+.cst-rv-title{font-weight:500;color:var(--label);}
+.cst-rv-sub{font-size:var(--fs-fn);color:var(--label3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.btn-recipe-view.cst-open{margin-left:0;}
+@media (max-width:900px){
+  .cst-grid,.cst-embed .cst-grid{grid-template-columns:1fr;}
+  .cst-kpis{grid-template-columns:1fr 1fr;}
+  .cst-body{padding:14px 16px 24px;}
+  .cst-issue-name{white-space:normal;}
+  .cst-issue{flex-wrap:wrap;row-gap:2px;}
+  .cst-issue-t{flex-basis:100%;padding-left:17px;order:5;}
+  .cst-hd{flex-wrap:wrap;padding:12px 16px 14px;}
+  .cst-hd>div:first-child{flex-basis:100%;order:2;}
+  .cst-hd .recipe-hd-acts{width:100%;justify-content:flex-end;order:1;margin-bottom:6px;}
+  .cst-hd .recipe-hd-acts .btn:nth-child(2){display:none;}
+  .cst-tbl{min-width:0;table-layout:fixed;width:100%;}
+  .cst-tbl .cb,.cst-tbl .cs{display:none;}
+  .cst-tbl th:first-child{width:40%;}.cst-tbl th:nth-child(2){width:19%;}.cst-tbl th:nth-child(3){width:19%;}
+  .cst-tbl .cst-ing{display:block;}
+  .cst-sup{display:none;}
+  .cst-tbl td,.cst-tbl th{padding-left:10px;padding-right:10px;}
+  .cst-tbl thead th:first-child,.cst-tbl td:first-child,.cst-comp td:first-child{padding-left:14px;}
+  .cst-card-sheet{max-height:100vh;}
+}
+.cst-link{cursor:pointer;}
+@media (hover:hover){.cst-link:hover div:first-child{text-decoration:underline;text-underline-offset:2px;}}
+.ir-cost.warn{color:var(--accent);font-weight:600;}
 </style>
 </head>
 <body>
@@ -1216,7 +1330,7 @@ input[type=range]{accent-color:var(--accent);}
     <button class="nav-item" data-view="cleaning" onclick="sbNav('cleaning')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8z"/><path d="M5 2l.6 1.4L7 4l-1.4.6L5 6l-.6-1.4L3 4l1.4-.6z"/></svg><span>Cleaning</span></button>
     <button class="nav-item" data-view="butchery" onclick="sbNav('butchery')"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5h12l4 4v5H3V5z"/><path d="M14 14v5.5a1.5 1.5 0 0 0 1.5 1.5h1a1.5 1.5 0 0 0 1.5-1.5V14"/></svg><span>Butchery</span></button>
   </nav>
-  <div class="sb-foot"><div class="conn"><div class="conn-dot" id="sb-dot"></div><span id="sb-conn"></span></div><button class="theme-btn" title="Settings" onclick="openSettings()"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button><button class="theme-btn" id="theme-btn" title="Appearance" onclick="toggleTheme()"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></button></div>
+  <div class="sb-foot"><div class="conn"><div class="conn-dot" id="sb-dot"></div><span id="sb-conn"></span><span class="app-ver sb-ver"></span></div><button class="theme-btn" title="Settings" onclick="openSettings()"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button><button class="theme-btn" id="theme-btn" title="Appearance" onclick="toggleTheme()"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></svg></button></div>
 </aside>
 <div class="main">
 
@@ -1226,6 +1340,7 @@ input[type=range]{accent-color:var(--accent);}
   <div class="ph">
     <span class="ph-title">Today</span>
     <div class="ph-actions">
+      <button class="btn btn-sm btn-icon mobile-only" title="Settings" onclick="openSettings()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg></button>
       <button class="btn btn-primary btn-sm" onclick="sbNav('events');openFunctionSheet()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New event</button>
     </div>
   </div>
@@ -1417,6 +1532,7 @@ input[type=range]{accent-color:var(--accent);}
         <div class="lib-cat-sep"></div>
         <div class="lib-search-wrap">
           <input class="lib-search" id="dl-search" placeholder="Search dishes" oninput="renderDishList()">
+          <button class="btn btn-sm" onclick="openCostReview()" title="Recipe lines that need a look"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 21h18"/><path d="M5 7h14"/><path d="m5 7-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/></svg>Costs<span class="cst-review-count" id="cst-review-count" style="display:none"></span></button>
           <button class="btn btn-primary btn-sm" onclick="newDish()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New dish</button>
         </div>
       </div>
@@ -1433,6 +1549,7 @@ input[type=range]{accent-color:var(--accent);}
         </div>
         <div class="builder-acts">
           <button class="btn btn-sm" onclick="openRecipeViewFromBuilder()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>View recipe</button>
+          <button class="btn btn-sm" onclick="ddGoStep(4)"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M17 20H7.5c1.6-1.4 2.5-3 2.5-5.5V9a4 4 0 0 1 7.6-1.7M6.5 13.5H14"/></svg>Costing</button>
           <button class="btn btn-sm" id="dd-lock-btn" onclick="toggleDishLock()" style="display:none">Lock</button>
           <button class="btn btn-sm btn-danger" id="dd-del-btn" onclick="deleteDish()" style="display:none">Delete</button>
           <button class="btn btn-primary btn-sm" onclick="saveDish()">Save</button>
@@ -1655,7 +1772,7 @@ input[type=range]{accent-color:var(--accent);}
   <div class="modal-hd"><div class="modal-title" id="ing-modal-title">Add ingredient</div><button class="modal-close" onclick="closeModal('ing-modal')"></button></div>
   <div class="modal-body">
     <div class="g2">
-      <div class="fld"><label class="fld-label">Name</label><input class="fld-inp" id="ing-name" placeholder="e.g. Double cream, Lemon"></div>
+      <div class="fld"><label class="fld-label">Name</label><input class="fld-inp" id="ing-name" placeholder="e.g. Double cream, Lemon" oninput="updateEachHint()"></div>
       <div class="fld"><label class="fld-label">Type</label>
         <select class="fld-sel" id="ing-type">
           <option value="protein">Protein</option><option value="chilled">Chilled</option>
@@ -1675,6 +1792,10 @@ input[type=range]{accent-color:var(--accent);}
         <div style="font-size:11px;color:var(--t4);margin-top:4px;" id="ing-cost-hint"></div>
       </div>
       <div class="fld"><label class="fld-label">Supplier</label><input class="fld-inp" id="ing-supplier" placeholder="Sainsbury's, Booker…"></div>
+    </div>
+    <div class="fld">
+      <label class="fld-label" id="ing-each-lbl">Weight of one piece</label>
+      <div style="display:flex;align-items:center;gap:8px;"><input class="fld-inp" id="ing-each-g" type="number" step="1" min="0" placeholder="e.g. 50" style="width:120px;" oninput="updateEachHint()"><span class="muted" style="font-size:var(--fs-sh);">g</span><span style="font-size:var(--fs-fn);color:var(--label3);line-height:1.35;" id="ing-each-hint"></span></div>
     </div>
     <div class="fld">
       <label class="par-tog-row"><input type="checkbox" id="ing-par-stock" onchange="parStockToggled()"> <span class="fld-label" style="margin:0;">Par stock — keep this topped up regardless of bookings</span></label>
@@ -1710,7 +1831,7 @@ input[type=range]{accent-color:var(--accent);}
 <div class="modal" style="width:560px;">
   <div class="modal-hd"><div class="modal-title">Settings</div><button class="modal-close" onclick="closeModal('settings-modal')"></button></div>
   <div class="modal-body">
-    <div class="note-card warn" id="set-migration-note" style="display:none;margin:0 0 4px;"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>Invoices, per-dish portions and shared settings need three new tables. Copy the SQL and run it once in the Supabase SQL editor.</span><button class="btn btn-xs" style="margin-left:auto;flex-shrink:0;" onclick="copyMigrationSQL()">Copy SQL</button></div>
+    <div class="note-card warn" id="set-migration-note" style="display:none;margin:0 0 4px;"><svg class="ico ico-sm" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span>The database is behind this build. Copy the SQL and run it once in the Supabase SQL editor — it only adds what is missing.</span><button class="btn btn-xs" style="margin-left:auto;flex-shrink:0;" onclick="copyMigrationSQL()">Copy SQL</button></div>
     <div class="sec-hd">Invoicing</div>
     <div class="g3">
       <div class="fld"><label class="fld-label">Next invoice number</label><input class="fld-inp num" id="set-inv-next" type="number" min="1" step="1"></div>
@@ -1733,6 +1854,7 @@ input[type=range]{accent-color:var(--accent);}
     </div>
     <div class="sec-hd" style="margin-top:8px;">Links</div>
     <div class="fld"><label class="fld-label">BOH (staff rota) app address</label><input class="fld-inp" id="set-boh" placeholder="https://…" inputmode="url"></div>
+    <div class="app-ver-long set-ver"></div>
   </div>
   <div class="modal-foot"><button class="btn" onclick="closeModal('settings-modal')">Cancel</button><button class="btn btn-primary" onclick="saveSettings()">Save</button></div>
 </div>
@@ -1886,6 +2008,15 @@ input[type=range]{accent-color:var(--accent);}
 <div class="recipe-ov" id="recipe-ov">
   <div class="recipe-card" id="recipe-card"></div>
 </div>
+<div class="recipe-ov" id="costing-ov">
+  <div class="recipe-card cst-card-sheet" id="costing-card"></div>
+</div>
+<div class="modal-ov" id="cost-review-modal">
+<div class="modal" style="width:560px;">
+  <div class="modal-hd"><div><div class="modal-title">Costs to check</div><div style="font-size:var(--fs-fn);color:var(--label3);margin-top:2px;">Recipe lines whose quantity, unit or price looks wrong, across the library.</div></div><button class="modal-close" onclick="closeModal('cost-review-modal')"></button></div>
+  <div class="modal-body" id="cost-review-body" style="padding:0;"></div>
+</div>
+</div>
 
 <div class="modal-ov" id="par-modal">
 <div class="modal" style="width:420px;">
@@ -1899,6 +2030,12 @@ input[type=range]{accent-color:var(--accent);}
 </div>
 
 <script>
+// ═══ Build stamp — bump APP_VERSION on every delivered file. Shown in the
+// sidebar footer, the Settings sheet and (on phones) the Today header, so it is
+// obvious which build Vercel is actually serving.
+const APP_VERSION='13',APP_BUILD_DATE='2026-09-22';
+function stampVersion(){document.querySelectorAll('.app-ver').forEach(el=>{el.textContent='v'+APP_VERSION;el.title='Build '+APP_BUILD_DATE;});document.querySelectorAll('.app-ver-long').forEach(el=>el.textContent='Kitchen Prep v'+APP_VERSION+' · build '+new Date(APP_BUILD_DATE+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));}
+document.addEventListener('DOMContentLoaded',stampVersion);
 // ═══ Icons — SF-Symbol-style line glyphs, 24-grid, stroke 1.75, round caps.
 // ico('name') returns inline SVG markup; ico('name','ico-sm') for a 16px glyph.
 const ICONS={
@@ -1933,6 +2070,7 @@ const ICONS={
   box:'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="M3 8l9 5 9-5M12 13v8"/>',
   scan:'<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/>',
   chart:'<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>',
+  pound:'<path d="M17 20H7.5c1.6-1.4 2.5-3 2.5-5.5V9a4 4 0 0 1 7.6-1.7M6.5 13.5H14"/>',
   person:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',
   arrowL:'<path d="M19 12H5M11 18l-6-6 6-6"/>',
@@ -2166,51 +2304,117 @@ function closeRecipeView(){document.getElementById('recipe-ov').classList.remove
 
 function findIngredient(name){return ingredients.find(x=>x.name.toLowerCase()===(name||'').toLowerCase().trim());}
 
-// Liquids bought by weight (milk, oil, stock) are measured by volume in recipes,
-// so a per-kg ingredient can legitimately take ml/cl/litre and vice versa.
-function getUnitOptions(soldBy){return{kg:['g','kg','ml','cl','litre'],g:['g','kg','ml','cl','litre'],litre:['ml','cl','litre','g','kg'],ml:['ml','cl','litre','g','kg'],each:['each'],bunch:['bunch'],portion:['portion']}[soldBy]||['g','kg','ml','each','bunch'];}
-
 // ── Costing engine ────────────────────────────────────────────────────
-// Cost of `qty unit` of an ingredient priced per `sold_by`. Mass and volume are
-// normalised to grams / millilitres and cross-converted with the ingredient's
-// density (g per ml; water-like 1.0 when unknown — oil is 0.92, stock 1.0, so
-// the error is single-digit percent, not the 1000× the old code produced by
-// charging 5 ml as 5 kg). A count unit (each, clove, bar…) against a per-kg
-// price can't be converted without a unit weight, so it returns null and the
-// costing step lists it as unconvertible rather than inventing a number.
-const UNIT_G={g:1,gram:1,grams:1,kg:1000,kilo:1000,mg:0.001};
-const UNIT_ML={ml:1,millilitre:1,cl:10,l:1000,litre:1000,liter:1000,litres:1000};
-function convertIngCost(qty,unit,obj){
+// Every recipe quantity is normalised to grams (or millilitres for something
+// bought by volume) and priced against the ingredient's sold_by. Mass↔volume
+// uses density (water-like 1.0 unless the ingredient says otherwise — oil is
+// 0.92, so the error is single-digit percent, never the 1000× the old code
+// produced by charging 5 ml as 5 kg). Count↔mass uses the weight of one piece:
+// the ingredient's own "weight per piece" if set, else a weight read from its
+// name ("(500ml)", "1.6kg"), else a typical weight from PIECE_WEIGHTS. When a
+// weight has to be assumed the line says so, so the assumption is visible.
+const UNIT_G={g:1,gram:1,grams:1,gm:1,kg:1000,kilo:1000,kilos:1000,mg:0.001,oz:28.35,lb:453.6,lbs:453.6};
+const UNIT_ML={ml:1,millilitre:1,millilitres:1,cl:10,dl:100,l:1000,ltr:1000,litre:1000,liter:1000,litres:1000,liters:1000,tsp:5,tbsp:15,tbs:15,cup:240,cups:240,pint:568,pints:568,shot:25};
+// Named parts of a piece — cloves are garlic, slices are bread, sprigs are herbs.
+const SUB_PIECE_G={clove:5,cloves:5,sprig:2,sprigs:2,slice:35,slices:35,leaf:0.3,leaves:0.3,pinch:0.5,pinches:0.5,rasher:30,rashers:30,stick:50,sticks:50,stalk:50,stalks:50,knob:15};
+const COUNT_UNITS=new Set(['each','ea','pc','pcs','piece','pieces','whole','bunch','bunches','portion','portions','bar','bars','can','cans','tin','tins','bottle','bottles','jar','jars','pack','packs','punnet','punnets','head','heads','bulb','bulbs','pod','pods','loaf','loaves','tray','trays','unit','units','item','items','x','']);
+// Typical weight of one piece, by name. Most specific first — the first match wins.
+const PIECE_WEIGHTS=[
+  [/per slice|\bslices?\b/,35],[/brioche/,30],[/sourdough|\bloaf\b|\bloaves\b/,800],[/baguette/,250],[/naan/,130],[/flatbread|pitta|\bpita\b|\bwraps?\b|tortilla/,90],[/\bbuns?\b|\brolls?\b|\bbaps?\b|muffin|crumpet/,60],
+  [/egg yolk|\byolks?\b/,18],[/egg white/,35],[/quail egg/,10],[/duck egg/,80],[/\beggs?\b/,60],
+  [/micro ?herb|micro ?cress/,30],[/watercress/,85],[/coriander|parsley|\bmint\b|basil|\bdill\b|chives?|tarragon|chervil|sorrel|cress/,30],[/thyme|rosemary|\bsage\b|oregano|marjoram/,20],[/bay lea(f|ves)/,0.3],[/curry lea(f|ves)/,0.2],[/kaffir|lime lea(f|ves)/,0.3],[/lemongrass/,20],
+  [/garlic clove/,5],[/black garlic/,40],[/garlic/,50],[/banana shallot|echalion/,60],[/shallot/,35],[/spring onion|scallion|salad onion/,15],[/\bonions?\b/,170],[/\bleeks?\b/,250],[/ginger/,100],
+  [/preserved lemon/,40],[/lemon/,100],[/\blimes?\b/,65],[/orange/,180],[/grapefruit/,300],
+  [/scotch bonnet|bird'?s? eye/,5],[/jalape/,15],[/chill?i/,15],[/padr[oó]n/,8],[/red pepper|green pepper|yellow pepper|bell pepper|romano|\bpeppers?\b(?! ?corn)/,160],
+  [/baking potato|jacket potato|king edward/,300],[/sweet potato/,250],[/new potato|baby potato|charlotte|jersey royal/,40],[/potato/,170],
+  [/cherry tomato|baby plum|datterini/,15],[/heritage tomato|beef tomato/,200],[/tomato/,120],
+  [/cucumber/,350],[/courgette|zucchini/,200],[/aubergine|eggplant/,300],[/\bcarrots?\b/,100],[/parsnip/,150],[/beetroot/,150],[/turnip/,150],[/swede/,800],[/celeriac/,900],[/celery/,500],[/fennel/,300],[/radish/,10],
+  [/butternut/,1100],[/squash|pumpkin/,1200],[/cauliflower/,800],[/broccoli/,400],[/cabbage|hispi/,900],[/little gem/,80],[/lettuce|romaine|iceberg|\bcos\b/,300],[/pak choi|bok choy/,120],[/chicory|radicchio|endive/,150],
+  [/corn on the cob|sweetcorn cob|\bcobs?\b/,250],[/portobello|flat mushroom/,80],[/mushroom/,20],[/avocado/,170],[/pineapple/,1000],[/\bapples?\b/,180],[/\bpears?\b/,180],[/banana/,120],[/peach|nectarine/,150],[/\bplums?\b/,60],[/\bfigs?\b/,50],[/mango/,400],[/melon/,1500],[/pomegranate/,280],[/passion ?fruit/,18],[/kiwi/,75],[/\bdates?\b/,8],[/apricot/,35],[/\bprunes?\b/,10],
+  [/vanilla (pod|bean)/,3],[/cinnamon stick|cassia/,4],[/star anise/,1],[/cardamom/,0.2],[/nutmeg/,5],[/nori/,3],[/stock cube|stock pot/,10],
+  [/whole chicken|chicken \(whole\)/,1600],[/poussin/,450],[/chicken breast|chicken supreme/,180],[/chicken thigh/,150],[/chicken leg/,300],[/chicken wing/,90],[/duck breast/,220],[/duck leg/,300],[/whole duck/,2200],[/pheasant/,900],[/partridge/,400],[/quail/,200],[/pigeon/,350],
+  [/sardine/,90],[/mackerel/,350],[/sea ?bass|bream/,450],[/trout/,400],[/whole salmon/,4000],[/lobster/,600],[/\bcrab\b/,900],[/scallop/,30],[/oyster/,80],[/king prawn|tiger prawn/,25],[/prawn/,15],[/langoustine/,60],[/squid/,200],
+  [/sausage/,65],[/burger|patty/,150],[/lamb shank/,400],[/pork chop|lamb chop|cutlet/,180],[/rack of lamb/,700],[/rib ?eye|sirloin|rump|fillet steak/,250],
+  [/tofu/,300],[/halloumi/,225],[/\bfeta\b/,200],[/mozzarella|burrata/,125],[/camembert|\bbrie\b/,250],[/goats? cheese/,100],[/cheese slice|american cheese/,20],[/paneer/,225],
+  [/anchov/,4],[/\bolives?\b(?! oil)/,4],[/\bcapers?\b/,0.5],[/gherkin|cornichon/,15],[/\bale\b|stout|lager|\bbeer\b|cider/,500],[/\bcola\b|lemonade|tonic|soda/,330],[/\bwine\b/,750],
+  [/\bcans?\b|\btins?\b/,400],[/\bbars?\b/,200],[/\bbottles?\b/,750],[/\bjars?\b/,340],
+];
+const _unitKey=u=>String(u||'').toLowerCase().trim().replace(/\.$/,'');
+function isCountUnit(u){return COUNT_UNITS.has(_unitKey(u));}
+function isKnownUnit(u){const k=_unitKey(u);return UNIT_G[k]!=null||UNIT_ML[k]!=null||SUB_PIECE_G[k]!=null||isCountUnit(k);}
+// {g, src:'set'|'name'|'typical'} — grams in one piece of the ingredient, or null.
+function pieceWeightG(obj){
+  if(!obj)return null;
+  const own=parseFloat(obj.each_weight_g);if(own>0)return{g:own,src:'set'};
+  const m=(obj.name||'').match(/(\d+(?:\.\d+)?)\s*(kg|g|ml|l|litre)\b/i);
+  if(m){const n=parseFloat(m[1]),u=m[2].toLowerCase();const g=u==='kg'||u==='l'||u==='litre'?n*1000:n;if(g>0)return{g,src:'name'};}
+  const nm=(obj.name||'').toLowerCase();
+  for(const[re,g]of PIECE_WEIGHTS){if(re.test(nm))return{g,src:'typical'};}
+  if(_unitKey(obj.sold_by||obj.unit)==='bunch')return{g:30,src:'typical'};
+  return null;
+}
+// Grams represented by `qty unit` of obj (null when it can't be known). ctx.piece
+// records a piece weight that had to be used.
+function qtyToGrams(qty,unit,obj,ctx){
+  qty=parseFloat(qty);if(!(qty>=0))return null;
+  const u=_unitKey(unit)||_unitKey(obj&&(obj.sold_by||obj.unit))||'g';
+  const dens=parseFloat(obj&&obj.density)||1;
+  if(UNIT_G[u]!=null)return qty*UNIT_G[u];
+  if(UNIT_ML[u]!=null)return qty*UNIT_ML[u]*dens;
+  if(SUB_PIECE_G[u]!=null)return qty*SUB_PIECE_G[u];
+  if(isCountUnit(u)){const pw=pieceWeightG(obj);if(!pw)return null;if(ctx)ctx.piece=pw;return qty*pw.g;}
+  return null;
+}
+function convertIngCost(qty,unit,obj,ctx){
   if(!obj||obj.cost_per_unit==null)return null;
   qty=parseFloat(qty);if(!(qty>0))return qty===0?0:null;
   const price=parseFloat(obj.cost_per_unit);if(isNaN(price))return null;
-  const sold=(obj.sold_by||obj.unit||'kg').toLowerCase().trim();
-  const u=((unit||'').toLowerCase().trim())||sold;
+  const sold=_unitKey(obj.sold_by||obj.unit||'kg')||'kg';
+  const u=_unitKey(unit)||sold;
   const dens=parseFloat(obj.density)||1;
-  const soldG=UNIT_G[sold]!=null?UNIT_G[sold]:null;      // grams in one sold unit
-  const soldMl=UNIT_ML[sold]!=null?UNIT_ML[sold]:null;   // millilitres in one sold unit
-  if(soldG!=null){
-    if(UNIT_G[u]!=null)return qty*UNIT_G[u]/soldG*price;
-    if(UNIT_ML[u]!=null)return qty*UNIT_ML[u]*dens/soldG*price;
-    return null;
+  if(UNIT_G[sold]!=null){const g=qtyToGrams(qty,u,obj,ctx);return g==null?null:g/UNIT_G[sold]*price;}
+  if(UNIT_ML[sold]!=null){
+    let ml=null;
+    if(UNIT_ML[u]!=null)ml=qty*UNIT_ML[u];
+    else{const g=qtyToGrams(qty,u,obj,ctx);if(g!=null)ml=g/dens;}
+    return ml==null?null:ml/UNIT_ML[sold]*price;
   }
-  if(soldMl!=null){
-    if(UNIT_ML[u]!=null)return qty*UNIT_ML[u]/soldMl*price;
-    if(UNIT_G[u]!=null)return qty*UNIT_G[u]/dens/soldMl*price;
-    return null;
-  }
-  // sold by the piece (each, bunch, portion, bar…): a mass or volume quantity
-  // has no conversion; any count unit is taken as one sold unit.
-  if(UNIT_G[u]!=null||UNIT_ML[u]!=null)return null;
-  return qty*price;
+  // Sold by the piece (each, bunch, portion…): a count is that many pieces.
+  if(isCountUnit(u)||u===sold||u+'s'===sold||u===sold+'s')return qty*price;
+  // A part of a piece (cloves, slices) or a mass/volume needs the piece weight.
+  const pw=pieceWeightG(obj);
+  const g=SUB_PIECE_G[u]!=null?qty*SUB_PIECE_G[u]:UNIT_G[u]!=null?qty*UNIT_G[u]:UNIT_ML[u]!=null?qty*UNIT_ML[u]*dens:null;
+  if(g==null||!pw)return null;
+  if(ctx)ctx.piece=pw;
+  return g/pw.g*price;
 }
-// Why a matched ingredient line still has no cost — for the costing step.
+// Why a recipe line has no cost — shown wherever the line is costed.
 function ingCostIssue(ing,obj){
-  if(!obj)return 'not in ingredients';
-  if(obj.cost_per_unit==null)return 'no price';
-  const q=parseFloat(ing.qty??ing.quantity);if(!(q>0))return 'no quantity';
-  if(convertIngCost(q,ing.unit,obj)==null)return `can't convert ${(ing.unit||'').trim()||'?'} to ${obj.sold_by||obj.unit||'kg'}`;
+  if(!obj)return'not in ingredients';
+  if(obj.cost_per_unit==null)return'no price';
+  const q=parseFloat(ing.qty??ing.quantity);if(!(q>0))return'no quantity';
+  if(convertIngCost(q,ing.unit,obj)==null){
+    const u=_unitKey(ing.unit)||'?',sold=_unitKey(obj.sold_by||obj.unit||'kg');
+    if(!isKnownUnit(u))return`unknown unit “${u}”`;
+    return`needs a weight per piece to turn ${u} into ${sold}`;
+  }
   return null;
+}
+// Units a recipe line may use for this ingredient. Liquids bought by weight are
+// measured by volume in recipes and vice versa; a piece weight (set or typical)
+// lets a per-kg item be counted and a per-piece item be weighed.
+function getUnitOptions(soldBy,obj){
+  const s=_unitKey(soldBy||(obj&&(obj.sold_by||obj.unit)))||'kg';
+  const nm=(obj&&obj.name||'').toLowerCase();
+  const pw=obj?pieceWeightG(obj):null;
+  let opts;
+  if(UNIT_G[s]!=null)opts=['g','kg','ml','litre','tsp','tbsp'].concat(pw?['each']:[]);
+  else if(UNIT_ML[s]!=null)opts=['ml','cl','litre','tsp','tbsp','g','kg'].concat(pw?['each']:[]);
+  else if(s==='each'){opts=['each'];if(/garlic/.test(nm))opts.push('clove');if(/bread|loaf|brioche/.test(nm))opts.push('slice');if(pw)opts.push('g','kg');}
+  else if(s==='bunch')opts=['bunch','g','sprig'];
+  else if(s==='portion')opts=['portion'];
+  else opts=['g','kg','ml','each','bunch'];
+  return opts;
 }
 
 function calcCompCost(comp,base){
@@ -2227,6 +2431,274 @@ function calcDishCost(d){
   return any?total:null;
 }
 
+// ── Costing sanity ───────────────────────────────────────────────────
+// The engine can only price what it is given; these checks catch the quantity
+// or unit that is wrong in a way the numbers alone don't show — thirty bulbs of
+// garlic where thirty cloves were meant, half a kilo of one thing per cover.
+const fmtG=g=>g>=1000?(g/1000).toFixed(g%1000?1:0).replace(/\.0$/,'')+' kg':g>=10?Math.round(g)+' g':g>=1?(+g.toFixed(1))+' g':(+g.toFixed(2))+' g';
+const trimNum=n=>(+(+n).toFixed(2)).toString();
+const AROMATIC_RE=/garlic|chill?i|jalape|lemon|\blimes?\b|vanilla|\bbay\b|star anise|cinnamon|cardamom|nutmeg|saffron|shallot|\bonions?\b|ginger|lemongrass|preserved/;
+const LIQUID_RE=/stock|water|milk|cream|\boil\b|brine|wine|\bale\b|stout|beer|juice|vinegar|syrup|sauce/;
+const PORTION_SIZED_RE=/egg|slice|bread|sardine|oyster|scallop|prawn|langoustine|canap|blini|crostini|tortilla|wrap|\bbuns?\b|\brolls?\b|naan|flatbread|pitta|sausage|burger|chop|cutlet|breast|thigh|leg|fillet|steak|whole chicken/;
+const PROTEIN_RE=/chicken|beef|lamb|pork|duck|venison|game|pheasant|partridge|turkey|goose|fish|salmon|cod|hake|bass|bream|trout|mackerel|sardine|tuna|prawn|scallop|lobster|crab|mussel|oyster|squid|steak|sirloin|rump|fillet|brisket|belly|shoulder|mince|sausage|bacon|ham|chorizo|liver/;
+const GARLIC_PRODUCT_RE=/bread|butter|aioli|mayo|paste|powder|granule|pur[eé]e|\boil\b|salt|sauce|confit/;
+function lineFlags(L){
+  const f=[];const obj=L.obj;if(!obj||L.lineCost==null)return f;
+  const nm=(obj.name||'').toLowerCase(),u=_unitKey(L.unit),base=L.base||10,perCoverQty=(parseFloat(L.qty)||0)/base;
+  if(L.piece&&L.piece.src!=='set')f.push({lvl:'info',t:`assumes 1 piece ≈ ${fmtG(L.piece.g)}`,pin:L.piece.g,fix:'ingredient'});
+  if(isCountUnit(u)){
+    if(/garlic/.test(nm)&&!GARLIC_PRODUCT_RE.test(nm)&&perCoverQty>=0.2)f.push({lvl:'warn',t:`${trimNum(perCoverQty)} bulb${perCoverQty===1?'':'s'} per cover — cloves?`,fix:'recipe'});
+    else if(AROMATIC_RE.test(nm)&&perCoverQty>=1)f.push({lvl:'warn',t:`${trimNum(perCoverQty)} per cover — check the unit`,fix:'recipe'});
+    else if(perCoverQty>3&&!PORTION_SIZED_RE.test(nm))f.push({lvl:'warn',t:`${trimNum(perCoverQty)} per cover — check the unit`,fix:'recipe'});
+  }
+  if(L.grams!=null){const gpc=L.grams/base;if(gpc>=600&&!LIQUID_RE.test(nm)&&!/whole/.test(nm))f.push({lvl:'warn',t:`${fmtG(gpc)} per cover — check the quantity`,fix:'recipe'});}
+  if(L.perCover>=2&&obj.type!=='protein'&&!PROTEIN_RE.test(nm)&&!/cheese|chocolate|butter|cream|truffle|caviar|foie|ice cream/.test(nm))f.push({lvl:'warn',t:`${fmt$(L.perCover)} per cover for a ${(ING_TYPES[obj.type]||obj.type||'non-protein').toLowerCase()} item`,fix:'recipe'});
+  return f;
+}
+
+// ── Cost model — one shape for a saved dish and for the builder's unsaved state ──
+function costModelFromDish(d){
+  return{id:d.id,name:d.name,category:d.category,station:d.station,target:parseFloat(d.target_food_cost)||null,live:false,
+    comps:(d.components||[]).slice().sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(c=>({dbId:c.id,name:c.name||'Component',storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',base:c.base_portions||10,
+      ings:(c.recipe_ingredients||[]).slice().sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>({name:i.ingredient_name||i.name||'',qty:parseFloat(i.quantity??i.qty)||0,unit:i.unit||''}))}))};
+}
+function costModelFromBuilder(){
+  return{id:document.getElementById('dd-id')?.value||null,name:_ddData.name||'Untitled dish',category:_ddData.category,station:_ddData.station,target:parseFloat(_ddData.target_food_cost)||null,live:true,
+    comps:_ddComps.map(c=>({dbId:c.dbId,name:c.name||'Component',storage:c.storage||'fri',base:parseInt(c.base)||10,ings:(c.ings||[]).filter(i=>i.name&&i.name.trim()).map(i=>({name:i.name,qty:parseFloat(i.qty)||0,unit:i.unit||''}))}))};
+}
+// priceAt: optional {ingredient_id: cost_per_unit} to cost the dish at other prices.
+function computeCosting(model,priceAt){
+  const comps=model.comps.map(c=>{
+    const base=c.base||10;
+    const lines=c.ings.map(i=>{
+      let obj=findIngredient(i.name);
+      if(obj&&priceAt&&priceAt[obj.id]!=null)obj=Object.assign({},obj,{cost_per_unit:priceAt[obj.id]});
+      const ctx={};const lc=obj?convertIngCost(i.qty,i.unit,obj,ctx):null;
+      return{name:i.name,qty:i.qty,unit:i.unit,obj,lineCost:lc,perCover:lc!=null?lc/base:null,issue:ingCostIssue({qty:i.qty,unit:i.unit},obj),piece:ctx.piece||null,grams:obj?qtyToGrams(i.qty,i.unit,obj):null,base};
+    });
+    const costed=lines.filter(l=>l.lineCost!=null);
+    const perCover=costed.length?costed.reduce((s,l)=>s+l.perCover,0):null;
+    return Object.assign({},c,{base,lines,perCover});
+  });
+  const perCover=comps.some(c=>c.perCover!=null)?comps.reduce((s,c)=>s+(c.perCover||0),0):null;
+  const lines=comps.flatMap(c=>c.lines);
+  lines.forEach(l=>{l.share=perCover?(l.perCover||0)/perCover:0;l.nLines=lines.length;l.flags=lineFlags(l);if(l.issue)l.flags.unshift({lvl:'err',t:l.issue,fix:/no price|weight per piece/.test(l.issue)?'ingredient':'recipe'});});
+  comps.forEach(c=>{c.share=perCover?(c.perCover||0)/perCover:0;});
+  const names={};model.comps.forEach(c=>{const k=(c.name||'').trim().toLowerCase();names[k]=(names[k]||0)+1;});
+  const dupes=Object.entries(names).filter(([,n])=>n>1).map(([k])=>model.comps.find(c=>(c.name||'').trim().toLowerCase()===k).name);
+  const issues=lines.flatMap(l=>l.flags.filter(f=>f.lvl!=='info').map(f=>Object.assign({line:l},f))).concat(dupes.map(n=>({lvl:'warn',t:`“${n}” appears twice — the cost counts both`,dupe:n,fix:'recipe'})));
+  const top=lines.filter(l=>l.perCover!=null).sort((a,b)=>b.perCover-a.perCover)[0]||null;
+  return{model,comps,perCover,lines,uncosted:lines.filter(l=>l.lineCost==null).length,dupes,issues,top};
+}
+
+// ── Price history ────────────────────────────────────────────────────
+// Every price change made in the app is logged (ingredient_price_log) so a
+// dish's cost can be replayed over time. Before the migration the log is simply
+// absent and the views say so.
+let _priceLog=[],_priceLogOk=null;
+async function loadPriceLog(){
+  try{
+    const since=new Date(Date.now()-365*86400000).toISOString();
+    const{data,error}=await sb.from('ingredient_price_log').select('*').gte('changed_at',since).order('changed_at');
+    if(error)throw error;_priceLogOk=true;_priceLog=data||[];
+  }catch(e){_priceLogOk=false;_priceLog=[];}
+}
+async function logPriceChange(before,after){
+  if(_priceLogOk===false||!before||!after)return;
+  const a=parseFloat(before.cost_per_unit),b=parseFloat(after.cost_per_unit);
+  if(isNaN(b)||a===b)return;
+  const row={ingredient_id:before.id,ingredient_name:after.name||before.name,cost_per_unit:b,previous:isNaN(a)?null:a,sold_by:after.sold_by||before.sold_by||null,changed_at:new Date().toISOString()};
+  const{data,error}=await sb.from('ingredient_price_log').insert(row).select().single();
+  if(error){_priceLogOk=false;return;}
+  _priceLog.push(data);
+}
+// Latest move in the last `days` for an ingredient — for the ↑↓ markers.
+function recentPriceMove(ingId,days=30){
+  const since=Date.now()-days*86400000;
+  const rows=_priceLog.filter(r=>r.ingredient_id===ingId&&new Date(r.changed_at).getTime()>=since);
+  return rows.length?rows[rows.length-1]:null;
+}
+// [{t:Date, perCover}] — the dish's cost per cover at each logged price change
+// that touched it, ending today. Null until there are at least two points.
+function dishCostSeries(C){
+  const ids=new Set(C.lines.filter(l=>l.obj).map(l=>l.obj.id));
+  const rows=_priceLog.filter(r=>ids.has(r.ingredient_id)).sort((a,b)=>new Date(a.changed_at)-new Date(b.changed_at));
+  if(!rows.length)return null;
+  const prices={};rows.forEach(r=>{if(prices[r.ingredient_id]===undefined&&r.previous!=null)prices[r.ingredient_id]=parseFloat(r.previous);});
+  const pts=[];
+  const first=new Date(rows[0].changed_at);pts.push({t:new Date(first.getTime()-86400000),perCover:computeCosting(C.model,prices).perCover});
+  rows.forEach(r=>{prices[r.ingredient_id]=parseFloat(r.cost_per_unit);pts.push({t:new Date(r.changed_at),perCover:computeCosting(C.model,prices).perCover});});
+  pts.push({t:new Date(),perCover:C.perCover});
+  return pts.filter(p=>p.perCover!=null).length>=2?pts.filter(p=>p.perCover!=null):null;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// DISH COSTING — one view of where a dish's money goes: every line priced per
+// cover, grouped by component, with the checks that catch a wrong unit. Used
+// inside the builder (unsaved state) and as a full sheet from the library.
+// ═══════════════════════════════════════════════════════════════════
+let _cst={id:null,portions:10,live:false};
+const STORAGE_BADGE={frz:['badge-blu','snowflake','Freeze'],fri:['badge-grn','thermometer','Fridge'],fsh:['badge-n','leaf','Fresh']};
+function stBadge(st){const s=STORAGE_BADGE[st]||STORAGE_BADGE.fsh;return`<span class="badge ${s[0]}">${ico(s[1],'ico-xs')}${s[2]}</span>`;}
+function fmtRecipeQty(qty,unit){
+  const u=_unitKey(unit);if(!(qty>0))return'—';
+  if(UNIT_G[u]!=null)return fmtG(qty*UNIT_G[u]);
+  if(UNIT_ML[u]!=null){const ml=qty*UNIT_ML[u];return ml>=1000?(+(ml/1000).toFixed(2))+' L':(+ml.toFixed(1))+' ml';}
+  return trimNum(qty)+' '+(unit||'');
+}
+function flagHTML(f){return`<span class="cst-flag ${f.lvl}">${ico(f.lvl==='err'?'warning':f.lvl==='warn'?'warning':'info','ico-xs')}${h(f.t)}${f.pin&&f.ing?` <button class="cst-pin" onclick="event.stopPropagation();pinPieceWeight('${f.ing.id}',${f.pin})">Pin</button>`:''}</span>`;}
+function priceMoveHTML(obj){
+  const mv=obj&&recentPriceMove(obj.id);if(!mv||mv.previous==null)return'';
+  const up=parseFloat(mv.cost_per_unit)>parseFloat(mv.previous);
+  return`<span class="cst-move ${up?'up':'down'}" title="${up?'Up':'Down'} from ${fmt$(mv.previous)} on ${fmtShortDate(mv.changed_at)}">${up?'↑':'↓'}</span>`;
+}
+
+// The main table + summary. opts: {portions, embed}
+function costingHTML(C,opts={}){
+  const N=opts.portions||_cst.portions||10;
+  const pc=C.perCover;
+  const target=C.model.target;
+  const sell=pc!=null&&target?pc/(target/100):null;
+  const costedN=C.lines.length-C.uncosted;
+  const warn=C.issues.filter(i=>i.lvl!=='info');
+  const kpis=`<div class="pnl-summary-bar fin-summary cst-kpis">
+    <div class="pnl-summary-cell"><div class="pnl-summary-label">Cost per cover</div><div class="pnl-summary-val">${pc!=null?fmt$(pc):'—'}</div><div class="cst-kpi-sub">${C.lines.length?`${costedN} of ${C.lines.length} lines costed`:'No ingredient lines yet'}</div></div>
+    <div class="pnl-summary-cell"><div class="pnl-summary-label">${target?`Sell at ${trimNum(target)}% food cost`:'Selling price'}</div><div class="pnl-summary-val${sell?'':' muted'}">${sell?fmt$(sell):'—'}</div><div class="cst-kpi-sub">${target?`Gross profit ${fmt$(sell-pc)} a cover`:'Set a food-cost target on Info'}</div></div>
+    <div class="pnl-summary-cell"><div class="pnl-summary-label">Batch cost</div><div class="pnl-summary-val">${pc!=null?fmt$(pc*N):'—'}</div><div class="cst-kpi-sub cst-portions-row">for <input class="fld-inp fin-portions cst-portions" type="number" min="1" step="1" value="${N}" onchange="cstSetPortions(this.value)"> portions</div></div>
+    <div class="pnl-summary-cell"><div class="pnl-summary-label">${warn.length?'Needs a look':'Biggest line'}</div><div class="pnl-summary-val${warn.length?' red':''}">${warn.length?warn.length:(C.top?Math.round(C.top.share*100)+'%':'—')}</div><div class="cst-kpi-sub">${warn.length?(warn.length===1?'check flagged below':'checks flagged below'):(C.top?h(C.top.name):'')}</div></div>
+  </div>`;
+  const issues=warn.length?`<div class="cst-issues">${warn.map(i=>`<div class="cst-issue" onclick="cstIssueTap('${i.fix||'recipe'}','${i.line&&i.line.obj?i.line.obj.id:''}')"><span class="cst-issue-dot ${i.lvl}"></span><span class="cst-issue-name">${h(i.line?i.line.name:i.dupe||'')}</span><span class="cst-issue-t">${h(i.t)}</span><span class="cst-issue-go">${i.fix==='ingredient'?'Ingredient':'Recipe'}</span>${chev()}</div>`).join('')}</div>`:'';
+  const rows=C.comps.map((c,ci)=>{
+    const scale=N/(c.base||10);
+    const hd=`<tr class="cst-comp"><td colspan="2"><div class="cst-comp-name">${h(c.name)}${stBadge(c.storage)}</div><div class="cst-comp-sub">makes ${c.base} · ${c.lines.length} line${c.lines.length===1?'':'s'}</div></td><td></td><td class="tr cb">${c.perCover!=null?fmt$(c.perCover*N):'—'}</td><td class="tr">${c.perCover!=null?fmt$(c.perCover):'—'}</td><td class="tr cs">${c.perCover!=null&&pc?Math.round(c.share*100)+'%':''}</td></tr>`;
+    const ls=c.lines.length?c.lines.map(l=>{
+      const obj=l.obj;const flags=l.flags.map(f=>Object.assign({ing:obj},f));
+      return`<tr class="cst-line${l.lineCost==null?' uncosted':''}">
+        <td><div class="cst-ing">${h(l.name)}${obj&&obj.supplier?`<span class="cst-sup">${h(obj.supplier)}</span>`:''}</div>${flags.length?`<div class="cst-flags">${flags.map(flagHTML).join('')}</div>`:''}</td>
+        <td class="tr num">${fmtRecipeQty(l.qty*scale,l.unit)}</td>
+        <td class="tr num muted">${obj&&obj.cost_per_unit!=null?fmt$(obj.cost_per_unit)+'<span class="cst-per">/'+h(_unitKey(obj.sold_by||obj.unit||'kg'))+'</span>'+priceMoveHTML(obj):'—'}</td>
+        <td class="tr num cb">${l.lineCost!=null?fmt$(l.perCover*N):'—'}</td>
+        <td class="tr num cst-pc">${l.lineCost!=null?fmt$(l.perCover):'—'}</td>
+        <td class="tr num muted cs">${l.lineCost!=null&&pc?(l.share*100).toFixed(l.share<0.1?1:0)+'%':''}</td>
+      </tr>`;}).join(''):`<tr class="cst-line"><td colspan="6" class="muted">No ingredients on this component</td></tr>`;
+    return hd+ls;
+  }).join('');
+  const table=`<div class="cst-tbl-wrap"><table class="cost-tbl cst-tbl">
+    <thead><tr><th>Ingredient</th><th class="tr">Qty for ${N}</th><th class="tr">Unit £</th><th class="tr cb">Cost for ${N}</th><th class="tr">Per cover</th><th class="tr cs">% dish</th></tr></thead>
+    <tbody>${rows}</tbody>
+    ${pc!=null?`<tfoot><tr><td colspan="3"><b>Total · ${N} portions</b></td><td class="tr cb"><b>${fmt$(pc*N)}</b></td><td class="tr"><b>${fmt$(pc)}</b></td><td class="tr cs">100%</td></tr></tfoot>`:''}
+  </table></div>`;
+  const bars=pc?`<div class="cst-card"><div class="cst-card-hd">Where the money goes<span class="seg-count">per cover</span></div>
+    ${C.comps.filter(c=>c.perCover!=null).slice().sort((a,b)=>b.perCover-a.perCover).map(c=>`<div class="cst-bar-row"><div class="cst-bar-hd"><span>${h(c.name)}</span><span class="num">${fmt$(c.perCover)} <span class="muted">· ${Math.round(c.share*100)}%</span></span></div><div class="cst-bar"><i style="width:${Math.max(1,Math.round(c.share*100))}%"></i></div></div>`).join('')}</div>`:'';
+  return{kpis,issues,table,bars};
+}
+// A flagged line is fixed either on the ingredient (price, piece weight) or on
+// the recipe line itself (quantity, unit) — take the person straight there.
+function cstIssueTap(fix,objId){
+  if(fix==='ingredient'&&objId){editIngredient(objId);return;}
+  if(_cst.live){ddGoStep(3);return;}
+  cstEditDish(3);
+}
+function cstEditDish(step){
+  const id=_cst.id;closeDishCosting();if(!id)return;
+  sbNav('library');libSubTab('dishes');openDish(id);if(step)ddGoStep(step);
+}
+function cstSetPortions(v){
+  const n=parseInt(v);if(!(n>0))return;_cst.portions=n;
+  if(_cst.live)ddGoStep(4);else if(_cst.id)renderDishCosting();
+}
+
+// ── Full sheet from the library ─────────────────────────────────────
+function openDishCosting(id){
+  const d=dishes.find(x=>x.id===id);if(!d)return;
+  _cst.id=id;_cst.live=false;
+  const up=upcomingEventsForDish(id);
+  _cst.portions=up.length?Math.max(...up.map(u=>u.portions))||10:Math.max(10,...(d.components||[]).map(c=>c.base_portions||0));
+  renderDishCosting();
+  document.getElementById('costing-ov').classList.add('open');
+}
+function closeDishCosting(){document.getElementById('costing-ov').classList.remove('open');_cst.id=null;}
+function upcomingEventsForDish(dishId){
+  const today=new Date();today.setHours(0,0,0,0);
+  return events.filter(e=>e.status!=='Cancelled'&&new Date(e.event_date)>=today&&(e.event_dishes||[]).some(ed=>ed.dish_id===dishId))
+    .sort((a,b)=>new Date(a.event_date)-new Date(b.event_date))
+    .map(e=>{const ed=(e.event_dishes||[]).find(x=>x.dish_id===dishId);const portions=ed&&ed.portions!=null?parseInt(ed.portions):(parseInt(e.covers)||0);const perHead=parseFloat(e.budget)>0&&e.covers?parseFloat(e.budget)/e.covers:null;return{ev:e,portions,perHead};});
+}
+function sparklineHTML(pts){
+  const W=280,H=64,P=6;const vals=pts.map(p=>p.perCover);let lo=Math.min(...vals),hi=Math.max(...vals);if(hi-lo<0.01){lo-=0.05;hi+=0.05;}
+  const t0=pts[0].t.getTime(),t1=pts[pts.length-1].t.getTime()||t0+1;
+  const x=p=>P+((p.t.getTime()-t0)/Math.max(1,t1-t0))*(W-2*P),y=p=>H-P-((p.perCover-lo)/(hi-lo))*(H-2*P);
+  const d=pts.map((p,i)=>(i?'L':'M')+x(p).toFixed(1)+' '+y(p).toFixed(1)).join(' ');
+  const last=pts[pts.length-1],first=pts[0];
+  return`<svg class="cst-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><path d="${d}"/>${pts.map(p=>`<circle cx="${x(p).toFixed(1)}" cy="${y(p).toFixed(1)}" r="2.5"/>`).join('')}</svg>
+  <div class="cst-spark-lbl"><span>${fmtShortDate(first.t)} · ${fmt$(first.perCover)}</span><span>Today · ${fmt$(last.perCover)}</span></div>`;
+}
+function renderDishCosting(){
+  const d=dishes.find(x=>x.id===_cst.id);if(!d)return;
+  const C=computeCosting(costModelFromDish(d));
+  const parts=costingHTML(C,{portions:_cst.portions});
+  const al=getDishAl(d);
+  const up=upcomingEventsForDish(d.id);
+  const series=dishCostSeries(C);
+  const moves=_priceLog.filter(r=>C.lines.some(l=>l.obj&&l.obj.id===r.ingredient_id)).slice(-6).reverse();
+  const card=document.getElementById('costing-card');
+  card.innerHTML=`
+    <div class="recipe-hd cst-hd">
+      <div style="min-width:0;"><div class="recipe-title">${h(d.name)}</div><div class="cst-meta">${d.category?`<span class="badge">${h(d.category)}</span>`:''}${d.station?`<span class="badge">${h(d.station)}</span>`:''}<span class="badge">${C.comps.length} component${C.comps.length===1?'':'s'} · ${C.lines.length} line${C.lines.length===1?'':'s'}</span>${d.variant_of?'<span class="badge badge-blu">Variant</span>':''}</div></div>
+      <div class="recipe-hd-acts"><button class="btn btn-sm" onclick="cstEditDish()">${ico('pencil')}Edit dish</button><button class="btn btn-sm" onclick="printDishCosting()">${ico('printer')}Print</button><button class="modal-close" onclick="closeDishCosting()"></button></div>
+    </div>
+    <div class="recipe-body cst-body">
+      ${parts.kpis}
+      ${parts.issues}
+      <div class="cst-grid">
+        <div class="cst-main">${parts.table}</div>
+        <div class="cst-rail">
+          ${parts.bars}
+          <div class="cst-card"><div class="cst-card-hd">Cost per cover over time</div>${series?sparklineHTML(series):`<div class="cst-quiet">${_priceLogOk===false?'Run the migration in Settings and every price change is logged from then on.':'Builds as prices change — each edit to an ingredient price is logged from now on.'}</div>`}
+            ${moves.length?`<div class="cst-moves">${moves.map(m=>`<div class="cst-move-row"><span>${h(m.ingredient_name||'')}</span><span class="num muted">${m.previous!=null?fmt$(m.previous)+' → ':''}${fmt$(m.cost_per_unit)} · ${new Date(m.changed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})}</span></div>`).join('')}</div>`:''}
+          </div>
+          <div class="cst-card"><div class="cst-card-hd">Allergens</div>${al.length?`<div class="recipe-al-row" style="margin:0;">${al.map(a=>`<span class="al-tag${a.status==='May Contain'?' may':' c'}">${h(a.allergen)}${a.status==='May Contain'?' (may)':''}</span>`).join('')}</div>`:'<div class="cst-quiet">None recorded.</div>'}</div>
+          <div class="cst-card"><div class="cst-card-hd">On upcoming events<span class="seg-count">${up.length}</span></div>
+            ${up.length?up.map(u=>`<div class="cst-ev" onclick="closeDishCosting();sbNav('events');showEventDetail('${u.ev.id}','financials')"><div><div class="cst-ev-name">${h(u.ev.client_name||'Event')}</div><div class="cst-ev-sub">${relDay(u.ev.event_date)} · ${u.portions} portion${u.portions===1?'':'s'}${u.perHead&&C.perCover!=null?` · ${Math.round(C.perCover/u.perHead*100)}% of a ${fmt$(u.perHead)} ticket`:''}</div></div><div class="num cst-ev-cost">${C.perCover!=null?fmt$(C.perCover*u.portions):'—'}</div>${chev()}</div>`).join(''):'<div class="cst-quiet">Not on any upcoming menu.</div>'}
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+function printDishCosting(){
+  const card=document.getElementById('costing-card');if(!card)return;
+  const w=window.open('','_blank');if(!w){toast('Allow pop-ups to print','err');return;}
+  const css=Array.from(document.querySelectorAll('style')).map(s=>s.textContent).join('\n');
+  w.document.write(`<!doctype html><html><head><title>${h(_cst.id?(dishes.find(x=>x.id===_cst.id)||{}).name||'Costing':'Costing')}</title><style>${css}
+    body{background:#fff;padding:24px;}.recipe-card{max-width:none;max-height:none;overflow:visible;box-shadow:none;}.recipe-hd-acts,.cst-pin,.cst-portions-row input{display:none!important}.cst-grid{grid-template-columns:1fr!important}.cst-issue .ico-chev{display:none}</style></head><body><div class="recipe-card">${card.innerHTML}</div></body></html>`);
+  w.document.close();w.focus();setTimeout(()=>w.print(),300);
+}
+async function pinPieceWeight(ingId,g){
+  const i=ingredients.find(x=>x.id===ingId);if(!i)return;
+  if(_eachColOk===false){toast('Run the migration in Settings to save piece weights','err');return;}
+  const{error}=await sb.from('ingredients').update({each_weight_g:g}).eq('id',ingId);
+  if(error){_eachColOk=false;toast('Run the migration in Settings to save piece weights','err');return;}
+  i.each_weight_g=g;toast(`${i.name}: 1 piece = ${fmtG(g)}`);
+  if(_cst.id)renderDishCosting();else if(document.getElementById('builder-panel')&&!document.getElementById('builder-panel').classList.contains('hidden')&&_ddStep===4)ddGoStep(4);
+}
+
+// ── Library-wide review — every line that needs a look, across all dishes ──
+function costReviewData(){
+  return dishes.map(d=>{const C=computeCosting(costModelFromDish(d));return{d,C,n:C.issues.length+C.uncosted};}).filter(x=>x.n>0).sort((a,b)=>b.n-a.n);
+}
+function openCostReview(){
+  const data=costReviewData();
+  const body=document.getElementById('cost-review-body');
+  body.innerHTML=data.length?`<div class="list">${data.map(x=>{const first=x.C.issues.slice(0,2).map(i=>(i.line?h(i.line.name)+': ':'')+h(i.t));if(x.C.uncosted)first.push(`${x.C.uncosted} line${x.C.uncosted===1?'':'s'} not costed`);return`<div class="cst-rv-row" onclick="closeModal('cost-review-modal');openDishCosting('${x.d.id}')"><div class="cst-rv-main"><div class="cst-rv-title">${h(x.d.name)}</div><div class="cst-rv-sub">${first.slice(0,3).join(' · ')}</div></div><span class="badge badge-red">${x.n}</span>${chev()}</div>`;}).join('')}</div>`
+    :`<div class="empty"><div class="empty-icon">${ico('checkCircle')}</div><div class="empty-t">Every line is priced and looks sane</div><div class="empty-s">Quantities, units and prices all check out across the library.</div></div>`;
+  openModal('cost-review-modal');
+}
+function updateCostReviewCount(){
+  const el=document.getElementById('cst-review-count');if(!el)return;
+  const n=ingredients.length?costReviewData().reduce((s,x)=>s+x.n,0):0;
+  el.textContent=n?n:'';el.style.display=n?'':'none';
+}
+
 // ═══════════════════════════════════════════════
 // DATA LOADING
 // ═══════════════════════════════════════════════
@@ -2237,7 +2709,7 @@ async function init(){
     if(error)throw error;
     dot.className='conn-dot live';if(conn)conn.textContent='Live';
   }catch(e){dot.className='conn-dot err';if(conn)conn.textContent='Offline';toast('Database error','err');return;}
-  await Promise.all([loadDishes(),loadEvents(),loadIngredients(),loadSettings()]);
+  await Promise.all([loadDishes(),loadEvents(),loadIngredients(),loadSettings(),loadPriceLog()]);
   buildIngAlGrid();
   renderDishList();
   populateSelects();
@@ -2259,9 +2731,11 @@ async function loadEvents(){
   renderEventsList();populateSelects();
 }
 
+let _eachColOk=null; // does ingredients.each_weight_g exist yet? learned from loaded rows
 async function loadIngredients(){
   const{data}=await sb.from('ingredients').select('*').order('name');
   ingredients=data||[];
+  if(ingredients.length)_eachColOk=Object.prototype.hasOwnProperty.call(ingredients[0],'each_weight_g');
   renderIngredients();
 }
 
@@ -2309,6 +2783,7 @@ function openDish(id){
     steps:(c.recipe_steps||[]).sort((a,b)=>(a.step_number||0)-(b.step_number||0)).map(s=>s.instruction||'')
   }));
   if(!_ddComps.length)_ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',time_est:'',ings:[],steps:[]}];
+  _cst.portions=Math.max(10,..._ddComps.map(c=>parseInt(c.base)||0));
   showBuilder();
   ddGoStep(1);
   setTimeout(()=>maybeShowBrineBtn(d.id),300);
@@ -2318,7 +2793,7 @@ function openDish(id){
 
 function newDish(){
   _ddAlState={};_ddData={name:'',category:'Canapés',station:'',description:'',notes:'',menu_type:[],variant_of:'',target_food_cost:'',dietary_tags:[],allergens_removed:[],allergens_added:[],variant_reason:''};
-  _ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',time_est:'',ings:[],steps:[]}];
+  _ddComps=[{id:'c0',name:'',storage:'fri',base:10,qty:'',unit:'',note:'',time_est:'',ings:[],steps:[]}];_cst.portions=10;
   document.getElementById('dd-id').value='';
   const ni=document.getElementById('dd-hd-name');if(ni){ni.value='';ni.placeholder='Dish name…';}
   const ci=document.getElementById('dd-hd-cat');if(ci)ci.textContent='';
@@ -2511,7 +2986,8 @@ function compHTML(comp,idx){
 
 function ingRowHTML(cid,cidx,ing,idx){
   const obj=ing.name?findIngredient(ing.name):null;
-  const unitOpts=obj?getUnitOptions(obj.sold_by||'kg'):['g','kg','ml','each','bunch'];
+  const unitOpts=obj?getUnitOptions(obj.sold_by||'kg',obj):['g','kg','ml','each','bunch'];
+  if(ing.unit&&!unitOpts.includes(ing.unit))unitOpts.unshift(ing.unit);
   const lc=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj):null;
   const base=_ddComps[cidx]?.base||10;
   return`<div class="ir" id="ir-${cid}-${idx}">
@@ -2603,12 +3079,19 @@ function refreshIngCost(cid,cidx,idx){
   const ing=_ddComps[cidx]?.ings[idx];if(!ing)return;
   const obj=findIngredient(ing.name||'');
   const base=_ddComps[cidx].base||10;
-  const lc=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj):null;
   const el=document.getElementById(`ircost-${cid}-${idx}`);
-  if(el)el.textContent=lc!=null?fmt$(lc/base)+'/cv':'';
+  if(el)paintIrCost(el,ing,obj,base);
   refreshCompCost(cid,cidx);
 }
 
+// Per-cover cost for a builder line, red with the reason when a check fires.
+function paintIrCost(el,ing,obj,base){
+  const ctx={};const lc=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj,ctx):null;
+  const fl=obj&&lc!=null?lineFlags({obj,qty:ing.qty,unit:ing.unit,base,lineCost:lc,perCover:lc/base,share:0,nLines:0,grams:qtyToGrams(ing.qty,ing.unit,obj),piece:ctx.piece}).filter(f=>f.lvl==='warn'):[];
+  el.textContent=lc!=null?fmt$(lc/base)+'/cv':(obj&&ing.qty&&ing.name?'?':'');
+  el.classList.toggle('warn',fl.length>0||(lc==null&&!!(obj&&ing.qty)));
+  el.title=fl.length?fl.map(f=>f.t).join(' · '):(lc==null&&obj&&ing.qty?ingCostIssue({qty:ing.qty,unit:ing.unit},obj)||'':'');
+}
 function refreshCompCost(cid,cidx){
   if(cidx===undefined)cidx=_ddComps.findIndex(c=>c.id===cid);
   if(cidx<0)return;
@@ -2619,7 +3102,7 @@ function refreshCompCost(cid,cidx){
     const lc=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj):null;
     if(lc!=null){total+=lc;any=true;}
     const rowEl=document.getElementById('ircost-'+cid+'-'+j);
-    if(rowEl)rowEl.textContent=lc!=null?fmt$(lc/base)+'/cv':'';
+    if(rowEl)paintIrCost(rowEl,ing,obj,base);
   });
   const el=document.getElementById('ccost-'+cid);
   if(el)el.textContent=any?fmt$(total/base)+'/cv':'';
@@ -2685,8 +3168,9 @@ function selectIng(cid,cidx,idx,name){
 }
 
 function updateIrUnits(cid,cidx,idx,obj){
-  const opts=getUnitOptions(obj.sold_by||'kg');
+  const opts=getUnitOptions(obj.sold_by||'kg',obj);
   const cur=_ddComps[cidx].ings[idx].unit;
+  if(cur&&!opts.includes(cur)&&isKnownUnit(cur)&&convertIngCost(1,cur,obj)!=null)opts.unshift(cur);
   const sel=document.querySelector(`#ir-${cid}-${idx} .ir-unit`);
   if(!sel)return;
   sel.innerHTML=opts.map(u=>`<option${u===cur?' selected':''}>${u}</option>`).join('');
@@ -2723,43 +3207,17 @@ async function saveQuickIngredient(){
 
 // ── Step 4: Costing ───────────────────────────
 function ddStep4(){
-  let totalCost=0;let anyCosted=false;
-  const rows=_ddComps.map(comp=>{
-    const base=comp.base||10;
-    let ct=0;let ca=false;
-    comp.ings.forEach(ing=>{
-      const obj=findIngredient(ing.name||'');
-      const lc=obj&&ing.qty?convertIngCost(parseFloat(ing.qty),ing.unit,obj):null;
-      if(lc!=null){ct+=lc;ca=true;}
-    });
-    const cpc=ca?ct/base:null;
-    if(cpc!=null){totalCost+=cpc;anyCosted=true;}
-    const stCls=comp.storage==='frz'?'badge-blu':comp.storage==='fri'?'badge-grn':'badge-n';
-    const stLbl=comp.storage==='frz'?ico('snowflake','ico-xs')+'Freeze':comp.storage==='fri'?ico('thermometer','ico-xs')+'Fridge':ico('leaf','ico-xs')+'Fresh';
-    const unlinked=comp.ings.filter(i=>i.name).map(i=>{const issue=ingCostIssue(i,findIngredient(i.name));return issue?`${i.name} (${issue})`:null;}).filter(Boolean);
-    return`<tr>
-      <td style="font-weight:500;">${h(comp.name||'Unnamed')}</td>
-      <td><span class="badge">${stLbl}</span></td>
-      <td class="muted">${comp.ings.length} ingredient${comp.ings.length!==1?'s':''}</td>
-      <td class="num" style="text-align:right;font-weight:600;">${cpc!=null?`${fmt$(cpc)}<span class="muted" style="font-weight:400;">/cover</span>`:'<span class="muted">—</span>'}</td>
-      ${unlinked.length?`<td class="cost-unlinked">${ico('warning','ico-xs')} ${h(unlinked.join(', '))}</td>`:'<td></td>'}
-    </tr>`;
-  }).join('');
-  const target=parseFloat(_ddData.target_food_cost)||32;
-  const sellPrice=anyCosted?totalCost*(100/target):null;
-  return`<div class="step">
-    <div class="step-h">Cost summary</div>
-    <div class="step-sub">Based on your ingredient prices and recipe quantities. All prices update automatically when you change ingredients.</div>
-    ${anyCosted?`<div class="cost-banner">
-      <div class="cost-banner-label">Food cost per cover</div>
-      <div class="cost-banner-val">${fmt$(totalCost)}</div>
-      <div class="cost-banner-sub${sellPrice?totalCost/sellPrice*100>40?' warn':' ok':''}">${sellPrice?`At ${fmt$(sellPrice)} selling price — ${Math.round(totalCost/sellPrice*100)}% food cost against your ${Math.round(target)}% target`:'Set a target FC % on step 1 for selling price guidance'}</div>
-    </div>`:`<div class="note-card">Add ingredient quantities on step 3 to calculate costs.</div>`}
-    <table class="cost-tbl">
-      <thead><tr><th>Component</th><th>Storage</th><th>Ingredients</th><th style="text-align:right;">Cost/cover</th><th>Not costed</th></tr></thead>
-      <tbody>${rows}</tbody>
-    </table>
-    <div class="note-card warn">${ico('info','ico-sm')}Costs only include ingredient lines that can be priced. Anything listed under “Not costed” is left out of the total — link it to an ingredient, add a price, or change its unit.</div>
+  _cst.live=true;_cst.id=null;
+  const C=computeCosting(costModelFromBuilder());
+  const parts=costingHTML(C,{portions:_cst.portions});
+  return`<div class="step cst-embed">
+    <div class="step-h">Costing</div>
+    <div class="step-sub">Every line priced from your ingredient list, per cover. Change a quantity or unit on step 3 and this follows; change a price in Ingredients and every dish follows.</div>
+    ${parts.kpis}
+    ${parts.issues}
+    <div class="cst-grid"><div class="cst-main">${parts.table}</div><div class="cst-rail">${parts.bars}</div></div>
+    ${C.lines.some(l=>l.flags.some(f=>f.pin))?`<div class="note-card" style="margin-top:16px;">${ico('info','ico-sm')}Lines marked “assumes” are priced with a typical weight for one piece. Pin saves that weight on the ingredient; set your own in Ingredients.</div>`:''}
+    ${C.uncosted?`<div class="note-card warn">${ico('warning','ico-sm')}${C.uncosted} line${C.uncosted===1?' is':'s are'} left out of the total until it can be priced — link it to an ingredient, add a price, or change its unit.</div>`:''}
     <div class="step-foot">
       <button class="btn" onclick="ddGoStep(3)">${ico('chevronL')}Back</button>
       <button class="btn btn-primary" onclick="saveDish()">${ico('check')}Save dish</button>
@@ -2768,8 +3226,20 @@ function ddStep4(){
 }
 
 // ── Save dish ─────────────────────────────────
+// Components are updated in place (their ids are what prepped stock, HACCP
+// templates and labels point at), new ones inserted, removed ones deleted one by
+// one — a removed component that stock still references is kept and named.
+// Every call is checked; the old delete-everything-then-reinsert never looked at
+// its result, so when stock blocked the delete the dish grew a second copy of
+// every component (and a double-click on Save did the same).
+let _dishSaving=false;
+function setDishSaveBusy(on){document.querySelectorAll('button[onclick="saveDish()"]').forEach(b=>{b.disabled=on;if(on){b.dataset.label=b.innerHTML;b.innerHTML='Saving…';}else if(b.dataset.label){b.innerHTML=b.dataset.label;delete b.dataset.label;}});}
 async function saveDish(){
+  if(_dishSaving)return;
   if(!_ddData.name.trim()){toast('Dish name required','err');ddGoStep(1);return;}
+  const comps=_ddComps.filter(c=>c.name&&c.name.trim());
+  const seen={};const dup=comps.map(c=>c.name.trim().toLowerCase()).find(k=>(seen[k]=(seen[k]||0)+1)>1);
+  if(dup&&!(await askConfirm(`Two components are both called “${comps.find(c=>c.name.trim().toLowerCase()===dup).name.trim()}”. Both will be costed and prepped.`,{title:'Duplicate component',confirmLabel:'Save anyway'})))return;
   const id=document.getElementById('dd-id').value;
   const menuChips=Array.from(document.querySelectorAll('.chip.on'));
   if(menuChips.length)_ddData.menu_type=menuChips.map(c=>c.textContent);
@@ -2779,44 +3249,62 @@ async function saveDish(){
     dietary_tags:_ddData.dietary_tags||[],allergens_removed:_ddData.allergens_removed||[],
     allergens_added:_ddData.allergens_added||[],variant_reason:_ddData.variant_reason||null,
     updated_at:new Date().toISOString()};
+  _dishSaving=true;setDishSaveBusy(true);
   try{
     let did=id;
     if(id){const{error:e}=await sb.from('dishes').update(dishData).eq('id',id);if(e)throw e;}
     else{const{data:nd,error:e}=await sb.from('dishes').insert(dishData).select().single();if(e)throw e;did=nd.id;document.getElementById('dd-id').value=did;}
-    await sb.from('components').delete().eq('dish_id',did);
-    for(let i=0;i<_ddComps.length;i++){
-      const comp=_ddComps[i];if(!comp.name.trim())continue;
-      const{data:nc,error:ce}=await sb.from('components').insert({
-        dish_id:did,name:comp.name.trim(),qty_per_cover:parseFloat(comp.qty)||null,
+    const{data:existing,error:le}=await sb.from('components').select('id,name').eq('dish_id',did);if(le)throw le;
+    const keep=new Set();
+    for(let i=0;i<comps.length;i++){
+      const comp=comps[i];
+      const row={dish_id:did,name:comp.name.trim(),qty_per_cover:parseFloat(comp.qty)||null,
         unit:comp.unit||null,chef_note:comp.note||null,
         freeze_flag:comp.storage==='frz',fridge_flag:comp.storage==='fri',
-        sort_order:i,base_portions:parseInt(comp.base)||10,time_estimate_mins:parseInt(comp.time_est)||null
-      }).select().single();
-      if(ce)throw ce;
-      const ings=comp.ings.filter(ing=>ing.name.trim()).map((ing,j)=>({
-        component_id:nc.id,name:ing.name,ingredient_name:ing.name,
+        sort_order:i,base_portions:parseInt(comp.base)||10,time_estimate_mins:parseInt(comp.time_est)||null};
+      let cid=comp.dbId&&existing.some(e=>e.id===comp.dbId)&&!keep.has(comp.dbId)?comp.dbId:null;
+      if(cid){
+        const{error:ue}=await sb.from('components').update(row).eq('id',cid);if(ue)throw ue;
+        const{error:d1}=await sb.from('recipe_ingredients').delete().eq('component_id',cid);if(d1)throw d1;
+        const{error:d2}=await sb.from('recipe_steps').delete().eq('component_id',cid);if(d2)throw d2;
+      }else{
+        const{data:nc,error:ce}=await sb.from('components').insert(row).select().single();if(ce)throw ce;
+        cid=nc.id;comp.dbId=cid;
+      }
+      keep.add(cid);
+      const ings=comp.ings.filter(ing=>ing.name&&ing.name.trim()).map((ing,j)=>({
+        component_id:cid,name:ing.name,ingredient_name:ing.name,
         quantity:parseFloat(ing.qty)||null,qty:parseFloat(ing.qty)||null,
         unit:ing.unit||null,sort_order:j
       }));
-      if(ings.length)await sb.from('recipe_ingredients').insert(ings);
-      const steps=comp.steps.filter(s=>s.trim()).map((s,j)=>({component_id:nc.id,step_number:j+1,instruction:s}));
-      if(steps.length)await sb.from('recipe_steps').insert(steps);
+      if(ings.length){const{error:ie}=await sb.from('recipe_ingredients').insert(ings);if(ie)throw ie;}
+      const steps=comp.steps.filter(s=>s&&s.trim()).map((s,j)=>({component_id:cid,step_number:j+1,instruction:s}));
+      if(steps.length){const{error:se}=await sb.from('recipe_steps').insert(steps);if(se)throw se;}
     }
-    // Allergens on first component
-    const{data:ac}=await sb.from('components').select('id').eq('dish_id',did).order('sort_order').limit(1);
-    if(ac&&ac.length){
-      await sb.from('component_allergens').delete().in('component_id',[ac[0].id]);
-      const alRows=Object.entries(_ddAlState).filter(([,v])=>v).map(([a,s])=>({component_id:ac[0].id,allergen:a,status:s==='may'?'May Contain':'Contains'}));
-      if(alRows.length)await sb.from('component_allergens').insert(alRows);
+    // Removed components — one delete each, so one that stock still points at
+    // doesn't stop the others going.
+    const kept=[];
+    for(const e of existing.filter(e=>!keep.has(e.id))){
+      const{error:de}=await sb.from('components').delete().eq('id',e.id);
+      if(de){kept.push(e.name);console.warn('component kept',e.name,de.message);}
+    }
+    // Allergens live on the first component
+    const first=comps[0]&&comps[0].dbId;
+    if(first){
+      const{error:ad}=await sb.from('component_allergens').delete().eq('component_id',first);if(ad)throw ad;
+      const alRows=Object.entries(_ddAlState).filter(([,v])=>v).map(([a,s])=>({component_id:first,allergen:a,status:s==='may'?'May Contain':'Contains'}));
+      if(alRows.length){const{error:ai}=await sb.from('component_allergens').insert(alRows);if(ai)throw ai;}
     }
     _formDirty=false;
-    toast(id?'Dish updated':'Dish saved');
+    if(kept.length)toast(`Saved, but “${kept[0]}” is still on prepped stock so it stays for now`,'err');
+    else toast(id?'Dish updated':'Dish saved');
     await loadDishes();
     document.getElementById('dd-id').value=did;
     const _hn3=document.getElementById('dd-hd-name');if(_hn3)_hn3.value=_ddData.name;
     const lb=document.getElementById('dd-lock-btn');if(lb)lb.style.display='';
     const db=document.getElementById('dd-del-btn');if(db)db.style.display='';
-  }catch(e){toast('Error: '+e.message,'err');console.error(e);}
+  }catch(e){toast('Not saved: '+e.message,'err');console.error(e);}
+  finally{_dishSaving=false;setDishSaveBusy(false);}
 }
 
 async function toggleDishLock(){
@@ -2909,6 +3397,19 @@ function ingUnitChanged(){
   const hints={kg:'e.g. Salmon £30/kg · Butter £8/kg · Flour £0.90/kg',litre:'e.g. Double cream £4.95/kg · Olive oil £5.49/kg',each:'e.g. Lemon £0.26 each · Egg £0.30 each',bunch:'e.g. Thyme £0.65/bunch',portion:'e.g. Duck leg £2.20 per portion'};
   if(lbl)lbl.textContent=labels[v]||v;if(hint)hint.textContent=hints[v]||'';
   const pu=document.getElementById('ing-par-unit-lbl');if(pu)pu.textContent='('+v+')';
+  updateEachHint();
+}
+// What the costing will assume for one piece if the field is left blank.
+function updateEachHint(){
+  const name=document.getElementById('ing-name')?.value||'';
+  const sold=document.getElementById('ing-sold-by')?.value||'kg';
+  const val=parseFloat(document.getElementById('ing-each-g')?.value);
+  const lbl=document.getElementById('ing-each-lbl'),hint=document.getElementById('ing-each-hint');
+  if(lbl)lbl.textContent=(sold==='each'||sold==='bunch')?`Weight of one ${sold==='bunch'?'bunch':'piece'}`:'Weight of one piece — lets recipes count them';
+  if(!hint)return;
+  if(val>0){hint.textContent=`Recipes can use g, kg or each — 1 = ${fmtG(val)}.`;return;}
+  const pw=pieceWeightG({name,sold_by:sold});
+  hint.textContent=pw?`Blank assumes a typical ${fmtG(pw.g)} — set it to pin the exact weight.`:(sold==='each'||sold==='bunch'?'Needed before a recipe can use this in grams.':'Optional. Needed only if a recipe counts this by the piece.');
 }
 function parStockToggled(){
   const on=document.getElementById('ing-par-stock').checked;
@@ -2917,7 +3418,7 @@ function parStockToggled(){
 
 function openIngModal(){
   document.getElementById('ing-modal-title').textContent='Add ingredient';
-  ['ing-id','ing-name','ing-cost','ing-supplier','ing-notes','ing-par-level','ing-par-threshold'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['ing-id','ing-name','ing-cost','ing-supplier','ing-notes','ing-par-level','ing-par-threshold','ing-each-g'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('ing-type').value='protein';
   document.getElementById('ing-sold-by').value='kg';ingUnitChanged();
   document.getElementById('ing-par-stock').checked=false;parStockToggled();
@@ -2933,6 +3434,7 @@ function editIngredient(id){
   document.getElementById('ing-type').value=i.type||'dry';
   const sb2=i.sold_by||i.unit||'kg';document.getElementById('ing-sold-by').value=sb2;ingUnitChanged();
   document.getElementById('ing-cost').value=i.cost_per_unit!=null?i.cost_per_unit:'';
+  document.getElementById('ing-each-g').value=i.each_weight_g!=null?i.each_weight_g:'';updateEachHint();
   document.getElementById('ing-supplier').value=i.supplier||'';
   document.getElementById('ing-notes').value=i.notes||'';
   document.getElementById('ing-par-stock').checked=!!i.par_stock;
@@ -2957,11 +3459,20 @@ async function saveIngredient(){
     par_level:parStock?(parseFloat(document.getElementById('ing-par-level').value)||null):null,
     par_threshold:parStock?(parseFloat(document.getElementById('ing-par-threshold').value)||null):null};
   if(!parStock)data.par_status='ok';
+  const eachG=parseFloat(document.getElementById('ing-each-g').value)||null;
+  if(_eachColOk!==false)data.each_weight_g=eachG;
+  const before=id?Object.assign({},ingredients.find(x=>x.id===id)||{}):null;
   try{
-    if(id)await sb.from('ingredients').update(data).eq('id',id);
-    else await sb.from('ingredients').insert(data);
+    if(id){const{error}=await sb.from('ingredients').update(data).eq('id',id);if(error)throw error;}
+    else{const{error}=await sb.from('ingredients').insert(data);if(error)throw error;}
+    if(before)await logPriceChange(before,data);
     toast(id?'Updated':'Added');closeModal('ing-modal');await loadIngredients();
-  }catch(e){toast('Error: '+e.message,'err');}
+    if(_eachColOk===false&&eachG)toast('Piece weight needs the migration in Settings — everything else saved','err');
+    if(_cst.id)renderDishCosting();else if(_ddStep===4&&document.getElementById('builder-panel')&&!document.getElementById('builder-panel').classList.contains('hidden'))ddGoStep(4);
+  }catch(e){
+    if(/each_weight_g/.test(e.message||'')&&_eachColOk!==false){_eachColOk=false;delete data.each_weight_g;return saveIngredient();}
+    toast('Not saved: '+e.message,'err');
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -4424,9 +4935,11 @@ function renderDishList(){
       <div class="dish-name">${h(d.name)}</div>
       ${cost!=null?`<div class="dish-cost">${fmt$(cost)}<span class="dish-cost-unit">/cover</span></div>`:`<div class="dish-cost none">Not costed</div>`}
       <button class="btn-recipe-view" title="View recipe" onclick="event.stopPropagation();openRecipeView('${d.id}')">${ico('book','ico-sm')}</button>
+      <button class="btn-recipe-view cst-open" title="Costing" onclick="event.stopPropagation();openDishCosting('${d.id}')">${ico('pound','ico-sm')}</button>
       ${chev()}
     </div>`;}).join('')}</div></div>`;
   }).join('');
+  updateCostReviewCount();
 }
 
 function prepMainTab(tab,el){
@@ -5066,7 +5579,66 @@ create table if not exists public.invoices (
 alter table public.invoices enable row level security;
 drop policy if exists "open" on public.invoices;
 create policy "open" on public.invoices for all using (true) with check (true);
-create index if not exists invoices_event_idx on public.invoices(event_id);`;
+create index if not exists invoices_event_idx on public.invoices(event_id);
+
+-- ── v13 · piece weights, price history, duplicate-component cleanup ──
+alter table public.ingredients add column if not exists each_weight_g numeric;
+
+create table if not exists public.ingredient_price_log (
+  id uuid primary key default gen_random_uuid(),
+  ingredient_id uuid references public.ingredients(id) on delete cascade,
+  ingredient_name text,
+  cost_per_unit numeric(12,4),
+  previous numeric(12,4),
+  sold_by text,
+  changed_at timestamptz not null default now()
+);
+alter table public.ingredient_price_log enable row level security;
+drop policy if exists "open" on public.ingredient_price_log;
+create policy "open" on public.ingredient_price_log for all using (true) with check (true);
+create index if not exists ingredient_price_log_ing_idx on public.ingredient_price_log(ingredient_id, changed_at);
+
+-- Duplicate components. A save that could not clear the old set (prepped stock
+-- still pointed at it) or a double-click on Save left copies of the same
+-- component on five dishes, doubling their cost and prep. Keep one per
+-- (dish, name) — the copy with the most recipe detail, newest first — move
+-- stock, HACCP and allergen rows onto it and drop the rest.
+do $$
+declare r record; keep_id uuid; dup_ids uuid[];
+begin
+  for r in
+    select dish_id, lower(trim(name)) as k
+    from public.components
+    group by dish_id, lower(trim(name)) having count(*) > 1
+  loop
+    select c.id into keep_id
+    from public.components c
+    where c.dish_id = r.dish_id and lower(trim(c.name)) = r.k
+    order by (select count(*) from public.recipe_ingredients ri where ri.component_id = c.id) desc,
+             (select count(*) from public.component_allergens ca where ca.component_id = c.id) desc,
+             c.created_at desc
+    limit 1;
+
+    select array_agg(c.id) into dup_ids from public.components c
+      where c.dish_id = r.dish_id and lower(trim(c.name)) = r.k and c.id <> keep_id;
+
+    update public.prepped_stock set component_id = keep_id where component_id = any(dup_ids);
+    update public.haccp_templates set component_id = keep_id
+      where id = (select h.id from public.haccp_templates h where h.component_id = any(dup_ids) limit 1)
+        and not exists (select 1 from public.haccp_templates k where k.component_id = keep_id);
+    delete from public.haccp_templates where component_id = any(dup_ids);
+    insert into public.component_allergens (component_id, allergen, status)
+      select distinct on (ca.allergen) keep_id, ca.allergen, ca.status
+      from public.component_allergens ca
+      where ca.component_id = any(dup_ids)
+        and not exists (select 1 from public.component_allergens k where k.component_id = keep_id and k.allergen = ca.allergen)
+      order by ca.allergen, ca.status;
+    delete from public.component_allergens where component_id = any(dup_ids);
+    delete from public.recipe_ingredients where component_id = any(dup_ids);
+    delete from public.recipe_steps where component_id = any(dup_ids);
+    delete from public.components where id = any(dup_ids);
+  end loop;
+end $$;`;
 
 function openSettings(){
   const bank=getSetting('invoice_bank')||{},from=getSetting('invoice_from')||{};
@@ -5077,7 +5649,7 @@ function openSettings(){
   g('set-from-name').value=from.name||'';g('set-from-email').value=from.email||'';g('set-from-phone').value=from.phone||'';g('set-from-address').value=from.address||'';
   g('set-bank-name').value=bank.account_name||'';g('set-bank-type').value=bank.account_type||'';g('set-bank-sort').value=bank.sort_code||'';g('set-bank-acct').value=bank.account_number||'';
   g('set-boh').value=getSetting('boh_url')||'';
-  g('set-migration-note').style.display=(_settingsTableOk===false||_invoicesTableOk===false||_portionsColOk===false)?'flex':'none';
+  g('set-migration-note').style.display=(_settingsTableOk===false||_invoicesTableOk===false||_portionsColOk===false||_eachColOk===false||_priceLogOk===false)?'flex':'none';
   openModal('settings-modal');
 }
 async function saveSettings(){
@@ -5386,7 +5958,7 @@ function evFinancialsHTML(ev){
 
     <div class="ev-section" style="grid-column:1/-1"><div class="ev-section-hd" style="display:flex;justify-content:space-between;align-items:center;">Menu cost <span class="seg-count" style="margin:0;text-transform:none;letter-spacing:0;">${mc.rows.length?money(mc.total)+' · '+money(mc.perCover)+' per cover'+(revenue?' · '+foodPct+'% of revenue':''):''}</span></div>
       ${mc.rows.length?`<table class="cost-tbl fin-menu-tbl"><thead><tr><th>Dish</th><th class="tr">Cost / cover</th><th class="tr">Portions</th><th class="tr">Line</th></tr></thead><tbody>
-        ${mc.rows.map(r=>`<tr><td><div style="font-weight:500;">${h(r.dish.name)}</div><div class="muted" style="font-size:var(--fs-fn);">${h(r.dish.category||'')}${r.isVariant?' · variant':''}${r.cpc==null?' · not costed':''}</div></td>
+        ${mc.rows.map(r=>`<tr><td class="cst-link" onclick="openDishCosting('${r.dish.id}')"><div style="font-weight:500;">${h(r.dish.name)}</div><div class="muted" style="font-size:var(--fs-fn);">${h(r.dish.category||'')}${r.isVariant?' · variant':''}${r.cpc==null?' · not costed':''}</div></td>
           <td class="tr num">${r.cpc!=null?fmt$(r.cpc):'<span class="muted">—</span>'}</td>
           <td class="tr"><input class="fld-inp fin-portions${r.overridden?' is-set':''}" type="number" min="0" step="1" value="${r.portions}" title="${r.overridden?'Set for this event':'Default'}" onchange="setDishPortions('${ev.id}','${r.dish.id}',this.value)"></td>
           <td class="tr num" style="font-weight:600;">${r.line!=null?money(r.line):'<span class="muted">—</span>'}</td></tr>`).join('')}
