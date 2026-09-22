@@ -301,7 +301,13 @@ input[type=range]{accent-color:var(--accent);}
 .toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-24px) scale(.96);background:var(--material-strong);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);color:var(--label);padding:10px 18px 10px 14px;border-radius:var(--r-pill);font-size:var(--fs-cl);font-weight:600;opacity:0;pointer-events:none;transition:opacity var(--dur-lg) var(--spring),transform var(--dur-lg) var(--spring);z-index:9999;max-width:90vw;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:9px;letter-spacing:-.005em;}
 .toast::before{content:'';width:18px;height:18px;border-radius:50%;flex-shrink:0;background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12 4 4 8-8'/%3E%3C/svg%3E") center/11px no-repeat;}
 .toast.err::before{background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M12 7v6M12 17h.01'/%3E%3C/svg%3E") center/11px no-repeat;}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);pointer-events:auto;}
+.toast.err{border-radius:var(--r-lg);max-width:min(92vw,760px);align-items:flex-start;padding:12px 12px 12px 14px;}
+.toast.err::before{margin-top:1px;}
+.toast-msg{flex:1;min-width:0;white-space:normal;word-break:break-word;font-weight:500;line-height:1.4;}
+.toast-act{flex-shrink:0;height:28px;padding:0 12px;border-radius:var(--r-sm);background:var(--accent);color:#fff;font-size:var(--fs-sh);font-weight:600;}
+.toast-x{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--fill);position:relative;}
+.toast-x::before{content:'';position:absolute;inset:8px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E") center/contain no-repeat;}
 
 /* ── Modals as sheets ────────────────────────────── */
 .modal-ov,.modal-overlay,.crop-modal-ov,.recipe-ov{position:fixed;inset:0;background:rgba(0,0,0,.34);display:none;align-items:center;justify-content:center;z-index:1000;padding:24px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
@@ -1352,6 +1358,10 @@ input[type=range]{accent-color:var(--accent);}
 .bank-steps{margin:10px 0 0;padding-left:20px;font-size:var(--fs-sh);color:var(--label2);line-height:1.5;}
 .bank-steps li{margin-bottom:4px;}
 .bank-steps code,.bank-status code{background:var(--fill3);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:12px;color:var(--label);}
+.err-log{display:flex;flex-direction:column;gap:6px;}
+.err-log-row{display:flex;gap:10px;font-size:var(--fs-sh);align-items:baseline;}
+.err-log-t{color:var(--label3);font-variant-numeric:tabular-nums;flex-shrink:0;}
+.err-log-m{color:var(--label);word-break:break-word;font-family:var(--mono);font-size:12px;}
 .cst-link{cursor:pointer;}
 @media (hover:hover){.cst-link:hover div:first-child{text-decoration:underline;text-underline-offset:2px;}}
 .ir-cost.warn{color:var(--accent);font-weight:600;}
@@ -1894,6 +1904,8 @@ input[type=range]{accent-color:var(--accent);}
     </div>
     <div class="sec-hd" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">Bank feed <button class="btn btn-xs" id="set-bank-sync" onclick="syncBankFeed()" style="text-transform:none;letter-spacing:0;">Sync now</button></div>
     <div id="set-bank-status" style="margin-bottom:12px;"></div>
+    <div class="sec-hd" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">Recent errors <button class="btn btn-xs" onclick="copyErrorLog()" style="text-transform:none;letter-spacing:0;">Copy all</button></div>
+    <div id="set-err-log" class="err-log"></div>
     <div class="sec-hd" style="margin-top:8px;">Links</div>
     <div class="fld"><label class="fld-label">Digby's Staff (rota) app address</label><input class="fld-inp" id="set-boh" placeholder="https://digbys-staff.vercel.app" inputmode="url"></div>
     <div class="app-ver-long set-ver"></div>
@@ -2075,7 +2087,7 @@ input[type=range]{accent-color:var(--accent);}
 // ═══ Build stamp — bump APP_VERSION on every delivered file. Shown in the
 // sidebar footer, the Settings sheet and (on phones) the Today header, so it is
 // obvious which build Vercel is actually serving.
-const APP_VERSION='15',APP_BUILD_DATE='2026-09-22';
+const APP_VERSION='16',APP_BUILD_DATE='2026-09-22';
 function stampVersion(){document.querySelectorAll('.app-ver').forEach(el=>{el.textContent='v'+APP_VERSION;el.title='Build '+APP_BUILD_DATE;});document.querySelectorAll('.app-ver-long').forEach(el=>el.textContent='Kitchen Prep v'+APP_VERSION+' · build '+new Date(APP_BUILD_DATE+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));}
 document.addEventListener('DOMContentLoaded',stampVersion);
 // ═══ Icons — SF-Symbol-style line glyphs, 24-grid, stroke 1.75, round caps.
@@ -2203,7 +2215,9 @@ const FSA_NAMES={'Celery':'Celery','Cereals containing gluten':'Gluten','Crustac
 const ING_TYPES={protein:'Protein',chilled:'Chilled',produce:'Produce',dry:'Dry store',frozen:'Frozen'};
 const STATUS_BADGE={Confirmed:'badge-grn',Provisional:'badge-amb',Enquiry:'badge-n',Completed:'badge-gold',Cancelled:'badge-red'};
 const PAY_LABEL={deposit:'Deposit taken',invoiced:'Invoiced',paid:'Paid'};
-const EV_TYPES={WED:'Wedding',PRIV:'Private Dining',TM:'Tasting Menu',CAN:'Canapés',BUF:'Buffet',CORP:'Corporate',GAL:'Gala Dinner',GRZ:'Grazing',WAKE:'Wake'};
+const EV_TYPES={PRIV:'Private Dining',WED:'Wedding',TM:'Tasting Menu',CAN:'Canapés',BUF:'Buffet',CORP:'Corporate',GAL:'Gala Dinner',GRZ:'Grazing',WAKE:'Wake'};
+// The database holds the code (PRIV, BUF…); accept a label too, in case one was stored.
+function evTypeCode(v){if(!v)return'';if(EV_TYPES[v])return v;const k=Object.keys(EV_TYPES).find(c=>EV_TYPES[c].toLowerCase()===String(v).toLowerCase().trim());return k||'';}
 const BUCKETS={advance:{label:'Advance prep — ❄ Freeze',cls:'adv',fn:c=>c.freeze_flag},close:{label:'Fridge prep — up to 5 days',cls:'cls',fn:c=>c.fridge_flag&&!c.freeze_flag},service:{label:'Day of service',cls:'svc',fn:c=>!c.freeze_flag&&!c.fridge_flag}};
 
 // State
@@ -2223,7 +2237,27 @@ const fmtShort=d=>{if(!d)return'—';return new Date(d).toLocaleDateString('en-G
 const relDay=(d)=>{const dt=d instanceof Date?new Date(d):new Date(String(d).length===10?d+'T00:00:00':d);if(isNaN(dt))return'—';const t=new Date();t.setHours(0,0,0,0);dt.setHours(0,0,0,0);const diff=Math.round((dt-t)/864e5);if(diff===0)return'Today';if(diff===1)return'Tomorrow';if(diff===-1)return'Yesterday';const o={weekday:'short',day:'numeric',month:'short'};if(dt.getFullYear()!==t.getFullYear())o.year='numeric';return dt.toLocaleDateString('en-GB',o);};
 const chev=()=>ico('chevron','chev');
 
-function toast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type+' show';setTimeout(()=>t.classList.remove('show'),3000);}
+// Errors stay up until dismissed (or 12 s) with a Copy button, so the exact
+// message can be pasted straight into a conversation. The last 20 are kept for
+// Settings → Recent errors.
+const _errLog=[];
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');clearTimeout(toast._t);
+  if(type==='err'){
+    const rec={at:new Date(),msg:String(msg),view:(document.querySelector('.view.active')||{}).id||''};
+    _errLog.unshift(rec);if(_errLog.length>20)_errLog.pop();
+    t.innerHTML=`<span class="toast-msg">${h(msg)}</span><button class="toast-act" onclick="copyToastError(this)">Copy</button><button class="toast-x" onclick="hideToast()" aria-label="Dismiss"></button>`;
+    t.className='toast err show';toast._t=setTimeout(hideToast,12000);
+  }else{t.textContent=msg;t.className='toast '+type+' show';toast._t=setTimeout(hideToast,3000);}
+}
+function hideToast(){document.getElementById('toast').classList.remove('show');}
+function errorReport(rec){return`[Kitchen Prep v${APP_VERSION} · ${rec.at.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}${rec.view?' · '+rec.view.replace('view-',''):''}] ${rec.msg}`;}
+async function copyText(text){try{await navigator.clipboard.writeText(text);return true;}catch(e){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand('copy');}catch(_){}ta.remove();return ok;}}
+async function copyToastError(btn){const rec=_errLog[0];if(!rec)return;btn.textContent=(await copyText(errorReport(rec)))?'Copied':'Couldn’t copy';}
+async function copyErrorLog(){if(!_errLog.length){toast('No errors recorded');return;}toast((await copyText(_errLog.map(errorReport).join('\n')))?'Errors copied':'Couldn’t copy','ok');}
+// Anything that slips past a try/catch still surfaces, with the same Copy button.
+window.addEventListener('unhandledrejection',e=>{const r=e.reason;const m=r&&(r.message||r.error_description||(typeof r==='string'?r:''));if(m)toast(m,'err');});
+window.addEventListener('error',e=>{if(e.error&&e.error.message)toast(e.error.message,'err');});
 function closeModal(id){document.getElementById(id).classList.remove('open');_formDirty=false;}
 function openModal(id){document.getElementById(id).classList.add('open');}
 
@@ -4381,7 +4415,7 @@ function renderWizStep1(body){
     <div class="wiz-section-label">The event</div>
     <div class="fld"><label class="fld-label">Client name</label><input class="fld-inp" id="w-client" value="${h(d.client_name||'')}" placeholder="e.g. Smith Wedding" autofocus></div>
     <div class="g3"><div class="fld"><label class="fld-label">Date</label><input class="fld-inp" id="w-date" type="date" value="${d.event_date||''}"></div><div class="fld"><label class="fld-label">Start</label><input class="fld-inp" id="w-start" type="time" value="${d.start_time||'18:00'}"></div><div class="fld"><label class="fld-label">End</label><input class="fld-inp" id="w-end" type="time" value="${d.end_time||'23:00'}"></div></div>
-    <div class="g3"><div class="fld"><label class="fld-label">Covers</label><input class="fld-inp" id="w-covers" type="number" min="1" value="${d.covers||''}"></div><div class="fld"><label class="fld-label">Type</label><select class="fld-sel" id="w-type">${['Private Dining','Wedding','Tasting Menu','Canapés','Buffet','Corporate','Gala Dinner','Grazing','Wake'].map(t=>`<option ${d.event_type===t?'selected':''}>${t}</option>`).join('')}</select></div><div class="fld"><label class="fld-label">Job code</label><input class="fld-inp" id="w-jobcode" value="${h(d.job_code||'')}" style="text-transform:uppercase"></div></div>
+    <div class="g3"><div class="fld"><label class="fld-label">Covers</label><input class="fld-inp" id="w-covers" type="number" min="1" value="${d.covers||''}"></div><div class="fld"><label class="fld-label">Type</label><select class="fld-sel" id="w-type">${Object.entries(EV_TYPES).map(([code,label])=>`<option value="${code}" ${evTypeCode(d.event_type)===code?'selected':''}>${label}</option>`).join('')}</select></div><div class="fld"><label class="fld-label">Job code</label><input class="fld-inp" id="w-jobcode" value="${h(d.job_code||'')}" style="text-transform:uppercase"></div></div>
     <div class="g3"><div class="fld"><label class="fld-label">Status</label><select class="fld-sel" id="w-status">${['Enquiry','Provisional','Confirmed','Completed','Cancelled'].map(s=>`<option ${d.status===s?'selected':''}>${s}</option>`).join('')}</select></div><div class="fld"><label class="fld-label">Payment</label><select class="fld-sel" id="w-payment"><option value="" ${!d.deposit_status?'selected':''}>Unpaid</option><option value="deposit" ${d.deposit_status==='deposit'?'selected':''}>Deposit taken</option><option value="invoiced" ${d.deposit_status==='invoiced'?'selected':''}>Invoice sent</option><option value="paid" ${d.deposit_status==='paid'?'selected':''}>Paid in full</option></select></div><div class="fld"><label class="fld-label">Price agreed</label><div style="position:relative"><span class="inp-prefix">£</span><input class="fld-inp" id="w-budget" type="number" step="0.01" value="${d.budget||''}" style="padding-left:26px"></div></div></div>
     <div class="g2"><div class="fld"><label class="fld-label">Staffing</label><input class="fld-inp" id="w-staffing" value="${h(d.staffing||'')}"></div></div>
     <div class="wiz-section-label" style="margin-top:20px">Dietary guests <button class="btn btn-xs btn-tint" onclick="wizAddGuest()">${ico('plus')}Add guest</button></div>
@@ -4509,7 +4543,7 @@ function wizRmCharge(i){_wizData.extra_charges.splice(i,1);fsWizStep(4);}
 async function saveFsWizard(){
   const btn=document.getElementById('wiz-next-btn');if(btn){btn.disabled=true;btn.textContent='Saving…';}
   try{
-    const p={client_name:_wizData.client_name,event_type:_wizData.event_type,event_date:_wizData.event_date,start_time:_wizData.start_time,end_time:_wizData.end_time,covers:_wizData.covers,status:_wizData.status||'Enquiry',deposit_status:_wizData.deposit_status||null,budget:_wizData.budget||null,staffing:_wizData.staffing||null,job_code:_wizData.job_code||null,venue_name:_wizData.venue||null,location:_wizData.location||null,address:_wizData.address||null,contact_name:_wizData.contact_name||null,contact_phone:_wizData.contact_phone||null,contact_email:_wizData.contact_email||null,contact_2:_wizData.contact_2||null,kitchen_notes:_wizData.kitchen_notes||null,chef_notes:_wizData.chef_notes||null,service_notes:_wizData.service_notes||null,client_notes:_wizData.client_notes||null,run_of_day:_wizData.run_of_day||[],extra_charges:_wizData.extra_charges||[],guest_allergens:_wizData.guest_allergens||[]};
+    const p={client_name:_wizData.client_name,event_type:evTypeCode(_wizData.event_type)||'PRIV',event_date:_wizData.event_date,start_time:_wizData.start_time,end_time:_wizData.end_time,covers:_wizData.covers,status:_wizData.status||'Enquiry',deposit_status:_wizData.deposit_status||null,budget:_wizData.budget||null,staffing:_wizData.staffing||null,job_code:_wizData.job_code||null,venue_name:_wizData.venue||null,location:_wizData.location||null,address:_wizData.address||null,contact_name:_wizData.contact_name||null,contact_phone:_wizData.contact_phone||null,contact_email:_wizData.contact_email||null,contact_2:_wizData.contact_2||null,kitchen_notes:_wizData.kitchen_notes||null,chef_notes:_wizData.chef_notes||null,service_notes:_wizData.service_notes||null,client_notes:_wizData.client_notes||null,run_of_day:_wizData.run_of_day||[],extra_charges:_wizData.extra_charges||[],guest_allergens:_wizData.guest_allergens||[]};
     let evId=_wizData.id;
     if(evId){const{error}=await sb.from('events').update(p).eq('id',evId);if(error)throw error;}
     else{const{data,error}=await sb.from('events').insert(p).select().single();if(error)throw error;evId=data.id;}
@@ -5685,6 +5719,7 @@ function openSettings(){
   g('set-boh').value=getSetting('boh_url')||'';
   g('set-migration-note').style.display=(_settingsTableOk===false||_invoicesTableOk===false||_portionsColOk===false||_eachColOk===false||_priceLogOk===false)?'flex':'none';
   renderBankStatus();if(_bank.ok===null)loadBankFeed().then(renderBankStatus);
+  const el=g('set-err-log');if(el)el.innerHTML=_errLog.length?_errLog.slice(0,8).map(r=>`<div class="err-log-row"><span class="err-log-t">${r.at.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'})}</span><span class="err-log-m">${h(r.msg)}</span></div>`).join(''):'<div class="cst-quiet">Nothing has gone wrong this session.</div>';
   openModal('settings-modal');
 }
 async function saveSettings(){
