@@ -1033,6 +1033,8 @@ input[type=range]{accent-color:var(--accent);}
 .recipe-comp{margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--sep);}
 .recipe-comp:last-child{border-bottom:none;margin-bottom:0;}
 .recipe-comp-hd{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+.recipe-label-btn{margin-left:auto;}
+@media print{.recipe-label-btn{display:none;}}
 .recipe-comp-storage{font-size:15px;display:inline-flex;color:var(--label2);}
 .recipe-comp-name{font-size:var(--fs-hl);font-weight:600;color:var(--label);flex:1;letter-spacing:-.005em;}
 .recipe-serving-ctrl{display:flex;align-items:center;gap:6px;font-size:var(--fs-fn);color:var(--label2);}
@@ -1436,6 +1438,44 @@ input[type=range]{accent-color:var(--accent);}
 .cst-link{cursor:pointer;}
 @media (hover:hover){.cst-link:hover div:first-child{text-decoration:underline;text-underline-offset:2px;}}
 .ir-cost.warn{color:var(--accent);font-weight:600;}
+
+/* ── Labels (printed through the CPS printer) ── */
+#label-modal{z-index:1200;}  /* above the recipe view, which it is opened from */
+.lbl-modal{width:560px;max-width:100%;}
+.lbl-sub{font-size:var(--fs-sh);color:var(--label2);margin-top:2px;}
+.lbl-body{gap:12px;}
+.lbl-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.lbl-row3{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;}
+.lbl-printer{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-fn);font-weight:600;color:var(--label2);margin-right:8px;white-space:nowrap;}
+.lbl-seg{display:inline-flex;margin-bottom:8px;}
+.lbl-inline{display:flex;gap:8px;align-items:center;}
+.lbl-inline .fld-inp{flex:1;min-width:0;}
+.lbl-inline .fld-sel{width:auto;flex:0 0 auto;}
+.al-chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px;}
+.al-chip{height:30px;padding:0 12px;border-radius:var(--r-pill);background:var(--fill3);color:var(--label);font-size:var(--fs-sh);font-weight:500;display:inline-flex;align-items:center;gap:4px;transition:background var(--dur) var(--spring),color var(--dur) var(--spring),opacity var(--dur);}
+.al-chip.c{background:var(--accent);color:#fff;}
+.al-chip.m{background:var(--warn-tint);color:var(--warn);}
+.al-chip small{font-size:10px;font-weight:600;opacity:.8;}
+.al-chip.off{opacity:.35;}
+.lbl-na{display:inline-flex;align-items:center;gap:8px;font-size:var(--fs-sh);color:var(--label2);cursor:pointer;}
+.lbl-na input{width:18px;height:18px;accent-color:var(--accent);}
+.lbl-split{display:grid;grid-template-columns:minmax(0,1fr) 92px auto 28px 28px;gap:8px;align-items:center;padding:6px 0;border-bottom:1px solid var(--sep);}
+.lbl-split:last-child{border-bottom:none;}
+.lbl-split.ok .lbl-split-job{color:var(--ok);}
+.lbl-split.fail .lbl-split-job{color:var(--accent);}
+.lbl-split .fld-sel,.lbl-split .fld-inp{min-height:36px;height:36px;font-size:var(--fs-sh);}
+.lbl-split-n{padding:0 8px;text-align:center;}
+.lbl-split-n::placeholder{font-size:var(--fs-fn);}
+.lbl-labels{display:inline-flex;align-items:center;gap:2px;}
+.lbl-labels .btn-icon{width:28px;height:28px;font-size:16px;}
+.lbl-labels-n{min-width:34px;text-align:center;font-variant-numeric:tabular-nums;font-weight:600;font-size:var(--fs-sh);}
+.lbl-labels-n::before{content:'×';color:var(--label3);font-weight:400;margin-right:1px;}
+.lbl-split-state{display:inline-flex;justify-content:center;color:var(--ok);}
+.lbl-split-x{color:var(--label3);width:28px;height:28px;padding:0;}
+.lbl-split-acts{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:6px;}
+.lbl-total{font-size:var(--fs-fn);color:var(--label2);font-variant-numeric:tabular-nums;}
+.lbl-foot .btn-primary{min-width:150px;}
+@media (max-width:640px){.lbl-row2{grid-template-columns:1fr;}.lbl-split{grid-template-columns:minmax(0,1fr) 80px;grid-template-areas:"job n" "labels state";}.lbl-split .lbl-split-job{grid-area:job;}.lbl-split .lbl-split-n{grid-area:n;}.lbl-split .lbl-labels{grid-area:labels;}.lbl-split .lbl-split-state{grid-area:state;justify-self:end;}.lbl-split-x{grid-area:state;justify-self:end;}}
 </style>
 </head>
 <body>
@@ -1981,8 +2021,10 @@ input[type=range]{accent-color:var(--accent);}
     <div id="set-err-log" class="err-log"></div>
     <div class="sec-hd" style="margin-top:8px;">Labels</div>
     <div class="g2"><div class="fld"><label class="fld-label">Use-by, chilled prep (days)</label><input class="fld-inp num" id="set-useby-chilled" type="number" min="1" max="30" inputmode="numeric"></div><div class="fld"><label class="fld-label">Use-by, frozen prep (days)</label><input class="fld-inp num" id="set-useby-frozen" type="number" min="1" max="365" inputmode="numeric"></div></div>
-    <div class="note" style="margin-bottom:12px;">Prep labels are queued to the CPS label printer (the same queue the brine labels use) when you tick “Print a label” on Mark done.</div>
-    <div class="fld"><label class="fld-label">Butchery label printer address</label><input class="fld-inp" id="set-butchery-printer" placeholder="https://….ngrok-free.app" inputmode="url"><div class="note" style="margin-top:6px;">The carcass labels post straight to the print bridge at this address. Update it here when the ngrok address changes.</div></div>
+    <div class="fld"><label class="fld-label">Label printer (Pi) address</label><input class="fld-inp" id="set-butchery-printer" placeholder="https://….ngrok-free.dev" inputmode="url"><div class="note" style="margin-top:6px;">Prep, event and butchery labels all print through the Pi at this address — the same printer CPS uses. Update it when the ngrok address changes.</div></div>
+    <div class="sec-hd" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">CPS <button class="btn btn-xs" id="set-cps-sync" onclick="syncCPS()" style="text-transform:none;letter-spacing:0;">Sync now</button></div>
+    <div class="note" style="margin-bottom:4px;">CPS's product list mirrors this dish library (every component, with its allergens and shelf life) and its job codes mirror the events here, so a label printed from either app is the same product against the same job. Syncs itself once a day.</div>
+    <div class="note" id="set-cps-status" style="margin-bottom:12px;"></div>
     <div class="sec-hd" style="margin-top:8px;">Links</div>
     <div class="fld"><label class="fld-label">Digby's Staff (rota) app address</label><input class="fld-inp" id="set-boh" placeholder="https://digbys-staff.vercel.app" inputmode="url"></div>
     <div class="app-ver-long set-ver"></div>
@@ -2094,6 +2136,8 @@ input[type=range]{accent-color:var(--accent);}
 </div>
 </div>
 
+<div class="modal-ov" id="label-modal"></div>
+
 <div class="modal-ov" id="board-done-modal">
 <div class="modal" style="width:380px;">
   <div class="modal-hd"><div class="modal-title">Mark done</div><button class="modal-close" onclick="closeModal('board-done-modal')"></button></div>
@@ -2101,7 +2145,7 @@ input[type=range]{accent-color:var(--accent);}
     <div style="font-size:14px;font-weight:600;margin-bottom:12px;" id="bd-comp-name"></div>
     <div class="fld"><label class="fld-label">Quantity made</label><input class="fld-inp" id="bd-qty" type="number" step="0.1"></div>
     <div class="fld"><label class="fld-label">Where's it stored?</label><input class="fld-inp" id="bd-location" placeholder="e.g. Freezer 2, Fridge"></div>
-    <div class="row-toggle"><div><div class="row-toggle-t">Print a label</div><div class="row-toggle-s" id="bd-label-sub">Name, made, use-by, allergens — to the CPS printer</div></div><label class="switch"><input type="checkbox" id="bd-label" onchange="localStorage.setItem('kp_label_on',this.checked?'1':'0')"><span class="knob"></span></label></div>
+    <div class="row-toggle"><div><div class="row-toggle-t">Print labels</div><div class="row-toggle-s" id="bd-label-sub">Opens the label sheet after logging</div></div><label class="switch"><input type="checkbox" id="bd-label" onchange="localStorage.setItem('kp_label_on',this.checked?'1':'0')"><span class="knob"></span></label></div>
   </div>
   <div class="modal-foot"><input type="hidden" id="bd-card-id"><button class="btn" onclick="closeModal('board-done-modal')">Cancel</button><button class="btn btn-dark" onclick="confirmBoardDone()">Log to bank</button></div>
 </div>
@@ -2166,7 +2210,7 @@ input[type=range]{accent-color:var(--accent);}
 // ═══ Build stamp — bump APP_VERSION on every delivered file. Shown in the
 // sidebar footer, the Settings sheet and (on phones) the Today header, so it is
 // obvious which build Vercel is actually serving.
-const APP_VERSION='28',APP_BUILD_DATE='2026-09-22';
+const APP_VERSION='29',APP_BUILD_DATE='2026-09-22';
 function stampVersion(){document.querySelectorAll('.app-ver').forEach(el=>{el.textContent='v'+APP_VERSION;el.title='Build '+APP_BUILD_DATE;});document.querySelectorAll('.app-ver-long').forEach(el=>el.textContent='Kitchen Prep v'+APP_VERSION+' · build '+new Date(APP_BUILD_DATE+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));}
 document.addEventListener('DOMContentLoaded',stampVersion);
 // ═══ Icons — SF-Symbol-style line glyphs, 24-grid, stroke 1.75, round caps.
@@ -2396,7 +2440,7 @@ async function openRecipeView(dishId){
   const ids=(d.components||[]).map(c=>c.id);let hac={};
   if(ids.length){try{const{data}=await sb.from('haccp_templates').select('*').in('component_id',ids).order('step_order');(data||[]).forEach(s=>{(hac[s.component_id]=hac[s.component_id]||[]).push(s);});}catch(e){}}
   const comps=(d.components||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(c=>({
-    name:c.name||'Component',storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',haccp:hac[c.id]||[],
+    id:c.id,name:c.name||'Component',storage:c.freeze_flag?'frz':c.fridge_flag?'fri':'fsh',haccp:hac[c.id]||[],
     base:c.base_portions||10,servings:c.base_portions||10,note:c.chef_note||'',
     ings:(c.recipe_ingredients||[]).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0)).map(i=>({name:i.ingredient_name||i.name||'',qty:parseFloat(i.quantity||i.qty)||0,unit:i.unit||'g'})),
     steps:(c.recipe_steps||[]).sort((a,b)=>(a.step_number||0)-(b.step_number||0)).map(s=>s.instruction||'')
@@ -2445,6 +2489,7 @@ function recipeCompHTML(c,idx){
         <input type="number" min="1" value="${c.servings}" onchange="recipeSetServings(${idx},this.value)">
         <span>${c.base?'(base '+c.base+')':''}</span>
       </div>
+      ${c.id?`<button class="btn btn-xs recipe-label-btn" onclick="openLabelSheet({componentId:'${c.id}',qty:_recipeComps[${idx}].servings,unit:'portions',source:'recipe'})">${ico('printer')}Labels</button>`:''}
     </div>
     ${c.note?`<div class="recipe-note">${h(c.note)}</div>`:''}
     <div class="recipe-ing-list" id="recipe-ings-${idx}">${recipeIngRows(c)}</div>
@@ -2886,6 +2931,7 @@ async function init(){
   const bp=document.getElementById('builder-panel');
   if(bp)bp.style.display='none';
   openFromHash();window.addEventListener('hashchange',openFromHash);
+  maybeAutoSyncCPS();
 }
 // Deep links from Digby's Staff (and anywhere else): #job/<job code> or #event/<id> opens that event.
 function openFromHash(){
@@ -3850,6 +3896,241 @@ async function queueStockLabel(card,made,location){
   try{const{error}=await sbBOH.from('print_jobs').insert(labelForStock(card,made,location));if(error)return{ok:false,error:error.message};return{ok:true};}
   catch(e){return{ok:false,error:e.message||'no connection'};}
 }
+// ═══════════════════════════════════════════════════════════════════
+// LABELS — printed from Kitchen Prep through the CPS printer (the Pi).
+// Same label, same printer, same history table as Digby's CPS, but the
+// product, section, allergens, job code and portions are already known
+// here, so the chef confirms and prints instead of walking a wizard.
+// One batch can be split across several jobs — each split is its own
+// label run — and printed in one go.
+// ═══════════════════════════════════════════════════════════════════
+const CPS_AL=['Gluten','Crustaceans','Eggs','Fish','Peanuts','Soya','Milk','Nuts','Celery','Mustard','Sesame','Sulphites','Lupin','Molluscs'];
+const CPS_AL_MAP={'Cereals containing gluten':'Gluten','Dairy':'Milk','Egg':'Eggs','Shellfish':'Crustaceans','Sulphur dioxide':'Sulphites','Tree nuts':'Nuts','Soybeans':'Soya'};
+const cpsAl=a=>CPS_AL_MAP[a]||a;
+const CPS_SECTION={'Canapés':'Canapés','Starters':'Starters','Mains':'Mains','Sides':'Mains','Kids':'Mains','Desserts':'Dessert','Evening Grazing':'Evening Grazing','Tasting Menu':'Tasting Menu'};
+const CPS_SECTIONS=['Canapés','Starters','Mains','Dessert','Evening Grazing','Tasting Menu'];
+const CPS_PRODUCT_CAT={'Canapés':'Canapés','Starters':'Starters','Mains':'Mains','Kids':'Mains','Sides':'Other','Desserts':'Desserts','Evening Grazing':'Evening Grazing','Tasting Menu':'Tasting Menu'};
+function printBase(){let u=(getSetting('butchery_printer_url')||'').trim()||SETTINGS_DEFAULTS.butchery_printer_url;if(!/^https?:\/\//i.test(u))u='https://'+u;return u.replace(/\/(print|status|butchery\/label)?\/*$/,'');}
+function labelProductName(comp,dish){const c=(comp&&comp.name||'').trim(),d=(dish&&dish.name||'').trim();return c&&d&&c.toLowerCase()!==d.toLowerCase()?`${c} — ${d}`:(c||d||'Product');}
+function findComp(componentId){for(const d of dishes){const c=(d.components||[]).find(x=>x.id===componentId);if(c)return{comp:c,dish:d};}return null;}
+
+let _lbl=null,_cpsStaff=null,_cpsJobs=null,_printerState={ok:null,at:0};
+async function loadCpsLists(){
+  if(_cpsStaff===null){try{const{data}=await sbBOH.from('staff').select('name').order('name');_cpsStaff=(data||[]).map(s=>s.name).filter(Boolean);}catch(e){_cpsStaff=[];}}
+  if(_cpsJobs===null){try{const{data}=await sbBOH.from('job_codes').select('code,description').order('created_at',{ascending:false});_cpsJobs=data||[];}catch(e){_cpsJobs=[];}}
+}
+async function probePrinter(force){
+  if(!force&&_printerState.ok!==null&&Date.now()-_printerState.at<60000)return _printerState.ok;
+  try{const r=await fetch(printBase()+'/status',{headers:{'ngrok-skip-browser-warning':'true'},signal:AbortSignal.timeout(5000)});const d=await r.json();_printerState={ok:!!(d&&(d.success||d.ok||d.status==='ok'||d.printer)),at:Date.now()};}
+  catch(e){_printerState={ok:false,at:Date.now()};}
+  const dot=document.getElementById('lbl-printer');if(dot)dot.outerHTML=printerDotHTML();
+  return _printerState.ok;
+}
+function printerDotHTML(){const ok=_printerState.ok;return`<span class="lbl-printer" id="lbl-printer" title="${h(printBase())}"><span class="conn-dot ${ok===null?'':ok?'live':'err'}"></span>${ok===null?'Checking printer…':ok?'Printer ready':'Printer offline'}</span>`;}
+
+// Job options: this app's events (recent + upcoming) first, then any CPS job codes not already listed.
+function jobOptions(){
+  const now=new Date();now.setHours(0,0,0,0);const from=ymd(dayAdd(now,-14));
+  const seen=new Set();const out=[];
+  events.filter(e=>e.job_code&&e.event_date>=from&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date)).forEach(e=>{const code=e.job_code.toUpperCase();if(seen.has(code))return;seen.add(code);out.push({code,label:`${code} · ${e.client_name||'Unnamed'} · ${fmtDateShort(e.event_date)}`,event:e});});
+  (_cpsJobs||[]).forEach(j=>{const code=(j.code||'').toUpperCase();if(!code||seen.has(code))return;seen.add(code);out.push({code,label:`${code}${j.description?' · '+j.description:''}`});});
+  return out;
+}
+function jobLabel(code){const o=jobOptions().find(x=>x.code===code);return o?o.label:code;}
+
+// Use-by follows CPS: fresh = made + shelf life; frozen = + frozen days from "frozen on"; thawed = + 3 days from "thawed on".
+function lblUseBy(){
+  const L=_lbl;const base=new Date((L.status?L.statusDate:L.made)+'T00:00:00');const d=new Date(base);
+  if(L.status==='FROZEN')d.setDate(d.getDate()+(parseInt(getSetting('useby_frozen_days'))||90));
+  else if(L.status==='THAWED')d.setDate(d.getDate()+3);
+  else d.setHours(d.getHours()+(L.shelfHours||((parseInt(getSetting('useby_chilled_days'))||3)*24)));
+  return ymd(d);
+}
+function lblWeightDisplay(split){
+  const L=_lbl;
+  if(L.wmode==='weight')return L.wtotal?`${L.wtotal}${L.wunit}`:null;
+  if(L.wmode==='portions'){const n=split&&split.portions;if(!n)return L.wsize?`${L.wsize}${L.wsunit} each`:null;return`×${n} portions${L.wsize?` · ${L.wsize}${L.wsunit} each`:''}`;}
+  return split&&split.portions?`×${split.portions} portions`:null;
+}
+function lblAllergenState(){const L=_lbl;return{contains:L.al.na?null:(L.al.c.join(', ')||null),may:L.al.na?null:(L.al.m.join(', ')||null)};}
+
+// ── Open ────────────────────────────────────────────────────────────
+// ctx: {componentId, qty, unit, eventId, portions, location, source}
+async function openLabelSheet(ctx={}){
+  const found=ctx.componentId?findComp(ctx.componentId):null;
+  const comp=found?found.comp:null,dish=found?found.dish:(ctx.dishId?dishes.find(d=>d.id===ctx.dishId):null);
+  const ev=ctx.eventId?events.find(e=>e.id===ctx.eventId):null;
+  const al={c:[],m:[],na:false};
+  (comp?(comp.component_allergens||[]):getDishAl(dish||{})).forEach(a=>{const n=cpsAl(a.allergen);if(!CPS_AL.includes(n))return;if(a.status==='May Contain'){if(!al.m.includes(n))al.m.push(n);}else if(!al.c.includes(n))al.c.push(n);});
+  al.m=al.m.filter(x=>!al.c.includes(x));
+  const frozen=!!(comp&&comp.freeze_flag);
+  const today=ymd(new Date());
+  const staffSaved=localStorage.getItem('kp_label_staff')||(typeof _bStaff!=='undefined'&&_bStaff)||'';
+  _lbl={comp,dish,product:labelProductName(comp,dish),section:CPS_SECTION[dish?.category]||'',staff:staffSaved,al,
+    status:frozen?'FROZEN':'',made:today,statusDate:today,shelfHours:comp&&comp.use_by_hours?parseInt(comp.use_by_hours):null,
+    wmode:'none',wtotal:'',wunit:'kg',wsize:'',wsunit:'g',notes:ctx.location||'',
+    splits:[{job:ev?.job_code?ev.job_code.toUpperCase():'',portions:ctx.portions||null,labels:1,state:''}],
+    qty:ctx.qty,unit:ctx.unit,source:ctx.source||''};
+  _lbl.useby=lblUseBy();
+  renderLabelSheet();openModal('label-modal');
+  loadCpsLists().then(()=>{renderLblStaff();renderLblSplits();});
+  probePrinter(true);
+}
+function closeLabelSheet(){closeModal('label-modal');_lbl=null;}
+
+// ── Render ──────────────────────────────────────────────────────────
+function renderLabelSheet(){
+  const L=_lbl;const m=document.getElementById('label-modal');
+  m.innerHTML=`<div class="modal lbl-modal">
+    <div class="modal-hd"><div><div class="modal-title">Print labels</div><div class="lbl-sub">${h(L.product)}${L.qty?` · batch ${fmtQty(L.qty,L.unit)}`:''}</div></div>${printerDotHTML()}<button class="modal-close" onclick="closeLabelSheet()" aria-label="Close"></button></div>
+    <div class="modal-body lbl-body">
+      <div class="lbl-row2">
+        <div class="fld"><label class="fld-label">Section</label><select class="fld-sel" id="lbl-section" onchange="_lbl.section=this.value">${['',...CPS_SECTIONS].map(s=>`<option value="${s}" ${s===L.section?'selected':''}>${s||'— No section —'}</option>`).join('')}</select></div>
+        <div class="fld"><label class="fld-label">Made by</label><div id="lbl-staff-wrap">${lblStaffHTML()}</div></div>
+      </div>
+      <div class="fld"><label class="fld-label">Allergens <span class="muted" style="font-weight:400;">· tap to cycle: contains → may contain → none</span></label>
+        <div class="al-chips" id="lbl-al">${lblAlChipsHTML()}</div>
+        <label class="lbl-na"><input type="checkbox" id="lbl-na" ${L.al.na?'checked':''} onchange="lblSetNA(this.checked)"><span>No allergens — print N/A</span></label>
+      </div>
+      <div class="fld"><label class="fld-label">Status</label>
+        <div class="seg lbl-seg" id="lbl-status">${[['','Fresh'],['FROZEN','Frozen'],['THAWED','Thawed']].map(([v,l])=>`<button type="button" class="${L.status===v?'on':''}" onclick="lblSetStatus('${v}')">${l}</button>`).join('')}</div>
+      </div>
+      <div class="lbl-row3" id="lbl-dates">${lblDatesHTML()}</div>
+      <div class="fld"><label class="fld-label">Quantity on the label</label>
+        <div class="seg lbl-seg" id="lbl-wmode">${[['none','Skip'],['weight','Weight'],['portions','Portion size']].map(([v,l])=>`<button type="button" class="${L.wmode===v?'on':''}" onclick="lblSetWmode('${v}')">${l}</button>`).join('')}</div>
+        <div id="lbl-wfields">${lblWfieldsHTML()}</div>
+      </div>
+      <div class="fld"><label class="fld-label">For <span class="muted" style="font-weight:400;">one label run per job — split a batch across several</span></label>
+        <div id="lbl-splits">${lblSplitsHTML()}</div>
+        <div class="lbl-split-acts"><button class="btn btn-xs btn-tint" type="button" onclick="lblAddSplit()">${ico('plus')}Add a job</button><span class="lbl-total" id="lbl-total">${lblTotalText()}</span></div>
+      </div>
+      <div class="fld"><label class="fld-label">Notes — prints on the label</label><input class="fld-inp" id="lbl-notes" value="${h(L.notes)}" placeholder="e.g. Freezer 2 · made without alliums" oninput="_lbl.notes=this.value"></div>
+    </div>
+    <div class="modal-foot lbl-foot"><button class="btn" onclick="closeLabelSheet()">Cancel</button><button class="btn btn-primary" id="lbl-print" onclick="lblPrintAll()">${ico('printer')}<span id="lbl-print-txt">${lblPrintText()}</span></button></div>
+  </div>`;
+}
+function lblStaffHTML(){
+  const L=_lbl;const names=[...new Set([...(_cpsStaff||[]),...(L.staff&&!(_cpsStaff||[]).includes(L.staff)?[L.staff]:[])])];
+  if(!names.length)return`<input class="fld-inp" id="lbl-staff" value="${h(L.staff)}" placeholder="Your name" oninput="lblSetStaff(this.value)">`;
+  return`<select class="fld-sel" id="lbl-staff" onchange="if(this.value==='__other'){lblOtherStaff();}else lblSetStaff(this.value)"><option value="">— Who made it —</option>${names.map(n=>`<option ${n===L.staff?'selected':''}>${h(n)}</option>`).join('')}<option value="__other">Someone else…</option></select>`;
+}
+function renderLblStaff(){const w=document.getElementById('lbl-staff-wrap');if(w)w.innerHTML=lblStaffHTML();}
+function lblSetStaff(v){_lbl.staff=v.trim();if(_lbl.staff)localStorage.setItem('kp_label_staff',_lbl.staff);}
+function lblOtherStaff(){const w=document.getElementById('lbl-staff-wrap');w.innerHTML=`<input class="fld-inp" id="lbl-staff" value="" placeholder="Your name" oninput="lblSetStaff(this.value)">`;w.querySelector('input').focus();}
+function lblAlChipsHTML(){const L=_lbl;return CPS_AL.map(a=>{const s=L.al.c.includes(a)?'c':L.al.m.includes(a)?'m':'';return`<button type="button" class="al-chip ${s}${L.al.na?' off':''}" onclick="lblCycleAl('${a}')">${a}${s==='m'?' <small>may</small>':''}</button>`;}).join('');}
+function lblCycleAl(a){const L=_lbl;if(L.al.na){L.al.na=false;const cb=document.getElementById('lbl-na');if(cb)cb.checked=false;}
+  if(L.al.c.includes(a)){L.al.c=L.al.c.filter(x=>x!==a);L.al.m.push(a);}else if(L.al.m.includes(a)){L.al.m=L.al.m.filter(x=>x!==a);}else L.al.c.push(a);
+  document.getElementById('lbl-al').innerHTML=lblAlChipsHTML();}
+function lblSetNA(on){_lbl.al.na=on;document.getElementById('lbl-al').innerHTML=lblAlChipsHTML();}
+function lblSetStatus(v){const L=_lbl;L.status=v;if(v&&!L.statusDate)L.statusDate=ymd(new Date());L.useby=lblUseBy();document.querySelectorAll('#lbl-status button').forEach(b=>b.classList.toggle('on',b.textContent===({'':'Fresh',FROZEN:'Frozen',THAWED:'Thawed'})[v]));document.getElementById('lbl-dates').innerHTML=lblDatesHTML();}
+function lblDatesHTML(){const L=_lbl;
+  const madeF=`<div class="fld"><label class="fld-label">Made</label><input class="fld-inp" type="date" value="${L.made}" onchange="_lbl.made=this.value;lblRecalcUseby()"></div>`;
+  const sdF=L.status?`<div class="fld"><label class="fld-label">${L.status==='FROZEN'?'Frozen on':'Thawed on'}</label><input class="fld-inp" type="date" value="${L.statusDate}" onchange="_lbl.statusDate=this.value;lblRecalcUseby()"></div>`:'';
+  const ubF=`<div class="fld"><label class="fld-label">Use by <span class="muted" style="font-weight:400;">auto</span></label><input class="fld-inp" type="date" id="lbl-useby" value="${L.useby}" onchange="_lbl.useby=this.value"></div>`;
+  return madeF+sdF+ubF;}
+function lblRecalcUseby(){_lbl.useby=lblUseBy();const el=document.getElementById('lbl-useby');if(el)el.value=_lbl.useby;}
+function lblSetWmode(v){_lbl.wmode=v;document.querySelectorAll('#lbl-wmode button').forEach(b=>b.classList.toggle('on',b.textContent===({none:'Skip',weight:'Weight',portions:'Portion size'})[v]));document.getElementById('lbl-wfields').innerHTML=lblWfieldsHTML();}
+function lblWfieldsHTML(){const L=_lbl;
+  if(L.wmode==='weight')return`<div class="lbl-inline"><input class="fld-inp num" type="number" step="0.01" min="0" value="${h(L.wtotal)}" placeholder="Weight per label" oninput="_lbl.wtotal=this.value"><select class="fld-sel" onchange="_lbl.wunit=this.value">${['kg','g'].map(u=>`<option ${u===L.wunit?'selected':''}>${u}</option>`).join('')}</select></div>`;
+  if(L.wmode==='portions')return`<div class="lbl-inline"><input class="fld-inp num" type="number" step="1" min="0" value="${h(L.wsize)}" placeholder="Size of one portion" oninput="_lbl.wsize=this.value"><select class="fld-sel" onchange="_lbl.wsunit=this.value">${['g','ml'].map(u=>`<option ${u===L.wsunit?'selected':''}>${u}</option>`).join('')}</select><span class="muted" style="white-space:nowrap;">each · count per job below</span></div>`;
+  return'';}
+function lblSplitsHTML(){const L=_lbl;const opts=jobOptions();
+  return L.splits.map((s,i)=>`<div class="lbl-split ${s.state||''}" data-i="${i}">
+    <select class="fld-sel lbl-split-job" onchange="lblSetSplit(${i},'job',this.value)"><option value="">Stock — no job code</option>${opts.map(o=>`<option value="${o.code}" ${o.code===s.job?'selected':''}>${h(o.label)}</option>`).join('')}${s.job&&!opts.find(o=>o.code===s.job)?`<option value="${h(s.job)}" selected>${h(s.job)}</option>`:''}</select>
+    <input class="fld-inp num lbl-split-n" type="number" min="0" step="1" value="${s.portions??''}" placeholder="Portions" oninput="lblSetSplit(${i},'portions',this.value)" title="Portions for this job">
+    <div class="lbl-labels"><button type="button" class="btn btn-xs btn-icon" onclick="lblSetSplit(${i},'labels',${Math.max(1,(s.labels||1)-1)})" aria-label="Fewer labels">−</button><span class="lbl-labels-n">${s.labels||1}</span><button type="button" class="btn btn-xs btn-icon" onclick="lblSetSplit(${i},'labels',${Math.min(50,(s.labels||1)+1)})" aria-label="More labels">+</button></div>
+    <span class="lbl-split-state">${s.state==='ok'?ico('check','ico-xs'):s.state==='fail'?`<button type="button" class="btn btn-xs" onclick="lblPrintOne(${i})">Retry</button>`:''}</span>
+    ${L.splits.length>1?`<button type="button" class="btn btn-xs btn-ghost lbl-split-x" onclick="lblRemoveSplit(${i})" aria-label="Remove">${ico('xmark')}</button>`:'<span></span>'}
+  </div>`).join('');}
+function renderLblSplits(){const el=document.getElementById('lbl-splits');if(el)el.innerHTML=lblSplitsHTML();const t=document.getElementById('lbl-total');if(t)t.textContent=lblTotalText();const p=document.getElementById('lbl-print-txt');if(p)p.textContent=lblPrintText();}
+function lblSetSplit(i,k,v){const s=_lbl.splits[i];if(!s)return;if(k==='portions')s.portions=v===''?null:Math.max(0,parseInt(v)||0);else if(k==='labels')s.labels=Math.max(1,Math.min(50,parseInt(v)||1));else s.job=(v||'').toUpperCase();s.state='';if(k!=='portions')renderLblSplits();else{const t=document.getElementById('lbl-total');if(t)t.textContent=lblTotalText();}}
+function lblAddSplit(){_lbl.splits.push({job:'',portions:null,labels:1,state:''});renderLblSplits();const sels=document.querySelectorAll('.lbl-split-job');if(sels.length)sels[sels.length-1].focus();}
+function lblRemoveSplit(i){_lbl.splits.splice(i,1);if(!_lbl.splits.length)_lbl.splits.push({job:'',portions:null,labels:1,state:''});renderLblSplits();}
+function lblTotalText(){const L=_lbl;const labels=L.splits.reduce((s,x)=>s+(x.labels||1),0);const portions=L.splits.reduce((s,x)=>s+(x.portions||0),0);const jobs=L.splits.filter(x=>x.job).length;
+  return`${labels} label${labels===1?'':'s'}${jobs?` · ${jobs} job${jobs===1?'':'s'}`:''}${portions?` · ${portions} portions`:''}`;}
+function lblPrintText(){const n=_lbl.splits.reduce((s,x)=>s+(x.labels||1),0);return`Print ${n} label${n===1?'':'s'}`;}
+
+// ── Print ───────────────────────────────────────────────────────────
+function lblPayload(split){
+  const L=_lbl;const{contains,may}=lblAllergenState();
+  return{product_name:L.product,staff_name:L.staff||'Kitchen',section:L.section||null,job_code:split.job||null,quantity:split.labels||1,
+    date_prepped:L.made,date_useby:L.useby,contains,may_contain:may,no_allergens:!!L.al.na,
+    status:L.status||null,weight_mode:L.wmode==='none'?(split.portions?'portions':null):L.wmode,weight_display:lblWeightDisplay(split),
+    status_date:L.status?L.statusDate:null,notes:L.notes.trim()||null,printed_at:new Date().toTimeString().slice(0,5)};
+}
+async function sendLabelToPrinter(job){
+  const r=await fetch(printBase()+'/print',{method:'POST',headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},body:JSON.stringify(job),signal:AbortSignal.timeout(15000)});
+  const d=await r.json();return!!(d&&d.success);
+}
+async function recordLabel(job){
+  try{const{error}=await sbBOH.from('print_jobs').insert({product_name:job.product_name,staff_name:job.staff_name,section:job.section,job_code:job.job_code,quantity:job.quantity,date_prepped:job.date_prepped,date_useby:job.date_useby,contains:job.contains,may_contain:job.may_contain,notes:job.notes,printed_at:job.printed_at,label_status:job.status||null});return!error;}catch(e){return false;}
+}
+async function lblPrintOne(i){
+  const s=_lbl.splits[i];if(!s)return false;const job=lblPayload(s);let ok=false;
+  try{ok=await sendLabelToPrinter(job);}catch(e){ok=false;}
+  s.state=ok?'ok':'fail';if(ok)recordLabel(job);
+  renderLblSplits();return ok;
+}
+async function lblPrintAll(){
+  const L=_lbl;if(!L)return;
+  if(!L.staff){toast('Say who made it','err');document.getElementById('lbl-staff')?.focus();return;}
+  if(!L.useby){toast('Set a use-by date','err');return;}
+  const btn=document.getElementById('lbl-print');btn.disabled=true;
+  const todo=L.splits.map((s,i)=>i).filter(i=>L.splits[i].state!=='ok');
+  let done=0,failed=0;
+  for(const i of todo){document.getElementById('lbl-print-txt').textContent=`Printing ${done+failed+1} of ${todo.length}…`;const ok=await lblPrintOne(i);if(ok)done++;else failed++;}
+  btn.disabled=false;
+  const total=L.splits.filter(s=>s.state==='ok').reduce((n,s)=>n+(s.labels||1),0);
+  if(!failed){toast(`${total} label${total===1?'':'s'} sent to the printer`);closeLabelSheet();}
+  else{document.getElementById('lbl-print-txt').textContent=`Retry ${failed} failed`;_printerState={ok:false,at:Date.now()};const dot=document.getElementById('lbl-printer');if(dot)dot.outerHTML=printerDotHTML();
+    toast(done?`${done} of ${todo.length} printed — the rest failed. Printer reachable at ${printBase()}?`:`Printer not reachable at ${printBase()} — check the Pi and ngrok, then Retry`,'err');}
+}
+
+// ── Entry points ────────────────────────────────────────────────────
+// Event menu: pick the component when the dish has several, then print with the job code and portions filled in.
+function openEventDishLabels(dishId,eventId,portions){
+  const dish=dishes.find(d=>d.id===dishId);if(!dish)return;const comps=(dish.components||[]);
+  if(comps.length<=1){openLabelSheet({componentId:comps[0]?.id,dishId,eventId,portions,source:'event'});return;}
+  const m=document.getElementById('label-modal');
+  m.innerHTML=`<div class="modal" style="width:420px;"><div class="modal-hd"><div><div class="modal-title">Which component?</div><div class="lbl-sub">${h(dish.name)}</div></div><button class="modal-close" onclick="closeLabelSheet()" aria-label="Close"></button></div>
+    <div class="modal-body"><div class="list">${comps.map(c=>`<button type="button" class="row row-nav" style="width:100%;text-align:left;" onclick="openLabelSheet({componentId:'${c.id}',eventId:'${eventId}',portions:${portions||'null'},source:'event'})"><span class="row-main"><span class="row-t">${h(c.name)}</span><span class="row-s">${c.freeze_flag?'Freezer':c.fridge_flag?'Fridge':'Fresh'}${c.use_by_hours?' · '+c.use_by_hours+' h':''}</span></span>${chev()}</button>`).join('')}</div></div></div>`;
+  openModal('label-modal');
+}
+
+// ── CPS sync: the CPS product list and job codes mirror this library ──
+// Products are matched by name (the same name the labels print), so a
+// label printed from either app is the same product.
+async function syncCPS(opts={}){
+  const out={products:{added:0,updated:0,same:0},jobs:{added:0,same:0},error:null};
+  try{
+    const{data:prods,error:e1}=await sbBOH.from('products').select('id,name,category,menu_type,shelf_life_hours,contains,may_contain');if(e1)throw e1;
+    const byName=new Map((prods||[]).map(p=>[(p.name||'').trim().toLowerCase(),p]));
+    const chilledH=(parseInt(getSetting('useby_chilled_days'))||3)*24,frozenH=(parseInt(getSetting('useby_frozen_days'))||90)*24;
+    for(const d of dishes)for(const c of (d.components||[])){
+      const name=labelProductName(c,d);const al={c:[],m:[]};
+      (c.component_allergens||[]).forEach(a=>{const n=cpsAl(a.allergen);if(!CPS_AL.includes(n))return;(a.status==='May Contain'?al.m:al.c).push(n);});
+      const body={name,category:CPS_PRODUCT_CAT[d.category]||'Other',shelf_life_hours:c.use_by_hours?parseInt(c.use_by_hours):(c.freeze_flag?frozenH:chilledH),contains:al.c.join(', ')||null,may_contain:al.m.filter(x=>!al.c.includes(x)).join(', ')||null};
+      const ex=byName.get(name.toLowerCase());
+      if(!ex){const{error}=await sbBOH.from('products').insert(body);if(error)throw error;out.products.added++;}
+      else if(['category','shelf_life_hours','contains','may_contain'].some(k=>String(ex[k]??'')!==String(body[k]??''))){const{error}=await sbBOH.from('products').update(body).eq('id',ex.id);if(error)throw error;out.products.updated++;}
+      else out.products.same++;
+    }
+    const{data:jobs,error:e2}=await sbBOH.from('job_codes').select('code');if(e2)throw e2;
+    const have=new Set((jobs||[]).map(j=>(j.code||'').toUpperCase()));
+    const now=new Date();now.setHours(0,0,0,0);const from=ymd(dayAdd(now,-30));
+    for(const e of events.filter(e=>e.job_code&&e.event_date>=from&&e.status!=='Cancelled')){
+      const code=e.job_code.toUpperCase();if(have.has(code)){out.jobs.same++;continue;}
+      const{error}=await sbBOH.from('job_codes').insert({code,description:`${e.client_name||'Event'} · ${fmtDateShort(e.event_date)}`});if(error)throw error;have.add(code);out.jobs.added++;
+    }
+    _cpsJobs=null;localStorage.setItem('kp_cps_sync_at',String(Date.now()));
+  }catch(e){out.error=e.message||String(e);}
+  if(!opts.silent){toast(out.error?'CPS sync failed: '+out.error:`CPS in step — products: ${out.products.added} added, ${out.products.updated} updated · job codes: ${out.jobs.added} added`,out.error?'err':'ok');}
+  const el=document.getElementById('set-cps-status');if(el)el.textContent=cpsSyncStatusText(out);
+  return out;
+}
+function cpsSyncStatusText(out){const at=parseInt(localStorage.getItem('kp_cps_sync_at'))||0;const when=at?new Date(at).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}):'never';return out&&out.error?`Last attempt failed: ${out.error}`:`Last synced ${when}${out?` · ${out.products.added+out.products.updated} product changes, ${out.jobs.added} job codes added`:''}`;}
+function maybeAutoSyncCPS(){const at=parseInt(localStorage.getItem('kp_cps_sync_at'))||0;if(Date.now()-at>86400000&&dishes.length)setTimeout(()=>syncCPS({silent:true}),4000);}
+
 
 // ═══════════════════════════════════════════════
 // PRINT FUNCTION SHEET
@@ -4418,6 +4699,7 @@ function queueTaskCardHTML(c) {
             ${deadlineTag}${alTags}
             <button class="btn btn-xs btn-tint" onclick="event.stopPropagation();openBoardDoneModal('${c.id}')">${ico('check')}Done</button>
             <button class="btn btn-xs" onclick="event.stopPropagation();openBoardMoveModal('${c.id}')">Move</button>
+            <button class="btn btn-xs btn-icon" title="Print labels" aria-label="Print labels" onclick="event.stopPropagation();openLabelSheet({componentId:'${c.component_id}',qty:${parseFloat(c.qty)||0},unit:'${h(c.unit||'')}',eventId:${c.assigned_event?`'${c.assigned_event}'`:'null'},source:'queue'})">${ico('printer')}</button>
           </div>
         </div>
         ${hasDetail ? `<div class="prep-task-toggle"><span class="prep-task-toggle-arrow">${ico('chevron','ico-sm')}</span></div>` : ''}
@@ -5292,6 +5574,7 @@ function boardCardHTML(c){
     <div class="board-card-actions">
       <button class="btn btn-xs btn-tint" onclick="event.stopPropagation();openBoardDoneModal('${c.id}')">${ico('check')}Done</button>
       <button class="btn btn-xs" onclick="event.stopPropagation();openBoardMoveModal('${c.id}')">Move</button>
+      <button class="btn btn-xs btn-icon" title="Print labels" aria-label="Print labels" onclick="event.stopPropagation();openLabelSheet({componentId:'${c.component_id}',qty:${parseFloat(c.qty)||0},unit:'${h(c.unit||'')}',eventId:${c.assigned_event?`'${c.assigned_event}'`:'null'},source:'queue'})">${ico('printer')}</button>
       <button class="btn btn-xs btn-ghost" style="flex:0 0 auto;color:var(--label3);" onclick="event.stopPropagation();boardDelete('${c.id}')">${ico('xmark')}</button>
     </div>
   </div>`;
@@ -5342,7 +5625,7 @@ function openBoardDoneModal(id){
   document.getElementById('bd-qty').value=card.qty;
   document.getElementById('bd-location').value='';
   document.getElementById('bd-label').checked=localStorage.getItem('kp_label_on')==='1';
-  const lbl=labelForStock(card,card.qty,null);document.getElementById('bd-label-sub').textContent=`Use by ${fmtDateShort(lbl.date_useby)} · ${lbl.label_status==='FREEZER'?'freezer':'fridge'} · ${lbl.contains?'contains '+lbl.contains:'no allergens recorded'}`;
+  const lbl=labelForStock(card,card.qty,null);document.getElementById('bd-label-sub').textContent=`Opens the label sheet after logging · use by ${fmtDateShort(lbl.date_useby)} · ${lbl.contains?'contains '+lbl.contains:'no allergens recorded'}`;
   openModal('board-done-modal');
 }
 async function confirmBoardDone(){
@@ -5355,8 +5638,8 @@ async function confirmBoardDone(){
   if(error){toast(error.message,'err');return;}
   closeModal('board-done-modal');
   let msg='Logged to the bank';
-  if(document.getElementById('bd-label').checked&&card){const r=await queueStockLabel(card,made,location);msg+=r.ok?' · label queued':' · label failed: '+r.error;}
-  toast(msg,/failed/.test(msg)?'err':'ok');renderActiveQueueView();
+  toast(msg);renderActiveQueueView();
+  if(document.getElementById('bd-label').checked&&card)openLabelSheet({componentId:card.component_id,qty:made,unit:card.unit,eventId:card.assigned_event||null,location,source:'done'});
 }
 
 // ═══ ADD TASK (batch-ahead picker — dish/component search feeding the same queue) ═══
@@ -5762,7 +6045,7 @@ const SETTINGS_DEFAULTS={
   boh_url:'https://digbys-staff.vercel.app',
   useby_chilled_days:3,
   useby_frozen_days:90,
-  butchery_printer_url:'https://palatable-shack-scallion.ngrok-free.app'
+  butchery_printer_url:'https://palatable-shack-scallion.ngrok-free.dev'
 };
 let _appSettings={},_settingsTableOk=null;
 async function loadSettings(){
@@ -5919,6 +6202,7 @@ async function runSetupChecks(rerender){
   r.migration=!(_settingsTableOk===false||_invoicesTableOk===false||_portionsColOk===false||_eachColOk===false||_priceLogOk===false);
   r.bank=_bank.ok===true;
   r.staff=!!getSetting('boh_url');
+  r.printer=await probePrinter(true);
   _setup=r;if(rerender)renderSetupChecks();
 }
 function renderSetupChecks(){
@@ -5928,7 +6212,8 @@ function renderSetupChecks(){
     ['Temperature journey table (haccp_templates)',_setup.haccp,'Copy SQL (above) and run it once in Supabase → SQL editor — it creates the table if missing.'],
     ['Dish photo storage (bucket dish-photos)',_setup.photos,'Copy SQL (above) and run it — it creates the bucket and its policy.'],
     ['Starling bank feed',_setup.bank,'Add api/starling.js and the STARLING_TOKEN variable on Vercel (steps under Bank feed below).'],
-    ['Digby\'s Staff link',_setup.staff,'Set the Staff app address under Links.']];
+    ['Digby\'s Staff link',_setup.staff,'Set the Staff app address under Links.'],
+    ['Label printer (Pi)',_setup.printer,'Not answering at '+printBase()+' — is the Pi on and ngrok running? Update the address under Labels.']];
   el.innerHTML=rows.map(([l,ok,fix])=>`<div class="kv setup-row"><span style="min-width:0;"><span style="color:var(--label);">${l}</span>${ok?'':`<br><span class="muted" style="font-size:var(--fs-fn);">${fix}</span>`}</span><span class="badge${ok?' badge-ok':' badge-red'}" style="flex:none;">${ok===undefined?'…':ok?'Ready':'Needs setup'}</span></div>`).join('');
 }
 function openSettings(){
@@ -5942,6 +6227,7 @@ function openSettings(){
   g('set-boh').value=getSetting('boh_url')||'';
   g('set-useby-chilled').value=getSetting('useby_chilled_days');g('set-useby-frozen').value=getSetting('useby_frozen_days');
   g('set-butchery-printer').value=getSetting('butchery_printer_url')||'';
+  {const el=g('set-cps-status');if(el)el.textContent=cpsSyncStatusText(null);}
   g('set-migration-note').style.display=(_settingsTableOk===false||_invoicesTableOk===false||_portionsColOk===false||_eachColOk===false||_priceLogOk===false)?'flex':'none';
   renderBankStatus();if(_bank.ok===null)loadBankFeed().then(renderBankStatus);
   renderSetupChecks();runSetupChecks(true);
@@ -6176,6 +6462,7 @@ function evMenuHTML(ev){
           ${(al.length||r.isVariant)?`<div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px;">${r.isVariant?'<span class="badge">Variant</span>':''}${al.map(a=>`<span class="al-tag ${a.status==='May Contain'?'may':'c'}">${h(a.allergen)}${a.status==='May Contain'?' (MC)':''}</span>`).join('')}</div>`:''}</div>
           <span class="muted num" style="font-size:var(--fs-sh);">${r.portions} portion${r.portions===1?'':'s'}</span>
           <span class="num" style="min-width:72px;text-align:right;font-weight:500;">${r.cpc!=null?fmt$(r.cpc)+'<span class="muted" style="font-weight:400;">/cover</span>':'<span class="muted">Not costed</span>'}</span>
+          <button class="btn btn-xs btn-icon" title="Print labels for this job" aria-label="Print labels" onclick="event.stopPropagation();openEventDishLabels('${r.dish.id}','${ev.id}',${r.portions||0})">${ico('printer')}</button>
           ${chev()}
         </div>`;}).join('')}
       </div>`).join(''):`<div class="empty"><div class="empty-icon">${ico('book')}</div><div class="empty-t">No menu yet</div><div class="empty-s">Add dishes from the Library in step 2 of the event editor.</div></div>`}
@@ -6878,7 +7165,7 @@ async function bCompleteCarcass(id){
   bCarcass(id);
 }
 async function bPrintLabel(c){
-  const base=(getSetting('butchery_printer_url')||'').replace(/\/+$/,'');
+  const base=printBase();
   if(!base){toast('Set the butchery label printer address in Settings first','err');return;}
   try{
     const r=await fetch(base+'/butchery/label',{method:'POST',headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},body:JSON.stringify(c),signal:AbortSignal.timeout(8000)});
