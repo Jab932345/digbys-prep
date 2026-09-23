@@ -178,6 +178,9 @@ b,strong{font-weight:600;}
 .conn-dot{width:8px;height:8px;border-radius:50%;background:var(--label3);transition:background var(--dur-lg) var(--spring),box-shadow var(--dur-lg) var(--spring);}
 .conn-dot.live{background:var(--ok);box-shadow:0 0 0 3px var(--ok-tint);}
 .conn-dot.err{background:var(--accent);box-shadow:0 0 0 3px var(--accent-tint);}
+.conn-dot.demo{background:var(--warn);box-shadow:0 0 0 3px var(--warn-tint);}
+.demo-pill{height:22px;padding:0 9px;border-radius:var(--r-pill);background:var(--warn-tint);color:var(--warn);font-size:var(--fs-fn);font-weight:600;letter-spacing:0;white-space:nowrap;}
+body.demo .ph-title::after{content:'Demo';display:inline-flex;align-items:center;vertical-align:middle;margin-left:10px;height:22px;padding:0 9px;border-radius:var(--r-pill);background:var(--warn-tint);color:var(--warn);font-size:12px;font-weight:700;letter-spacing:.02em;}
 .theme-btn{width:30px;height:30px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--label2);transition:background var(--dur) var(--spring),color var(--dur) var(--spring);}
 @media (hover:hover){.theme-btn:hover{background:var(--fill3);color:var(--label);}}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0;min-width:0;background:var(--bg);}
@@ -987,6 +990,7 @@ input[type=range]{accent-color:var(--accent);}
 .board-card-late{color:var(--accent);font-weight:600;}
 .board-card-soon{color:var(--warn);font-weight:600;}
 .board-card-ok{color:var(--label2);}
+.board-card-late,.board-card-soon,.board-card-ok{white-space:nowrap;}
 .board-card-actions{display:flex;gap:4px;margin-top:8px;}
 .board-card-actions .btn{flex:1;height:26px;padding:0 6px;font-size:var(--fs-fn);border-radius:var(--r-xs);}
 
@@ -2025,6 +2029,8 @@ input[type=range]{accent-color:var(--accent);}
     <div class="sec-hd" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">CPS <button class="btn btn-xs" id="set-cps-sync" onclick="syncCPS()" style="text-transform:none;letter-spacing:0;">Sync now</button></div>
     <div class="note" style="margin-bottom:4px;">CPS's product list mirrors this dish library (every component, with its allergens and shelf life) and its job codes mirror the events here, so a label printed from either app is the same product against the same job. Syncs itself once a day.</div>
     <div class="note" id="set-cps-status" style="margin-bottom:12px;"></div>
+    <div class="sec-hd" style="margin-top:8px;">Demo</div>
+    <div class="row-toggle" style="margin-bottom:12px;"><div><div class="row-toggle-t">Demo data</div><div class="row-toggle-s">A full season of events, prep, invoices, cleaning and butchery on top of your real dish library. Nothing is saved while it's on.</div></div><label class="switch"><input type="checkbox" id="set-demo" onchange="this.checked?enterDemo():leaveDemo()"><span class="knob"></span></label></div>
     <div class="sec-hd" style="margin-top:8px;">Links</div>
     <div class="fld"><label class="fld-label">Digby's Staff (rota) app address</label><input class="fld-inp" id="set-boh" placeholder="https://digbys-staff.vercel.app" inputmode="url"></div>
     <div class="app-ver-long set-ver"></div>
@@ -2210,7 +2216,7 @@ input[type=range]{accent-color:var(--accent);}
 // ═══ Build stamp — bump APP_VERSION on every delivered file. Shown in the
 // sidebar footer, the Settings sheet and (on phones) the Today header, so it is
 // obvious which build Vercel is actually serving.
-const APP_VERSION='29',APP_BUILD_DATE='2026-09-22';
+const APP_VERSION='30',APP_BUILD_DATE='2026-09-22';
 function stampVersion(){document.querySelectorAll('.app-ver').forEach(el=>{el.textContent='v'+APP_VERSION;el.title='Build '+APP_BUILD_DATE;});document.querySelectorAll('.app-ver-long').forEach(el=>el.textContent='Kitchen Prep v'+APP_VERSION+' · build '+new Date(APP_BUILD_DATE+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));}
 document.addEventListener('DOMContentLoaded',stampVersion);
 // ═══ Icons — SF-Symbol-style line glyphs, 24-grid, stroke 1.75, round caps.
@@ -2325,9 +2331,243 @@ matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>applyTh
 // ═══════════════════════════════════════════════
 const SUPA_URL='https://qfnwyooipwtfzikukztz.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmbnd5b29pcHd0Znppa3VrenR6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzczODY0MTcsImV4cCI6MjA5Mjk2MjQxN30.qzq30fT8L2bhX7kx46HZdco3rt7bN2zRGSKETCNgQqw';
-const sb=supabase.createClient(SUPA_URL,SUPA_KEY);
+// ═══════════════════════════════════════════════════════════════════
+// DEMO MODE — a fully populated, fully interactive copy of the app that
+// touches nothing real. Open with ?demo (or Settings → Demo data). The dish
+// library, ingredients, prices and temperature journeys are a snapshot of
+// the live database; everything operational — events, function sheets,
+// invoices, the prep queue and freezer bank, cleaning, butchery, the bank
+// feed, the rota, CPS labels — is generated here and lives only in memory.
+// Nothing is written to Supabase or the printer while the demo is on.
+// ═══════════════════════════════════════════════════════════════════
+(function(){
+  const url=new URL(location.href);
+  if(url.searchParams.has('demo')){if(url.searchParams.get('demo')==='off')localStorage.removeItem('kp_demo');else localStorage.setItem('kp_demo','1');url.searchParams.delete('demo');history.replaceState(null,'',url.pathname+(url.search||'')+url.hash);}
+  if(localStorage.getItem('kp_demo')!=='1')return;
+
+  // ── tiny PostgREST-shaped in-memory engine ──
+  let _seq=1000;const uid=()=>'demo-'+(_seq++).toString(36)+'-'+Math.random().toString(36).slice(2,8);
+  const likeRe=p=>new RegExp('^'+String(p).replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/%/g,'.*').replace(/_/g,'.')+'$','i');
+  const cmp=(a,b)=>{if(a==null&&b==null)return 0;if(a==null)return 1;if(b==null)return -1;return a<b?-1:a>b?1:0;};
+  function test(r,[col,val,op]){const v=r[col];
+    switch(op){case'neq':return v!==val;case'gt':return v>val;case'gte':return v>=val;case'lt':return v<val;case'lte':return v<=val;
+      case'in':return(val||[]).includes(v);case'is':return val===null?v==null:v===val;case'not-is':return val===null?v!=null:v!==val;
+      case'ilike':case'like':return likeRe(val).test(String(v??''));
+      case'or':return String(val).split(',').some(part=>{const m=part.match(/^([\w_]+)\.(eq|neq|ilike|like|gte|lte|gt|lt|is)\.(.*)$/);if(!m)return false;let x=m[3];if(x==='null')x=null;return test(r,[m[1],x,m[2]==='eq'?undefined:m[2]]);});
+      case'contains':return Array.isArray(v)?(val||[]).every(x=>v.includes(x)):false;
+      default:return v===val;}}
+  // relations: [child table, fk column] per (table, embed name)
+  const REL={
+    dishes:{components:['components','dish_id']},
+    components:{recipe_ingredients:['recipe_ingredients','component_id'],recipe_steps:['recipe_steps','component_id'],component_allergens:['component_allergens','component_id'],dishes:['dishes','dish_id','parent']},
+    events:{event_dishes:['event_dishes','event_id'],invoices:['invoices','event_id']},
+    butchery_packs:{butchery_carcasses:['butchery_carcasses','carcass_id','parent']},
+    butchery_carcasses:{butchery_packs:['butchery_packs','carcass_id']},
+    shifts:{events:['events','event_id','parent'],profiles:['profiles','assigned_user_id','parent']},
+    time_entries:{shifts:['shifts','shift_id','parent'],profiles:['profiles','user_id','parent']},
+  };
+  function parseEmbeds(sel){const out=[];let depth=0,cur='',name='';for(const ch of sel){if(ch==='('){if(depth===0){name=cur.trim().replace(/^.*?:/,'').replace(/!.*$/,'');cur='';}else cur+=ch;depth++;}else if(ch===')'){depth--;if(depth===0){out.push([name,cur]);cur='';}else cur+=ch;}else if(ch===','&&depth===0){cur='';}else cur+=ch;}return out;}
+  function embed(DB,table,sel,row){
+    if(!/\(/.test(sel))return{...row};const r={...row};
+    parseEmbeds(sel).forEach(([name,sub])=>{const rel=(REL[table]||{})[name];if(!rel)return;const[t,fk,kind]=rel;const rows=DB[t]||[];
+      if(kind==='parent'){const p=rows.find(x=>x.id===row[fk]);r[name]=p?embed(DB,t,sub,p):null;}
+      else r[name]=rows.filter(x=>x[fk]===row.id).map(x=>embed(DB,t,sub,x));});
+    return r;}
+  const VIEWS={
+    butchery_yield_summary:DB=>(DB.butchery_carcasses||[]).map(c=>{const packed=(DB.butchery_packs||[]).filter(p=>p.carcass_id===c.id).reduce((s,p)=>s+(+p.weight_kg||0),0);const trim=(DB.butchery_trim_logs||[]).filter(t=>t.carcass_id===c.id).reduce((s,t)=>s+(+t.trim_weight_kg||0),0);return{tracking_code:c.tracking_code,species:c.species,supplier:c.supplier,intake_date:c.intake_date,intake_weight_kg:c.intake_weight_kg,total_packed_kg:+packed.toFixed(2),trim_weight_kg:+trim.toFixed(2),yield_pct:c.intake_weight_kg?+(packed/c.intake_weight_kg*100).toFixed(1):0,status:c.status};}),
+    butchery_product_yield:DB=>{const out=[];(DB.butchery_carcasses||[]).forEach(c=>{const by={};(DB.butchery_packs||[]).filter(p=>p.carcass_id===c.id).forEach(p=>{(by[p.product_name]=by[p.product_name]||{n:0,kg:0});by[p.product_name].n++;by[p.product_name].kg+=+p.weight_kg||0;});Object.entries(by).forEach(([name,v])=>out.push({tracking_code:c.tracking_code,product_name:name,pack_count:v.n,total_weight_kg:+v.kg.toFixed(2),pct_of_carcass:c.intake_weight_kg?+(v.kg/c.intake_weight_kg*100).toFixed(1):0}));});return out;},
+    butchery_freezer_stock:DB=>(DB.butchery_packs||[]).filter(p=>p.current_status==='in_freezer').map(p=>{const c=(DB.butchery_carcasses||[]).find(x=>x.id===p.carcass_id)||{};return{...p,species:c.species,tracking_code:c.tracking_code,packed_at:p.packed_at||p.created_at};}),
+  };
+  function client(DB,rpcs){
+    function chain(table){
+      let mode='select',sel='*',payload=null,opts=null,filters=[],orders=[],lim=null,single=false,maybe=false,head=false,count=false;
+      const api={
+        select(s,o){sel=s||'*';if(o&&o.head)head=true;if(o&&o.count)count=true;return api;},
+        eq(c,v){filters.push([c,v]);return api;},neq(c,v){filters.push([c,v,'neq']);return api;},gt(c,v){filters.push([c,v,'gt']);return api;},gte(c,v){filters.push([c,v,'gte']);return api;},lt(c,v){filters.push([c,v,'lt']);return api;},lte(c,v){filters.push([c,v,'lte']);return api;},
+        in(c,v){filters.push([c,v,'in']);return api;},is(c,v){filters.push([c,v,'is']);return api;},not(c,op,v){filters.push([c,v,op==='is'?'not-is':'neq']);return api;},ilike(c,v){filters.push([c,v,'ilike']);return api;},like(c,v){filters.push([c,v,'like']);return api;},or(e){filters.push(['__or',e,'or']);return api;},contains(c,v){filters.push([c,v,'contains']);return api;},match(o){Object.entries(o).forEach(([c,v])=>filters.push([c,v]));return api;},
+        order(c,o){orders.push([c,o||{}]);return api;},limit(n){lim=n;return api;},range(a,b){lim=b-a+1;return api;},single(){single=true;return api;},maybeSingle(){maybe=true;return api;},
+        insert(o){mode='insert';payload=(Array.isArray(o)?o:[o]).map(r=>({id:uid(),created_at:new Date().toISOString(),...r}));return api;},
+        update(o){mode='update';payload=o;return api;},upsert(o,op){mode='upsert';payload=Array.isArray(o)?o:[o];opts=op||{};return api;},delete(){mode='delete';return api;},
+        then(res,rej){let out;try{
+          if(VIEWS[table]&&mode==='select')DB[table]=VIEWS[table](DB);else DB[table]=DB[table]||[];
+          if(mode==='select'){let rows=DB[table].filter(r=>filters.every(f=>test(r,f)));
+            orders.slice().reverse().forEach(([c,o])=>{const asc=o.ascending!==false;rows.sort((a,b)=>{const x=cmp(a[c],b[c]);if(a[c]==null||b[c]==null){const nf=o.nullsFirst;if(a[c]==null&&b[c]!=null)return nf?-1:1;if(b[c]==null&&a[c]!=null)return nf?1:-1;return 0;}return asc?x:-x;});});
+            const total=rows.length;if(lim!=null)rows=rows.slice(0,lim);rows=rows.map(r=>embed(DB,table,sel,r));
+            if(head)out={data:null,error:null,count:total};else if(single||maybe)out={data:rows[0]||null,error:single&&!rows.length?{message:'JSON object requested, multiple (or no) rows returned',code:'PGRST116'}:null,count:total};else out={data:rows,error:null,count:count?total:null};}
+          else if(mode==='insert'){DB[table].push(...payload);const rows=payload.map(r=>embed(DB,table,sel,r));out={data:single?rows[0]:rows,error:null};}
+          else if(mode==='update'){const rows=DB[table].filter(r=>filters.every(f=>test(r,f)));rows.forEach(r=>Object.assign(r,payload));out={data:single?(rows[0]||null):rows.map(r=>embed(DB,table,sel,r)),error:null};}
+          else if(mode==='upsert'){const key=opts.onConflict||'id';const got=[];payload.forEach(item=>{const ex=DB[table].find(r=>r[key]===item[key]);if(ex){Object.assign(ex,item);got.push(ex);}else{const row={id:uid(),created_at:new Date().toISOString(),...item};DB[table].push(row);got.push(row);}});out={data:single?got[0]:got,error:null};}
+          else if(mode==='delete'){const del=DB[table].filter(r=>filters.every(f=>test(r,f)));const ids=new Set(del.map(r=>r.id));
+            if(table==='components'&&(DB.prepped_stock||[]).some(p=>ids.has(p.component_id)))out={data:null,error:{message:'update or delete on table "components" violates foreign key constraint "prepped_stock_component_id_fkey" on table "prepped_stock"'}};
+            else if(table==='dishes'&&(DB.event_dishes||[]).some(p=>ids.has(p.dish_id)))out={data:null,error:{message:'update or delete on table "dishes" violates foreign key constraint "event_dishes_dish_id_fkey" on table "event_dishes"'}};
+            else{DB[table]=DB[table].filter(r=>!ids.has(r.id));if(table==='dishes')['components'].forEach(t=>{DB[t]=(DB[t]||[]).filter(r=>!ids.has(r.dish_id));});if(table==='components')['recipe_ingredients','recipe_steps','component_allergens','haccp_templates'].forEach(t=>{DB[t]=(DB[t]||[]).filter(r=>!ids.has(r.component_id));});if(table==='events')['event_dishes','invoices','event_variant_assignments','event_cost_lines'].forEach(t=>{DB[t]=(DB[t]||[]).filter(r=>!ids.has(r.event_id));});out={data:null,error:null};}}
+        }catch(e){out={data:null,error:{message:String(e&&e.message||e)}};}
+        return Promise.resolve(out).then(res,rej);},
+        catch(fn){return api.then(undefined,fn);}
+      };return api;}
+    return{from:chain,rpc:(n,a)=>Promise.resolve(rpcs&&rpcs[n]?{data:rpcs[n](a||{}),error:null}:{data:null,error:{message:'function '+n+' does not exist'}}),
+      storage:{from:()=>({list:async()=>({data:[],error:null}),upload:async(path,file)=>{try{DB.__photos=DB.__photos||{};DB.__photos[path]=URL.createObjectURL(file);}catch(e){}return{data:{path},error:null};},remove:async()=>({data:null,error:null}),getPublicUrl:path=>({data:{publicUrl:(DB.__photos&&DB.__photos[path])||''}})})},
+      auth:{getSession:async()=>({data:{session:null}}),onAuthStateChange(){return{data:{subscription:{unsubscribe(){}}}};}}};
+  }
+
+  // ── seeded randomness so the demo looks the same every time ──
+  let seed=20260922;const rnd=()=>{seed=(seed*1664525+1013904223)%4294967296;return seed/4294967296;};const pick=a=>a[Math.floor(rnd()*a.length)];const between=(a,b)=>Math.round(a+rnd()*(b-a));
+  const today=new Date();today.setHours(0,0,0,0);
+  const ymdL=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  const day=n=>{const d=new Date(today);d.setDate(d.getDate()+n);return ymdL(d);};
+  const ddmmyy=iso=>iso.slice(8,10)+iso.slice(5,7)+iso.slice(2,4);
+  const initials=n=>n.split(/[\s—&]+/).filter(w=>/^[A-Za-z]/.test(w)).map(w=>w[0].toUpperCase()).join('').slice(0,3)||'XXX';
+  const jobCode=(client,iso,type)=>initials(client)+ddmmyy(iso)+type;
+
+  const PREP={},BOH={};
+  const EV=[
+    // [days from today, client, type, covers, venue, address, status, deposit_status, price, contact, start, end, notes]
+    [-17,"Digby's Tasting Menu — relaunch",'TM',24,'Oxhay Farm','Oxhay Farm, near Moreton-in-Marsh','Completed','paid',1560,'James Brierley','19:00','23:00','Five courses. Menu cards printed.'],
+    [-10,'Sophie & Ben Whitaker — Wedding','WED',110,'Primrose Hill Farm','Primrose Hill Farm, Cotswolds','Completed','paid',7150,'Sophie Whitaker','13:00','23:30','Barn ceremony 13:00. Speeches before the main.'],
+    [-5,'Margaret Ellis — wake','WAKE',60,'Boddington Village Hall','Boddington Village Hall, Upper Boddington','Completed','paid',839.4,'Andrew Ellis','12:30','15:30',null],
+    [-4,'The Hendersons — anniversary dinner','PRIV',8,'Client home','Leamington Spa','Completed','paid',560,'Claire Henderson','19:30','23:00','Four courses at the table.'],
+    [3,"Digby's BBQ Test Run",'BUF',25,'Prep unit','The Portakabin, Southam','Confirmed',null,0,'James Brierley','18:00','22:00','Pay-by-weight counter trial.'],
+    [4,'Primrose Hill Farm — Harvest Supper','BUF',80,'Primrose Hill Farm','Primrose Hill Farm, Cotswolds','Confirmed','deposit',3600,'Mike Jeffries','18:30','22:30','Long tables in the barn. Whole beef from the farm.'],
+    [8,'David Foster — wake','WAKE',50,'St James Church Hall','Southam','Confirmed','invoiced',699.5,'Helen Foster','13:00','16:00','Nut-free as standard.'],
+    [11,'Nigel Hailey — Gang Show Corporate','CORP',80,'Gang Show HQ','Warwick','Confirmed','deposit',840,'Nigel Hailey','12:00','20:00',null],
+    [11,'Alysa Remtulla — 40th','PRIV',12,'Airbnb','Lower Boddington','Confirmed','invoiced',625,'Alysa Remtulla','19:00','23:00','Kitchen is small — plate in the utility room.'],
+    [18,'Emily & Josh Carter — Wedding','WED',140,'Primrose Hill Farm','Primrose Hill Farm, Cotswolds','Confirmed','deposit',9800,'Emily Carter','12:30','00:00','Canapés on the lawn if dry. Evening grazing 21:00.'],
+    [24,'JLR suppliers dinner','CORP',45,'Warwick Conference Centre','Warwick','Provisional',null,2925,'Priya Shah','18:00','22:30',null],
+    [25,'Tasting Menu — October','TM',28,'Oxhay Farm','Oxhay Farm, near Moreton-in-Marsh','Confirmed','deposit',1820,'James Brierley','19:00','23:00',null],
+    [32,"Jo Bendle — mum's 80th",'PRIV',14,'Client home','Upper Boddington','Confirmed',null,910,'Jo Bendle','18:30','22:30','Mum is GF. Birthday cake supplied by client.'],
+    [39,'Chapman family — Halloween grazing','GRZ',30,'Client home','Harbury','Provisional',null,540,'Laura Chapman','17:00','21:00',null],
+    [43,'Charlie Ferguson — dinner','PRIV',2,'Prep unit','The Portakabin, Southam','Confirmed',null,180,'Charlie Ferguson','19:00','22:00',null],
+    [46,'Rachel & Tom Aldridge — Wedding','WED',95,'Primrose Hill Farm','Primrose Hill Farm, Cotswolds','Confirmed','deposit',6650,'Rachel Aldridge','13:00','23:30',null],
+    [52,'Peter Hughes — wake','WAKE',70,'Banbury Cricket Club','Banbury','Enquiry',null,979.3,'Susan Hughes','12:00','15:00',null],
+    [60,'St Mary\'s — canapé reception','CAN',120,'St Mary\'s Church Hall','Warwick','Provisional',null,2160,'Rev. Alan Price','18:00','20:30',null],
+    [67,'Rotary Club of Southam — Gala Dinner','GAL',90,'Southam Rugby Club','Southam','Confirmed','deposit',5400,'Graham Lees','19:00','00:00','Raffle between courses.'],
+    [73,'Hartwell & Co — Christmas party','CORP',60,'Hartwell offices','Leamington Spa','Confirmed',null,3300,'Dan Hartwell','18:30','23:00',null],
+    [81,'Anna & Liam Patel — Winter Wedding','WED',85,'Primrose Hill Farm','Primrose Hill Farm, Cotswolds','Confirmed','deposit',6375,'Anna Patel','12:00','23:30','Fire pit for evening.'],
+    [88,'Christmas Tasting Menu','TM',30,'Oxhay Farm','Oxhay Farm, near Moreton-in-Marsh','Confirmed',null,2100,'James Brierley','19:00','23:00',null],
+    [172,'Lucy & George Bennett — Wedding','WED',120,'Primrose Hill Farm','Primrose Hill Farm, Cotswolds','Provisional',null,8400,'Lucy Bennett','13:00','23:30',null],
+    [228,'Chloe & Sam Dean — Wedding','WED',150,'Primrose Hill Farm','Primrose Hill Farm, Cotswolds','Enquiry',null,10500,'Chloe Dean','13:00','23:30',null],
+  ];
+  const ROD={WED:[['12:30','Guests arrive','','Canapés + fizz on the lawn'],['13:00','Ceremony','30 min',''],['13:45','Canapés','45 min','3 per head'],['15:00','Wedding breakfast','2 h','Starter, main, dessert'],['17:30','Speeches','30 min',''],['21:00','Evening food','','Grazing table']],
+    WAKE:[['12:30','Guests arrive','',''],['13:00','Buffet open','2 h','Sandwiches, sausage rolls, scones'],['15:00','Clear down','','']],
+    TM:[['18:30','Doors','',''],['19:00','Snacks','',''],['19:30','Course 1','','Every 25 min from here'],['22:15','Petit fours + coffee','','']],
+    PRIV:[['18:30','Arrive and set up','',''],['19:30','Sit down','',''],['22:30','Clear down','','']],
+    CORP:[['12:00','Arrive','',''],['13:00','Lunch service','1 h',''],['14:30','Clear down','','']],
+    BUF:[['17:30','Set up counter','',''],['18:30','Service','3 h','Pay by weight'],['22:00','Clear down','','']],
+    GRZ:[['16:00','Set the table','',''],['17:00','Guests','','']],CAN:[['17:00','Arrive','',''],['18:00','Canapés','2 h','5 per head']],GAL:[['18:30','Drinks reception','',''],['19:30','Dinner','2 h',''],['22:00','Raffle','','']]};
+  const GUESTS=[['Table 4','GF','allergy',['Cereals containing gluten']],['Bride\'s mother','Coeliac','allergy',['Cereals containing gluten']],['Guest — Priya','Vegan','dislike',['Milk','Eggs']],['Table 7','Nut allergy — severe','allergy',['Nuts','Peanuts']],['Mr Hughes','No shellfish','allergy',['Crustaceans','Molluscs']],['Head table','Vegetarian','dislike',[]],['Guest — Omar','Halal','dislike',[]],['Table 2','Dairy free','intolerance',['Milk']]];
+
+  const menuFor=(type,dishesByCat)=>{const take=(cat,n,skip)=>{const pool=(dishesByCat[cat]||[]).filter(d=>!skip||!skip.test(d.name));const out=[];while(pool.length&&out.length<n)out.push(pool.splice(Math.floor(rnd()*pool.length),1)[0]);return out;};
+    const NOTSIDE=/sauce|glaze|rub|brine|dressing/i,NOTWED=/sandwich|jacket|curry|chilli/i;
+    if(type==='WED'||type==='GAL')return[...take('Canapés',3),...take('Starters',1),...take('Mains',2,NOTWED),...take('Sides',1,NOTSIDE),...take('Desserts',1),...take('Evening Grazing',1)];
+    if(type==='WAKE')return[...take('Evening Grazing',2),...take('Desserts',1),...take('Canapés',1)];
+    if(type==='TM'){const tm=take('Tasting Menu',6);return tm.length>=4?tm:[...take('Canapés',1),...take('Starters',2),...take('Mains',2,NOTWED),...take('Desserts',1)];}
+    if(type==='CAN')return take('Canapés',5);if(type==='GRZ')return[...take('Evening Grazing',3),...take('Canapés',2)];
+    if(type==='BUF')return[...take('Mains',2),...take('Sides',2,NOTSIDE),...take('Desserts',1)];
+    return[...take('Canapés',2),...take('Starters',1),...take('Mains',1,NOTWED),...take('Sides',1,NOTSIDE),...take('Desserts',1)];};
+
+  function buildOperational(lib){
+    const dishesByCat={};lib.dishes.forEach(d=>{(dishesByCat[d.category||'Other']=dishesByCat[d.category||'Other']||[]).push(d);});
+    const allDishes=lib.dishes;
+    PREP.events=[];PREP.event_dishes=[];PREP.invoices=[];PREP.event_variant_assignments=[];PREP.event_cost_lines=[];PREP.prepped_stock=[];
+    let invNo=171;const income=[];const bank=[];
+    EV.forEach((e,i)=>{const[off,client,type,covers,venue,address,status,dep,price,contact,st,en,notes]=e;const iso=day(off);const id='ev-'+(i+1);const code=jobCode(client,iso,type);
+      const isWed=type==='WED';const g=[];if(covers>=30){g.push(GUESTS[i%GUESTS.length]);if(covers>=80)g.push(GUESTS[(i+3)%GUESTS.length]);}
+      PREP.events.push({id,client_name:client,event_type:type,event_date:iso,start_time:st,end_time:en,covers,status,deposit_status:dep,budget:price?String(price):null,staffing:covers>=80?'2 chefs · 4 FOH · 1 KP':covers>=30?'1 chef · 2 FOH':'1 chef',job_code:code,venue_name:venue,location:venue,address,contact_name:contact,contact_phone:'07700 9'+String(10000+between(0,89999)),contact_email:contact.toLowerCase().replace(/[^a-z]+/g,'.').replace(/\.$/,'')+'@example.com',contact_2:null,
+        kitchen_notes:notes||null,chef_notes:isWed?'Plate the starter from the barn kitchen; mains from the trailer.':null,service_notes:isWed?'Top table served first. Vegetarian mains marked with a rosemary sprig.':null,client_notes:null,
+        run_of_day:(ROD[type]||ROD.PRIV).map(r=>({time:r[0],event:r[1],duration:r[2],notes:r[3]})),
+        extra_charges:isWed?[{service:'Travel',notes:'',amount:60},{service:'Crockery hire',notes:'Plato Hire',amount:220}]:type==='WAKE'?[{service:'Travel',notes:'',amount:25}]:[],
+        guest_allergens:g.map(x=>({name:x[0],dietary:x[1],type:x[2],allergens:x[3]})),created_at:day(off-between(20,90))+'T10:00:00Z',updated_at:day(Math.min(0,off-between(1,10)))+'T10:00:00Z'});
+      const menu=menuFor(type,dishesByCat);menu.forEach(d=>PREP.event_dishes.push({id:uid(),event_id:id,dish_id:d.id,portions:(d.category==='Mains'&&menu.filter(m=>m.category==='Mains').length>1)?Math.round(covers*0.55):null}));
+      // invoices + money
+      if(price&&(dep||status==='Completed')){const depAmt=+(price*0.4).toFixed(2);
+        const depInv={id:uid(),event_id:id,number:invNo++,kind:'deposit',status:'paid',issued_on:day(off-between(30,60)),due_on:day(off-between(10,25)),bill_to:contact,lines:[{description:`Deposit (40%) — ${client}`,unit_price:depAmt,qty:1}],amount:depAmt,reference:code,notes:null,paid_on:day(off-between(11,28)),paid_amount:depAmt,paid_ref:'starling:demo-'+invNo};
+        if(dep||status==='Completed'){PREP.invoices.push(depInv);income.push({date:depInv.paid_on,amount:depAmt,description:'FASTER PAYMENT '+contact.toUpperCase(),reference:code,stream:'Events'});}
+        if(status==='Completed'||dep==='invoiced'||dep==='paid'){const bal=+(price-depAmt).toFixed(2);const paid=status==='Completed'||dep==='paid';
+          PREP.invoices.push({id:uid(),event_id:id,number:invNo++,kind:'final',status:paid?'paid':'sent',issued_on:day(off-7),due_on:day(off+23),bill_to:contact,lines:[{description:`Catering — ${client}`,unit_price:price,qty:1},{description:'Less deposit received',unit_price:-depAmt,qty:1}],amount:bal,reference:code,notes:null,paid_on:paid?day(off+between(2,12)):null,paid_amount:paid?bal:null,paid_ref:paid?'starling:demo-'+invNo:null,sent_on:day(off-7)});
+          if(paid)income.push({date:day(off+between(2,12)),amount:bal,description:'FASTER PAYMENT '+contact.toUpperCase(),reference:code,stream:'Events'});
+          else bank.push({date:day(-1),counterParty:contact.toUpperCase(),reference:code,txType:'FASTER_PAYMENTS_IN',amount:bal,starlingCat:'INCOME',feedItemUid:'demo-fi-'+id});}
+      }
+      // costs logged against the job
+      if(status==='Completed'){PREP.event_cost_lines.push({id:uid(),event_id:id,job_code:code,category:'labour',description:'Staff · '+(covers>=80?'7':'3')+' × shift',amount:covers>=80?840:360,source:'manual'},{id:uid(),event_id:id,job_code:code,category:'food',description:'Menu cost (auto)',amount:+(price*0.31).toFixed(2),source:'menu'});}
+    });
+    // GF variant assignments where a variant exists
+    const variants=allDishes.filter(d=>d.variant_of);
+    PREP.events.forEach(ev=>{const ga=(ev.guest_allergens||[]);if(!ga.some(g=>/GF|Coeliac/i.test(g.dietary)))return;(PREP.event_dishes.filter(x=>x.event_id===ev.id)).forEach(ed=>{const v=variants.find(v=>v.variant_of===ed.dish_id);if(v)PREP.event_variant_assignments.push({id:uid(),event_id:ev.id,dish_id:ed.dish_id,variant_id:v.id,portions:between(2,6),dietary_tags:['GF'],auto_assigned:true});});});
+    // prep queue: planned cards for the next 14 days, some already on days; freezer bank of available stock
+    const soon=PREP.events.filter(e=>e.event_date>=day(0)&&e.event_date<=day(14)&&e.status==='Confirmed');
+    soon.forEach(ev=>{const ed=PREP.event_dishes.filter(x=>x.event_id===ev.id);ed.forEach(x=>{const d=allDishes.find(dd=>dd.id===x.dish_id);if(!d)return;(d.components||[]).forEach((c,ci)=>{const need=c.qty_per_cover?Math.ceil(c.qty_per_cover*ev.covers):ev.covers;if(!need)return;
+      const lead=c.lead_time_days||(c.freeze_flag?3:1);const dOff=Math.max(0,Math.round((new Date(ev.event_date)-today)/864e5)-lead);const planned=rnd()<0.7?day(dOff):null;
+      PREP.prepped_stock.push({id:uid(),component_id:c.id,component_name:c.name,dish_id:d.id,dish_name:d.name,qty:need,unit:c.unit||'portions',status:'planned',assigned_event:ev.id,job_code:ev.job_code,planned_date:planned,time_estimate_mins:c.time_estimate_mins||null,created_at:day(-2)+'T09:00:00Z'});});});});
+    // available stock in the bank: frozen components made ahead
+    const frozenComps=[];allDishes.forEach(d=>(d.components||[]).forEach(c=>{if(c.freeze_flag)frozenComps.push({c,d});}));
+    frozenComps.slice(0,8).forEach(({c,d},i)=>PREP.prepped_stock.push({id:uid(),component_id:c.id,component_name:c.name,dish_id:d.id,dish_name:d.name,qty:[40,24,60,30,50,20,36,45][i],unit:c.unit||'portions',status:'available',assigned_event:null,job_code:null,planned_date:null,prepped_date:day(-between(2,20)),notes:pick(['Freezer 1 · shelf 2','Freezer 2 · blue crate','Freezer 1 · door','Walk-in freezer · rack B']),created_at:day(-10)+'T09:00:00Z'}));
+    // ingredient stock on hand + a recent price move
+    PREP.ingredient_on_hand=lib.ingredients.slice(0,40).map(i=>({id:uid(),ingredient_id:i.id,qty:between(1,30),updated_at:day(-between(0,6))+'T08:00:00Z'}));
+    // cleaning
+    const T=[['Sanitise all work surfaces','Zone A RTE','daily',15],['Sweep and mop floor','Zone A RTE','daily',20],['Empty bins, new liners','General','daily',5],['Probe thermometers — calibrate','General','weekly',10],['Walk-in fridge — temperature check + log','Walk-in Fridge','daily',5],['Walk-in fridge — shelves, door seals','Walk-in Fridge','weekly',30],['Walk-in freezer — defrost check','Walk-in Freezer','monthly',45],['Band saw and mincer — strip and sanitise','Zone B Butchery','daily',30],['Butchery blocks — scrape, salt, sanitise','Zone B Butchery','daily',20],['Full changeover clean A ↔ B','Zone B Butchery','twice_weekly',90],['Rational — clean cycle','Zone A RTE','weekly',15],['Extraction filters','General','fortnightly',40],['Drains and gullies','General','weekly',20],['Pest check — bait stations','External','weekly',10],['Dry store — stock rotation','General','weekly',25]];
+    PREP.cleaning_tasks=T.map(([name,area,frequency,mins],i)=>({id:'cl-'+i,name,area,frequency,estimated_minutes:mins,notes:null,active:true,created_at:day(-60)+'T09:00:00Z'}));
+    const ws=(()=>{const d=new Date(today);const dy=d.getDay();d.setDate(d.getDate()-dy+(dy===0?-6:1));return ymdL(d);})();
+    PREP.cleaning_completions=[];const dow=(today.getDay()+6)%7;
+    PREP.cleaning_tasks.forEach((t,i)=>{for(let dI=0;dI<dow;dI++){if(t.frequency==='daily'||(t.frequency!=='monthly'&&dI===0&&rnd()<0.8)){const d=new Date(ws);d.setDate(d.getDate()+dI);PREP.cleaning_completions.push({id:uid(),task_id:t.id,scheduled_day:ymdL(d),week_start:ws,completed_at:ymdL(d)+'T'+pick(['07:40','08:05','16:30','17:10'])+':00Z'});}}});
+    // butchery
+    const carc=[['PHB-2026-014','beef','Primrose Hill Farm',day(-9),312.4,'complete'],['PHB-2026-015','beef','Primrose Hill Farm',day(-4),298.0,'active'],['PHL-2026-006','lamb','Primrose Hill Farm',day(-2),21.6,'active'],['PHP-2026-003','pork','Primrose Hill Farm',day(-1),76.2,'active']];
+    PREP.butchery_carcasses=carc.map(([code,species,supplier,date,kg,status],i)=>({id:'bc-'+i,tracking_code:code,species,supplier,intake_date:date,intake_weight_kg:kg,notes:i===0?'Hung 28 days':null,status,created_by:'James',created_at:date+'T08:30:00Z'}));
+    const cuts={beef:[['Sirloin',3.2,6],['Ribeye',2.8,5],['Fillet',1.9,2],['Rump',4.1,4],['Brisket',5.6,2],['Short ribs',3.4,4],['Mince',2.0,18],['Chuck (dice)',2.5,8],['Bones',6.0,4],['Beef dripping',1.0,3]],lamb:[['Leg',2.4,2],['Shoulder (rolled)',2.1,2],['Rack',0.9,2],['Mince',1.0,3]],pork:[['Belly',3.0,4],['Loin',2.6,3],['Shoulder',4.2,2],['Sausage meat',2.0,6]]};
+    PREP.butchery_packs=[];PREP.butchery_pack_movements=[];PREP.butchery_temperature_logs=[];PREP.butchery_trim_logs=[];
+    PREP.butchery_carcasses.forEach((c,ci)=>{if(ci===3)return;(cuts[c.species]||[]).forEach(([name,kg,n])=>{for(let k=0;k<n;k++){const r=rnd();const st=c.status==='complete'?(r<0.7?'sold':'in_freezer'):(r<0.45?'in_freezer':r<0.7?'packed':r<0.85?'at_market':'in_crate');const loc=st==='in_freezer'?'Freezer 1':st==='at_market'?'Market van':st==='sold'?null:'Walk-in Fridge';const id=uid();
+      PREP.butchery_packs.push({id,carcass_id:c.id,product_name:name,weight_kg:+(kg*(0.85+rnd()*0.3)).toFixed(2),current_location:loc,current_status:st,packed_by:pick(['James','Ellie','Tom']),packed_at:c.intake_date+'T14:00:00Z',created_at:c.intake_date+'T14:00:00Z'});
+      PREP.butchery_pack_movements.push({id:uid(),pack_id:id,movement_type:'packed',location:'Walk-in Fridge',moved_by:'James',created_at:c.intake_date+'T14:05:00Z'});
+      if(st==='in_freezer')PREP.butchery_pack_movements.push({id:uid(),pack_id:id,movement_type:'to_freezer',location:'Freezer 1',moved_by:'James',created_at:c.intake_date+'T16:00:00Z'});
+      if(st==='sold')PREP.butchery_pack_movements.push({id:uid(),pack_id:id,movement_type:'sold',location:null,moved_by:'James',created_at:day(-3)+'T11:00:00Z'});}});
+      PREP.butchery_trim_logs.push({id:uid(),carcass_id:c.id,trim_weight_kg:+(c.intake_weight_kg*0.09).toFixed(2),notes:'Fat and sinew',logged_by:'James',created_at:c.intake_date+'T15:00:00Z'});
+      [1,2,3].forEach(h=>PREP.butchery_temperature_logs.push({id:uid(),carcass_id:c.id,location:'Walk-in Fridge',temperature_c:+(1.5+rnd()*2).toFixed(1),logged_by:'James',created_at:c.intake_date+'T'+String(8+h*2).padStart(2,'0')+':00:00Z'}));});
+    PREP.butchery_schedule=[{id:uid(),week_commencing:ws,scheduled_date:day(2),species:'beef',supplier:'Primrose Hill Farm',estimated_weight_kg:300,assigned_to:'James',notes:'For the Harvest Supper'},{id:uid(),week_commencing:ws,scheduled_date:day(5),species:'pork',supplier:'Primrose Hill Farm',estimated_weight_kg:80,assigned_to:'Tom',notes:null}];
+    PREP.butchery_changeover_cleans=[{id:uid(),cleaned_at:day(-1)+'T18:00:00Z',cleaned_by:'Ellie',from_zone:'B',to_zone:'A',checklist:{surfaces:true,equipment:true,floor:true,bins:true,hands:true},notes:null}];
+    // finance + bank + CPS (shared project)
+    BOH.finance_income=income.map(r=>({id:uid(),...r}));
+    BOH.finance_expenses=[['Booker Ltd','Food & Drink',412.6,day(-3)],['Produce Warriors','Food & Drink',86.4,day(-2)],['Plato Hire','Equipment hire',220,day(-9)],['Primrose Hill Farm Beef','Food & Drink',980,day(-9)],['Shell Southam','Travel',72.1,day(-4)]].map(([desc,category,amount,date])=>({id:uid(),date,amount,description:desc,category,reference:null}));
+    window.__DEMO_BANK={accountName:"Digby's Events & Catering",currency:'GBP',transactions:[...bank,...BOH.finance_expenses.map(e=>({date:e.date,counterParty:e.description.toUpperCase(),reference:e.category,txType:'MASTER_CARD',amount:-e.amount,starlingCat:'GROCERIES',feedItemUid:'demo-x-'+e.id})),...income.slice(-4).map((r,i)=>({date:r.date,counterParty:r.description.replace('FASTER PAYMENT ',''),reference:r.reference,txType:'FASTER_PAYMENTS_IN',amount:r.amount,starlingCat:'INCOME',feedItemUid:'demo-in-'+i}))].sort((a,b)=>b.date.localeCompare(a.date))};
+    BOH.staff=[{id:uid(),name:'James Brierley',initials:'JB'},{id:uid(),name:'Ellie Marsh',initials:'EM'},{id:uid(),name:'Tom Reed',initials:'TR'},{id:uid(),name:'Priya Shah',initials:'PS'}];
+    BOH.job_codes=PREP.events.map(e=>({id:uid(),code:e.job_code,description:e.client_name+' · '+e.event_date,created_at:e.created_at}));
+    BOH.products=[];allDishes.forEach(d=>(d.components||[]).forEach(c=>{const al=(lib.allergens.filter(a=>a.component_id===c.id));BOH.products.push({id:uid(),name:(c.name&&d.name&&c.name.toLowerCase()!==d.name.toLowerCase())?c.name+' — '+d.name:(c.name||d.name),category:d.category==='Desserts'?'Desserts':d.category||'Other',shelf_life_hours:c.use_by_hours||72,contains:al.filter(a=>a.status!=='May Contain').map(a=>a.allergen).join(', ')||null,may_contain:al.filter(a=>a.status==='May Contain').map(a=>a.allergen).join(', ')||null});}));
+    BOH.print_jobs=PREP.prepped_stock.filter(s=>s.status==='available').map(s=>({id:uid(),product_name:s.component_name+' — '+s.dish_name,staff_name:pick(['Ellie Marsh','James Brierley']),section:'Mains',job_code:null,quantity:1,date_prepped:s.prepped_date,date_useby:day(80),contains:null,may_contain:null,notes:s.notes,printed_at:'14:20',label_status:'FROZEN',created_at:s.prepped_date+'T14:20:00Z'}));
+    // rota (Digby's Staff) for the rota panel
+    BOH.events=PREP.events.filter(e=>e.status==='Confirmed'&&e.event_date>=day(0)).slice(0,6).map(e=>({id:'be-'+e.id,name:e.client_name,job_code:e.job_code,event_date:e.event_date,start_time:e.start_time,end_time:e.end_time,location:e.venue_name}));
+    BOH.shifts=[];BOH.events.forEach((be,i)=>{const src=PREP.events.find(e=>e.job_code===be.job_code);const roles=src.covers>=80?['Chef','Chef','Front of house','Front of house','Front of house','Kitchen porter']:src.covers>=30?['Chef','Front of house','Front of house']:['Chef'];roles.forEach((r,ri)=>BOH.shifts.push({id:uid(),event_id:be.id,title:r,shift_date:be.event_date,start_time:r==='Chef'?'09:00':'12:00',end_time:be.end_time,status:ri<roles.length-1||i%2?'ASSIGNED':'OPEN',assignee:ri<roles.length-1||i%2?pick(['Ellie Marsh','Tom Reed','Priya Shah','James Brierley']):null}));});
+  }
+
+  // ── boot: snapshot the live library, generate the rest, hand the app fake clients ──
+  const real=supabase.createClient(SUPA_URL,SUPA_KEY);
+  const ready=(async()=>{
+    let lib={dishes:[],components:[],recipe_ingredients:[],recipe_steps:[],allergens:[],ingredients:[],haccp:[],price_log:[],settings:[]};
+    try{
+      const[d,i,hcp,pl,st]=await Promise.all([real.from('dishes').select('*, components(*, component_allergens(*), recipe_ingredients(*), recipe_steps(*))'),real.from('ingredients').select('*'),real.from('haccp_templates').select('*'),real.from('ingredient_price_log').select('*'),real.from('app_settings').select('*')]);
+      lib.dishes=(d.data||[]);lib.ingredients=i.data||[];lib.haccp=hcp.data||[];lib.price_log=pl.data||[];lib.settings=st.data||[];
+    }catch(e){console.warn('demo: could not snapshot the live library',e);}
+    PREP.dishes=lib.dishes.map(d=>{const{components,...rest}=d;return rest;});
+    PREP.components=[];PREP.recipe_ingredients=[];PREP.recipe_steps=[];PREP.component_allergens=[];
+    lib.dishes.forEach(d=>(d.components||[]).forEach(c=>{const{component_allergens,recipe_ingredients,recipe_steps,...cr}=c;PREP.components.push(cr);(recipe_ingredients||[]).forEach(r=>PREP.recipe_ingredients.push(r));(recipe_steps||[]).forEach(r=>PREP.recipe_steps.push(r));(component_allergens||[]).forEach(r=>PREP.component_allergens.push({id:r.id||uid(),...r}));}));
+    lib.allergens=PREP.component_allergens;
+    PREP.ingredients=lib.ingredients;PREP.haccp_templates=lib.haccp;PREP.ingredient_price_log=lib.price_log;PREP.app_settings=lib.settings.filter(s=>!/starling|bank/.test(s.key));
+    // a couple of recent price moves so the cost-over-time chart has a story
+    const pricey=lib.ingredients.filter(i=>+i.cost_per_unit>5).slice(0,3);pricey.forEach((ing,k)=>{const cur=+ing.cost_per_unit;PREP.ingredient_price_log.push({id:uid(),ingredient_id:ing.id,ingredient_name:ing.name,cost_per_unit:+(cur*0.92).toFixed(2),previous:+(cur*0.88).toFixed(2),sold_by:ing.sold_by||ing.unit,changed_at:day(-40-k*10)+'T09:00:00Z'},{id:uid(),ingredient_id:ing.id,ingredient_name:ing.name,cost_per_unit:cur,previous:+(cur*0.92).toFixed(2),sold_by:ing.sold_by||ing.unit,changed_at:day(-12-k*3)+'T09:00:00Z'});});
+    buildOperational(lib);
+    window.__DEMO.loaded=true;
+  })();
+  const rpcs={rota_for_job_code:({code})=>{const ev=(BOH.events||[]).find(e=>e.job_code===code);return ev?{linked:true,eventName:ev.name,shifts:(BOH.shifts||[]).filter(s=>s.event_id===ev.id).map(s=>({title:s.title,start_time:s.start_time,end_time:s.end_time,status:s.status,assignee:s.assignee}))}:{linked:false,shifts:[]};}};
+  window.__DEMO={active:true,ready,PREP,BOH,prep:client(PREP,{}),boh:client(BOH,rpcs),loaded:false};
+  // the printer and the bank feed answer from memory too
+  const _fetch=window.fetch.bind(window);
+  window.fetch=(u,o)=>{const s=String(u);
+    if(/\/api\/starling/.test(s))return Promise.resolve(new Response(JSON.stringify({...window.__DEMO_BANK,count:(window.__DEMO_BANK||{transactions:[]}).transactions.length}),{status:200,headers:{'Content-Type':'application/json'}}));
+    if(/\/print$/.test(s)||/\/butchery\/label$/.test(s)){window.__DEMO.prints=(window.__DEMO.prints||[]);window.__DEMO.prints.push(o&&o.body?JSON.parse(o.body):{});return new Promise(r=>setTimeout(()=>r(new Response(JSON.stringify({success:true}),{status:200,headers:{'Content-Type':'application/json'}})),600));}
+    if(/\/status$/.test(s))return Promise.resolve(new Response(JSON.stringify({success:true,printer:'QL-820NWB (demo)'}),{status:200,headers:{'Content-Type':'application/json'}}));
+    return _fetch(u,o);};
+})();
+
+const sb=window.__DEMO?window.__DEMO.prep:supabase.createClient(SUPA_URL,SUPA_KEY);
 // BOH rota app — secondary read client (anon, CPS project)
-const sbBOH=supabase.createClient('https://jaajrllkozknilvmdezt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphYWpybGxrb3prbmlsdm1kZXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQxNDAsImV4cCI6MjA5MjYwMDE0MH0.09U5cba3JxRmysrn2X3TxPqr-q6jJE4QhyeKQwEK03M');
+const sbBOH=window.__DEMO?window.__DEMO.boh:supabase.createClient('https://jaajrllkozknilvmdezt.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphYWpybGxrb3prbmlsdm1kZXp0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjQxNDAsImV4cCI6MjA5MjYwMDE0MH0.09U5cba3JxRmysrn2X3TxPqr-q6jJE4QhyeKQwEK03M');
 // Every write that nobody checks still surfaces. Results of insert / update / upsert / delete are
 // wrapped so an error that no caller reads within the tick becomes an error toast (with Copy) —
 // the class of silent failure that lost recipe lines before v13. Callers that read .error are untouched.
@@ -2915,10 +3155,12 @@ function updateCostReviewCount(){
 // ═══════════════════════════════════════════════
 async function init(){
   const dot=document.getElementById('sb-dot'),conn=document.getElementById('sb-conn');
+  if(window.__DEMO){await window.__DEMO.ready;document.body.classList.add('demo');}
   try{
     const{error}=await sb.from('dishes').select('id').limit(1);
     if(error)throw error;
     dot.className='conn-dot live';if(conn)conn.textContent='Live';
+    if(window.__DEMO){dot.className='conn-dot demo';if(conn){conn.innerHTML='<button class="demo-pill" onclick="leaveDemo()" title="Nothing is saved while the demo is on — tap to leave">Demo</button>';}}
   }catch(e){dot.className='conn-dot err';if(conn)conn.textContent='Offline';toast('Database error','err');return;}
   await Promise.all([loadDishes(),loadEvents(),loadIngredients(),loadSettings(),loadPriceLog()]);
   buildIngAlGrid();
@@ -5373,7 +5615,7 @@ async function renderPipeline(){
   upcoming.forEach(e=>{
     const d=new Date(e.event_date+'T00:00:00');const daysAway=Math.round((d-now)/ms);
     const nDishes=(e.event_dishes||[]).length;
-    if(daysAway<=14&&e.status==='Confirmed'&&e.deposit_status!=='paid')alerts.push({sev:daysAway<=7?'red':'warn',id:e.id,t:`${e.client_name||'Unnamed'} is ${payMeta(e)[1].toLowerCase()}`,s:`${nice(d)} · ${daysAway===0?'today':daysAway+' day'+(daysAway===1?'':'s')+' away'}`});
+    if(daysAway<=14&&e.status==='Confirmed'&&e.deposit_status!=='paid')alerts.push({sev:daysAway<=7?'red':'warn',id:e.id,t:`${e.client_name||'Unnamed'} — ${e.deposit_status==='deposit'?'balance outstanding':e.deposit_status==='invoiced'?'invoice sent, unpaid':'unpaid'}`,s:`${nice(d)} · ${daysAway===0?'today':daysAway+' day'+(daysAway===1?'':'s')+' away'}`});
     if(daysAway<=7&&nDishes===0)alerts.push({sev:'red',id:e.id,t:`${e.client_name||'Unnamed'} has no menu yet`,s:`${nice(d)} · ${e.covers||0} covers`});
     if(daysAway<=10&&nDishes>0){
       let short=0;(e.event_dishes||[]).forEach(ed=>{const dish=dishes.find(dd=>dd.id===ed.dish_id);if(!dish)return;(dish.components||[]).filter(c=>c.freeze_flag).forEach(c=>{const need=c.qty_per_cover?Math.ceil(c.qty_per_cover*(e.covers||0)):(e.covers||0);const have=stock.filter(s=>s.component_id===c.id&&s.status==='available'&&(!s.assigned_event||s.assigned_event===e.id)).reduce((s,r)=>s+(parseFloat(r.qty)||0),0);if(have<need)short++;});});
@@ -6228,6 +6470,7 @@ function openSettings(){
   g('set-useby-chilled').value=getSetting('useby_chilled_days');g('set-useby-frozen').value=getSetting('useby_frozen_days');
   g('set-butchery-printer').value=getSetting('butchery_printer_url')||'';
   {const el=g('set-cps-status');if(el)el.textContent=cpsSyncStatusText(null);}
+  {const el=g('set-demo');if(el)el.checked=!!window.__DEMO;}
   g('set-migration-note').style.display=(_settingsTableOk===false||_invoicesTableOk===false||_portionsColOk===false||_eachColOk===false||_priceLogOk===false)?'flex':'none';
   renderBankStatus();if(_bank.ok===null)loadBankFeed().then(renderBankStatus);
   renderSetupChecks();runSetupChecks(true);
@@ -6251,6 +6494,8 @@ async function saveSettings(){
   ]);
   if(ok.every(Boolean)){closeModal('settings-modal');toast(_settingsTableOk?'Settings saved':'Settings saved on this device');if(_evDetail.id)renderEventTab();}
 }
+async function leaveDemo(){if(!await askConfirm('Leave the demo and go back to the live data? Nothing from the demo is kept.',{title:'Leave demo',confirmLabel:'Leave demo',danger:false}))return;localStorage.removeItem('kp_demo');location.href=location.pathname;}
+async function enterDemo(){localStorage.setItem('kp_demo','1');location.href=location.pathname;}
 function copyMigrationSQL(){navigator.clipboard.writeText(MIGRATION_SQL).then(()=>toast('Migration SQL copied')).catch(()=>toast('Could not copy','err'));}
 
 // ═══════════════════════════════════════════════════════════════════
