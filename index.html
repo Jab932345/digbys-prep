@@ -982,6 +982,7 @@ input[type=range]{accent-color:var(--accent);}
 .board-col{background:var(--fill4);border:none;border-radius:var(--r-md);min-width:228px;max-width:228px;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;}
 .board-col-hd{padding:10px 12px;font-size:var(--fs-sh);font-weight:600;color:var(--label);background:transparent;border-bottom:none;display:flex;justify-content:space-between;align-items:center;}
 .board-col-hd.pool{color:var(--label2);}
+.board-col-sub{font-weight:500;color:var(--label3);margin-left:2px;}
 .board-col-count{height:20px;padding:0 7px;font-size:var(--fs-cp);}
 .board-col-body{flex:1;overflow-y:auto;padding:0 8px 8px;display:flex;flex-direction:column;gap:8px;min-height:120px;}
 .board-col-empty{text-align:center;color:var(--label3);font-size:var(--fs-fn);padding:16px 0;}
@@ -2258,7 +2259,7 @@ input[type=range]{accent-color:var(--accent);}
 // ═══ Build stamp — bump APP_VERSION on every delivered file. Shown in the
 // sidebar footer, the Settings sheet and (on phones) the Today header, so it is
 // obvious which build Vercel is actually serving.
-const APP_VERSION='31',APP_BUILD_DATE='2026-09-27';
+const APP_VERSION='32',APP_BUILD_DATE='2026-09-28';
 function stampVersion(){document.querySelectorAll('.app-ver').forEach(el=>{el.textContent='v'+APP_VERSION;el.title='Build '+APP_BUILD_DATE;});document.querySelectorAll('.app-ver-long').forEach(el=>el.textContent='Kitchen Prep v'+APP_VERSION+' · build '+new Date(APP_BUILD_DATE+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));}
 document.addEventListener('DOMContentLoaded',stampVersion);
 // ═══ Icons — SF-Symbol-style line glyphs, 24-grid, stroke 1.75, round caps.
@@ -2538,8 +2539,12 @@ const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
     // prep queue: planned cards for the next 14 days, some already on days; freezer bank of available stock
     const soon=PREP.events.filter(e=>e.event_date>=day(0)&&e.event_date<=day(14)&&e.status==='Confirmed');
     soon.forEach(ev=>{const ed=PREP.event_dishes.filter(x=>x.event_id===ev.id);ed.forEach(x=>{const d=allDishes.find(dd=>dd.id===x.dish_id);if(!d)return;(d.components||[]).forEach((c,ci)=>{const need=c.qty_per_cover?Math.ceil(c.qty_per_cover*ev.covers):ev.covers;if(!need)return;
-      const lead=c.lead_time_days||(c.freeze_flag?3:1);const dOff=Math.max(0,Math.round((new Date(ev.event_date)-today)/864e5)-lead);const planned=rnd()<0.7?day(dOff):null;
+      const lead=c.lead_time_days||(c.freeze_flag?3:1);const dOff=Math.max(0,Math.round((new Date(ev.event_date)-today)/864e5)-lead);const planned=c.freeze_flag?null:(rnd()<0.7?day(dOff):null);
       PREP.prepped_stock.push({id:uid(),component_id:c.id,component_name:c.name,dish_id:d.id,dish_name:d.name,qty:need,unit:c.unit||'portions',status:'planned',assigned_event:ev.id,job_code:ev.job_code,planned_date:planned,time_estimate_mins:c.time_estimate_mins||null,created_at:day(-2)+'T09:00:00Z'});});});});
+    // freeze-ahead work for events further out (up to six weeks): made now, frozen until needed
+    const ahead=PREP.events.filter(e=>e.event_date>day(14)&&e.event_date<=day(42)&&e.status==='Confirmed');
+    ahead.forEach(ev=>{const ed=PREP.event_dishes.filter(x=>x.event_id===ev.id);ed.forEach(x=>{const d=allDishes.find(dd=>dd.id===x.dish_id);if(!d)return;(d.components||[]).filter(c=>c.freeze_flag).forEach(c=>{const need=c.qty_per_cover?Math.ceil(c.qty_per_cover*ev.covers):ev.covers;if(!need)return;
+      PREP.prepped_stock.push({id:uid(),component_id:c.id,component_name:c.name,dish_id:d.id,dish_name:d.name,qty:need,unit:c.unit||'portions',status:'planned',assigned_event:ev.id,job_code:ev.job_code,planned_date:null,time_estimate_mins:c.time_estimate_mins||null,created_at:day(-1)+'T09:00:00Z'});});});});
     // available stock in the bank: frozen components made ahead
     const frozenComps=[];allDishes.forEach(d=>(d.components||[]).forEach(c=>{if(c.freeze_flag)frozenComps.push({c,d});}));
     frozenComps.slice(0,8).forEach(({c,d},i)=>PREP.prepped_stock.push({id:uid(),component_id:c.id,component_name:c.name,dish_id:d.id,dish_name:d.name,qty:[40,24,60,30,50,20,36,45][i],unit:c.unit||'portions',status:'available',assigned_event:null,job_code:null,planned_date:null,prepped_date:day(-between(2,20)),notes:pick(['Freezer 1 · shelf 2','Freezer 2 · blue crate','Freezer 1 · door','Walk-in freezer · rack B']),created_at:day(-10)+'T09:00:00Z'}));
@@ -4817,12 +4822,13 @@ function fmtQty(qty, unit) {
 
 // Shortfall math shared by the day board's Generate and the by-event
 // auto-refresh below — one calculation, so the two views always agree.
-function shortfallRowsForEvents(eventList, stockRows) {
+function shortfallRowsForEvents(eventList, stockRows, compFilter) {
   const toInsert = [];
   eventList.forEach(ev => {
     (ev.event_dishes || []).forEach(ed => {
       const dish = dishes.find(d => d.id === ed.dish_id); if (!dish) return;
       (dish.components || []).forEach(comp => {
+        if (compFilter && !compFilter(comp)) return;
         const need = comp.qty_per_cover ? Math.ceil(comp.qty_per_cover * (ev.covers || 0)) : (ev.covers || 0); if (!need) return;
         const have = stockRows.filter(r => r.component_id === comp.id && r.status === 'available' && (!r.assigned_event || r.assigned_event === ev.id))
           .reduce((s, r) => s + (parseFloat(r.qty) || 0), 0);
@@ -5789,21 +5795,40 @@ let _boardData = { cards: [] };
 async function generateBoard(){
   const days=parseInt(document.getElementById('board-horizon').value)||14;
   const now=new Date();now.setHours(0,0,0,0);
-  const cutoff=dayAdd(now,days);
-  const upcoming=events.filter(e=>e.event_date&&e.status!=='Cancelled'&&e.status!=='Enquiry'
-    &&new Date(e.event_date+'T00:00:00')>=now&&new Date(e.event_date+'T00:00:00')<=cutoff);
-  if(!upcoming.length){toast('No confirmed events in that window','err');return;}
+  const todayStr=ymd(now),cutoff=ymd(dayAdd(now,days)),farCutoff=ymd(dayAdd(now,PREP_FREEZE_LOOKAHEAD));
+  const booked=events.filter(e=>e.event_date&&e.status!=='Cancelled'&&e.status!=='Enquiry'&&e.event_date>=todayStr);
+  const within=booked.filter(e=>e.event_date<=cutoff);
+  const further=booked.filter(e=>e.event_date>cutoff&&e.event_date<=farCutoff);
+  if(!within.length&&!further.length){toast(`No confirmed events in the next ${PREP_FREEZE_LOOKAHEAD} days`,'err');return;}
 
   const{data:stockData}=await sb.from('prepped_stock').select('*');
   const rows=stockData||[];
-  const toInsert=shortfallRowsForEvents(upcoming,rows);
+  const soon=shortfallRowsForEvents(within,rows);
+  const ahead=shortfallRowsForEvents(further,rows,c=>c.freeze_flag);  // only what can be made now and frozen
+  const toInsert=soon.concat(ahead);
   if(toInsert.length){
     for(const row of toInsert){await sb.from('prepped_stock').insert(row);}
-    toast(`Added ${toInsert.length} task${toInsert.length!==1?'s':''} to the pool`);
+    toast(`Added ${toInsert.length} task${toInsert.length!==1?'s':''}${ahead.length?` · ${ahead.length} freeze-ahead for events further out`:''}`);
   }else{
     toast('Nothing new — bank and existing plan already cover this window');
   }
   renderPrepBoard();
+}
+
+// ── When a task can be done, from the component's storage. Freeze-ahead work can start now for
+// anything in the next six weeks; fridge prep opens three days out; fresh is the day itself
+// (the day before when service starts early). `due` is the last day it can be made.
+const PREP_FREEZE_LOOKAHEAD=42;
+function prepWindow(card){
+  const comp=dishes.flatMap(d=>d.components||[]).find(cc=>cc.id===card.component_id);
+  const ev=card.assigned_event?events.find(e=>e.id===card.assigned_event):null;
+  const storage=comp?.freeze_flag?'freeze':comp?.fridge_flag?'fridge':'fresh';
+  if(!ev||!ev.event_date)return{storage,ev:null,earliest:null,due:null};
+  const evD=new Date(ev.event_date+'T00:00:00');
+  const lead=comp?.lead_time_days||(storage==='freeze'?2:storage==='fridge'?1:((ev.start_time||'12:00')<'11:00'?1:0));
+  const due=dayAdd(evD,-lead);
+  const earliest=storage==='freeze'?dayAdd(evD,-PREP_FREEZE_LOOKAHEAD):storage==='fridge'?dayAdd(due,-2):due;
+  return{storage,ev,earliest,due};
 }
 
 async function renderPrepBoard(){
@@ -5812,53 +5837,76 @@ async function renderPrepBoard(){
   const days=parseInt(document.getElementById('board-horizon')?.value)||14;
   const now=new Date();now.setHours(0,0,0,0);
   const{data}=await sb.from('prepped_stock').select('*').eq('status','planned').order('planned_date',{nullsFirst:true});
-  const cards=data||[];
+  const all=data||[];
+  const todayStr=ymd(now);
+  // a task for an event that has happened, been cancelled or deleted is dead — clear it rather than leave it on the board
+  const dead=all.filter(c=>{if(!c.assigned_event)return false;const ev=events.find(e=>e.id===c.assigned_event);return !ev||ev.status==='Cancelled'||(ev.event_date&&ev.event_date<todayStr);});
+  if(dead.length){for(const c of dead){await sb.from('prepped_stock').delete().eq('id',c.id);}toast(`Cleared ${dead.length} task${dead.length===1?'':'s'} from past events`);}
+  const cards=all.filter(c=>!dead.includes(c));
   _boardData.cards=cards;
 
-  const cols=[{key:'pool',label:'Unplanned',date:null,cards:cards.filter(c=>!c.planned_date)}];
+  const horizonEnd=ymd(dayAdd(now,days-1));
+  const cols=[{key:'pool',label:'Freeze ahead',sub:'any time',date:null,cards:[]}];
   for(let i=0;i<days;i++){
     const d=dayAdd(now,i);const iso=ymd(d);
-    cols.push({key:iso,label:relDay(d),date:iso,cards:cards.filter(c=>c.planned_date===iso)});
+    cols.push({key:iso,label:relDay(d),date:iso,cards:[]});
   }
-  let totalMins=0;
+  const colFor=k=>cols.find(c=>c.key===k);
+  let notYet=0;
   cards.forEach(c=>{
+    const w=prepWindow(c);c._w=w;
+    let key;
+    if(c.planned_date){  // a day the chef chose wins; a chosen day that has slipped past lands on today
+      if(c.planned_date>horizonEnd){notYet++;return;}
+      key=c.planned_date<todayStr?todayStr:c.planned_date;
+    }else if(!w.ev){key='pool';}  // general bank batches: do any time
+    else if(w.storage==='freeze'){key=w.due<now?todayStr:'pool';}
+    else{
+      const start=w.earliest<now?now:w.earliest;
+      if(ymd(start)>horizonEnd){notYet++;return;}  // not due yet — shows up when its window opens
+      key=ymd(start);
+    }
+    (colFor(key)||cols[0]).cards.push(c);
+  });
+  const byDue=(a,b)=>((a._w.due?+a._w.due:Infinity)-(b._w.due?+b._w.due:Infinity))||String(a.component_name).localeCompare(String(b.component_name));
+  cols.forEach(col=>col.cards.sort(byDue));
+  let totalMins=0;
+  cols.forEach(col=>col.cards.forEach(c=>{
     if(c.time_estimate_mins){
       const comp=dishes.flatMap(d=>d.components||[]).find(cc=>cc.id===c.component_id);
       const base=comp?.base_portions||10;
       totalMins+=c.time_estimate_mins*Math.max(1,(parseFloat(c.qty)||base)/base);
     }
-  });
-  document.getElementById('board-hours').textContent=totalMins?`≈ ${fmtDur(totalMins)} of prep in view`:'';
+  }));
+  document.getElementById('board-hours').textContent=[totalMins?`≈ ${fmtDur(totalMins)} of prep in view`:'',notYet?`${notYet} not due yet`:''].filter(Boolean).join(' · ');
 
   if(!cards.length){
     const evN=events.filter(e=>e.event_date&&e.status!=='Cancelled'&&e.event_date>=ymd(now)&&e.event_date<=ymd(dayAdd(now,days))).length;
-    wrap.innerHTML=`<div class="empty board-empty"><div class="empty-icon">${ico('checklist')}</div><div class="empty-t">Nothing in the queue</div><div class="empty-s">${evN?`Generate builds the prep for the ${evN} event${evN===1?'':'s'} in the next ${days} days from each dish's components and covers.`:`No events in the next ${days} days. Widen the horizon, or add a task by hand.`}</div><div class="empty-acts" style="display:flex;gap:8px;margin-top:10px;">${evN?`<button class="btn btn-primary" onclick="generateBoard()">${ico('refresh')}Generate</button>`:''}<button class="btn" onclick="openAddTask()">${ico('plus')}Add task</button></div></div>`;
+    wrap.innerHTML=`<div class="empty board-empty"><div class="empty-icon">${ico('checklist')}</div><div class="empty-t">Nothing in the queue</div><div class="empty-s">${evN?`Generate builds the prep for the ${evN} event${evN===1?'':'s'} in the next ${days} days from each dish's components and covers — plus anything that can be made now and frozen for events in the next six weeks.`:`No events in the next ${days} days. Widen the horizon, or add a task by hand.`}</div><div class="empty-acts" style="display:flex;gap:8px;margin-top:10px;">${evN?`<button class="btn btn-primary" onclick="generateBoard()">${ico('refresh')}Generate</button>`:''}<button class="btn" onclick="openAddTask()">${ico('plus')}Add task</button></div></div>`;
     return;
   }
   wrap.innerHTML=cols.map(col=>`
     <div class="board-col" ondragover="boardDragOver(event)" ondrop="boardDrop(event,${col.date?`'${col.date}'`:'null'})">
-      <div class="board-col-hd${col.key==='pool'?' pool':''}">${col.label}<span class="board-col-count">${col.cards.length}</span></div>
-      <div class="board-col-body">${col.cards.length?col.cards.map(c=>boardCardHTML(c)).join(''):'<div class="board-col-empty">—</div>'}</div>
+      <div class="board-col-hd${col.key==='pool'?' pool':''}"><span>${col.label}${col.sub?` <span class="board-col-sub">${col.sub}</span>`:''}</span><span class="board-col-count">${col.cards.length}</span></div>
+      <div class="board-col-body">${col.cards.length?col.cards.map(c=>boardCardHTML(c,col.key==='pool')).join(''):'<div class="board-col-empty">—</div>'}</div>
     </div>`).join('');
 }
 
-function boardCardHTML(c){
+function boardCardHTML(c,inPool){
   const comp=dishes.flatMap(d=>d.components||[]).find(cc=>cc.id===c.component_id);
-  const ev=c.assigned_event?events.find(e=>e.id===c.assigned_event):null;
+  const w=c._w||prepWindow(c);const ev=w.ev;
   let deadlineLabel='';
-  if(ev){
-    const lead=comp?.lead_time_days||0;
-    const deadline=new Date(ev.event_date+'T00:00:00');deadline.setDate(deadline.getDate()-lead);
+  if(ev&&w.due){
     const now=new Date();now.setHours(0,0,0,0);
-    const daysLeft=Math.round((deadline-now)/86400000);
-    deadlineLabel=daysLeft<0?`<span class="board-card-late">overdue</span>`:daysLeft<=2?`<span class="board-card-soon">${daysLeft}d left</span>`:`<span class="board-card-ok">${daysLeft}d left</span>`;
+    const daysLeft=Math.round((w.due-now)/86400000);
+    deadlineLabel=daysLeft<0?`<span class="board-card-late">overdue</span>`:daysLeft===0?`<span class="board-card-soon">due today</span>`:daysLeft<=2?`<span class="board-card-soon">${daysLeft}d left</span>`:`<span class="board-card-ok">${daysLeft}d left</span>`;
   }
   const freezeIcon=comp?.freeze_flag?ico('snowflake','ico-xs'):comp?.fridge_flag?ico('thermometer','ico-xs'):ico('leaf','ico-xs');
   return`<div class="board-card" draggable="true" data-id="${c.id}" ondragstart="boardDragStart(event,'${c.id}')">
     <div class="board-card-top"><span class="board-card-storage">${freezeIcon}</span><span class="board-card-qty">${fmtQty(c.qty,c.unit)}</span></div>
     <div class="board-card-name">${h(c.component_name)}</div>
     <div class="board-card-dish">${h(c.dish_name||'')}</div>
-    <div class="board-card-meta">${ev?`<span>${h(ev.client_name||'')}</span>`:'<span>General bank</span>'}${deadlineLabel}</div>
+    <div class="board-card-meta">${ev?`<span>${h(ev.client_name||'')}${inPool?` · ${relDay(ev.event_date)}`:''}</span>`:'<span>General bank</span>'}${deadlineLabel}</div>
     <div class="board-card-actions">
       <button class="btn btn-xs btn-tint" onclick="event.stopPropagation();openBoardDoneModal('${c.id}')">${ico('check')}Done</button>
       <button class="btn btn-xs" onclick="event.stopPropagation();openBoardMoveModal('${c.id}')">Move</button>
@@ -5891,7 +5939,7 @@ function openBoardMoveModal(id){
   document.getElementById('bm-comp-name').textContent=card.component_name;
   const days=parseInt(document.getElementById('board-horizon')?.value)||14;
   const now=new Date();now.setHours(0,0,0,0);
-  let opts=`<option value="">Unplanned pool</option>`;
+  let opts=`<option value="">Automatic — by storage</option>`;
   for(let i=0;i<days;i++){
     const d=dayAdd(now,i);const iso=ymd(d);
     opts+=`<option value="${iso}"${card.planned_date===iso?' selected':''}>${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</option>`;
