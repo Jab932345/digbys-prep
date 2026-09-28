@@ -306,13 +306,14 @@ input[type=range]{accent-color:var(--accent);}
 .spin{width:22px;height:22px;border:2px solid var(--sep);border-top-color:var(--label2);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 /* Toast: floating capsule at the top, like a system notification */
-.toast{position:fixed;top:14px;left:50%;transform:translateX(-50%) translateY(-24px) scale(.96);background:var(--material-strong);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);color:var(--label);padding:10px 18px 10px 14px;border-radius:var(--r-pill);font-size:var(--fs-cl);font-weight:600;opacity:0;pointer-events:none;transition:opacity var(--dur-lg) var(--spring),transform var(--dur-lg) var(--spring);z-index:9999;max-width:90vw;box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:9px;letter-spacing:-.005em;}
+.toast{position:fixed;top:14px;left:16px;right:16px;width:fit-content;margin:0 auto;transform:translateY(-24px) scale(.96);background:var(--material-strong);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);color:var(--label);padding:10px 18px 10px 14px;border-radius:20px;font-size:var(--fs-cl);font-weight:600;opacity:0;pointer-events:none;transition:opacity var(--dur-lg) var(--spring),transform var(--dur-lg) var(--spring);z-index:9999;max-width:min(760px,calc(100vw - 32px));box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:9px;letter-spacing:-.005em;}  /* centred by margins, so a phone gives it the full width rather than half */
 .toast::before{content:'';width:18px;height:18px;border-radius:50%;flex-shrink:0;background:var(--ok) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12 4 4 8-8'/%3E%3C/svg%3E") center/11px no-repeat;}
 .toast.err::before{background:var(--accent) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M12 7v6M12 17h.01'/%3E%3C/svg%3E") center/11px no-repeat;}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0) scale(1);pointer-events:auto;}
+.toast.show{opacity:1;transform:none;pointer-events:auto;}
 .toast.err{border-radius:var(--r-lg);width:min(92vw,760px);max-width:min(92vw,760px);align-items:flex-start;padding:12px 12px 12px 14px;}
 .toast.err::before{margin-top:1px;}
 .toast-msg{flex:1;min-width:0;white-space:normal;word-break:break-word;font-weight:500;line-height:1.4;}
+.toast:not(.err) .toast-msg{font-weight:600;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
 .toast-act{flex-shrink:0;height:28px;padding:0 12px;border-radius:var(--r-sm);background:var(--accent);color:#fff;font-size:var(--fs-sh);font-weight:600;}
 .toast-x{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--fill);position:relative;}
 .toast-x::before{content:'';position:absolute;inset:8px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6 6 18'/%3E%3C/svg%3E") center/contain no-repeat;}
@@ -382,9 +383,10 @@ input[type=range]{accent-color:var(--accent);}
 .upcoming-list{display:flex;flex-direction:column;}
 .upcoming-row{position:relative;display:flex;align-items:center;gap:12px;padding:11px 16px;min-height:var(--row-h);cursor:pointer;transition:background var(--dur-xs) var(--spring);}
 @media (hover:hover){.upcoming-row:hover{background:var(--fill4);}}
-.upcoming-date{font-size:var(--fs-sh);color:var(--label2);min-width:74px;font-variant-numeric:tabular-nums;font-weight:500;}
+.upcoming-meta{display:contents;}  /* desktop: date · name · covers · pay · days on one line; phones regroup it under the name */
+.upcoming-date{font-size:var(--fs-sh);color:var(--label2);min-width:74px;font-variant-numeric:tabular-nums;font-weight:500;order:-1;}
 .upcoming-name{flex:1;font-size:var(--fs-bd);font-weight:500;color:var(--label);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.upcoming-days{font-size:var(--fs-sh);color:var(--label2);font-variant-numeric:tabular-nums;}
+.upcoming-covers,.upcoming-days{font-size:var(--fs-sh);color:var(--label2);font-variant-numeric:tabular-nums;white-space:nowrap;}
 .upcoming-days.soon{color:var(--accent);font-weight:600;}
 /* legacy pipeline cards */
 .pipeline-section{margin-bottom:28px;}
@@ -545,17 +547,17 @@ input[type=range]{accent-color:var(--accent);}
 @media (hover:hover){.cal-today:hover{background:var(--accent-tint);}}
 .cal-dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;}
 .cal-dow-cell{font-size:var(--fs-cp);font-weight:600;color:var(--label2);text-align:center;padding:4px;letter-spacing:.06em;text-transform:uppercase;}
-.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(92px,auto);gap:6px;flex:1;overflow:auto;}
-.cal-cell{background:var(--bg2);border-radius:var(--r);padding:8px;font-size:var(--fs-fn);color:var(--label2);cursor:pointer;display:flex;flex-direction:column;gap:4px;min-height:92px;box-shadow:var(--ring);transition:background var(--dur-xs) var(--spring),box-shadow var(--dur) var(--spring),transform var(--dur-xs) var(--spring);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-auto-rows:minmax(100px,1fr);gap:6px;flex:1;overflow:auto;}
+.cal-cell{background:var(--bg2);border-radius:var(--r);padding:7px;font-size:var(--fs-fn);color:var(--label2);cursor:pointer;display:flex;flex-direction:column;gap:3px;min-height:100px;overflow:hidden;box-shadow:var(--ring);transition:background var(--dur-xs) var(--spring),box-shadow var(--dur) var(--spring),transform var(--dur-xs) var(--spring);}
 @media (hover:hover){.cal-cell:hover{background:var(--fill4);}}
 .cal-cell:active{transform:scale(.985);}
 .cal-cell.other-month{opacity:.42;box-shadow:none;background:transparent;}
 .cal-cell.today{box-shadow:var(--ring);}
 .cal-cell.selected{box-shadow:0 0 0 2px var(--accent) inset;}
-.cal-dn{font-weight:500;flex-shrink:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:var(--fs-sh);color:var(--label);font-variant-numeric:tabular-nums;transition:background var(--dur) var(--spring);}
+.cal-dn{font-weight:500;flex-shrink:0;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:var(--fs-sh);color:var(--label);font-variant-numeric:tabular-nums;transition:background var(--dur) var(--spring);}
 .cal-cell.weekend .cal-dn{color:var(--label2);}
 .cal-cell.today .cal-dn{color:#fff;background:var(--accent);font-weight:700;}
-.cal-pill{font-size:var(--fs-cp);font-weight:600;padding:3px 7px;border-radius:var(--r-xs);background:var(--accent-tint);color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;transition:background var(--dur) var(--spring);border-left:3px solid var(--accent);}
+.cal-pill{font-size:var(--fs-cp);font-weight:600;padding:3px 6px;line-height:14px;border-radius:var(--r-xs);background:var(--accent-tint);color:var(--accent);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:0;transition:background var(--dur) var(--spring);border-left:3px solid var(--accent);}
 .cal-pill.Provisional{background:var(--warn-tint);color:var(--warn);border-left-color:var(--warn);}
 .cal-pill.Enquiry{background:var(--info-tint);color:var(--info);border-left-color:var(--info);}
 .cal-pill.Cancelled{background:var(--fill3);color:var(--label2);border-left-color:var(--label3);text-decoration:line-through;}
@@ -574,8 +576,8 @@ input[type=range]{accent-color:var(--accent);}
 .cal-ev-meta,.cal-prep-for{font-size:var(--fs-sh);color:var(--label2);margin-top:2px;}
 .cal-ev-flags{display:flex;gap:6px;margin-top:8px;}
 .cal-flag{height:20px;font-size:var(--fs-cp);}
-.cal-prep-tag{font-size:var(--fs-cp);font-weight:600;padding:3px 7px;border-radius:var(--r-xs);background:var(--fill3);color:var(--label2);margin-top:2px;display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box;}
-.cal-more-tag{font-size:var(--fs-cp);font-weight:600;padding:2px 7px;color:var(--label3);flex-shrink:0;}
+.cal-prep-tag{font-size:var(--fs-cp);font-weight:600;padding:3px 6px;line-height:14px;border-radius:var(--r-xs);background:var(--fill3);color:var(--label2);display:block;flex-shrink:0;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-sizing:border-box;}
+.cal-more-tag{font-size:var(--fs-cp);font-weight:600;padding:0 6px;line-height:14px;color:var(--label3);flex-shrink:0;}
 .cal-upcoming-date{font-size:var(--fs-fn);color:var(--label2);}
 
 /* ── Prep ────────────────────────────────────────── */
@@ -631,6 +633,11 @@ input[type=range]{accent-color:var(--accent);}
 /* ── Library ─────────────────────────────────────── */
 .lib-panel{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 .lib-cat-sep{flex:1;}
+.chip-row,.bar-tools{display:contents;}
+.bar-spacer{flex:1;}
+.bar-acts{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+.ing-sub{display:none;}
+.ing-row{cursor:pointer;}
 .lib-search-wrap{display:flex;align-items:center;gap:8px;}
 .lib-search,.wiz-search-inp{min-height:32px;height:32px;padding:0 12px 0 32px;border-radius:var(--r-pill);width:220px;font-size:var(--fs-cl);background:var(--fill) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A837C' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") 11px center/15px no-repeat;}
 .lib-search:focus,.wiz-search-inp:focus{background-color:var(--surface);}
@@ -702,13 +709,13 @@ input[type=range]{accent-color:var(--accent);}
 .al-matrix{border-collapse:separate;border-spacing:0;font-size:var(--fs-sh);background:var(--bg2);border-radius:var(--r-md);box-shadow:var(--ring);min-width:100%;}
 .al-matrix th,.al-matrix td{border-bottom:1px solid var(--sep);border-right:1px solid var(--sep);text-align:center;padding:6px 4px;vertical-align:middle;}
 .al-matrix th:last-child,.al-matrix td:last-child,.al-cat-row td{border-right:none;}
-.al-matrix thead th{position:sticky;top:0;z-index:2;background:var(--bg3);font-weight:500;font-size:var(--fs-cp);color:var(--label2);padding:10px 4px 8px;min-width:56px;}
+.al-matrix thead th{position:sticky;top:0;z-index:2;background:var(--bg3);font-weight:500;font-size:var(--fs-cp);color:var(--label2);padding:10px 3px 8px;min-width:46px;}  /* all fourteen columns fit a 13" screen without a sideways scroll */
 .al-matrix thead th:first-child{border-top-left-radius:var(--r-md);}
 .al-matrix thead th:last-child{border-top-right-radius:var(--r-md);}
 .al-th{vertical-align:bottom;}
 .al-th-ico{width:28px;height:28px;display:block;margin:0 auto 4px;}
 .al-th-name{display:block;line-height:1.15;letter-spacing:0;text-transform:none;}
-.al-th-dish,.al-dish{text-align:left!important;position:sticky;left:0;z-index:1;background:var(--bg2);min-width:200px;max-width:280px;padding-left:16px!important;}
+.al-th-dish,.al-dish{text-align:left!important;position:sticky;left:0;z-index:1;background:var(--bg2);min-width:180px;max-width:240px;padding-left:16px!important;}
 .al-matrix thead .al-th-dish{background:var(--bg3);z-index:3;}
 .al-dish-name{font-weight:500;color:var(--label);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .al-dish-none{display:block;font-size:var(--fs-cp);color:var(--label3);}
@@ -1104,7 +1111,23 @@ input[type=range]{accent-color:var(--accent);}
   .ph-actions{padding-bottom:0;}
   .ev-subbar,.prep-subbar,.cl-tabs,.b-topbar,.lib-panel-hd,.builder-steps,.page-bar,.board-bar,.basket-pick-bar,.wiz-search-bar{padding-left:var(--gutter);padding-right:var(--gutter);overflow-x:auto;flex-wrap:nowrap;scrollbar-width:none;}
   .ev-subbar::-webkit-scrollbar,.prep-subbar::-webkit-scrollbar,.cl-tabs::-webkit-scrollbar,.b-topbar::-webkit-scrollbar,.lib-panel-hd::-webkit-scrollbar,.page-bar::-webkit-scrollbar,.board-bar::-webkit-scrollbar{display:none;}
-  .lib-panel-hd{flex-wrap:wrap;}
+  /* library header on phones: category chips scroll on their own row, the search takes the full width beneath */
+  .lib-panel-hd{flex-wrap:wrap;overflow:visible;row-gap:10px;}
+  .lib-panel-hd>.seg{max-width:100%;overflow-x:auto;flex-shrink:0;scrollbar-width:none;}
+  .lib-panel-hd>.seg::-webkit-scrollbar{display:none;}
+  .lib-cat-sep{display:none;}
+  .lib-search-wrap{flex:1 1 100%;min-width:0;}
+  .lib-search-wrap .lib-search{flex:1;min-width:0;width:auto;}
+  /* ingredients on phones: chips scroll, search + Add beneath, and the table becomes a two-column list (tap a row to edit) */
+  #lib-ing-wrap .page-bar{flex-wrap:wrap;overflow:visible;row-gap:10px;}
+  .chip-row{display:flex;align-items:center;gap:8px;flex:1 1 100%;min-width:0;overflow-x:auto;scrollbar-width:none;}
+  .chip-row::-webkit-scrollbar{display:none;}
+  .bar-spacer{display:none;}
+  .bar-tools{display:flex;align-items:center;gap:8px;flex:1 1 100%;min-width:0;}
+  .bar-tools .lib-search{flex:1;min-width:0;width:auto!important;}
+  .ing-tbl th:nth-child(n+2):not(:nth-child(4)),.ing-tbl td:nth-child(n+2):not(:nth-child(4)){display:none;}
+  .ing-tbl th:nth-child(4),.ing-tbl td:nth-child(4){text-align:right;white-space:nowrap;}
+  .ing-tbl .ing-sub{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;}
   .board-bar{flex-wrap:wrap;overflow:visible;row-gap:8px;}  /* prep controls wrap instead of cutting the date fields */
   .board-bar #sourcing-events-controls{flex-wrap:wrap;}
   .lib-search{width:100%;}
@@ -1164,7 +1187,19 @@ input[type=range]{accent-color:var(--accent);}
   .week-row{grid-template-columns:48px 1fr;}
   .week-row::after{left:78px;}
   .week-row .ev-status{grid-column:2;justify-self:start;margin-top:4px;}
-  .upcoming-row .upcoming-days:not(.soon){display:none;}
+  .week-name{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .lib-search-wrap .btn-txt{display:none;}  /* Costs becomes icon + count so the search field keeps its width */
+  /* coming up on phones: the name gets the whole first line, date · covers · payment · countdown sit beneath */
+  .upcoming-row{flex-wrap:wrap;row-gap:4px;padding:12px var(--gutter);}
+  .upcoming-name{flex:1 1 calc(100% - 28px);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  .upcoming-meta{display:flex;align-items:center;gap:8px;flex-basis:100%;order:2;min-width:0;}
+  .upcoming-date{order:0;min-width:0;}
+  .upcoming-covers::before{content:'\00b7';margin-right:8px;color:var(--label3);}
+  /* event list titles wrap to two lines rather than cutting the client's name */
+  .ev-row-client{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+  /* prep board: one column at a time, snapping, with the next one peeking in */
+  .board-cols{scroll-snap-type:x mandatory;scroll-padding-left:var(--gutter);}
+  .board-col{min-width:min(300px,calc(100vw - 2*var(--gutter) - 24px));max-width:none;width:min(300px,calc(100vw - 2*var(--gutter) - 24px));scroll-snap-align:start;}
   .modal-ov,.modal-overlay,.crop-modal-ov,.recipe-ov{align-items:flex-end;padding:0;}
   .modal,.recipe-card,.crop-card{max-width:none;border-radius:var(--r-xl) var(--r-xl) 0 0;max-height:92vh;padding-bottom:env(safe-area-inset-bottom);}
   @media (prefers-reduced-motion:no-preference){
@@ -1188,7 +1223,7 @@ input[type=range]{accent-color:var(--accent);}
 .mono{font-family:var(--sans);font-variant-numeric:tabular-nums;}
 .stat-n.is-alert{color:var(--accent);}
 .week-right{display:inline-flex;align-items:center;gap:8px;}
-.ev-detail-acts{display:flex;gap:8px;flex-wrap:wrap;}
+.ev-detail-acts{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto;}  /* stays right-aligned when a long name pushes it onto its own row */
 .ev-link{color:var(--accent);text-decoration:none;}
 @media (hover:hover){.ev-link:hover{text-decoration:underline;}}
 .pnl-summary-val.green{color:var(--ok);}.pnl-summary-val.red{color:var(--accent);}.pnl-summary-val.gold{color:var(--label);}
@@ -1656,9 +1691,11 @@ input[type=range]{accent-color:var(--accent);}
         <button class="stock-mode-btn" id="stock-mode-full" onclick="setStockMode('full')">Full stock-take</button>
       </div>
       <div style="flex:1;"></div>
+      <div class="bar-acts">
       <button class="btn btn-sm" id="sourcing-copy-events" onclick="copyOrderEmail()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3 7.5 9 6 9-6"/></svg>Copy for supplier</button>
       <button class="btn btn-sm" id="sourcing-print-events" onclick="window.print()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9V3.5h12V9"/><rect x="3" y="9" width="18" height="9" rx="2"/><path d="M6 15h12v5.5H6z"/></svg>Print pick list</button>
       <button class="btn btn-sm" id="stock-copy-btn" style="display:none;" onclick="copyStockTopUp()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3 7.5 9 6 9-6"/></svg>Copy top-up for supplier</button>
+      </div>
     </div>
     <div id="orders-body" class="orders-body">
       <div class="empty"><div class="empty-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/></svg></div><div class="empty-t">Set a date range</div><div class="empty-s">Choose the dates to buy for, then generate the order.</div></div>
@@ -1697,7 +1734,7 @@ input[type=range]{accent-color:var(--accent);}
         <div class="lib-cat-sep"></div>
         <div class="lib-search-wrap">
           <input class="lib-search" id="dl-search" placeholder="Search dishes" oninput="renderDishList()">
-          <button class="btn btn-sm" onclick="openCostReview()" title="Recipe lines that need a look"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 21h18"/><path d="M5 7h14"/><path d="m5 7-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/></svg>Costs<span class="cst-review-count" id="cst-review-count" style="display:none"></span></button>
+          <button class="btn btn-sm" onclick="openCostReview()" title="Recipe lines that need a look"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M3 21h18"/><path d="M5 7h14"/><path d="m5 7-3 7a3 3 0 0 0 6 0zM19 7l-3 7a3 3 0 0 0 6 0z"/></svg><span class="btn-txt">Costs</span><span class="cst-review-count" id="cst-review-count" style="display:none"></span></button>
           <button class="btn btn-primary btn-sm" onclick="newDish()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New dish</button>
         </div>
       </div>
@@ -1734,18 +1771,22 @@ input[type=range]{accent-color:var(--accent);}
   <!-- Ingredients sub-view -->
   <div id="lib-ing-wrap" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
     <div class="page-bar">
+      <div class="chip-row">
       <div class="filter-chip on" onclick="setIngFilter('all',this)">All</div><div class="page-sep"></div>
       <div class="filter-chip" onclick="setIngFilter('protein',this)">Protein</div>
       <div class="filter-chip" onclick="setIngFilter('chilled',this)">Chilled</div>
       <div class="filter-chip" onclick="setIngFilter('produce',this)">Produce</div>
       <div class="filter-chip" onclick="setIngFilter('dry',this)">Dry store</div>
       <div class="filter-chip" onclick="setIngFilter('frozen',this)">Frozen</div>
-      <div style="flex:1;"></div>
-      <input class="lib-search" style="width:150px;" id="ing-search" placeholder="Search…" oninput="renderIngredients()">
+      </div>
+      <div class="bar-spacer"></div>
+      <div class="bar-tools">
+      <input class="lib-search" style="width:200px;" id="ing-search" placeholder="Search ingredients" oninput="renderIngredients()">
       <button class="btn btn-primary btn-sm" onclick="openIngModal()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add</button>
+      </div>
     </div>
     <div class="page-body">
-      <table class="data-table">
+      <table class="data-table ing-tbl">
         <thead><tr><th>Name</th><th>Type</th><th>Sold by</th><th>Price</th><th>Par</th><th>Allergens</th><th>Notes</th><th></th></tr></thead>
         <tbody id="ing-tbody"></tbody>
       </table>
@@ -1802,6 +1843,7 @@ input[type=range]{accent-color:var(--accent);}
       <button class="wdb" data-day="Thursday" onclick="clToggleDay(this)">Thu</button>
       <button class="wdb" data-day="Friday" onclick="clToggleDay(this)">Fri</button>
       <button class="wdb" data-day="Saturday" onclick="clToggleDay(this)">Sat</button>
+      <button class="wdb" data-day="Sunday" onclick="clToggleDay(this)">Sun</button>
       <div style="flex:1;"></div>
       <span class="seg-count" id="cl-week-lbl"></span>
     </div>
@@ -2216,7 +2258,7 @@ input[type=range]{accent-color:var(--accent);}
 // ═══ Build stamp — bump APP_VERSION on every delivered file. Shown in the
 // sidebar footer, the Settings sheet and (on phones) the Today header, so it is
 // obvious which build Vercel is actually serving.
-const APP_VERSION='30',APP_BUILD_DATE='2026-09-22';
+const APP_VERSION='31',APP_BUILD_DATE='2026-09-27';
 function stampVersion(){document.querySelectorAll('.app-ver').forEach(el=>{el.textContent='v'+APP_VERSION;el.title='Build '+APP_BUILD_DATE;});document.querySelectorAll('.app-ver-long').forEach(el=>el.textContent='Kitchen Prep v'+APP_VERSION+' · build '+new Date(APP_BUILD_DATE+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));}
 document.addEventListener('DOMContentLoaded',stampVersion);
 // ═══ Icons — SF-Symbol-style line glyphs, 24-grid, stroke 1.75, round caps.
@@ -2599,7 +2641,8 @@ let _formDirty=false;
 const h=s=>(s||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 // Local calendar date as YYYY-MM-DD. Never toISOString() for dates: that is UTC, and in British Summer Time a local midnight is the previous day in UTC.
 const ymd=d=>{const x=d instanceof Date?d:new Date(d);return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0');};
-const dayAdd=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};  // calendar days, safe across the clock change (a day is not always 24 h)
+const dayAdd=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+const fmtDur=m=>{m=Math.round(+m||0);if(m<60)return m+' min';const h=Math.floor(m/60),r=m%60;return r?`${h} h ${r} min`:`${h} h`;};  // one duration format everywhere: 45 min · 2 h · 2 h 15 min  // calendar days, safe across the clock change (a day is not always 24 h)
 const fmt$=v=>v!=null&&v!==''?'£'+(+v).toFixed(2):'—';
 const fmtDate=d=>{if(!d)return'—';return new Date(d).toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});};
 const fmtShort=d=>{if(!d)return'—';return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'});};
@@ -2618,7 +2661,7 @@ function toast(msg,type='ok'){
     _errLog.unshift(rec);if(_errLog.length>20)_errLog.pop();
     t.innerHTML=`<span class="toast-msg">${h(msg)}</span><button class="toast-act" onclick="copyToastError(this)">Copy</button><button class="toast-x" onclick="hideToast()" aria-label="Dismiss"></button>`;
     t.className='toast err show';toast._t=setTimeout(hideToast,12000);
-  }else{t.textContent=msg;t.className='toast '+type+' show';toast._t=setTimeout(hideToast,3000);}
+  }else{t.innerHTML=`<span class="toast-msg">${h(msg)}</span>`;t.className='toast '+type+' show';toast._t=setTimeout(hideToast,String(msg).length>60?5000:3000);}
 }
 function hideToast(){document.getElementById('toast').classList.remove('show');}
 function errorReport(rec){return`[Kitchen Prep v${APP_VERSION} · ${rec.at.toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}${rec.view?' · '+rec.view.replace('view-',''):''}] ${rec.msg}`;}
@@ -3205,7 +3248,8 @@ async function loadIngredients(){
 }
 
 function populateSelects(){
-  const up=events.filter(e=>new Date(e.event_date)>=new Date()&&e.status!=='Cancelled').sort((a,b)=>new Date(a.event_date)-new Date(b.event_date));
+  const todayStr=ymd(new Date());  // today's event stays selectable all day (a Date compare dropped it after midnight UTC)
+  const up=events.filter(e=>e.event_date&&e.event_date>=todayStr&&e.status!=='Cancelled').sort((a,b)=>a.event_date.localeCompare(b.event_date));
   ['queue-ev-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const prev=el.value;el.innerHTML='<option value="">— select event —</option>'+up.map(e=>`<option value="${e.id}">${h(e.client_name)} — ${fmtShort(e.event_date)}</option>`).join('');if(prev)el.value=prev;});
   ['al-ev-sel'].forEach(id=>{const el=document.getElementById(id);if(!el)return;const prev=el.value;el.innerHTML='<option value="">Full library</option>'+up.map(e=>`<option value="${e.id}">${h(e.client_name)} — ${fmtShort(e.event_date)}</option>`).join('');if(prev)el.value=prev;});
 }
@@ -3835,24 +3879,24 @@ function renderIngredients(){
   if(q)f=f.filter(i=>i.name.toLowerCase().includes(q)||(i.notes||'').toLowerCase().includes(q));
   if(_ingFilter!=='all')f=f.filter(i=>i.type===_ingFilter);
   if(!f.length){tbody.innerHTML='<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--label2);">No ingredients found</td></tr>';return;}
-  tbody.innerHTML=f.map(i=>`<tr>
-    <td style="font-weight:500;color:var(--t1);">${h(i.name)}</td>
+  tbody.innerHTML=f.map(i=>`<tr class="ing-row" onclick="editIngredient('${i.id}')">
+    <td style="font-weight:500;color:var(--t1);">${h(i.name)}<div class="ing-sub">${i.type?`<span class="badge">${ING_TYPES[i.type]||i.type}</span>`:''}${(i.allergens||[]).map(a=>`<span class="al-tag c">${h(a)}</span>`).join('')}${i.par_stock&&(i.par_status==='out'||i.par_status==='low')?`<span class="par-badge ${i.par_status}">${i.par_status==='out'?'Out':'Low'}</span>`:''}</div></td>
     <td>${i.type?`<span class="badge">${ING_TYPES[i.type]||i.type}</span>`:'<span class="muted">—</span>'}</td>
     <td>${h(i.sold_by||i.unit||'—')}</td>
     <td class="num">${i.cost_per_unit!=null?fmt$(i.cost_per_unit)+'<span class="muted">/'+(i.sold_by||i.unit||'unit')+'</span>':'—'}</td>
     <td>${parCellHTML(i)}</td>
     <td>${(i.allergens||[]).map(a=>`<span class="al-tag c">${h(a)}</span>`).join('')||'<span class="muted">None</span>'}</td>
     <td class="muted" style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${h(i.notes||'—')}</td>
-    <td style="text-align:right;"><button class="btn btn-ghost btn-xs" onclick="editIngredient('${i.id}')">Edit</button></td>
+    <td style="text-align:right;"><button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();editIngredient('${i.id}')">Edit</button></td>
   </tr>`).join('');
 }
 
 function parCellHTML(i){
   if(!i.par_stock)return'<span class="muted">—</span>';
   const target=i.par_level!=null?fmtQty(i.par_level,i.sold_by):'no target';
-  if(i.par_status==='out')return`<div class="par-cell"><span class="par-badge out">Out</span><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','ok')">Mark OK</button></div>`;
-  if(i.par_status==='low')return`<div class="par-cell"><span class="par-badge low">Low</span><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','ok')">Mark OK</button></div>`;
-  return`<div class="par-cell"><span class="par-badge ok">${target}</span><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','low')">Low</button><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','out')">Out</button></div>`;
+  if(i.par_status==='out')return`<div class="par-cell" onclick="event.stopPropagation()"><span class="par-badge out">Out</span><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','ok')">Mark OK</button></div>`;
+  if(i.par_status==='low')return`<div class="par-cell" onclick="event.stopPropagation()"><span class="par-badge low">Low</span><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','ok')">Mark OK</button></div>`;
+  return`<div class="par-cell" onclick="event.stopPropagation()"><span class="par-badge ok">${target}</span><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','low')">Low</button><button class="btn btn-ghost btn-xs" onclick="flagParStatus('${i.id}','out')">Out</button></div>`;
 }
 
 async function flagParStatus(id,status){
@@ -4411,7 +4455,7 @@ function printFunctionSheet(evId){
 
 // CLEANING MODULE
 let _clTasks=[],_clDone=[],_clAreaF='all',_clDays=[];
-const _CLDAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const _CLDAYS=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];  // event kitchens work weekends
 const _CLFREQ={daily:'Daily',twice_weekly:'2x weekly',three_weekly:'3x weekly',weekly:'Weekly',fortnightly:'Fortnightly',monthly:'Monthly',quarterly:'Quarterly',twice_yearly:'6-monthly',annual:'Annual',as_needed:'As needed'};
 const _CLAREAS=['Zone A RTE','Zone B Butchery','Walk-in Fridge','Walk-in Freezer','General','External'];
 const _CLFREQORD=['daily','twice_weekly','three_weekly','weekly','fortnightly','monthly','quarterly','twice_yearly','annual','as_needed'];
@@ -4465,7 +4509,7 @@ function clRenderTasks(){
     byArea[area].map(t=>'<div class="cl-task-row row-nav" onclick="openClModal(\''+t.id+'\')">'
       +'<div class="cl-task-name">'+h(t.name)+'</div>'
       +'<div style="display:flex;align-items:center;gap:8px;">'
-      +(t.estimated_minutes?'<span class="cl-time">'+t.estimated_minutes+' min</span>':'')
+      +(t.estimated_minutes?'<span class="cl-time">'+fmtDur(t.estimated_minutes)+'</span>':'')
       +'<span class="cl-freq-badge">'+(_CLFREQ[t.frequency]||t.frequency)+'</span>'
       +chev()
       +'</div></div>').join('')+'</div>').join('');
@@ -4544,11 +4588,11 @@ function clRenderWeek(){
   const active=_clTasks.filter(t=>t.active!==false&&t.frequency!=='as_needed');
   const sched={};_clDays.forEach(d=>sched[d]=[]);
   active.forEach(t=>_clDistrib(t,_clDays).forEach(i=>sched[_clDays[i]].push(t)));
-  w.innerHTML='<div style="display:grid;grid-template-columns:repeat('+_clDays.length+',minmax(220px,1fr));min-width:'+(_clDays.length*220)+'px;">'+
+  w.innerHTML='<div style="display:grid;grid-template-columns:repeat('+_clDays.length+',minmax(140px,1fr));min-width:'+(_clDays.length*140)+'px;">'+
     _clDays.map(day=>{
       const dt=sched[day];const mins=dt.reduce((s,t)=>s+(t.estimated_minutes||0),0);
       const doneIds=_clDone.filter(c=>c.scheduled_day===day&&c.week_start===ws).map(c=>c.task_id);
-      return'<div><div class="week-col-hd">'+day+'<span class="week-col-meta">'+dt.length+(mins?' · '+mins+'m':'')+'</span></div>'
+      return'<div><div class="week-col-hd">'+day+'<span class="week-col-meta">'+dt.length+(mins?' · '+fmtDur(mins):'')+'</span></div>'
         +(!dt.length?'<div class="week-col-empty">Nothing scheduled</div>':
         dt.map(t=>{const done=doneIds.includes(t.id);return'<div class="week-task-item'+(done?' week-done':'')+'">'
           +'<div class="week-cb'+(done?' done':'')+'" onclick="clToggleWeek(\''+t.id+'\',\''+day+'\')"></div>'
@@ -4581,7 +4625,7 @@ function clRenderToday(){
   const doneIds=_clDone.filter(c=>c.scheduled_day===dayName&&c.week_start===ws).map(c=>c.task_id);
   const doneCount=todayTasks.filter(t=>doneIds.includes(t.id)).length;
   const totalMin=todayTasks.reduce((s,t)=>s+(t.estimated_minutes||0),0);
-  if(subEl)subEl.textContent=doneCount+' of '+todayTasks.length+' done'+(totalMin?' · ~'+totalMin+'min total':'')+(!_clDays.includes(dayName)?' · Not a scheduled day':'');
+  if(subEl)subEl.textContent=doneCount+' of '+todayTasks.length+' done'+(totalMin?' · ≈ '+fmtDur(totalMin):'')+(!_clDays.includes(dayName)?' · Not a scheduled day':'');
   if(progEl)progEl.style.width=(todayTasks.length?Math.round(doneCount/todayTasks.length*100):0)+'%';
   if(!_clDays.includes(dayName)){w.innerHTML=`<div class="empty"><div class="empty-icon">${ico('calendar')}</div><div class="empty-title">Not a working day</div><div class="empty-sub">Set your working days in This week.</div></div>`;return;}
   if(!todayTasks.length){w.innerHTML=`<div class="empty"><div class="empty-icon">${ico('checkCircle')}</div><div class="empty-title">Nothing scheduled today</div></div>`;return;}
@@ -4669,8 +4713,13 @@ function calRenderGrid(){
   const startDate=new Date(firstDay);
   startDate.setDate(1-(startDow===0?6:startDow-1));
   const today=new Date();today.setHours(0,0,0,0);
+  const daysInMonth=new Date(yr,mo+1,0).getDate();
+  const nRows=Math.ceil(((startDow+6)%7+daysInMonth)/7);  // five rows for most months, six only when the month needs them
   const cells=[];const d=new Date(startDate);
-  for(let i=0;i<42;i++){cells.push(new Date(d));d.setDate(d.getDate()+1);}
+  for(let i=0;i<nRows*7;i++){cells.push(new Date(d));d.setDate(d.getDate()+1);}
+  // how many tags a row can hold: row height less padding, day number and gaps, at 23px per tag
+  const rowH=grid.clientHeight?Math.max(100,(grid.clientHeight-6*(nRows-1))/nRows):100;
+  const SLOTS=window.matchMedia&&matchMedia('(max-width:900px)').matches?3:Math.max(1,Math.floor((rowH-39)/23));  // phones draw 4px bars, so three always fit
   grid.innerHTML=cells.map(date=>{
     date.setHours(0,0,0,0);
     const isToday=calIsSameDay(date,today);
@@ -4681,10 +4730,9 @@ function calRenderGrid(){
     const dayPrep=calPrepOnDate(date);
     const iso=date.toISOString();
     const cls=['cal-cell',isToday?'today':'',isSel?'selected':'',isOther?'other-month':'',isWknd?'weekend':''].filter(Boolean).join(' ');
-    // Events take priority over prep alerts for the 2 slots this 88px cell can
-    // actually hold without spilling into the row below — click through (or
-    // "+N more") to see the full, uncapped list in the right-hand panel.
-    const MAX_TAGS=2;
+    // Events take priority over prep alerts for the slots the row can hold; the
+    // "+N more" line takes one — click through to the full list in the right-hand panel.
+    const MAX_TAGS=(dayEvs.length+dayPrep.length)>SLOTS?Math.max(1,SLOTS-1):SLOTS;
     const visEvs=dayEvs.slice(0,MAX_TAGS);
     const visPrep=dayPrep.slice(0,Math.max(0,MAX_TAGS-visEvs.length));
     const hiddenCount=(dayEvs.length-visEvs.length)+(dayPrep.length-visPrep.length);
@@ -4761,8 +4809,8 @@ function calRenderRight(){
 
 function fmtQty(qty, unit) {
   if (!qty) return '—';
-  if (unit === 'g' && qty >= 1000) return (qty / 1000).toFixed(qty % 1000 === 0 ? 0 : 2).replace(/\.?0+$/, '') + 'kg';
-  if (unit === 'ml' && qty >= 1000) return (qty / 1000).toFixed(qty % 1000 === 0 ? 0 : 2).replace(/\.?0+$/, '') + 'L';
+  if (unit === 'g' && qty >= 1000) return (qty / 1000).toFixed(qty % 1000 === 0 ? 0 : 2).replace(/\.?0+$/, '') + ' kg';
+  if (unit === 'ml' && qty >= 1000) return (qty / 1000).toFixed(qty % 1000 === 0 ? 0 : 2).replace(/\.?0+$/, '') + ' L';
   if (qty % 1 === 0) return qty + (unit ? ' ' + unit : '');
   return qty.toFixed(1) + (unit ? ' ' + unit : '');
 }
@@ -4797,7 +4845,7 @@ let _queueEventRows = [];
 async function refreshEventQueue() {
   const selEl = document.getElementById('queue-ev-sel');
   // nothing chosen yet → the next event that isn't cancelled, so the view is never an empty prompt when there is an obvious answer
-  if (!selEl.value) { const today = new Date().toISOString().slice(0, 10); const next = [...selEl.options].map(o => o.value).filter(Boolean).map(id => events.find(e => e.id === id)).filter(e => e && e.status !== 'Cancelled' && e.event_date >= today).sort((a, b) => a.event_date < b.event_date ? -1 : 1)[0]; if (next) selEl.value = next.id; }
+  if (!selEl.value) { const today = ymd(new Date()); const next = [...selEl.options].map(o => o.value).filter(Boolean).map(id => events.find(e => e.id === id)).filter(e => e && e.status !== 'Cancelled' && e.event_date >= today).sort((a, b) => a.event_date < b.event_date ? -1 : 1)[0]; if (next) selEl.value = next.id; }
   const evId = selEl.value;
   const wrap = document.getElementById('queue-event-body');
   if (!evId) {
@@ -4860,7 +4908,7 @@ function renderQueueByEvent() {
         <div class="prep-stat"><div class="prep-stat-n">${freeze.length}</div><div class="prep-stat-l">Freeze ahead</div></div>
         <div class="prep-stat"><div class="prep-stat-n">${fridge.length}</div><div class="prep-stat-l">Fridge ahead</div></div>
         <div class="prep-stat"><div class="prep-stat-n">${fresh.length}</div><div class="prep-stat-l">Day of</div></div>
-        ${totalMins ? `<div class="prep-stat"><div class="prep-stat-n">${totalMins >= 60 ? Math.floor(totalMins/60)+'h '+(totalMins%60||'') : totalMins+'m'}</div><div class="prep-stat-l">Est. time</div></div>` : ''}
+        ${totalMins ? `<div class="prep-stat"><div class="prep-stat-n">${fmtDur(totalMins)}</div><div class="prep-stat-l">Est. time</div></div>` : ''}
         <div class="prep-stat"><div class="prep-stat-n">${made.length}</div><div class="prep-stat-l">Already made</div></div>
       </div>
     </div>
@@ -5596,11 +5644,9 @@ async function renderPipeline(){
   const live=events.filter(e=>e.event_date&&e.status!=='Cancelled');
   const upcoming=live.filter(e=>new Date(e.event_date+'T00:00:00')>=now).sort((a,b)=>a.event_date.localeCompare(b.event_date)||(a.start_time||'').localeCompare(b.start_time||''));
   const todayEvs=upcoming.filter(e=>e.event_date===todayStr);
-  // week: Mon..Sun containing today
-  const dow=(now.getDay()+6)%7;
-  const mon=new Date(now);mon.setDate(now.getDate()-dow);
-  const days=[...Array(7)].map((_,i)=>{const d=new Date(mon);d.setDate(mon.getDate()+i);return d;});
-  const weekEnd=new Date(mon);weekEnd.setDate(mon.getDate()+7);
+  // the next seven days, today first — never an empty strip at the end of a week
+  const days=[...Array(7)].map((_,i)=>dayAdd(now,i));
+  const weekEnd=dayAdd(now,7);
   const later=upcoming.filter(e=>new Date(e.event_date+'T00:00:00')>=weekEnd);
   const hr=new Date().getHours();
   const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
@@ -5639,14 +5685,14 @@ async function renderPipeline(){
 
   // ── Week
   const week=`<div class="today-section">
-    <div class="today-section-hd"><span class="today-section-title">This week</span><span class="today-section-count">${nice(days[0])} – ${nice(days[6])}</span></div>
+    <div class="today-section-hd"><span class="today-section-title">Next 7 days</span><span class="today-section-count">${nice(days[0])} – ${nice(days[6])}</span></div>
     <div class="today-section-body">${days.map(d=>{const ds=ymd(d);const evs=upcoming.filter(e=>e.event_date===ds);const isT=ds===todayStr;const lbl=`<div class="week-day">${d.toLocaleDateString('en-GB',{weekday:'short'})}<b>${d.getDate()}</b></div>`;if(!evs.length)return`<div class="week-row${isT?' is-today':''}">${lbl}<div class="week-empty">—</div></div>`;return evs.map((e,i)=>`<div class="week-row${isT?' is-today':''}" onclick="showEventDetail('${e.id}')">${i===0?lbl:'<div></div>'}<div style="min-width:0;"><div class="week-name">${h(e.client_name||'Unnamed')}</div><div class="week-meta">${h(e.start_time||'')}${e.covers?' · '+e.covers+' covers':''}${e.event_type?' · '+typeLabel(e.event_type):''}</div></div><span class="week-right"><span class="ev-status ${e.status||''}">${h(e.status||'')}</span>${chev()}</span></div>`).join('');}).join('')}</div>
   </div>`;
 
   // ── Coming up
   const coming=`<div class="today-section">
     <div class="today-section-hd"><span class="today-section-title">Coming up</span><span class="today-section-count">${later.length} event${later.length===1?'':'s'}</span></div>
-    <div class="upcoming-list">${later.length?later.slice(0,12).map(e=>{const d=new Date(e.event_date+'T00:00:00');const da=Math.round((d-now)/ms);const[pc,pl]=payMeta(e);return`<div class="upcoming-row" onclick="showEventDetail('${e.id}')"><span class="upcoming-date">${nice(d)}</span><span class="upcoming-name">${h(e.client_name||'Unnamed')}</span>${e.covers?`<span class="upcoming-days">${e.covers} covers</span>`:''}<span class="pay-pill ${pc}">${pl}</span><span class="upcoming-days${da<=14?' soon':''}">${da}d</span>${chev()}</div>`;}).join('')+(later.length>12?`<div class="upcoming-row" onclick="sbNav('events')"><span class="upcoming-name" style="color:var(--accent);font-weight:500;">See all ${later.length} in Events</span>${chev()}</div>`:''):`<div class="today-quiet">Nothing further out yet.</div>`}</div>
+    <div class="upcoming-list">${later.length?later.slice(0,12).map(e=>{const d=new Date(e.event_date+'T00:00:00');const da=Math.round((d-now)/ms);const[pc,pl]=payMeta(e);return`<div class="upcoming-row" onclick="showEventDetail('${e.id}')"><span class="upcoming-name">${h(e.client_name||'Unnamed')}</span><span class="upcoming-meta"><span class="upcoming-date">${nice(d)}</span>${e.covers?`<span class="upcoming-covers">${e.covers} covers</span>`:''}<span class="pay-pill ${pc}">${pl}</span><span class="upcoming-days${da<=14?' soon':''}">${da}d</span></span>${chev()}</div>`;}).join('')+(later.length>12?`<div class="upcoming-row" onclick="sbNav('events')"><span class="upcoming-name" style="color:var(--accent);font-weight:500;">See all ${later.length} in Events</span>${chev()}</div>`:''):`<div class="today-quiet">Nothing further out yet.</div>`}</div>
   </div>`;
 
   // ── Side
@@ -5782,7 +5828,7 @@ async function renderPrepBoard(){
       totalMins+=c.time_estimate_mins*Math.max(1,(parseFloat(c.qty)||base)/base);
     }
   });
-  document.getElementById('board-hours').textContent=totalMins?`~${(totalMins/60).toFixed(1)}h estimated in view`:'';
+  document.getElementById('board-hours').textContent=totalMins?`≈ ${fmtDur(totalMins)} of prep in view`:'';
 
   if(!cards.length){
     const evN=events.filter(e=>e.event_date&&e.status!=='Cancelled'&&e.event_date>=ymd(now)&&e.event_date<=ymd(dayAdd(now,days))).length;
@@ -6617,7 +6663,7 @@ async function showEventDetail(id,tab){
   wrap.innerHTML=`
     <div class="ev-detail-hd">
       <button class="builder-back" onclick="backToEventsList()" aria-label="Back to events"></button>
-      <div style="flex:1;min-width:0;"><div class="ev-detail-title">${h(ev.client_name||'Unnamed')}</div>
+      <div style="flex:1 1 auto;min-width:0;max-width:100%;"><div class="ev-detail-title">${h(ev.client_name||'Unnamed')}</div>
       <div class="ev-detail-sub">${fmtLongDate(ev.event_date)}${ev.job_code?' · '+h(ev.job_code):''}</div></div>
       <span class="ev-status ${ev.status||'Enquiry'}">${ev.status||'Enquiry'}</span>
       <div class="ev-detail-acts">
@@ -7563,7 +7609,7 @@ async function bYield(){
           <div class="b-yield-trim" style="width:${s.intake_weight_kg>0?s.trim_weight_kg/s.intake_weight_kg*100:0}%"></div>
         </div>
         <div class="b-yield-grid">
-          <div><div class="b-yield-n">${bFmt(s.intake_weight_kg,1)} kg</div><div class="b-yield-l">In</div></div>
+          <div><div class="b-yield-n">${bFmt(s.intake_weight_kg,2)} kg</div><div class="b-yield-l">In</div></div>
           <div><div class="b-yield-n" style="color:var(--ok);">${bFmt(s.total_packed_kg,2)} kg</div><div class="b-yield-l">Packed</div></div>
           <div><div class="b-yield-n" style="color:var(--warn);">${bFmt(s.trim_weight_kg,2)} kg</div><div class="b-yield-l">Trim</div></div>
           <div><div class="b-yield-n" style="color:var(--label2);">${bFmt(s.unaccounted_kg,2)} kg</div><div class="b-yield-l">Gap</div></div>
