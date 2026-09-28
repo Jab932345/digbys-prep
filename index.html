@@ -983,6 +983,103 @@ input[type=range]{accent-color:var(--accent);}
 .board-col-hd{padding:10px 12px;font-size:var(--fs-sh);font-weight:600;color:var(--label);background:transparent;border-bottom:none;display:flex;justify-content:space-between;align-items:center;}
 .board-col-hd.pool{color:var(--label2);}
 .board-col-sub{font-weight:500;color:var(--label3);margin-left:2px;}
+/* ── planner (Quick assign / Plan prep days) ── */
+.kbd-ico{display:inline-flex;align-items:center;height:18px;padding:0 5px;border-radius:5px;background:var(--fill);font-size:10.5px;font-weight:700;letter-spacing:.02em;font-variant-numeric:tabular-nums;margin-right:2px;}
+.btn-primary .kbd-ico{background:rgba(255,255,255,.22);}
+.plan-ov{z-index:1150;}
+#confirm-modal,#pd-edit{z-index:1300;}  /* confirms and the hours sheet sit above the planner and recipe sheets */
+.recipe-card.plan-card{max-width:920px;width:100%;}
+.plan-hd{border-bottom:1px solid var(--sep);}
+.plan-sub{font-size:var(--fs-fn);color:var(--label2);font-variant-numeric:tabular-nums;margin-top:2px;}
+.plan-body{gap:16px;padding-top:16px;}
+.plan-task{background:var(--fill4);border-radius:var(--r-md);padding:14px 16px;}
+.plan-task-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.plan-storage{display:inline-flex;align-items:center;gap:5px;font-size:var(--fs-fn);font-weight:600;color:var(--label2);}
+.plan-storage.freeze{color:var(--info);} .plan-storage.fridge{color:var(--ok);} .plan-storage.fresh{color:var(--warn);}
+.plan-qty{font-weight:700;font-variant-numeric:tabular-nums;color:var(--label);}
+.plan-name{font-size:var(--fs-t3);font-weight:700;letter-spacing:-.01em;color:var(--label);line-height:1.2;}
+.plan-dish{font-size:var(--fs-sh);color:var(--label2);margin-top:3px;}
+.plan-dish b{color:var(--label);font-weight:600;}
+.plan-window{display:flex;align-items:flex-start;gap:6px;font-size:var(--fs-sh);color:var(--label);margin-top:10px;font-weight:500;}
+.plan-kit{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.plan-kit-chip{height:26px;padding:0 10px;border-radius:var(--r-pill);font-size:var(--fs-fn);font-weight:500;color:var(--label3);background:transparent;box-shadow:inset 0 0 0 1px var(--sep);cursor:pointer;}
+.plan-kit-chip.on{color:var(--label);background:var(--surface);box-shadow:inset 0 0 0 1px var(--label3);font-weight:600;}
+.plan-nav{display:flex;align-items:center;justify-content:center;gap:12px;font-size:var(--fs-sh);color:var(--label2);font-weight:500;font-variant-numeric:tabular-nums;margin-bottom:-6px;}
+.plan-slots{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:8px;}
+.plan-slot{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 10px 12px;border-radius:var(--r-md);background:var(--surface);box-shadow:var(--ring);text-align:left;cursor:pointer;min-height:104px;transition:transform var(--dur-xs) var(--spring),box-shadow var(--dur) var(--spring),background var(--dur) var(--spring);}
+@media (hover:hover){.plan-slot:not(.ghost):hover{background:var(--fill4);}}
+.plan-slot:active{transform:scale(.97);}
+.plan-slot.ghost{background:transparent;box-shadow:inset 0 0 0 1px var(--sep);cursor:default;min-height:0;}
+.plan-slot.sug{box-shadow:0 0 0 2px var(--accent);}
+.plan-slot.out{background:var(--fill4);box-shadow:none;}
+.plan-slot.out .plan-day,.plan-slot.out .plan-date,.plan-slot.out .plan-load{color:var(--label3);}
+.plan-slot.pend{box-shadow:0 0 0 2px var(--warn);background:var(--warn-tint);}
+.plan-slot.skip{background:transparent;box-shadow:inset 0 0 0 1px var(--sep);}
+.plan-key{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:6px;background:var(--fill3);font-size:11px;font-weight:700;color:var(--label2);margin-bottom:4px;font-variant-numeric:tabular-nums;}
+.plan-slot.sug .plan-key{background:var(--accent);color:#fff;}
+.plan-day{font-size:var(--fs-sh);font-weight:700;color:var(--label);}
+.plan-date{font-size:var(--fs-cp);color:var(--label2);font-variant-numeric:tabular-nums;}
+.plan-bar{display:block;width:100%;height:4px;border-radius:2px;background:var(--fill3);overflow:hidden;margin-top:6px;}
+.plan-bar i{display:block;height:100%;background:var(--ok);border-radius:2px;}
+.plan-bar i.over{background:var(--accent);}
+.plan-load{font-size:var(--fs-cp);color:var(--label2);font-variant-numeric:tabular-nums;margin-top:2px;}
+.plan-flag{margin-top:auto;padding-top:6px;font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;line-height:1;}
+.plan-flag.ok{color:var(--ok);} .plan-flag.sug{color:var(--accent);font-size:13px;letter-spacing:0;}
+.plan-warn{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r);background:var(--warn-tint);color:var(--label);font-size:var(--fs-sh);}
+.plan-warn .ico{color:var(--warn);flex-shrink:0;}
+.plan-warn span{flex:1;min-width:0;}
+.plan-date-row{display:flex;align-items:center;gap:10px;}
+.plan-date-row .fld-label{margin:0;white-space:nowrap;}
+.plan-date-row .fld-inp{width:auto;flex:0 1 180px;}
+.plan-load-tbl-wrap{overflow-x:auto;}
+.plan-load-tbl{width:100%;min-width:560px;table-layout:fixed;border-collapse:collapse;font-size:var(--fs-fn);font-variant-numeric:tabular-nums;}
+.plan-load-tbl th{font-weight:500;color:var(--label2);text-align:left;padding:4px 6px 6px;white-space:nowrap;}
+.plan-load-tbl th b{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:4px;background:var(--fill3);font-size:10px;margin-right:3px;}
+.plan-load-tbl td{padding:5px 6px;border-top:1px solid var(--sep);color:var(--label);white-space:nowrap;}
+.plan-load-tbl td:first-child{color:var(--label2);font-weight:500;}
+.plan-load-tbl th:first-child{width:96px;}
+.plan-load-tbl tr.mine td:first-child{color:var(--label);font-weight:700;}
+.plan-load-tbl td small{color:var(--label3);}
+.plan-load-tbl td.warm{color:var(--warn);font-weight:600;}
+.plan-load-tbl td.over{color:var(--accent);font-weight:700;}
+.plan-keys{display:flex;flex-wrap:wrap;gap:6px 16px;padding:10px 20px 14px;border-top:1px solid var(--sep);font-size:var(--fs-cp);color:var(--label2);}
+.plan-keys kbd{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;border-radius:5px;background:var(--fill3);font:inherit;font-weight:700;color:var(--label);margin:0 1px;}
+/* prep days tab */
+.pd-col .board-col-body{padding-top:4px;}
+.pd-hd{align-items:flex-start;}
+.pd-date{display:block;}
+.pd-hours{display:block;font-size:var(--fs-cp);font-weight:500;color:var(--label2);margin-top:1px;font-variant-numeric:tabular-nums;}
+.pd-acts{display:flex;gap:2px;}
+.pd-acts .btn{color:var(--label3);}
+.pd-load{padding:0 12px 6px;}
+.pd-load .plan-bar{margin-top:0;}
+.pd-load-t{display:block;font-size:var(--fs-cp);color:var(--label2);margin-top:4px;font-variant-numeric:tabular-nums;}
+.pd-kits{display:flex;flex-wrap:wrap;gap:4px;padding:0 12px 8px;}
+.pd-kit{font-size:var(--fs-cp);font-weight:600;color:var(--label2);background:var(--surface);border-radius:var(--r-pill);padding:2px 8px;font-variant-numeric:tabular-nums;}
+.pd-kit.over{color:#fff;background:var(--accent);}
+.pd-warn{display:flex;align-items:center;gap:5px;padding:0 12px 8px;font-size:var(--fs-cp);font-weight:600;color:var(--accent);}
+.board-card.out{box-shadow:0 0 0 1.5px var(--accent);}
+/* calendar prep days */
+.cal-cell{position:relative;}
+.cal-cell.prep-day{background:var(--ok-tint);}
+.cal-pd-tag{position:absolute;top:9px;right:8px;font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ok);}
+.cal-pd-card{display:flex;flex-direction:column;gap:10px;padding:12px 14px;border-radius:var(--r-md);background:var(--ok-tint);}
+.cal-pd-card .cal-ev-name{display:flex;align-items:center;gap:6px;}
+.cal-pd-acts{display:flex;gap:8px;}
+.cal-pd-add{align-self:flex-start;}
+@media (max-width:900px){
+  .plan-card{max-height:94vh;}
+  .plan-slots{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;}
+  .plan-slot{min-height:84px;padding:8px 8px 10px;}
+  .plan-slot.ghost{display:none;}
+  .plan-flag{font-size:9px;}
+  .plan-keys{display:none;}
+  .plan-name{font-size:var(--fs-hl);}
+  .plan-date-row{flex-wrap:wrap;}
+  .cal-pd-tag{font-size:0;width:6px;height:6px;border-radius:50%;background:var(--ok);top:6px;right:6px;}
+  #queue-prep-controls{flex-wrap:wrap;}
+}
+
 .board-col-count{height:20px;padding:0 7px;font-size:var(--fs-cp);}
 .board-col-body{flex:1;overflow-y:auto;padding:0 8px 8px;display:flex;flex-direction:column;gap:8px;min-height:120px;}
 .board-col-empty{text-align:center;color:var(--label3);font-size:var(--fs-fn);padding:16px 0;}
@@ -1620,6 +1717,7 @@ input[type=range]{accent-color:var(--accent);}
       <div class="stock-mode-tog seg">
         <button class="stock-mode-btn on" id="queue-mode-day" onclick="queueView('day')">By day</button>
         <button class="stock-mode-btn" id="queue-mode-event" onclick="queueView('event')">By event</button>
+        <button class="stock-mode-btn" id="queue-mode-prep" onclick="queueView('prep')">Prep days</button>
       </div>
       <div id="queue-day-controls" style="display:flex;align-items:center;gap:10px;">
         <label style="font-size:12.5px;color:var(--stone);">Horizon</label>
@@ -1629,6 +1727,13 @@ input[type=range]{accent-color:var(--accent);}
           <option value="21">21 days</option>
         </select>
         <button class="btn btn-sm btn-primary" onclick="generateBoard()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg>Generate</button>
+        <button class="btn btn-sm" id="quick-assign-btn" onclick="openPlanner('days')" title="Put each task on a day with 1–7 on the keyboard"><span class="kbd-ico">1–7</span>Quick assign</button>
+      </div>
+      <div id="queue-prep-controls" style="display:none;align-items:center;gap:10px;">
+        <input type="date" class="prep-ev-sel" id="pd-add-date" style="min-width:140px;" aria-label="Prep day date">
+        <button class="btn btn-sm" onclick="addPrepDayFromInput()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add prep day</button>
+        <button class="btn btn-sm btn-primary" onclick="openPlanner('prep')"><span class="kbd-ico">1–7</span>Plan</button>
+        <span class="board-hours" id="prepdays-count"></span>
       </div>
       <div id="queue-event-controls" style="display:none;align-items:center;gap:10px;">
         <select class="prep-ev-sel" id="queue-ev-sel" onchange="refreshEventQueue()">
@@ -1638,12 +1743,13 @@ input[type=range]{accent-color:var(--accent);}
       </div>
       <div style="flex:1;"></div>
       <span class="board-hours" id="board-hours"></span>
-      <button class="btn btn-sm btn-primary" onclick="openAddTask()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add task</button>
+      <button class="btn btn-sm btn-primary" id="queue-add-task" onclick="openAddTask()"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add task</button>
     </div>
     <div id="queue-main" style="display:flex;flex:1;flex-direction:column;overflow:hidden;">
       <div class="board-cols" id="board-cols">
         <div class="empty"><span class="spin"></span></div>
       </div>
+      <div class="board-cols" id="prepdays-body" style="display:none;"></div>
       <div id="queue-event-body" style="display:none;flex:1;overflow:hidden;flex-direction:column;">
         <div class="empty" style="margin:auto;"><div class="empty-icon"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 6h11M10 12h11M10 18h11"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/></svg></div><div class="empty-t">Choose an event</div><div class="empty-s">Pick an event above to see what still needs prepping for it.</div></div>
       </div>
@@ -2205,12 +2311,33 @@ input[type=range]{accent-color:var(--accent);}
   <div class="modal-hd"><div class="modal-title">Move card</div><button class="modal-close" onclick="closeModal('board-move-modal')"></button></div>
   <div class="modal-body">
     <div style="font-size:14px;font-weight:600;margin-bottom:12px;" id="bm-comp-name"></div>
-    <div class="fld" style="margin:0;"><label class="fld-label">Move to</label>
-      <select class="fld-sel" id="bm-day-sel"></select>
+    <div class="plan-sub" id="bm-window" style="margin:-6px 0 12px;"></div>
+    <div class="fld" style="margin:0 0 10px;"><label class="fld-label">Move to</label>
+      <select class="fld-sel" id="bm-day-sel" onchange="document.getElementById('bm-date').value='';bmCheck()"></select>
     </div>
+    <div class="fld" style="margin:0;"><label class="fld-label">Or any date</label>
+      <input type="date" class="fld-inp" id="bm-date" oninput="bmCheck()">
+    </div>
+    <div class="plan-warn" id="bm-warn" style="display:none;margin-top:12px;"></div>
   </div>
-  <div class="modal-foot"><input type="hidden" id="bm-card-id"><button class="btn" onclick="closeModal('board-move-modal')">Cancel</button><button class="btn btn-dark" onclick="confirmBoardMove()">Move</button></div>
+  <div class="modal-foot"><input type="hidden" id="bm-card-id"><button class="btn" onclick="closeModal('board-move-modal')">Cancel</button><button class="btn btn-dark" id="bm-ok" onclick="confirmBoardMove()">Move</button></div>
 </div>
+</div>
+
+<div class="modal-ov" id="pd-edit">
+<div class="modal" style="width:360px;">
+  <div class="modal-hd"><div><div class="modal-title">Prep day</div><div class="plan-sub" id="pd-edit-title"></div></div><button class="modal-close" onclick="closeModal('pd-edit')" aria-label="Close"></button></div>
+  <div class="modal-body">
+    <div class="g2"><div class="fld" style="margin:0;"><label class="fld-label">Start</label><input type="time" class="fld-inp" id="pd-edit-start"></div><div class="fld" style="margin:0;"><label class="fld-label">End</label><input type="time" class="fld-inp" id="pd-edit-end"></div></div>
+    <div class="fld" style="margin:0;"><label class="fld-label">Chefs in</label><input type="number" min="1" max="12" class="fld-inp num" id="pd-edit-chefs"></div>
+    <input type="hidden" id="pd-edit-date">
+  </div>
+  <div class="modal-foot"><button class="btn" onclick="closeModal('pd-edit')">Cancel</button><button class="btn btn-primary" onclick="savePrepDayEdit()">Save</button></div>
+</div>
+</div>
+
+<div class="recipe-ov plan-ov" id="plan-ov" onclick="if(event.target===this)closePlanner()">
+  <div class="recipe-card plan-card" id="plan-card"></div>
 </div>
 
 <div class="modal-ov" id="add-task-modal">
@@ -2259,7 +2386,7 @@ input[type=range]{accent-color:var(--accent);}
 // ═══ Build stamp — bump APP_VERSION on every delivered file. Shown in the
 // sidebar footer, the Settings sheet and (on phones) the Today header, so it is
 // obvious which build Vercel is actually serving.
-const APP_VERSION='32',APP_BUILD_DATE='2026-09-28';
+const APP_VERSION='33',APP_BUILD_DATE='2026-09-28';
 function stampVersion(){document.querySelectorAll('.app-ver').forEach(el=>{el.textContent='v'+APP_VERSION;el.title='Build '+APP_BUILD_DATE;});document.querySelectorAll('.app-ver-long').forEach(el=>el.textContent='Kitchen Prep v'+APP_VERSION+' · build '+new Date(APP_BUILD_DATE+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}));}
 document.addEventListener('DOMContentLoaded',stampVersion);
 // ═══ Icons — SF-Symbol-style line glyphs, 24-grid, stroke 1.75, round caps.
@@ -2539,7 +2666,7 @@ const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
     // prep queue: planned cards for the next 14 days, some already on days; freezer bank of available stock
     const soon=PREP.events.filter(e=>e.event_date>=day(0)&&e.event_date<=day(14)&&e.status==='Confirmed');
     soon.forEach(ev=>{const ed=PREP.event_dishes.filter(x=>x.event_id===ev.id);ed.forEach(x=>{const d=allDishes.find(dd=>dd.id===x.dish_id);if(!d)return;(d.components||[]).forEach((c,ci)=>{const need=c.qty_per_cover?Math.ceil(c.qty_per_cover*ev.covers):ev.covers;if(!need)return;
-      const lead=c.lead_time_days||(c.freeze_flag?3:1);const dOff=Math.max(0,Math.round((new Date(ev.event_date)-today)/864e5)-lead);const planned=c.freeze_flag?null:(rnd()<0.7?day(dOff):null);
+      const lead=c.lead_time_days||(c.freeze_flag?3:1);const dOff=Math.max(0,Math.round((new Date(ev.event_date)-today)/864e5)-lead);const planned=c.fridge_flag&&!c.freeze_flag&&rnd()<0.7?day(dOff):null;  // fridge prep pre-placed on its day; freeze and fresh left to the planner
       PREP.prepped_stock.push({id:uid(),component_id:c.id,component_name:c.name,dish_id:d.id,dish_name:d.name,qty:need,unit:c.unit||'portions',status:'planned',assigned_event:ev.id,job_code:ev.job_code,planned_date:planned,time_estimate_mins:c.time_estimate_mins||null,created_at:day(-2)+'T09:00:00Z'});});});});
     // freeze-ahead work for events further out (up to six weeks): made now, frozen until needed
     const ahead=PREP.events.filter(e=>e.event_date>day(14)&&e.event_date<=day(42)&&e.status==='Confirmed');
@@ -2595,7 +2722,9 @@ const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
     PREP.components=[];PREP.recipe_ingredients=[];PREP.recipe_steps=[];PREP.component_allergens=[];
     lib.dishes.forEach(d=>(d.components||[]).forEach(c=>{const{component_allergens,recipe_ingredients,recipe_steps,...cr}=c;PREP.components.push(cr);(recipe_ingredients||[]).forEach(r=>PREP.recipe_ingredients.push(r));(recipe_steps||[]).forEach(r=>PREP.recipe_steps.push(r));(component_allergens||[]).forEach(r=>PREP.component_allergens.push({id:r.id||uid(),...r}));}));
     lib.allergens=PREP.component_allergens;
-    PREP.ingredients=lib.ingredients;PREP.haccp_templates=lib.haccp;PREP.ingredient_price_log=lib.price_log;PREP.app_settings=lib.settings.filter(s=>!/starling|bank/.test(s.key));
+    PREP.ingredients=lib.ingredients;PREP.haccp_templates=lib.haccp;PREP.ingredient_price_log=lib.price_log;PREP.app_settings=lib.settings.filter(s=>!/starling|bank|prep_days/.test(s.key));
+    // prep days: Tuesdays and Thursdays for the next four weeks, two chefs on the Thursday
+    {const pd=[];for(let i=0;i<28;i++){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+i);const w=d.getDay();if(w===2||w===4){const iso=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');pd.push({date:iso,start:'08:00',end:'16:00',chefs:w===4?2:1});}}PREP.app_settings.push({key:'prep_days',value:pd});}
     // a couple of recent price moves so the cost-over-time chart has a story
     const pricey=lib.ingredients.filter(i=>+i.cost_per_unit>5).slice(0,3);pricey.forEach((ing,k)=>{const cur=+ing.cost_per_unit;PREP.ingredient_price_log.push({id:uid(),ingredient_id:ing.id,ingredient_name:ing.name,cost_per_unit:+(cur*0.92).toFixed(2),previous:+(cur*0.88).toFixed(2),sold_by:ing.sold_by||ing.unit,changed_at:day(-40-k*10)+'T09:00:00Z'},{id:uid(),ingredient_id:ing.id,ingredient_name:ing.name,cost_per_unit:cur,previous:+(cur*0.92).toFixed(2),sold_by:ing.sold_by||ing.unit,changed_at:day(-12-k*3)+'T09:00:00Z'});});
     buildOperational(lib);
@@ -4734,7 +4863,8 @@ function calRenderGrid(){
     const dayEvs=calEventsOnDate(date);
     const dayPrep=calPrepOnDate(date);
     const iso=date.toISOString();
-    const cls=['cal-cell',isToday?'today':'',isSel?'selected':'',isOther?'other-month':'',isWknd?'weekend':''].filter(Boolean).join(' ');
+    const isPD=!!prepDayOn(ymd(date));
+    const cls=['cal-cell',isToday?'today':'',isSel?'selected':'',isOther?'other-month':'',isWknd?'weekend':'',isPD?'prep-day':''].filter(Boolean).join(' ');
     // Events take priority over prep alerts for the slots the row can hold; the
     // "+N more" line takes one — click through to the full list in the right-hand panel.
     const MAX_TAGS=(dayEvs.length+dayPrep.length)>SLOTS?Math.max(1,SLOTS-1):SLOTS;
@@ -4742,7 +4872,7 @@ function calRenderGrid(){
     const visPrep=dayPrep.slice(0,Math.max(0,MAX_TAGS-visEvs.length));
     const hiddenCount=(dayEvs.length-visEvs.length)+(dayPrep.length-visPrep.length);
     return`<div class="${cls}" onclick="calSelectDate('${iso}')">
-      <div class="cal-dn">${date.getDate()}</div>
+      <div class="cal-dn">${date.getDate()}</div>${isPD?'<span class="cal-pd-tag">Prep</span>':''}
       ${visEvs.map(ev=>`<div class="cal-pill ${ev.status||'Enquiry'}" onclick="event.stopPropagation();openFsWizard('${ev.id}')" title="${h(ev.client_name)}">${h(ev.client_name)}</div>`).join('')}
       ${visPrep.map(p=>`<div class="cal-prep-tag" title="${h(p.compName)} for ${h(p.evName)}">${ico('bolt','ico-xs')} ${h(p.evName)}</div>`).join('')}
       ${hiddenCount>0?`<div class="cal-more-tag">+${hiddenCount} more</div>`:''}
@@ -4767,6 +4897,9 @@ function calRenderRight(){
     return d>date;
   }).sort((a,b)=>new Date(a.event_date)-new Date(b.event_date)).slice(0,8);
   let html='';
+  const iso=ymd(date),pd=prepDayOn(iso),past=iso<ymd(today);
+  if(pd)html+=`<div class="cal-pd-card"><div><div class="cal-ev-name">${ico('checklist','ico-sm')} Prep day</div><div class="cal-ev-meta">${h(pd.start||'08:00')}–${h(pd.end||'16:00')} · ${pd.chefs||1} chef${(pd.chefs||1)===1?'':'s'} · on the Staff rota list as ${prepDayCode(iso)}</div></div><div class="cal-pd-acts"><button class="btn btn-sm" onclick="editPrepDay('${iso}')">${ico('pencil')}Hours</button><button class="btn btn-sm" onclick="removePrepDay('${iso}')">Remove</button></div></div>`;
+  else if(!past)html+=`<button class="btn btn-sm cal-pd-add" onclick="addPrepDay('${iso}')">${ico('plus')}Make this a prep day</button>`;
   if(dayEvs.length){
     html+='<div class="cal-section-label">Events this day</div>';
     html+=dayEvs.map(ev=>{
@@ -4790,7 +4923,7 @@ function calRenderRight(){
       <div class="cal-prep-for">for ${h(p.evName)} · ${relDay(p.evDate)} · ${p.storage==='freeze'?ico('snowflake','ico-xs')+' Freeze ahead':ico('thermometer','ico-xs')+' Fridge ahead'}</div>
     </div>`).join('');
   }
-  if(!dayEvs.length&&!dayPrep.length){
+  if(!dayEvs.length&&!dayPrep.length&&!pd){
     html+='<div class="cal-nothing">Nothing scheduled</div>';
   }
   if(upcoming.length){
@@ -5567,7 +5700,7 @@ function sbNav(view,el){
     if(document.getElementById('prep-sourcing-wrap')?.style.display==='flex'){
       if(document.getElementById('sourcing-mode-stock')?.classList.contains('on'))renderStock();else renderOrders();
     }else{
-      if(document.getElementById('queue-mode-event')?.classList.contains('on'))refreshEventQueue();else renderPrepBoard();
+      renderActiveQueueView();
     }
   }
   else if(view==='library'){renderDishList();}
@@ -5752,17 +5885,24 @@ function prepMainTab(tab,el){
 function queueView(mode){
   document.getElementById('queue-mode-day').classList.toggle('on',mode==='day');
   document.getElementById('queue-mode-event').classList.toggle('on',mode==='event');
+  document.getElementById('queue-mode-prep').classList.toggle('on',mode==='prep');
   document.getElementById('queue-day-controls').style.display=mode==='day'?'flex':'none';
   document.getElementById('queue-event-controls').style.display=mode==='event'?'flex':'none';
+  document.getElementById('queue-prep-controls').style.display=mode==='prep'?'flex':'none';
   document.getElementById('board-cols').style.display=mode==='day'?'flex':'none';
+  document.getElementById('prepdays-body').style.display=mode==='prep'?'flex':'none';
   document.getElementById('board-hours').style.display=mode==='day'?'':'none';
+  document.getElementById('queue-add-task').style.display=mode==='prep'?'none':'';
   document.getElementById('queue-event-body').style.display=mode==='event'?'flex':'none';
   if(mode==='day')renderPrepBoard();
+  else if(mode==='prep')renderPrepDaysView();
   else refreshEventQueue();  // picks the next event itself when nothing is chosen
 }
 
 function renderActiveQueueView(){
-  if(document.getElementById('queue-mode-event')?.classList.contains('on'))refreshEventQueue();else renderPrepBoard();
+  if(document.getElementById('queue-mode-event')?.classList.contains('on'))refreshEventQueue();
+  else if(document.getElementById('queue-mode-prep')?.classList.contains('on'))renderPrepDaysView();
+  else renderPrepBoard();
 }
 
 function sourcingView(mode){
@@ -5902,7 +6042,9 @@ function boardCardHTML(c,inPool){
     deadlineLabel=daysLeft<0?`<span class="board-card-late">overdue</span>`:daysLeft===0?`<span class="board-card-soon">due today</span>`:daysLeft<=2?`<span class="board-card-soon">${daysLeft}d left</span>`:`<span class="board-card-ok">${daysLeft}d left</span>`;
   }
   const freezeIcon=comp?.freeze_flag?ico('snowflake','ico-xs'):comp?.fridge_flag?ico('thermometer','ico-xs'):ico('leaf','ico-xs');
-  return`<div class="board-card" draggable="true" data-id="${c.id}" ondragstart="boardDragStart(event,'${c.id}')">
+  const chk=c.planned_date&&ev?windowCheck(c,c.planned_date):{ok:true};
+  if(!chk.ok)deadlineLabel=`<span class="board-card-late" title="${h(chk.msg)}">${chk.why==='early'?'too early':'too late'}</span>`;
+  return`<div class="board-card${chk.ok?'':' out'}" draggable="true" data-id="${c.id}" ondragstart="boardDragStart(event,'${c.id}')">
     <div class="board-card-top"><span class="board-card-storage">${freezeIcon}</span><span class="board-card-qty">${fmtQty(c.qty,c.unit)}</span></div>
     <div class="board-card-name">${h(c.component_name)}</div>
     <div class="board-card-dish">${h(c.dish_name||'')}</div>
@@ -5915,6 +6057,275 @@ function boardCardHTML(c,inPool){
     </div>
   </div>`;
 }
+
+// ═══ PREP DAYS + PLANNER ═══════════════════════════════════════════════
+// Prep days live in app_settings.prep_days ([{date,start,end,chefs}]) — no SQL to run, and the
+// Staff app reads the same row to offer each prep day for the rota (job code PREPddmmyy).
+// The planner is one engine with two sets of slots: the next seven days (Quick assign on the
+// board) or the prep days (Prep days tab). Keys 1–7 put the task on a slot, 8 skips, Enter takes
+// the suggestion, ←/→ page, ⌫ undoes. A slot outside the task's storage window is flagged and
+// needs a second press (or "Schedule anyway") — so a fresh salad can't slip a month early by accident.
+function prepDays(){const a=getSetting('prep_days');return(Array.isArray(a)?a.filter(p=>p&&p.date):[]).slice().sort((x,y)=>x.date.localeCompare(y.date));}
+function prepDayOn(iso){return prepDays().find(p=>p.date===iso)||null;}
+function prepDayCode(iso){return'PREP'+iso.slice(8,10)+iso.slice(5,7)+iso.slice(2,4);}
+function prepDayMins(p){if(!p)return 480;const t=s=>{const[a,b]=String(s||'').split(':').map(Number);return(a||0)*60+(b||0);};const m=t(p.end)-t(p.start);return m>0?m:480;}
+async function savePrepDays(list){return saveSetting('prep_days',list.slice().sort((x,y)=>x.date.localeCompare(y.date)));}
+async function addPrepDay(iso,patch){
+  if(!iso)return;if(iso<ymd(new Date())){toast('Pick today or a later day','err');return;}
+  const list=prepDays().filter(p=>p.date!==iso);const cur=prepDayOn(iso)||{start:'08:00',end:'16:00',chefs:1};
+  list.push({...cur,...(patch||{}),date:iso});
+  if(await savePrepDays(list)){toast(`${relDay(iso)} is a prep day`);refreshPrepDayViews();}
+}
+async function removePrepDay(iso){
+  const{data}=await sb.from('prepped_stock').select('id').eq('status','planned').eq('planned_date',iso);
+  const n=(data||[]).length;
+  if(n&&!(await askConfirm(`${n} task${n===1?' is':'s are'} planned for that day. They stay on ${relDay(iso)} on the day board — move them if the day isn't happening.`,{title:'Remove prep day?',confirmLabel:'Remove'})))return;
+  if(await savePrepDays(prepDays().filter(p=>p.date!==iso))){toast('Prep day removed');refreshPrepDayViews();}
+}
+async function editPrepDay(iso){
+  const p=prepDayOn(iso);if(!p)return;
+  const s=document.getElementById('pd-edit');
+  document.getElementById('pd-edit-date').value=iso;
+  document.getElementById('pd-edit-title').textContent=new Date(iso+'T00:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long'});
+  document.getElementById('pd-edit-start').value=p.start||'08:00';
+  document.getElementById('pd-edit-end').value=p.end||'16:00';
+  document.getElementById('pd-edit-chefs').value=p.chefs||1;
+  openModal('pd-edit');
+}
+async function savePrepDayEdit(){
+  const iso=document.getElementById('pd-edit-date').value;
+  const start=document.getElementById('pd-edit-start').value||'08:00',end=document.getElementById('pd-edit-end').value||'16:00';
+  const chefs=Math.max(1,parseInt(document.getElementById('pd-edit-chefs').value)||1);
+  if(end<=start){toast('The day has to end after it starts','err');return;}
+  const list=prepDays().map(p=>p.date===iso?{...p,start,end,chefs}:p);
+  if(await savePrepDays(list)){closeModal('pd-edit');toast('Saved');refreshPrepDayViews();}
+}
+function refreshPrepDayViews(){
+  if(document.getElementById('ev-calendar-wrap')?.style.display==='flex'){calRenderGrid();calRenderRight();}
+  if(document.getElementById('queue-mode-prep')?.classList.contains('on'))renderPrepDaysView();
+  if(document.getElementById('plan-ov')?.classList.contains('open'))planRender();
+}
+
+// ── Equipment: read from the component's name, method and temperature journey; corrections stick per component
+const EQUIP=['Oven','Stove','Water bath','Blast chiller','Grill','Fryer','Mixer'];
+const EQUIP_DEFAULT_UNITS={'Oven':1,'Stove':1,'Water bath':1,'Blast chiller':1,'Grill':1,'Fryer':1,'Mixer':1};
+const EQUIP_RX={
+  'Oven':/\b(oven|roast|roasted|bake|baked|baking|combi|rational|confit|braise|braised)\b/i,
+  'Stove':/\b(pan|simmer|boil|boiled|reduce|reduction|saut[eé]|sweat|sear|seared|poach|hob|stove|caramelis\w*|temper|stock ?pot|jus)\b/i,
+  'Water bath':/\b(sous ?vide|water ?bath|sv)\b/i,
+  'Blast chiller':/\bblast/i,
+  'Grill':/\b(grill|grilled|bbq|barbecue|chargrill\w*|charred|smoke|smoked|plancha)\b/i,
+  'Fryer':/\b(deep.?fr\w*|fryer)\b/i,
+  'Mixer':/\b(blend|blended|blitz|whisk|mixer|thermomix|food processor|robot coupe|pacojet|emulsif\w*|whip|whipped)\b/i
+};
+let _compHaccp={};
+async function loadCompHaccp(ids){
+  ids=[...new Set(ids.filter(id=>id&&!(id in _compHaccp)))];if(!ids.length)return;
+  ids.forEach(i=>_compHaccp[i]=[]);
+  try{const{data}=await sb.from('haccp_templates').select('component_id,step_type').in('component_id',ids);(data||[]).forEach(r=>(_compHaccp[r.component_id]=_compHaccp[r.component_id]||[]).push(r.step_type));}catch(e){}
+}
+function compById(id){return dishes.flatMap(d=>d.components||[]).find(c=>c.id===id)||null;}
+function compEquip(compId){
+  const over=(getSetting('component_equipment')||{})[compId];if(Array.isArray(over))return over;
+  const c=compById(compId);if(!c)return[];
+  const txt=[c.name,...(c.recipe_steps||[]).map(s=>s.instruction||'')].join(' \n ');
+  const hs=_compHaccp[compId]||[];
+  return EQUIP.filter(e=>EQUIP_RX[e].test(txt)||(e==='Water bath'&&hs.includes('sv'))||(e==='Blast chiller'&&hs.includes('blast_chill')));
+}
+async function toggleCompEquip(compId,eq){
+  const all={...(getSetting('component_equipment')||{})};
+  const cur=new Set(compEquip(compId));cur.has(eq)?cur.delete(eq):cur.add(eq);
+  all[compId]=EQUIP.filter(e=>cur.has(e));
+  if(await saveSetting('component_equipment',all))planRender();
+}
+function equipUnits(){return{...EQUIP_DEFAULT_UNITS,...(getSetting('prep_equipment')||{})};}
+function taskMins(card){
+  const mins=card.time_estimate_mins||compById(card.component_id)?.time_estimate_mins;if(!mins)return null;
+  const base=compById(card.component_id)?.base_portions||10;
+  return Math.round(mins*Math.max(1,(parseFloat(card.qty)||base)/base));
+}
+// load on one slot: total minutes, minutes per piece of kit, and the components already there
+function slotLoad(iso,cards){
+  const on=cards.filter(c=>c.planned_date===iso);
+  const kit={};EQUIP.forEach(e=>kit[e]=0);let total=0,unknown=0;
+  on.forEach(c=>{const m=taskMins(c);if(m==null){unknown++;return;}total+=m;compEquip(c.component_id).forEach(e=>kit[e]+=m);});
+  return{n:on.length,total,unknown,kit,comps:new Set(on.map(c=>c.component_id))};
+}
+// is this day inside the task's storage window?
+function windowCheck(card,iso){
+  const w=prepWindow(card);if(!w.ev)return{ok:true,w};
+  const e=ymd(w.earliest),d=ymd(w.due);
+  if(iso<e)return{ok:false,w,why:'early',msg:`Too early — ${w.storage==='fresh'?'made fresh':w.storage==='fridge'?'fridge prep':'frozen'}, can be made from ${relDay(e)}`};
+  if(iso>d)return{ok:false,w,why:'late',msg:`Too late — needed by ${relDay(d)} for ${w.ev.client_name||'the event'}`};
+  return{ok:true,w};
+}
+function windowLine(card){
+  const w=prepWindow(card);if(!w.ev)return'General bank — any time';
+  const d=relDay(ymd(w.due));
+  if(w.storage==='freeze')return`Freeze ahead — any time up to ${d}`;
+  if(w.storage==='fridge')return`Fridge prep — ${relDay(ymd(w.earliest))} to ${d}`;
+  return`Made fresh — on ${d}`;
+}
+
+// ── the planner
+let _plan={mode:'days',page:0,queue:[],idx:0,history:[],cards:[],pending:null,outside:0,assigned:0};
+function planSlots(){
+  if(_plan.mode==='days'){
+    const now=new Date();now.setHours(0,0,0,0);
+    return[...Array(7)].map((_,i)=>{const d=dayAdd(now,_plan.page*7+i);const iso=ymd(d);const pd=prepDayOn(iso);return{iso,top:relDay(d)==='Today'||relDay(d)==='Tomorrow'?relDay(d):d.toLocaleDateString('en-GB',{weekday:'short'}),sub:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),pd,mins:pd?prepDayMins(pd):480,chefs:pd?.chefs||1};});
+  }
+  const pds=prepDays().filter(p=>p.date>=ymd(new Date())).slice(_plan.page*7,_plan.page*7+7);
+  return pds.map(p=>{const d=new Date(p.date+'T00:00:00');return{iso:p.date,top:d.toLocaleDateString('en-GB',{weekday:'short'}),sub:d.toLocaleDateString('en-GB',{day:'numeric',month:'short'}),pd:p,mins:prepDayMins(p),chefs:p.chefs||1};});
+}
+function planPages(){return _plan.mode==='days'?6:Math.max(1,Math.ceil(prepDays().filter(p=>p.date>=ymd(new Date())).length/7));}
+async function openPlanner(mode){
+  if(mode==='prep'&&!prepDays().some(p=>p.date>=ymd(new Date()))){toast('Set some prep days first — on the calendar, or with Add prep day','err');return;}
+  _plan={mode,page:0,queue:[],idx:0,history:[],cards:[],pending:null,outside:0,assigned:0};
+  const{data}=await sb.from('prepped_stock').select('*').eq('status','planned');
+  const today=ymd(new Date());
+  const live=(data||[]).filter(c=>{if(!c.assigned_event)return true;const ev=events.find(e=>e.id===c.assigned_event);return ev&&ev.status!=='Cancelled'&&(!ev.event_date||ev.event_date>=today);});
+  _plan.cards=live;
+  await loadCompHaccp(live.map(c=>c.component_id));
+  let q=live.filter(c=>!c.planned_date);
+  if(mode==='prep'){  // only tasks that can land on a prep day; the rest stay on the day board
+    const pds=prepDays().filter(p=>p.date>=today).map(p=>p.date);
+    const fits=c=>pds.some(iso=>windowCheck(c,iso).ok);
+    _plan.outside=q.filter(c=>!fits(c)).length;q=q.filter(fits);
+  }
+  // nearest deadline first, and the same component together so batches are planned as one
+  const due=c=>{const w=prepWindow(c);return w.due?+w.due:Infinity;};
+  const firstDue={};q.forEach(c=>{const k=c.component_id;firstDue[k]=Math.min(firstDue[k]??Infinity,due(c));});
+  q.sort((a,b)=>(firstDue[a.component_id]-firstDue[b.component_id])||String(a.component_id).localeCompare(String(b.component_id))||(due(a)-due(b)));
+  _plan.queue=q.map(c=>c.id);
+  // start on the page that holds the first task's window
+  if(mode==='days'&&q[0]){const w=prepWindow(q[0]);if(w.earliest&&w.storage!=='freeze'){const now=new Date();now.setHours(0,0,0,0);const off=Math.floor(Math.max(0,(w.earliest-now)/864e5)/7);_plan.page=Math.min(off,planPages()-1);}}
+  document.getElementById('plan-ov').classList.add('open');
+  planRender();
+}
+function closePlanner(){document.getElementById('plan-ov').classList.remove('open');renderActiveQueueView();}
+function planCurrent(){const id=_plan.queue[_plan.idx];return _plan.cards.find(c=>c.id===id)||null;}
+function planSuggest(card,slots){
+  const ok=slots.map((s,i)=>({s,i,chk:windowCheck(card,s.iso)})).filter(x=>x.chk.ok);if(!ok.length)return null;
+  // 1) batch with the same component already on a day  2) least load on the kit it needs  3) least total  4) earliest
+  const kit=compEquip(card.component_id);
+  const scored=ok.map(x=>{const L=slotLoad(x.s.iso,_plan.cards);return{...x,batch:L.comps.has(card.component_id),kitLoad:kit.reduce((a,e)=>a+L.kit[e],0),total:L.total};});
+  scored.sort((a,b)=>(b.batch-a.batch)||(a.kitLoad-b.kitLoad)||(a.total-b.total)||(a.i-b.i));
+  return scored[0];
+}
+function planRender(){
+  const el=document.getElementById('plan-card');if(!el)return;
+  const slots=planSlots();const card=planCurrent();
+  const total=_plan.queue.length;
+  const title=_plan.mode==='days'?'Quick assign':'Plan prep days';
+  const pageLbl=slots.length?`${slots[0].sub} – ${slots[slots.length-1].sub}`:'';
+  const units=equipUnits();
+  const head=`<div class="modal-hd plan-hd"><div style="min-width:0;flex:1;"><div class="modal-title">${title}</div><div class="plan-sub">${total?`${Math.min(_plan.idx+1,total)} of ${total}`:'Nothing to plan'}${_plan.assigned?` · ${_plan.assigned} placed`:''}${_plan.outside?` · ${_plan.outside} don't fit a prep day`:''}</div></div>
+    <button class="btn btn-sm" onclick="planUndo()" ${_plan.history.length?'':'disabled'} title="Undo (⌫)">${ico('arrowL')}Undo</button><button class="modal-close" onclick="closePlanner()" aria-label="Close"></button></div>`;
+  let body='';
+  if(!card){
+    body=`<div class="empty" style="padding:40px 20px;"><div class="empty-icon">${ico('checkCircle')}</div><div class="empty-t">${total?'All planned':'Nothing waiting'}</div><div class="empty-s">${total?`${_plan.assigned} task${_plan.assigned===1?'':'s'} placed${_plan.history.filter(x=>x.skipped).length?', the skipped ones are still unplanned':''}.`:(_plan.mode==='prep'?'Every task that fits a prep day is already on one. Generate adds tasks for new events.':'Every task already has a day. Generate adds tasks for new events.')}</div><div style="display:flex;gap:8px;margin-top:12px;"><button class="btn btn-primary" onclick="closePlanner()">Done</button></div></div>`;
+  }else{
+    const comp=compById(card.component_id);const w=prepWindow(card);const kit=compEquip(card.component_id);const m=taskMins(card);
+    const sug=planSuggest(card,slots);
+    const storageIco=w.storage==='freeze'?ico('snowflake','ico-sm'):w.storage==='fridge'?ico('thermometer','ico-sm'):ico('leaf','ico-sm');
+    const batchOthers=_plan.queue.slice(_plan.idx+1).map(id=>_plan.cards.find(c=>c.id===id)).filter(c=>c&&c.component_id===card.component_id).length;
+    body=`<div class="plan-task">
+        <div class="plan-task-top"><span class="plan-storage ${w.storage}">${storageIco}${w.storage==='freeze'?'Freeze':w.storage==='fridge'?'Fridge':'Fresh'}</span><span class="plan-qty">${fmtQty(card.qty,card.unit)}</span></div>
+        <div class="plan-name">${h(card.component_name||comp?.name||'Task')}</div>
+        <div class="plan-dish">${h(card.dish_name||'')}${w.ev?` · <b>${h(w.ev.client_name||'')}</b> ${relDay(w.ev.event_date)}`:''}</div>
+        <div class="plan-window">${ico('clock','ico-xs')}<span>${windowLine(card)}${m?` · ≈ ${fmtDur(m)}`:' · no time set'}${batchOthers?` · ${batchOthers} more batch${batchOthers===1?'':'es'} of this next`:''}</span></div>
+        <div class="plan-kit">${EQUIP.map(e=>`<button type="button" class="plan-kit-chip${kit.includes(e)?' on':''}" onclick="toggleCompEquip('${card.component_id}','${e}')" title="Tap to correct — remembered for this component">${h(e)}</button>`).join('')}</div>
+      </div>
+      <div class="plan-nav"><button class="btn btn-sm btn-icon" onclick="planPage(-1)" ${_plan.page>0?'':'disabled'} aria-label="Earlier">${ico('chevronL')}</button><span>${pageLbl}</span><button class="btn btn-sm btn-icon" onclick="planPage(1)" ${_plan.page<planPages()-1?'':'disabled'} aria-label="Later">${ico('chevron')}</button></div>
+      <div class="plan-slots">${slots.map((s,i)=>{const chk=windowCheck(card,s.iso);const L=slotLoad(s.iso,_plan.cards);const cap=s.mins*s.chefs;const pct=Math.min(100,Math.round(L.total/cap*100));const isSug=sug&&sug.i===i;const pend=_plan.pending===i;const batch=L.comps.has(card.component_id);
+        return`<button type="button" class="plan-slot${chk.ok?'':' out'}${isSug?' sug':''}${pend?' pend':''}" onclick="planPick(${i})" title="${chk.ok?'':h(chk.msg)}">
+          <span class="plan-key">${i+1}</span><span class="plan-day">${h(s.top)}</span><span class="plan-date">${h(s.sub)}${s.pd&&_plan.mode==='days'?' · prep':''}</span>
+          <span class="plan-bar"><i style="width:${pct}%;"${L.total>cap?' class="over"':''}></i></span>
+          <span class="plan-load">${L.n?`${L.n} task${L.n===1?'':'s'}${L.total?' · '+fmtDur(L.total):''}`:'free'}</span>
+          ${batch?`<span class="plan-flag ok">batch</span>`:!chk.ok?`<span class="plan-flag">${chk.why==='early'?'too early':'too late'}</span>`:isSug?`<span class="plan-flag sug">↵</span>`:''}
+        </button>`;}).join('')}${slots.length<7?[...Array(7-slots.length)].map(()=>'<span class="plan-slot ghost"></span>').join(''):''}
+        <button type="button" class="plan-slot skip" onclick="planSkip()"><span class="plan-key">8</span><span class="plan-day">Skip</span><span class="plan-date">leave unplanned</span></button>
+      </div>
+      ${_plan.pending!=null&&slots[_plan.pending]?`<div class="plan-warn">${ico('warning','ico-sm')}<span>${h(windowCheck(card,slots[_plan.pending].iso).msg)}.</span><button class="btn btn-sm" onclick="planPick(${_plan.pending},true)">Schedule anyway</button></div>`:''}
+      ${_plan.mode==='days'?`<div class="plan-date-row"><label class="fld-label" for="plan-date">Or a date</label><input type="date" class="fld-inp" id="plan-date" min="${ymd(new Date())}"><button class="btn btn-sm" onclick="planPickDate()">Schedule</button></div>`:''}
+      <div class="plan-load-tbl-wrap"><table class="plan-load-tbl"><thead><tr><th></th>${slots.map((s,i)=>`<th><b>${i+1}</b> ${h(s.top)}</th>`).join('')}</tr></thead><tbody>
+        <tr><td>Hands</td>${slots.map(s=>{const L=slotLoad(s.iso,_plan.cards);const cap=s.mins*s.chefs;return`<td class="${L.total>cap?'over':L.total>cap*.8?'warm':''}">${L.total?fmtDur(L.total):'—'}<small> / ${fmtDur(cap)}</small></td>`;}).join('')}</tr>
+        ${EQUIP.filter(e=>kit.includes(e)||slots.some(s=>slotLoad(s.iso,_plan.cards).kit[e])).map(e=>`<tr class="${kit.includes(e)?'mine':''}"><td>${h(e)}${units[e]>1?` ×${units[e]}`:''}</td>${slots.map(s=>{const v=slotLoad(s.iso,_plan.cards).kit[e];const cap=s.mins*(units[e]||1);return`<td class="${v>cap?'over':v>cap*.8?'warm':''}">${v?fmtDur(v):'—'}</td>`;}).join('')}</tr>`).join('')}
+      </tbody></table></div>`;
+  }
+  const foot=`<div class="plan-keys"><span><kbd>1</kbd>–<kbd>7</kbd> place</span><span><kbd>8</kbd> skip</span><span><kbd>↵</kbd> suggested</span><span><kbd>←</kbd><kbd>→</kbd> ${_plan.mode==='days'?'week':'more prep days'}</span><span><kbd>⌫</kbd> undo</span><span><kbd>esc</kbd> close</span></div>`;
+  el.innerHTML=head+`<div class="modal-body plan-body">${body}</div>`+foot;
+}
+function planPage(d){const n=planPages();_plan.page=Math.max(0,Math.min(n-1,_plan.page+d));_plan.pending=null;planRender();}
+async function planPlace(card,iso){
+  const prev=card.planned_date||null;
+  const{error}=await sb.from('prepped_stock').update({planned_date:iso}).eq('id',card.id);
+  if(error){toast(error.message,'err');return false;}
+  card.planned_date=iso;_plan.history.push({id:card.id,prev,idx:_plan.idx});_plan.assigned++;_plan.idx++;_plan.pending=null;planRender();return true;
+}
+async function planPick(i,force){
+  const card=planCurrent();if(!card)return;const s=planSlots()[i];if(!s)return;
+  const chk=windowCheck(card,s.iso);
+  if(!chk.ok&&!force&&_plan.pending!==i){_plan.pending=i;planRender();return;}
+  await planPlace(card,s.iso);
+}
+async function planPickDate(){
+  const card=planCurrent();const iso=document.getElementById('plan-date')?.value;if(!card||!iso)return;
+  const chk=windowCheck(card,iso);
+  if(!chk.ok&&!(await askConfirm(chk.msg+'.',{title:'Outside its window',confirmLabel:'Schedule anyway'})))return;
+  await planPlace(card,iso);
+}
+function planSkip(){if(!planCurrent())return;_plan.history.push({id:_plan.queue[_plan.idx],skipped:true,idx:_plan.idx});_plan.idx++;_plan.pending=null;planRender();}
+async function planUndo(){
+  const last=_plan.history.pop();if(!last)return;
+  if(!last.skipped){const card=_plan.cards.find(c=>c.id===last.id);const{error}=await sb.from('prepped_stock').update({planned_date:last.prev}).eq('id',last.id);if(error){toast(error.message,'err');_plan.history.push(last);return;}if(card)card.planned_date=last.prev;_plan.assigned--;}
+  _plan.idx=last.idx;_plan.pending=null;planRender();
+}
+document.addEventListener('keydown',e=>{
+  const ov=document.getElementById('plan-ov');if(!ov||!ov.classList.contains('open'))return;
+  const t=e.target;if(t&&(t.tagName==='INPUT'||t.tagName==='SELECT'||t.tagName==='TEXTAREA')){if(e.key==='Escape')t.blur();return;}
+  if(e.metaKey||e.ctrlKey||e.altKey)return;
+  if(document.querySelector('.modal-ov.open'))return;  // a confirm sheet is up
+  const k=e.key;
+  if(k>='1'&&k<='7'){e.preventDefault();planPick(+k-1);}
+  else if(k==='8'||k===' '){e.preventDefault();planSkip();}
+  else if(k==='Enter'){e.preventDefault();const card=planCurrent();if(!card)return closePlanner();if(_plan.pending!=null){planPick(_plan.pending,true);return;}const sg=planSuggest(card,planSlots());if(sg)planPick(sg.i);}
+  else if(k==='ArrowRight'){e.preventDefault();planPage(1);}
+  else if(k==='ArrowLeft'){e.preventDefault();planPage(-1);}
+  else if(k==='Backspace'||k==='u'||k==='U'){e.preventDefault();planUndo();}
+  else if(k==='Escape'){e.preventDefault();if(_plan.pending!=null){_plan.pending=null;planRender();}else closePlanner();}
+});
+
+// ── Prep days tab: the days as columns with what's on them and how loaded the kit is
+async function renderPrepDaysView(){
+  const wrap=document.getElementById('prepdays-body');if(!wrap)return;
+  const today=ymd(new Date());const pds=prepDays().filter(p=>p.date>=today);
+  const{data}=await sb.from('prepped_stock').select('*').eq('status','planned');
+  const cards=(data||[]).filter(c=>{if(!c.assigned_event)return true;const ev=events.find(e=>e.id===c.assigned_event);return ev&&ev.status!=='Cancelled'&&(!ev.event_date||ev.event_date>=today);});
+  await loadCompHaccp(cards.map(c=>c.component_id));
+  const waiting=cards.filter(c=>!c.planned_date&&pds.some(p=>windowCheck(c,p.date).ok)).length;
+  document.getElementById('prepdays-count').textContent=pds.length?`${pds.length} prep day${pds.length===1?'':'s'} ahead${waiting?` · ${waiting} task${waiting===1?'':'s'} to plan`:''}`:'';
+  if(!pds.length){
+    wrap.innerHTML=`<div class="empty board-empty"><div class="empty-icon">${ico('calendar')}</div><div class="empty-t">No prep days set</div><div class="empty-s">Pick the days you'll be in the unit — here or on the Events calendar. They go to the Staff app for the rota, and the planner spreads the work across them with 1–7 on the keyboard.</div><div style="display:flex;gap:8px;margin-top:10px;"><button class="btn" onclick="sbNav('events');setEvTab('calendar')">${ico('calendar')}Open calendar</button></div></div>`;
+    return;
+  }
+  const units=equipUnits();
+  wrap.innerHTML=pds.map(p=>{
+    const on=cards.filter(c=>c.planned_date===p.date);
+    const L=slotLoad(p.date,cards);const cap=prepDayMins(p)*(p.chefs||1);
+    const kitRows=EQUIP.filter(e=>L.kit[e]).map(e=>{const kc=prepDayMins(p)*(units[e]||1);return`<span class="pd-kit${L.kit[e]>kc?' over':''}">${h(e)} ${fmtDur(L.kit[e])}</span>`;}).join('');
+    const bad=on.filter(c=>!windowCheck(c,p.date).ok).length;
+    return`<div class="board-col pd-col">
+      <div class="board-col-hd pd-hd"><span><span class="pd-date">${relDay(p.date)}</span><span class="pd-hours">${h(p.start||'08:00')}–${h(p.end||'16:00')} · ${p.chefs||1} chef${(p.chefs||1)===1?'':'s'}</span></span>
+        <span class="pd-acts"><button class="btn btn-xs btn-icon" onclick="editPrepDay('${p.date}')" aria-label="Edit hours">${ico('pencil')}</button><button class="btn btn-xs btn-icon" onclick="removePrepDay('${p.date}')" aria-label="Remove prep day">${ico('xmark')}</button></span></div>
+      <div class="pd-load"><span class="plan-bar"><i style="width:${Math.min(100,Math.round(L.total/cap*100))}%;"${L.total>cap?' class="over"':''}></i></span><span class="pd-load-t">${L.total?fmtDur(L.total):'Nothing yet'} of ${fmtDur(cap)}${L.unknown?` · ${L.unknown} untimed`:''}</span></div>
+      ${kitRows?`<div class="pd-kits">${kitRows}</div>`:''}
+      ${bad?`<div class="pd-warn">${ico('warning','ico-xs')}${bad} outside ${bad===1?'its':'their'} window</div>`:''}
+      <div class="board-col-body">${on.length?on.map(c=>boardCardHTML(c)).join(''):'<div class="board-col-empty">—</div>'}</div>
+    </div>`;
+  }).join('');
+}
+async function addPrepDayFromInput(){const el=document.getElementById('pd-add-date');if(!el?.value)return;await addPrepDay(el.value);el.value='';}
 
 let _dragCardId=null;
 function boardDragStart(e,id){_dragCardId=id;e.dataTransfer.effectAllowed='move';}
@@ -5940,16 +6351,29 @@ function openBoardMoveModal(id){
   const days=parseInt(document.getElementById('board-horizon')?.value)||14;
   const now=new Date();now.setHours(0,0,0,0);
   let opts=`<option value="">Automatic — by storage</option>`;
+  const seen=new Set();
   for(let i=0;i<days;i++){
-    const d=dayAdd(now,i);const iso=ymd(d);
-    opts+=`<option value="${iso}"${card.planned_date===iso?' selected':''}>${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}</option>`;
+    const d=dayAdd(now,i);const iso=ymd(d);seen.add(iso);
+    const chk=windowCheck(card,iso);
+    opts+=`<option value="${iso}"${card.planned_date===iso?' selected':''}>${d.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})}${prepDayOn(iso)?' · prep day':''}${chk.ok?'':' — outside window'}</option>`;
   }
+  prepDays().filter(p=>p.date>=ymd(now)&&!seen.has(p.date)).forEach(p=>{const chk=windowCheck(card,p.date);opts+=`<option value="${p.date}"${card.planned_date===p.date?' selected':''}>${new Date(p.date+'T00:00:00').toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'})} · prep day${chk.ok?'':' — outside window'}</option>`;});
   document.getElementById('bm-day-sel').innerHTML=opts;
+  const bd=document.getElementById('bm-date');bd.value=card.planned_date&&!seen.has(card.planned_date)&&!prepDayOn(card.planned_date)?card.planned_date:'';bd.min=ymd(now);
+  document.getElementById('bm-window').textContent=windowLine(card);
+  bmCheck();
   openModal('board-move-modal');
+}
+function bmTarget(){return document.getElementById('bm-date').value||document.getElementById('bm-day-sel').value||null;}
+function bmCheck(){
+  const card=findQueueCard(document.getElementById('bm-card-id').value);const iso=bmTarget();const warn=document.getElementById('bm-warn');const ok=document.getElementById('bm-ok');
+  const chk=card&&iso?windowCheck(card,iso):{ok:true};
+  warn.style.display=chk.ok?'none':'flex';warn.innerHTML=chk.ok?'':`${ico('warning','ico-sm')}<span>${h(chk.msg)}.</span>`;
+  ok.textContent=chk.ok?'Move':'Move anyway';
 }
 async function confirmBoardMove(){
   const id=document.getElementById('bm-card-id').value;
-  const iso=document.getElementById('bm-day-sel').value||null;
+  const iso=bmTarget();
   await sb.from('prepped_stock').update({planned_date:iso}).eq('id',id);
   closeModal('board-move-modal');renderActiveQueueView();
 }
@@ -6381,7 +6805,10 @@ const SETTINGS_DEFAULTS={
   boh_url:'https://digbys-staff.vercel.app',
   useby_chilled_days:3,
   useby_frozen_days:90,
-  butchery_printer_url:'https://palatable-shack-scallion.ngrok-free.dev'
+  butchery_printer_url:'https://palatable-shack-scallion.ngrok-free.dev',
+  prep_days:[],
+  prep_equipment:{},
+  component_equipment:{}
 };
 let _appSettings={},_settingsTableOk=null;
 async function loadSettings(){
